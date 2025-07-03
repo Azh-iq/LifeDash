@@ -1,5 +1,24 @@
 # Coding Rules and Standards
 
+## CRITICAL: Style Guide Requirements
+
+**MANDATORY: Always consult `/style-guide/style-guide.md` and `.claude/style-guide-rules.md` before making any UI/UX design decisions.**
+
+### Design System Enforcement
+- **Color System**: Use only approved LifeDash colors from the design system
+- **Typography**: Inter for UI text, JetBrains Mono for numerical data
+- **Component Standards**: Follow exact specifications for buttons, cards, inputs
+- **Animation Guidelines**: Use specified timing functions and durations
+- **Spacing System**: Adhere to 4px base unit spacing scale
+
+### Pre-Implementation Checklist
+Before implementing any UI component:
+1. Check `/style-guide/style-guide.md` for specifications
+2. Verify color usage matches design system
+3. Confirm typography follows established scales
+4. Ensure component sizing meets requirements
+5. Apply correct animation timing and easing
+
 ## Code Quality Standards
 
 ### TypeScript Best Practices

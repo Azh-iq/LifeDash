@@ -1,8 +1,6 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { inter, jetbrainsMono } from '@/lib/fonts'
 import './globals.css'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'LifeDash',
@@ -15,11 +13,9 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <div className="min-h-screen bg-background font-sans antialiased">
-          {children}
-        </div>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className="min-h-screen bg-background-primary font-sans antialiased text-primary-light">
+        {children}
       </body>
     </html>
   )

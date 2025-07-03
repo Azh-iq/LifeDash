@@ -4,66 +4,157 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    /* LifeDash Design System Variables */
+    --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-jetbrains-mono: 'JetBrains Mono', monospace;
   }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-  }
-}
-
-@layer base {
+  
   * {
     @apply border-border;
   }
+  
   body {
-    @apply bg-background text-foreground;
+    font-family: var(--font-inter);
+    @apply bg-background-primary text-primary-light;
+  }
+  
+  /* Typography utilities based on LifeDash design system */
+  .text-display-lg {
+    @apply text-display-lg font-bold tracking-tight;
+  }
+  
+  .text-display-md {
+    @apply text-display-md font-bold tracking-tight;
+  }
+  
+  .text-h1 {
+    @apply text-h1 font-bold tracking-tight;
+  }
+  
+  .text-h2 {
+    @apply text-h2 font-semibold tracking-tight;
+  }
+  
+  .text-h3 {
+    @apply text-h3 font-semibold tracking-tight;
+  }
+  
+  .text-body-lg {
+    @apply text-body-lg font-normal;
+  }
+  
+  .text-body {
+    @apply text-body font-normal;
+  }
+  
+  .text-body-sm {
+    @apply text-body-sm font-normal;
+  }
+  
+  .text-data-lg {
+    @apply text-data-lg font-mono font-medium;
+  }
+  
+  .text-data-md {
+    @apply text-data-md font-mono font-normal;
+  }
+  
+  .text-data-sm {
+    @apply text-data-sm font-mono font-normal;
+  }
+  
+  .text-label {
+    @apply text-label font-medium uppercase tracking-wide;
+  }
+  
+  .text-button {
+    @apply text-button font-medium tracking-wide;
+  }
+  
+  .text-caption {
+    @apply text-caption font-normal tracking-wide;
+  }
+}
+
+@layer components {
+  /* Button Components */
+  .btn-primary {
+    @apply bg-secondary-blue text-primary-light h-12 px-4 rounded-sm text-button;
+    @apply hover:bg-secondary-blue/90 active:bg-secondary-blue/110;
+    @apply transition-colors duration-200 ease-smooth;
+  }
+  
+  .btn-secondary {
+    @apply bg-transparent border-1.5 border-secondary-gray text-secondary-gray h-12 px-4 rounded-sm text-button;
+    @apply hover:bg-secondary-gray/10 transition-colors duration-200 ease-smooth;
+  }
+  
+  .btn-ghost {
+    @apply bg-transparent text-secondary-blue h-11 px-3 text-button;
+    @apply hover:bg-secondary-blue/8 transition-colors duration-200 ease-smooth;
+  }
+  
+  /* Card Component */
+  .card {
+    @apply bg-background-secondary border border-secondary-gray/10 rounded-md p-5;
+    @apply hover:border-secondary-blue/30 transition-colors duration-200 ease-smooth;
+  }
+  
+  /* Input Field */
+  .input-field {
+    @apply h-13 bg-background-tertiary border border-transparent rounded-sm px-4;
+    @apply text-primary-light placeholder:text-secondary-gray;
+    @apply focus:border-2 focus:border-secondary-blue focus:bg-secondary-blue/5;
+    @apply transition-all duration-200 ease-smooth;
+  }
+  
+  /* Data Visualization */
+  .chart-grid {
+    @apply text-secondary-gray opacity-10;
+  }
+  
+  .chart-text {
+    @apply text-secondary-gray;
+  }
+  
+  .trend-positive {
+    @apply text-accent-green;
+  }
+  
+  .trend-negative {
+    @apply text-accent-red;
+  }
+  
+  .trend-neutral {
+    @apply text-secondary-blue;
+  }
+  
+  /* Animation utilities */
+  .animate-float {
+    @apply animate-float;
+  }
+  
+  .animate-shimmer {
+    @apply animate-shimmer;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    background-size: 200px 100%;
+  }
+  
+  /* Focus states */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-secondary-blue/20 focus:ring-offset-2;
+  }
+  
+  /* Light mode overrides */
+  .light {
+    @apply bg-light-primary text-light-text-primary;
+  }
+  
+  .light .card {
+    @apply bg-light-secondary border-secondary-gray/20 shadow-card;
+  }
+  
+  .light .input-field {
+    @apply bg-light-tertiary text-light-text-primary;
   }
 }
