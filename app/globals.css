@@ -10,7 +10,7 @@
   }
   
   * {
-    @apply border-border;
+    @apply border-neutral-200 dark:border-neutral-800;
   }
   
   body {
@@ -19,93 +19,93 @@
   }
   
   /* Typography utilities based on LifeDash design system */
-  .text-display-lg {
-    @apply text-display-lg font-bold tracking-tight;
+  .display-lg {
+    @apply text-5xl font-bold tracking-tight;
   }
   
-  .text-display-md {
-    @apply text-display-md font-bold tracking-tight;
+  .display-md {
+    @apply text-4xl font-bold tracking-tight;
   }
   
-  .text-h1 {
-    @apply text-h1 font-bold tracking-tight;
+  .heading-1 {
+    @apply text-3xl font-bold tracking-tight;
   }
   
-  .text-h2 {
-    @apply text-h2 font-semibold tracking-tight;
+  .heading-2 {
+    @apply text-2xl font-semibold tracking-tight;
   }
   
-  .text-h3 {
-    @apply text-h3 font-semibold tracking-tight;
+  .heading-3 {
+    @apply text-xl font-semibold tracking-tight;
   }
   
-  .text-body-lg {
-    @apply text-body-lg font-normal;
+  .body-large {
+    @apply text-lg font-normal;
   }
   
-  .text-body {
-    @apply text-body font-normal;
+  .body-base {
+    @apply text-base font-normal;
   }
   
-  .text-body-sm {
-    @apply text-body-sm font-normal;
+  .body-small {
+    @apply text-sm font-normal;
   }
   
-  .text-data-lg {
-    @apply text-data-lg font-mono font-medium;
+  .data-large {
+    @apply text-2xl font-mono font-medium;
   }
   
-  .text-data-md {
-    @apply text-data-md font-mono font-normal;
+  .data-medium {
+    @apply text-lg font-mono font-normal;
   }
   
-  .text-data-sm {
-    @apply text-data-sm font-mono font-normal;
+  .data-small {
+    @apply text-sm font-mono font-normal;
   }
   
-  .text-label {
-    @apply text-label font-medium uppercase tracking-wide;
+  .label-text {
+    @apply text-xs font-medium uppercase tracking-wide;
   }
   
-  .text-button {
-    @apply text-button font-medium tracking-wide;
+  .button-text {
+    @apply text-sm font-medium tracking-wide;
   }
   
-  .text-caption {
-    @apply text-caption font-normal tracking-wide;
+  .caption-text {
+    @apply text-xs font-normal tracking-wide;
   }
 }
 
 @layer components {
   /* Button Components */
   .btn-primary {
-    @apply bg-secondary-blue text-primary-light h-12 px-4 rounded-sm text-button;
-    @apply hover:bg-secondary-blue/90 active:bg-secondary-blue/110;
-    @apply transition-colors duration-200 ease-smooth;
+    @apply bg-secondary-blue text-primary-light h-12 px-4 rounded-lg text-sm font-medium;
+    @apply hover:bg-secondary-blue/90 active:bg-secondary-blue/95;
+    @apply transition-colors duration-200;
   }
   
   .btn-secondary {
-    @apply bg-transparent border-1.5 border-secondary-gray text-secondary-gray h-12 px-4 rounded-sm text-button;
-    @apply hover:bg-secondary-gray/10 transition-colors duration-200 ease-smooth;
+    @apply bg-transparent border border-secondary-gray text-secondary-gray h-12 px-4 rounded-lg text-sm font-medium;
+    @apply hover:bg-secondary-gray/10 transition-colors duration-200;
   }
   
   .btn-ghost {
-    @apply bg-transparent text-secondary-blue h-11 px-3 text-button;
-    @apply hover:bg-secondary-blue/8 transition-colors duration-200 ease-smooth;
+    @apply bg-transparent text-secondary-blue h-11 px-3 text-sm font-medium;
+    @apply hover:bg-secondary-blue/10 transition-colors duration-200;
   }
   
   /* Card Component */
   .card {
-    @apply bg-background-secondary border border-secondary-gray/10 rounded-md p-5;
-    @apply hover:border-secondary-blue/30 transition-colors duration-200 ease-smooth;
+    @apply bg-background-secondary border border-secondary-gray/10 rounded-lg p-5;
+    @apply hover:border-secondary-blue/30 transition-colors duration-200;
   }
   
   /* Input Field */
   .input-field {
-    @apply h-13 bg-background-tertiary border border-transparent rounded-sm px-4;
+    @apply h-12 bg-background-tertiary border border-transparent rounded-lg px-4;
     @apply text-primary-light placeholder:text-secondary-gray;
     @apply focus:border-2 focus:border-secondary-blue focus:bg-secondary-blue/5;
-    @apply transition-all duration-200 ease-smooth;
+    @apply transition-all duration-200;
   }
   
   /* Data Visualization */
@@ -130,12 +130,12 @@
   }
   
   /* Animation utilities */
-  .animate-float {
-    @apply animate-float;
+  .float-animation {
+    animation: float 2s ease-in-out infinite;
   }
   
-  .animate-shimmer {
-    @apply animate-shimmer;
+  .shimmer-animation {
+    animation: shimmer 1.5s ease-in-out infinite;
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
     background-size: 200px 100%;
   }
