@@ -5,72 +5,73 @@
 @layer base {
   :root {
     /* LifeDash Design System Variables */
-    --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-inter:
+      'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --font-jetbrains-mono: 'JetBrains Mono', monospace;
   }
-  
+
   * {
     @apply border-neutral-200 dark:border-neutral-800;
   }
-  
+
   body {
     font-family: var(--font-inter);
     @apply bg-background-primary text-primary-light;
   }
-  
+
   /* Typography utilities based on LifeDash design system */
   .display-lg {
     @apply text-5xl font-bold tracking-tight;
   }
-  
+
   .display-md {
     @apply text-4xl font-bold tracking-tight;
   }
-  
+
   .heading-1 {
     @apply text-3xl font-bold tracking-tight;
   }
-  
+
   .heading-2 {
     @apply text-2xl font-semibold tracking-tight;
   }
-  
+
   .heading-3 {
     @apply text-xl font-semibold tracking-tight;
   }
-  
+
   .body-large {
     @apply text-lg font-normal;
   }
-  
+
   .body-base {
     @apply text-base font-normal;
   }
-  
+
   .body-small {
     @apply text-sm font-normal;
   }
-  
+
   .data-large {
-    @apply text-2xl font-mono font-medium;
+    @apply font-mono text-2xl font-medium;
   }
-  
+
   .data-medium {
-    @apply text-lg font-mono font-normal;
+    @apply font-mono text-lg font-normal;
   }
-  
+
   .data-small {
-    @apply text-sm font-mono font-normal;
+    @apply font-mono text-sm font-normal;
   }
-  
+
   .label-text {
     @apply text-xs font-medium uppercase tracking-wide;
   }
-  
+
   .button-text {
     @apply text-sm font-medium tracking-wide;
   }
-  
+
   .caption-text {
     @apply text-xs font-normal tracking-wide;
   }
@@ -79,81 +80,86 @@
 @layer components {
   /* Button Components */
   .btn-primary {
-    @apply bg-secondary-blue text-primary-light h-12 px-4 rounded-lg text-sm font-medium;
+    @apply h-12 rounded-lg bg-secondary-blue px-4 text-sm font-medium text-primary-light;
     @apply hover:bg-secondary-blue/90 active:bg-secondary-blue/95;
     @apply transition-colors duration-200;
   }
-  
+
   .btn-secondary {
-    @apply bg-transparent border border-secondary-gray text-secondary-gray h-12 px-4 rounded-lg text-sm font-medium;
-    @apply hover:bg-secondary-gray/10 transition-colors duration-200;
+    @apply h-12 rounded-lg border border-secondary-gray bg-transparent px-4 text-sm font-medium text-secondary-gray;
+    @apply transition-colors duration-200 hover:bg-secondary-gray/10;
   }
-  
+
   .btn-ghost {
-    @apply bg-transparent text-secondary-blue h-11 px-3 text-sm font-medium;
-    @apply hover:bg-secondary-blue/10 transition-colors duration-200;
+    @apply h-11 bg-transparent px-3 text-sm font-medium text-secondary-blue;
+    @apply transition-colors duration-200 hover:bg-secondary-blue/10;
   }
-  
+
   /* Card Component */
   .card {
-    @apply bg-background-secondary border border-secondary-gray/10 rounded-lg p-5;
-    @apply hover:border-secondary-blue/30 transition-colors duration-200;
+    @apply rounded-lg border border-secondary-gray/10 bg-background-secondary p-5;
+    @apply transition-colors duration-200 hover:border-secondary-blue/30;
   }
-  
+
   /* Input Field */
   .input-field {
-    @apply h-12 bg-background-tertiary border border-transparent rounded-lg px-4;
+    @apply h-12 rounded-lg border border-transparent bg-background-tertiary px-4;
     @apply text-primary-light placeholder:text-secondary-gray;
     @apply focus:border-2 focus:border-secondary-blue focus:bg-secondary-blue/5;
     @apply transition-all duration-200;
   }
-  
+
   /* Data Visualization */
   .chart-grid {
     @apply text-secondary-gray opacity-10;
   }
-  
+
   .chart-text {
     @apply text-secondary-gray;
   }
-  
+
   .trend-positive {
     @apply text-accent-green;
   }
-  
+
   .trend-negative {
     @apply text-accent-red;
   }
-  
+
   .trend-neutral {
     @apply text-secondary-blue;
   }
-  
+
   /* Animation utilities */
   .float-animation {
     animation: float 2s ease-in-out infinite;
   }
-  
+
   .shimmer-animation {
     animation: shimmer 1.5s ease-in-out infinite;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
     background-size: 200px 100%;
   }
-  
+
   /* Focus states */
   .focus-ring {
     @apply focus:outline-none focus:ring-2 focus:ring-secondary-blue/20 focus:ring-offset-2;
   }
-  
+
   /* Light mode overrides */
   .light {
     @apply bg-light-primary text-light-text-primary;
   }
-  
+
   .light .card {
-    @apply bg-light-secondary border-secondary-gray/20 shadow-card;
+    @apply border-secondary-gray/20 bg-light-secondary shadow-card;
   }
-  
+
   .light .input-field {
     @apply bg-light-tertiary text-light-text-primary;
   }

@@ -5,30 +5,30 @@ import { type VariantProps, cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils/cn'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-const metricCardVariants = cva(
-  'transition-all duration-300 hover:shadow-md',
-  {
-    variants: {
-      variant: {
-        default: 'border-neutral-200 dark:border-neutral-700',
-        primary: 'border-primary-200 dark:border-primary-800 bg-primary-50 dark:bg-primary-950',
-        success: 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950',
-        warning: 'border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-950',
-        danger: 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950',
-        info: 'border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950',
-      },
-      size: {
-        sm: 'p-3',
-        default: 'p-4',
-        lg: 'p-6',
-      },
+const metricCardVariants = cva('transition-all duration-300 hover:shadow-md', {
+  variants: {
+    variant: {
+      default: 'border-neutral-200 dark:border-neutral-700',
+      primary:
+        'border-primary-200 dark:border-primary-800 bg-primary-50 dark:bg-primary-950',
+      success:
+        'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950',
+      warning:
+        'border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-950',
+      danger: 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950',
+      info: 'border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950',
     },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default',
+    size: {
+      sm: 'p-3',
+      default: 'p-4',
+      lg: 'p-6',
     },
-  }
-)
+  },
+  defaultVariants: {
+    variant: 'default',
+    size: 'default',
+  },
+})
 
 const trendVariants = cva(
   'inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium',
@@ -93,15 +93,15 @@ const MetricCard = forwardRef<HTMLDivElement, MetricCardProps>(
         >
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-2/3 animate-pulse" />
-              <div className="h-6 w-6 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
+              <div className="h-4 w-2/3 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
+              <div className="h-6 w-6 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
             </div>
           </CardHeader>
           <CardContent className="pt-0">
             <div className="space-y-2">
-              <div className="h-8 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2 animate-pulse" />
-              <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4 animate-pulse" />
-              <div className="h-5 bg-neutral-200 dark:bg-neutral-700 rounded w-1/3 animate-pulse" />
+              <div className="h-8 w-1/2 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
+              <div className="h-3 w-3/4 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
+              <div className="h-5 w-1/3 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
             </div>
           </CardContent>
         </Card>
@@ -130,7 +130,12 @@ const MetricCard = forwardRef<HTMLDivElement, MetricCardProps>(
       switch (trend) {
         case 'up':
           return (
-            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="h-3 w-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -141,7 +146,12 @@ const MetricCard = forwardRef<HTMLDivElement, MetricCardProps>(
           )
         case 'down':
           return (
-            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="h-3 w-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -152,7 +162,12 @@ const MetricCard = forwardRef<HTMLDivElement, MetricCardProps>(
           )
         case 'flat':
           return (
-            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="h-3 w-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -183,7 +198,7 @@ const MetricCard = forwardRef<HTMLDivElement, MetricCardProps>(
               {title}
             </CardTitle>
             {icon && (
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
                 {icon}
               </div>
             )}
@@ -191,16 +206,16 @@ const MetricCard = forwardRef<HTMLDivElement, MetricCardProps>(
         </CardHeader>
         <CardContent className="pt-0">
           <div className="space-y-2">
-            <div className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 tabular-nums">
+            <div className="text-2xl font-bold tabular-nums text-neutral-900 dark:text-neutral-100">
               {formatValue(value)}
             </div>
-            
+
             {description && (
               <p className="text-xs text-neutral-500 dark:text-neutral-400">
                 {description}
               </p>
             )}
-            
+
             {trend && trendValue && (
               <div className="flex items-center gap-2">
                 <div className={cn(trendVariants({ trend }))}>
@@ -224,24 +239,37 @@ const MetricCard = forwardRef<HTMLDivElement, MetricCardProps>(
 MetricCard.displayName = 'MetricCard'
 
 // Specialized Financial Metric Cards
-export interface FinancialMetricCardProps extends Omit<MetricCardProps, 'currency'> {
+export interface FinancialMetricCardProps
+  extends Omit<MetricCardProps, 'currency'> {
   type: 'currency' | 'percentage' | 'count' | 'ratio'
   change?: number
   changeType?: 'amount' | 'percentage'
   period?: string
 }
 
-const FinancialMetricCard = forwardRef<HTMLDivElement, FinancialMetricCardProps>(
-  ({ type, change, changeType = 'percentage', period = 'vs last month', ...props }, ref) => {
+const FinancialMetricCard = forwardRef<
+  HTMLDivElement,
+  FinancialMetricCardProps
+>(
+  (
+    {
+      type,
+      change,
+      changeType = 'percentage',
+      period = 'vs last month',
+      ...props
+    },
+    ref
+  ) => {
     const currency = type === 'currency'
     const percentage = type === 'percentage'
-    
+
     let trend: 'up' | 'down' | 'flat' | undefined
     let trendValue: string | undefined
-    
+
     if (change !== undefined) {
       trend = change > 0 ? 'up' : change < 0 ? 'down' : 'flat'
-      
+
       if (changeType === 'percentage') {
         trendValue = `${change > 0 ? '+' : ''}${change.toFixed(1)}%`
       } else {

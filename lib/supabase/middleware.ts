@@ -4,7 +4,7 @@ import type { Database } from '@/lib/types/database.types'
 
 /**
  * Supabase middleware for handling authentication and session management
- * 
+ *
  * This middleware:
  * - Refreshes the user's session automatically
  * - Handles cookie-based authentication
@@ -26,7 +26,9 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          )
           supabaseResponse = NextResponse.next({
             request,
           })
@@ -45,7 +47,7 @@ export async function updateSession(request: NextRequest) {
 
   // Protected routes that require authentication
   const protectedPaths = ['/dashboard', '/profile', '/settings']
-  const isProtectedPath = protectedPaths.some(path => 
+  const isProtectedPath = protectedPaths.some(path =>
     request.nextUrl.pathname.startsWith(path)
   )
 
@@ -59,7 +61,7 @@ export async function updateSession(request: NextRequest) {
 
   // Redirect authenticated users away from auth pages
   const authPaths = ['/auth/login', '/auth/register', '/auth/forgot-password']
-  const isAuthPath = authPaths.some(path => 
+  const isAuthPath = authPaths.some(path =>
     request.nextUrl.pathname.startsWith(path)
   )
 
@@ -74,7 +76,7 @@ export async function updateSession(request: NextRequest) {
 
 /**
  * Helper function to get user from middleware context
- * 
+ *
  * @param request - Next.js request object
  * @returns User object or null if not authenticated
  */

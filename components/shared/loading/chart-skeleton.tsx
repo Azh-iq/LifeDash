@@ -107,16 +107,16 @@ const ChartSkeleton = forwardRef<HTMLDivElement, ChartSkeletonProps>(
           {showAxes && (
             <>
               {/* Y-axis */}
-              <div className="absolute left-0 top-0 bottom-8 w-8 flex flex-col justify-between">
+              <div className="absolute bottom-8 left-0 top-0 flex w-8 flex-col justify-between">
                 <Skeleton className="h-3 w-6" />
                 <Skeleton className="h-3 w-6" />
                 <Skeleton className="h-3 w-6" />
                 <Skeleton className="h-3 w-6" />
                 <Skeleton className="h-3 w-6" />
               </div>
-              
+
               {/* X-axis */}
-              <div className="absolute bottom-0 left-8 right-0 h-8 flex justify-between items-end">
+              <div className="absolute bottom-0 left-8 right-0 flex h-8 items-end justify-between">
                 <Skeleton className="h-3 w-8" />
                 <Skeleton className="h-3 w-8" />
                 <Skeleton className="h-3 w-8" />
@@ -127,11 +127,13 @@ const ChartSkeleton = forwardRef<HTMLDivElement, ChartSkeletonProps>(
           )}
 
           {/* Chart Content */}
-          <div className={cn(
-            'h-full',
-            showAxes ? 'ml-8 mb-8' : '',
-            'flex items-center justify-center'
-          )}>
+          <div
+            className={cn(
+              'h-full',
+              showAxes ? 'mb-8 ml-8' : '',
+              'flex items-center justify-center'
+            )}
+          >
             {renderChart()}
           </div>
         </div>
@@ -144,17 +146,20 @@ ChartSkeleton.displayName = 'ChartSkeleton'
 
 // Specific chart type skeletons
 const LineChartSkeleton = ({ animate = true }: { animate?: boolean }) => (
-  <div className="relative w-full h-full">
+  <div className="relative h-full w-full">
     {/* Grid lines */}
     <div className="absolute inset-0 flex flex-col justify-between">
       {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="w-full h-px bg-neutral-200 dark:bg-neutral-700" />
+        <div
+          key={i}
+          className="h-px w-full bg-neutral-200 dark:bg-neutral-700"
+        />
       ))}
     </div>
-    
+
     {/* Line paths */}
     <div className="absolute inset-0 flex items-center">
-      <svg className="w-full h-full" viewBox="0 0 400 200">
+      <svg className="h-full w-full" viewBox="0 0 400 200">
         <path
           d="M 20 180 Q 100 120, 180 140 T 380 60"
           stroke="rgb(59 130 246)"
@@ -171,19 +176,23 @@ const LineChartSkeleton = ({ animate = true }: { animate?: boolean }) => (
         />
       </svg>
     </div>
-    
+
     {/* Data points */}
     <div className="absolute inset-0 flex items-center justify-between px-4">
       {Array.from({ length: 6 }).map((_, i) => (
         <div key={i} className="space-y-4">
-          <div className={cn(
-            'w-2 h-2 rounded-full bg-blue-400',
-            animate && 'animate-pulse'
-          )} />
-          <div className={cn(
-            'w-2 h-2 rounded-full bg-green-400',
-            animate && 'animate-pulse'
-          )} />
+          <div
+            className={cn(
+              'h-2 w-2 rounded-full bg-blue-400',
+              animate && 'animate-pulse'
+            )}
+          />
+          <div
+            className={cn(
+              'h-2 w-2 rounded-full bg-green-400',
+              animate && 'animate-pulse'
+            )}
+          />
         </div>
       ))}
     </div>
@@ -191,17 +200,17 @@ const LineChartSkeleton = ({ animate = true }: { animate?: boolean }) => (
 )
 
 const BarChartSkeleton = ({ animate = true }: { animate?: boolean }) => (
-  <div className="relative w-full h-full flex items-end justify-between gap-2 px-4">
+  <div className="relative flex h-full w-full items-end justify-between gap-2 px-4">
     {Array.from({ length: 8 }).map((_, i) => (
       <div key={i} className="flex-1 space-y-1">
-        <Skeleton 
+        <Skeleton
           className={cn(
             'w-full bg-blue-200 dark:bg-blue-800',
             animate && 'animate-pulse'
           )}
           style={{ height: `${Math.random() * 60 + 20}%` }}
         />
-        <Skeleton 
+        <Skeleton
           className={cn(
             'w-full bg-green-200 dark:bg-green-800',
             animate && 'animate-pulse'
@@ -214,31 +223,37 @@ const BarChartSkeleton = ({ animate = true }: { animate?: boolean }) => (
 )
 
 const PieChartSkeleton = ({ animate = true }: { animate?: boolean }) => (
-  <div className="relative w-full h-full flex items-center justify-center">
-    <div className={cn(
-      'w-32 h-32 rounded-full border-8 border-neutral-200 dark:border-neutral-700',
-      animate && 'animate-pulse'
-    )} style={{
-      borderTopColor: 'rgb(59 130 246)',
-      borderRightColor: 'rgb(16 185 129)',
-      borderBottomColor: 'rgb(245 158 11)',
-      borderLeftColor: 'rgb(239 68 68)',
-    }} />
+  <div className="relative flex h-full w-full items-center justify-center">
+    <div
+      className={cn(
+        'h-32 w-32 rounded-full border-8 border-neutral-200 dark:border-neutral-700',
+        animate && 'animate-pulse'
+      )}
+      style={{
+        borderTopColor: 'rgb(59 130 246)',
+        borderRightColor: 'rgb(16 185 129)',
+        borderBottomColor: 'rgb(245 158 11)',
+        borderLeftColor: 'rgb(239 68 68)',
+      }}
+    />
   </div>
 )
 
 const AreaChartSkeleton = ({ animate = true }: { animate?: boolean }) => (
-  <div className="relative w-full h-full">
+  <div className="relative h-full w-full">
     {/* Grid lines */}
     <div className="absolute inset-0 flex flex-col justify-between">
       {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="w-full h-px bg-neutral-200 dark:bg-neutral-700" />
+        <div
+          key={i}
+          className="h-px w-full bg-neutral-200 dark:bg-neutral-700"
+        />
       ))}
     </div>
-    
+
     {/* Area fill */}
     <div className="absolute inset-0 flex items-end">
-      <svg className="w-full h-full" viewBox="0 0 400 200">
+      <svg className="h-full w-full" viewBox="0 0 400 200">
         <path
           d="M 20 180 Q 100 120, 180 140 T 380 60 L 380 180 L 20 180 Z"
           fill="rgb(59 130 246 / 0.3)"
@@ -255,21 +270,24 @@ const AreaChartSkeleton = ({ animate = true }: { animate?: boolean }) => (
 )
 
 const ScatterChartSkeleton = ({ animate = true }: { animate?: boolean }) => (
-  <div className="relative w-full h-full">
+  <div className="relative h-full w-full">
     {/* Grid lines */}
     <div className="absolute inset-0 flex flex-col justify-between">
       {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="w-full h-px bg-neutral-200 dark:bg-neutral-700" />
+        <div
+          key={i}
+          className="h-px w-full bg-neutral-200 dark:bg-neutral-700"
+        />
       ))}
     </div>
-    
+
     {/* Scatter points */}
     <div className="absolute inset-0 p-4">
       {Array.from({ length: 20 }).map((_, i) => (
         <div
           key={i}
           className={cn(
-            'absolute w-2 h-2 rounded-full',
+            'absolute h-2 w-2 rounded-full',
             i % 3 === 0 && 'bg-blue-400',
             i % 3 === 1 && 'bg-green-400',
             i % 3 === 2 && 'bg-yellow-400',
@@ -290,25 +308,29 @@ export interface MetricChartSkeletonProps extends ChartSkeletonProps {
   metrics?: number
 }
 
-const MetricChartSkeleton = forwardRef<HTMLDivElement, MetricChartSkeletonProps>(
-  ({ metrics = 3, ...props }, ref) => (
-    <div ref={ref} className="space-y-4">
-      {/* Metrics row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {Array.from({ length: metrics }).map((_, i) => (
-          <div key={i} className="p-4 border border-neutral-200 dark:border-neutral-700 rounded-lg space-y-2">
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-8 w-16" />
-            <Skeleton className="h-3 w-12" />
-          </div>
-        ))}
-      </div>
-      
-      {/* Chart */}
-      <ChartSkeleton {...props} />
+const MetricChartSkeleton = forwardRef<
+  HTMLDivElement,
+  MetricChartSkeletonProps
+>(({ metrics = 3, ...props }, ref) => (
+  <div ref={ref} className="space-y-4">
+    {/* Metrics row */}
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      {Array.from({ length: metrics }).map((_, i) => (
+        <div
+          key={i}
+          className="space-y-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700"
+        >
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-8 w-16" />
+          <Skeleton className="h-3 w-12" />
+        </div>
+      ))}
     </div>
-  )
-)
+
+    {/* Chart */}
+    <ChartSkeleton {...props} />
+  </div>
+))
 
 MetricChartSkeleton.displayName = 'MetricChartSkeleton'
 
@@ -317,37 +339,38 @@ export interface DashboardChartSkeletonProps extends ChartSkeletonProps {
   showFilters?: boolean
 }
 
-const DashboardChartSkeleton = forwardRef<HTMLDivElement, DashboardChartSkeletonProps>(
-  ({ showControls = true, showFilters = true, ...props }, ref) => (
-    <div ref={ref} className="space-y-4">
-      {/* Controls */}
-      {showControls && (
-        <div className="flex justify-between items-center">
-          <div className="space-y-2">
-            <Skeleton className="h-6 w-32" />
-            <Skeleton className="h-4 w-48" />
-          </div>
-          <div className="flex gap-2">
-            <Skeleton className="h-8 w-20" />
-            <Skeleton className="h-8 w-20" />
-          </div>
+const DashboardChartSkeleton = forwardRef<
+  HTMLDivElement,
+  DashboardChartSkeletonProps
+>(({ showControls = true, showFilters = true, ...props }, ref) => (
+  <div ref={ref} className="space-y-4">
+    {/* Controls */}
+    {showControls && (
+      <div className="flex items-center justify-between">
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="h-4 w-48" />
         </div>
-      )}
-      
-      {/* Filters */}
-      {showFilters && (
-        <div className="flex gap-4">
-          <Skeleton className="h-8 w-24" />
-          <Skeleton className="h-8 w-24" />
-          <Skeleton className="h-8 w-24" />
+        <div className="flex gap-2">
+          <Skeleton className="h-8 w-20" />
+          <Skeleton className="h-8 w-20" />
         </div>
-      )}
-      
-      {/* Chart */}
-      <ChartSkeleton {...props} />
-    </div>
-  )
-)
+      </div>
+    )}
+
+    {/* Filters */}
+    {showFilters && (
+      <div className="flex gap-4">
+        <Skeleton className="h-8 w-24" />
+        <Skeleton className="h-8 w-24" />
+        <Skeleton className="h-8 w-24" />
+      </div>
+    )}
+
+    {/* Chart */}
+    <ChartSkeleton {...props} />
+  </div>
+))
 
 DashboardChartSkeleton.displayName = 'DashboardChartSkeleton'
 

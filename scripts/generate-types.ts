@@ -6,13 +6,13 @@ import { join } from 'path'
 
 /**
  * Script to generate TypeScript types from Supabase database schema
- * 
+ *
  * This script:
  * - Validates Supabase credentials
  * - Generates types using Supabase CLI
  * - Creates comprehensive TypeScript definitions
  * - Handles errors gracefully
- * 
+ *
  * Usage: npm run generate-types
  */
 
@@ -35,13 +35,17 @@ function validateSupabaseCredentials(): SupabaseConfig {
   }
 
   if (!anonKey) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable')
+    throw new Error(
+      'Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable'
+    )
   }
 
   // Extract project ID from URL
   const urlMatch = projectUrl.match(/https:\/\/([a-zA-Z0-9]+)\.supabase\.co/)
   if (!urlMatch) {
-    throw new Error('Invalid Supabase URL format. Expected: https://[project-id].supabase.co')
+    throw new Error(
+      'Invalid Supabase URL format. Expected: https://[project-id].supabase.co'
+    )
   }
 
   return {
@@ -58,7 +62,7 @@ async function generateTypes() {
   try {
     console.log('🔍 Validating Supabase credentials...')
     const config = validateSupabaseCredentials()
-    
+
     console.log('✅ Credentials valid')
     console.log(`🌐 Project URL: ${config.projectUrl}`)
 
@@ -67,7 +71,7 @@ async function generateTypes() {
 
     // Generate types using Supabase CLI
     const command = `npx supabase gen types typescript --project-id ${config.projectUrl.match(/https:\/\/([a-zA-Z0-9]+)\.supabase\.co/)![1]} --schema public`
-    
+
     console.log('🚀 Running Supabase type generation...')
     const output = execSync(command, { encoding: 'utf-8' })
 
@@ -76,35 +80,39 @@ async function generateTypes() {
 
     console.log('✅ Database types generated successfully!')
     console.log(`📄 Types written to: ${outputPath}`)
-    
+
     // Verify the file was created
     if (existsSync(outputPath)) {
       const stats = require('fs').statSync(outputPath)
       console.log(`📊 File size: ${Math.round(stats.size / 1024)}KB`)
     }
-
   } catch (error) {
     console.error('❌ Failed to generate types:')
-    
+
     if (error instanceof Error) {
       console.error(`   ${error.message}`)
-      
+
       // Provide helpful suggestions based on error type
       if (error.message.includes('command not found')) {
         console.error('\n💡 Suggestion: Install Supabase CLI globally:')
         console.error('   npm install -g supabase')
-      } else if (error.message.includes('unauthorized') || error.message.includes('403')) {
+      } else if (
+        error.message.includes('unauthorized') ||
+        error.message.includes('403')
+      ) {
         console.error('\n💡 Suggestion: Check your Supabase credentials:')
         console.error('   - Verify NEXT_PUBLIC_SUPABASE_URL is correct')
         console.error('   - Verify NEXT_PUBLIC_SUPABASE_ANON_KEY is valid')
         console.error('   - Ensure you have access to the project')
       } else if (error.message.includes('project not found')) {
-        console.error('\n💡 Suggestion: Verify your project URL and ensure the project exists')
+        console.error(
+          '\n💡 Suggestion: Verify your project URL and ensure the project exists'
+        )
       }
     } else {
       console.error('   Unknown error occurred')
     }
-    
+
     process.exit(1)
   }
 }
@@ -114,7 +122,7 @@ async function generateTypes() {
  */
 function createPlaceholderTypes() {
   const outputPath = join(process.cwd(), 'lib/types/database.types.ts')
-  
+
   const placeholderContent = `/**
  * Placeholder database types for LifeDash
  * 

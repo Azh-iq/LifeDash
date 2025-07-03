@@ -138,7 +138,10 @@ const AmountDisplay = forwardRef<HTMLSpanElement, AmountDisplayProps>(
     return (
       <span
         ref={ref}
-        className={cn(amountDisplayVariants({ variant: resolvedVariant, size, weight }), className)}
+        className={cn(
+          amountDisplayVariants({ variant: resolvedVariant, size, weight }),
+          className
+        )}
         {...props}
       >
         {formatAmount(amount)}
@@ -178,7 +181,7 @@ const PercentageDisplay = forwardRef<HTMLSpanElement, PercentageDisplayProps>(
         )}
         {...props}
       >
-        {props.loading ? (props.placeholder || '---') : formatPercentage(value)}
+        {props.loading ? props.placeholder || '---' : formatPercentage(value)}
       </span>
     )
   }
@@ -186,7 +189,8 @@ const PercentageDisplay = forwardRef<HTMLSpanElement, PercentageDisplayProps>(
 
 PercentageDisplay.displayName = 'PercentageDisplay'
 
-export interface DifferenceDisplayProps extends Omit<AmountDisplayProps, 'amount'> {
+export interface DifferenceDisplayProps
+  extends Omit<AmountDisplayProps, 'amount'> {
   current: number
   previous: number
   showArrow?: boolean
@@ -206,26 +210,50 @@ const DifferenceDisplay = forwardRef<HTMLSpanElement, DifferenceDisplayProps>(
     ref
   ) => {
     const difference = current - previous
-    const percentageChange = previous !== 0 ? (difference / Math.abs(previous)) * 100 : 0
+    const percentageChange =
+      previous !== 0 ? (difference / Math.abs(previous)) * 100 : 0
 
     const displayValue = showPercentage ? percentageChange : difference
 
-    const ArrowIcon = ({ direction }: { direction: 'up' | 'down' | 'flat' }) => {
+    const ArrowIcon = ({
+      direction,
+    }: {
+      direction: 'up' | 'down' | 'flat'
+    }) => {
       if (direction === 'flat') {
         return (
-          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h8" />
+          <svg
+            className="h-3 w-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8 12h8"
+            />
           </svg>
         )
       }
-      
+
       return (
-        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          className="h-3 w-3"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d={direction === 'up' ? 'M7 17l9.2-9.2M17 17V8m0 0H8' : 'M7 7l9.2 9.2M17 7v9m0 0H8'}
+            d={
+              direction === 'up'
+                ? 'M7 17l9.2-9.2M17 17V8m0 0H8'
+                : 'M7 7l9.2 9.2M17 7v9m0 0H8'
+            }
           />
         </svg>
       )
@@ -273,7 +301,12 @@ export const formatCurrency = (
     abbreviate?: boolean
   } = {}
 ) => {
-  const { currency = 'USD', locale = 'en-US', precision = 2, abbreviate = false } = options
+  const {
+    currency = 'USD',
+    locale = 'en-US',
+    precision = 2,
+    abbreviate = false,
+  } = options
 
   if (abbreviate) {
     const abs = Math.abs(amount)
@@ -298,7 +331,10 @@ export const formatPercentage = (value: number, precision: number = 1) => {
   return `${value.toFixed(precision)}%`
 }
 
-export const calculatePercentageChange = (current: number, previous: number) => {
+export const calculatePercentageChange = (
+  current: number,
+  previous: number
+) => {
   if (previous === 0) return current > 0 ? 100 : current < 0 ? -100 : 0
   return ((current - previous) / Math.abs(previous)) * 100
 }

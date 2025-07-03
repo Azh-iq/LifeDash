@@ -33,7 +33,10 @@ export interface AvatarProps
 }
 
 const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
-  ({ className, size, src, alt, fallback, loading, onClick, ...props }, ref) => {
+  (
+    { className, size, src, alt, fallback, loading, onClick, ...props },
+    ref
+  ) => {
     const [imageError, setImageError] = useState(false)
     const [imageLoading, setImageLoading] = useState(true)
 
@@ -50,7 +53,7 @@ const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
       if (!name) return '?'
       return name
         .split(' ')
-        .map((word) => word.charAt(0))
+        .map(word => word.charAt(0))
         .join('')
         .toUpperCase()
         .slice(0, 2)
@@ -82,7 +85,7 @@ const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
             onError={handleImageError}
           />
         )}
-        
+
         {shouldShowFallback && (
           <span
             className={cn(
@@ -143,7 +146,17 @@ export interface AvatarGroupProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const AvatarGroup = forwardRef<HTMLDivElement, AvatarGroupProps>(
-  ({ className, max = 5, spacing = 'normal', size = 'default', children, ...props }, ref) => {
+  (
+    {
+      className,
+      max = 5,
+      spacing = 'normal',
+      size = 'default',
+      children,
+      ...props
+    },
+    ref
+  ) => {
     const spacingClasses = {
       tight: '-space-x-1',
       normal: '-space-x-2',
@@ -163,16 +176,18 @@ const AvatarGroup = forwardRef<HTMLDivElement, AvatarGroupProps>(
         {visibleChildren.map((child, index) => (
           <div
             key={index}
-            className="relative ring-2 ring-white dark:ring-neutral-900 rounded-full"
+            className="relative rounded-full ring-2 ring-white dark:ring-neutral-900"
           >
             {React.isValidElement(child)
-              ? React.cloneElement(child as React.ReactElement<AvatarProps>, { size })
+              ? React.cloneElement(child as React.ReactElement<AvatarProps>, {
+                  size,
+                })
               : child}
           </div>
         ))}
-        
+
         {remainingCount > 0 && (
-          <div className="relative ring-2 ring-white dark:ring-neutral-900 rounded-full">
+          <div className="relative rounded-full ring-2 ring-white dark:ring-neutral-900">
             <Avatar
               size={size}
               fallback={`+${remainingCount}`}

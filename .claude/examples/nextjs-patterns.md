@@ -3,6 +3,7 @@
 ## Server vs Client Components
 
 ### Server Component with Data Fetching
+
 ```typescript
 // app/blog/[slug]/page.tsx
 import { notFound } from 'next/navigation'
@@ -24,11 +25,11 @@ async function getPost(slug: string): Promise<Post | null> {
     const res = await fetch(`https://api.example.com/posts/${slug}`, {
       next: { revalidate: 3600 } // Revalidate every hour
     })
-    
+
     if (!res.ok) {
       return null
     }
-    
+
     return res.json()
   } catch (error) {
     console.error('Failed to fetch post:', error)
@@ -38,7 +39,7 @@ async function getPost(slug: string): Promise<Post | null> {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const post = await getPost(params.slug)
-  
+
   if (!post) {
     return {
       title: 'Post Not Found'
@@ -53,7 +54,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function BlogPost({ params }: PageProps) {
   const post = await getPost(params.slug)
-  
+
   if (!post) {
     notFound()
   }
@@ -75,6 +76,7 @@ export default async function BlogPost({ params }: PageProps) {
 ```
 
 ### Client Component with Interactivity
+
 ```typescript
 // app/components/Counter.tsx
 'use client'
@@ -116,6 +118,7 @@ export default function Counter({ initialValue = 0, step = 1 }: CounterProps) {
 ## Route Handlers and API Routes
 
 ### GET Route Handler
+
 ```typescript
 // app/api/posts/route.ts
 import { NextRequest, NextResponse } from 'next/server'
@@ -135,7 +138,7 @@ export async function GET(request: NextRequest) {
     // Fetch posts from database or external API
     const posts: Post[] = await fetchPosts({
       page: parseInt(page),
-      limit: parseInt(limit)
+      limit: parseInt(limit),
     })
 
     return NextResponse.json({
@@ -143,8 +146,8 @@ export async function GET(request: NextRequest) {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        total: posts.length
-      }
+        total: posts.length,
+      },
     })
   } catch (error) {
     console.error('Failed to fetch posts:', error)
@@ -157,6 +160,7 @@ export async function GET(request: NextRequest) {
 ```
 
 ### POST Route Handler with Validation
+
 ```typescript
 // app/api/posts/route.ts
 import { NextRequest, NextResponse } from 'next/server'
@@ -165,19 +169,19 @@ import { z } from 'zod'
 const createPostSchema = z.object({
   title: z.string().min(1).max(100),
   content: z.string().min(10),
-  tags: z.array(z.string()).optional()
+  tags: z.array(z.string()).optional(),
 })
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    
+
     // Validate request body
     const validatedData = createPostSchema.parse(body)
-    
+
     // Create post in database
     const newPost = await createPost(validatedData)
-    
+
     return NextResponse.json(newPost, { status: 201 })
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -186,7 +190,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-    
+
     console.error('Failed to create post:', error)
     return NextResponse.json(
       { error: 'Failed to create post' },
@@ -199,21 +203,22 @@ export async function POST(request: NextRequest) {
 ## Dynamic Routes and Layouts
 
 ### Dynamic Route with Multiple Segments
+
 ```typescript
 // app/blog/[category]/[slug]/page.tsx
 interface PageProps {
-  params: { 
+  params: {
     category: string
-    slug: string 
+    slug: string
   }
   searchParams: { [key: string]: string | string[] | undefined }
 }
 
 export default async function BlogPost({ params, searchParams }: PageProps) {
   const { category, slug } = params
-  
+
   const post = await getPostBySlug(category, slug)
-  
+
   if (!post) {
     notFound()
   }
@@ -231,7 +236,7 @@ export default async function BlogPost({ params, searchParams }: PageProps) {
         {' / '}
         <span className="text-muted-foreground">{post.title}</span>
       </nav>
-      
+
       <article>
         <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
         <div className="prose max-w-none">
@@ -244,6 +249,7 @@ export default async function BlogPost({ params, searchParams }: PageProps) {
 ```
 
 ### Nested Layout with Loading States
+
 ```typescript
 // app/dashboard/layout.tsx
 import { Suspense } from 'react'
@@ -262,7 +268,7 @@ export default function DashboardLayout({
           <DashboardNav />
         </Suspense>
       </aside>
-      
+
       <main className="flex-1 overflow-auto">
         <div className="container py-6">
           <Suspense fallback={<LoadingSpinner />}>
@@ -278,6 +284,7 @@ export default function DashboardLayout({
 ## Data Fetching Patterns
 
 ### Server Component with Parallel Data Fetching
+
 ```typescript
 // app/dashboard/page.tsx
 import { Suspense } from 'react'
@@ -292,7 +299,7 @@ async function getUserData(userId: string) {
     fetchUserStats(userId),
     fetchRecentActivity(userId)
   ])
-  
+
   return { user, stats, activities }
 }
 
@@ -305,7 +312,7 @@ export default async function DashboardPage() {
         <h1 className="text-3xl font-bold">Welcome back, {user.name}!</h1>
         <p className="text-muted-foreground">Here's what's happening today.</p>
       </div>
-      
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <UserStats stats={stats} />
         <RecentActivity activities={activities} />
@@ -317,6 +324,7 @@ export default async function DashboardPage() {
 ```
 
 ### Client Component with SWR/React Query Pattern
+
 ```typescript
 // app/components/live-data.tsx
 'use client'
@@ -339,11 +347,11 @@ export function LiveData({ endpoint, refreshInterval = 5000 }: LiveDataProps) {
       try {
         setLoading(true)
         const response = await fetch(endpoint)
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
         }
-        
+
         const result = await response.json()
         setData(result)
         setError(null)
@@ -355,7 +363,7 @@ export function LiveData({ endpoint, refreshInterval = 5000 }: LiveDataProps) {
     }
 
     fetchData()
-    
+
     const interval = setInterval(fetchData, refreshInterval)
     return () => clearInterval(interval)
   }, [endpoint, refreshInterval])
@@ -385,6 +393,7 @@ export function LiveData({ endpoint, refreshInterval = 5000 }: LiveDataProps) {
 ## Next.js Conventions
 
 ### File Structure and Naming
+
 ```typescript
 // ✅ Correct directory structure
 app/
@@ -407,6 +416,7 @@ export default function Button() { /* ... */ }
 ```
 
 ### Server Actions for Forms
+
 ```typescript
 // app/contact/actions.ts
 'use server'
@@ -425,7 +435,7 @@ export async function submitContactForm(formData: FormData) {
 
   // Save to database
   await saveContactForm({ name, email, message })
-  
+
   // Redirect after successful submission
   redirect('/contact/success')
 }
@@ -436,23 +446,23 @@ import { submitContactForm } from './actions'
 export default function ContactPage() {
   return (
     <form action={submitContactForm} className="space-y-4">
-      <input 
-        name="name" 
-        placeholder="Your name" 
-        required 
+      <input
+        name="name"
+        placeholder="Your name"
+        required
         className="w-full p-2 border rounded"
       />
-      <input 
-        name="email" 
-        type="email" 
-        placeholder="Your email" 
-        required 
+      <input
+        name="email"
+        type="email"
+        placeholder="Your email"
+        required
         className="w-full p-2 border rounded"
       />
-      <textarea 
-        name="message" 
-        placeholder="Your message" 
-        required 
+      <textarea
+        name="message"
+        placeholder="Your message"
+        required
         className="w-full p-2 border rounded"
       />
       <button type="submit" className="px-4 py-2 bg-primary text-white rounded">
@@ -464,6 +474,7 @@ export default function ContactPage() {
 ```
 
 ### URL Search Params for State
+
 ```typescript
 // app/products/page.tsx
 import { Suspense } from 'react'
@@ -501,25 +512,25 @@ interface ProductListProps {
 
 export async function ProductList({ searchParams }: ProductListProps) {
   const products = await fetchProducts(searchParams)
-  
+
   return (
     <div>
       {/* Filter links update URL search params */}
       <nav className="mb-4 space-x-2">
-        <Link 
-          href="/products?category=electronics" 
+        <Link
+          href="/products?category=electronics"
           className="text-primary hover:underline"
         >
           Electronics
         </Link>
-        <Link 
-          href="/products?category=clothing" 
+        <Link
+          href="/products?category=clothing"
           className="text-primary hover:underline"
         >
           Clothing
         </Link>
       </nav>
-      
+
       <div className="grid gap-4">
         {products.map(product => (
           <div key={product.id} className="border rounded p-4">
@@ -534,6 +545,7 @@ export async function ProductList({ searchParams }: ProductListProps) {
 ```
 
 ### Minimal Client Components
+
 ```typescript
 // components/InteractiveWrapper.tsx
 'use client'
@@ -552,7 +564,7 @@ export function InteractiveWrapper({ children, initialCount = 0 }: InteractiveWr
   return (
     <div className="border rounded p-4">
       <div className="mb-4">
-        <button 
+        <button
           onClick={() => setCount(c => c + 1)}
           className="px-3 py-1 bg-primary text-white rounded mr-2"
         >
@@ -575,7 +587,7 @@ export default async function DashboardPage() {
   return (
     <div>
       <h1>Dashboard</h1>
-      
+
       {/* Wrap interactive elements in client component */}
       <InteractiveWrapper>
         <Suspense fallback={<div>Loading stats...</div>}>
@@ -590,6 +602,7 @@ export default async function DashboardPage() {
 ## Navigation and Routing
 
 ### Navigation Component with Active States
+
 ```typescript
 // app/components/navigation.tsx
 'use client'
@@ -629,6 +642,7 @@ export function Navigation() {
 ```
 
 ### Programmatic Navigation
+
 ```typescript
 // app/components/form-with-redirect.tsx
 'use client'
@@ -643,13 +657,13 @@ export function FormWithRedirect() {
 
   const handleSubmit = async (formData: FormData) => {
     setIsSubmitting(true)
-    
+
     try {
       const response = await fetch('/api/submit', {
         method: 'POST',
         body: formData
       })
-      
+
       if (response.ok) {
         // Programmatic navigation after successful submission
         router.push('/success')

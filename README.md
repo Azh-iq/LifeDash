@@ -11,6 +11,7 @@
 ## ✨ Features
 
 ### 🎨 **Complete UI Component Library**
+
 - **9+ Production-Ready Components**: Buttons, Inputs, Cards, Modals, Tables, Charts, and more
 - **Real-time Form Validation**: Using Zod schemas with React Hook Form
 - **Accessible Design**: ARIA attributes and keyboard navigation throughout
@@ -18,6 +19,7 @@
 - **Responsive Design**: Mobile-first approach with Tailwind CSS breakpoints
 
 ### 🔐 **Authentication System**
+
 - **Complete Auth Flow**: Login, Register, Password Reset, 2FA
 - **Password Strength Meter**: Real-time feedback with security requirements
 - **Two-Factor Authentication**: QR code setup and backup codes
@@ -25,6 +27,7 @@
 - **Secure Validation**: Server-side validation with comprehensive error handling
 
 ### 📈 **Data Visualization**
+
 - **Interactive Charts**: Built with Recharts for financial data
 - **Sortable Tables**: Advanced data tables with filtering and sorting
 - **Metric Cards**: Beautiful KPI displays with trend indicators
@@ -32,6 +35,7 @@
 - **Loading States**: Skeleton components for better UX
 
 ### 🏗️ **Enterprise Architecture**
+
 - **Scalable Database**: PostgreSQL with Row Level Security (RLS)
 - **Performance Optimized**: Materialized views and indexing strategies
 - **Type Safety**: Full TypeScript coverage with generated database types
@@ -41,29 +45,33 @@
 
 ### Prerequisites
 
-- **Node.js** 18+ 
+- **Node.js** 18+
 - **npm** or **yarn**
 - **Supabase Account** (for database)
 
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/Azh-iq/LifeDash.git
    cd LifeDash
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up environment variables**
+
    ```bash
    cp .env.example .env.local
    ```
-   
+
    Edit `.env.local` with your Supabase credentials:
+
    ```env
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
@@ -71,11 +79,13 @@
    ```
 
 4. **Run database migrations** (if using Supabase)
+
    ```bash
    npx supabase migration up
    ```
 
 5. **Start the development server**
+
    ```bash
    npm run dev
    ```
@@ -105,6 +115,7 @@ Explore all the components and features through our comprehensive demo pages:
 ## 🛠️ Technology Stack
 
 ### Frontend
+
 - **[Next.js 14](https://nextjs.org/)** - React framework with App Router
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
 - **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
@@ -113,12 +124,14 @@ Explore all the components and features through our comprehensive demo pages:
 - **[Recharts](https://recharts.org/)** - Data visualization
 
 ### Backend & Database
+
 - **[Supabase](https://supabase.com/)** - Backend-as-a-Service
 - **[PostgreSQL](https://www.postgresql.org/)** - Relational database
 - **Row Level Security (RLS)** - Data access control
 - **Real-time subscriptions** - Live data updates
 
 ### Development Tools
+
 - **[ESLint](https://eslint.org/)** - Code linting
 - **[Prettier](https://prettier.io/)** - Code formatting
 - **[Husky](https://typicode.github.io/husky/)** - Git hooks
@@ -172,17 +185,20 @@ LifeDash/
 LifeDash implements a comprehensive design system with:
 
 ### Color Palette
+
 - **Primary**: Professional blues for branding
 - **Secondary**: Functional grays for interface elements
 - **Accent**: Green (success), Red (error), Amber (warning), Purple (info)
 - **Semantic**: Success, error, warning, info variants
 
 ### Typography
+
 - **Font Stack**: Inter (UI), JetBrains Mono (code/data)
 - **Scale**: Display, Heading, Body, Data, Label, Button, Caption
 - **Responsive**: Fluid typography that scales with screen size
 
 ### Components
+
 - **Interactive States**: Hover, focus, active, disabled
 - **Loading States**: Skeleton animations and spinners
 - **Accessibility**: WCAG 2.1 AA compliant
@@ -228,16 +244,19 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 Test the authentication system with these demo scenarios:
 
 ### Login Demo
+
 - **Regular Login**: Any email + any password
 - **2FA Demo**: `user@2fa.com` + any password (code: `123456`, backup: `BACKUP123`)
 - **Error Demo**: `error@test.com` + any password
 
 ### Registration Demo
+
 - **Success**: Any valid email and strong password
 - **Email Exists**: `existing@test.com`
 - **Error Demo**: `error@test.com`
 
 ### Password Reset Demo
+
 - **Success**: Any valid email
 - **Not Found**: `notfound@test.com`
 - **Error Demo**: `error@test.com`
@@ -247,7 +266,7 @@ Test the authentication system with these demo scenarios:
 ### ✅ Completed Phases
 
 - **Phase 1**: Project Foundation & Setup
-- **Phase 2**: Database & Backend Architecture  
+- **Phase 2**: Database & Backend Architecture
 - **Phase 3**: Core UI Component Library
 - **Phase 4**: Data Display Components
 - **Phase 5**: Authentication & Navigation
@@ -282,9 +301,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**[🏠 Homepage](http://localhost:3000)** • 
-**[🧩 UI Demo](http://localhost:3000/ui-demo)** • 
-**[📊 Data Demo](http://localhost:3000/data-demo)** • 
+**[🏠 Homepage](http://localhost:3000)** •
+**[🧩 UI Demo](http://localhost:3000/ui-demo)** •
+**[📊 Data Demo](http://localhost:3000/data-demo)** •
 **[🔐 Auth Demo](http://localhost:3000/auth-demo)**
 
 Made with ❤️ and ☕ by [Azhar](https://github.com/Azh-iq)

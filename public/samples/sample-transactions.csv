@@ -1,0 +1,14 @@
+Date,Type,Symbol,Quantity,Price,Portfolio,Notes
+2023-01-15,BUY,AAPL,100,150.00,My Investment Portfolio,Initial AAPL purchase
+2023-02-01,BUY,GOOGL,50,2500.00,My Investment Portfolio,Tech diversification
+2023-02-15,BUY,MSFT,75,300.00,My Investment Portfolio,Microsoft position
+2023-03-10,SELL,AAPL,25,165.00,My Investment Portfolio,Profit taking
+2023-03-15,DIVIDEND,VTI,0,5.50,Retirement Fund,Quarterly dividend payment
+2023-03-20,BUY,TSLA,25,800.00,Trading Account,Tesla position
+2023-04-01,DIVIDEND,AAPL,0,0.24,My Investment Portfolio,Quarterly dividend
+2023-04-05,SELL,GOOGL,10,2650.00,My Investment Portfolio,Partial sale
+2023-04-10,BUY,NVDA,30,450.00,Trading Account,AI play
+2023-04-15,DIVIDEND,MSFT,0,0.68,My Investment Portfolio,Quarterly dividend
+2023-05-01,BUY,META,40,250.00,Tech Growth Fund,Social media exposure
+2023-05-10,SELL,TSLA,5,900.00,Trading Account,Quick profit
+2023-05-15,BUY,AMZN,20,3200.00,Tech Growth Fund,E-commerce leader

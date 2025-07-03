@@ -39,7 +39,7 @@ const ModalOverlay = forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      'fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 backdrop-blur-sm',
+      'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50 backdrop-blur-sm',
       className
     )}
     {...props}
@@ -156,88 +156,93 @@ export interface ConfirmModalProps {
 const ConfirmModal = forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   ConfirmModalProps
->(({
-  open,
-  onOpenChange,
-  title,
-  description,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
-  variant = 'default',
-  onConfirm,
-  onCancel,
-  loading = false,
-}, ref) => {
-  const handleConfirm = async () => {
-    await onConfirm()
-    if (!loading) {
+>(
+  (
+    {
+      open,
+      onOpenChange,
+      title,
+      description,
+      confirmText = 'Confirm',
+      cancelText = 'Cancel',
+      variant = 'default',
+      onConfirm,
+      onCancel,
+      loading = false,
+    },
+    ref
+  ) => {
+    const handleConfirm = async () => {
+      await onConfirm()
+      if (!loading) {
+        onOpenChange?.(false)
+      }
+    }
+
+    const handleCancel = () => {
+      onCancel?.()
       onOpenChange?.(false)
     }
-  }
 
-  const handleCancel = () => {
-    onCancel?.()
-    onOpenChange?.(false)
+    return (
+      <Modal open={open} onOpenChange={onOpenChange}>
+        <ModalContent ref={ref} size="sm">
+          <ModalHeader>
+            <ModalTitle>{title}</ModalTitle>
+            <ModalDescription>{description}</ModalDescription>
+          </ModalHeader>
+          <ModalFooter>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleCancel}
+                disabled={loading}
+                className="flex-1 rounded-md border border-neutral-200 bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+              >
+                {cancelText}
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirm}
+                disabled={loading}
+                className={cn(
+                  'flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+                  variant === 'destructive'
+                    ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+                    : 'bg-primary-600 hover:bg-primary-700 focus:ring-primary-500'
+                )}
+              >
+                {loading && (
+                  <svg
+                    className="h-4 w-4 animate-spin"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                )}
+                {confirmText}
+              </button>
+            </div>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    )
   }
-
-  return (
-    <Modal open={open} onOpenChange={onOpenChange}>
-      <ModalContent ref={ref} size="sm">
-        <ModalHeader>
-          <ModalTitle>{title}</ModalTitle>
-          <ModalDescription>{description}</ModalDescription>
-        </ModalHeader>
-        <ModalFooter>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={handleCancel}
-              disabled={loading}
-              className="flex-1 px-4 py-2 text-sm font-medium text-neutral-700 bg-neutral-100 border border-neutral-200 rounded-md hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700 dark:hover:bg-neutral-700"
-            >
-              {cancelText}
-            </button>
-            <button
-              type="button"
-              onClick={handleConfirm}
-              disabled={loading}
-              className={cn(
-                'flex-1 px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2',
-                variant === 'destructive'
-                  ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
-                  : 'bg-primary-600 hover:bg-primary-700 focus:ring-primary-500'
-              )}
-            >
-              {loading && (
-                <svg
-                  className="animate-spin h-4 w-4"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-              )}
-              {confirmText}
-            </button>
-          </div>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  )
-})
+)
 ConfirmModal.displayName = 'ConfirmModal'
 
 export {

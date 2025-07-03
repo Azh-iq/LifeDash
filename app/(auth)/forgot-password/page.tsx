@@ -18,12 +18,12 @@ export default function ForgotPasswordPage() {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500))
-      
+
       // Simulate different scenarios
       if (data.email === 'notfound@test.com') {
         throw new Error('No account found with this email address')
       }
-      
+
       if (data.email === 'error@test.com') {
         throw new Error('Unable to send reset email. Please try again later.')
       }
@@ -36,7 +36,9 @@ export default function ForgotPasswordPage() {
         variant: 'success',
       })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send reset email')
+      setError(
+        err instanceof Error ? err.message : 'Failed to send reset email'
+      )
       toast({
         title: 'Reset Failed',
         description: err instanceof Error ? err.message : 'Please try again.',
@@ -48,7 +50,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-[60vh]">
+    <div className="flex min-h-[60vh] items-center justify-center">
       <div className="w-full">
         <PasswordResetRequestForm
           onSubmit={handlePasswordResetRequest}
@@ -56,12 +58,12 @@ export default function ForgotPasswordPage() {
           error={error}
           success={success}
         />
-        
+
         {/* Demo information */}
         {!success && (
-          <div className="mt-8 max-w-md mx-auto">
-            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-              <h3 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
+          <div className="mx-auto mt-8 max-w-md">
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+              <h3 className="mb-2 font-medium text-blue-900 dark:text-blue-100">
                 Demo Information
               </h3>
               <div className="space-y-2 text-sm text-blue-800 dark:text-blue-300">
@@ -69,14 +71,20 @@ export default function ForgotPasswordPage() {
                   <strong>Try these emails to see different behaviors:</strong>
                 </div>
                 <div>
-                  • <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">notfound@test.com</code> - Shows "no account found" error
+                  •{' '}
+                  <code className="rounded bg-blue-100 px-1 dark:bg-blue-800">
+                    notfound@test.com
+                  </code>{' '}
+                  - Shows "no account found" error
                 </div>
                 <div>
-                  • <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">error@test.com</code> - Shows service error
+                  •{' '}
+                  <code className="rounded bg-blue-100 px-1 dark:bg-blue-800">
+                    error@test.com
+                  </code>{' '}
+                  - Shows service error
                 </div>
-                <div>
-                  • Any other email - Shows successful reset flow
-                </div>
+                <div>• Any other email - Shows successful reset flow</div>
               </div>
             </div>
           </div>

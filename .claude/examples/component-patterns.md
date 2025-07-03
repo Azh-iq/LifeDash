@@ -3,6 +3,7 @@
 ## Basic Component Structure
 
 ### Functional Component with Props
+
 ```typescript
 interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'outline'
@@ -12,12 +13,12 @@ interface ButtonProps {
   children: React.ReactNode
 }
 
-export function Button({ 
-  variant = 'primary', 
-  size = 'md', 
-  disabled = false, 
-  onClick, 
-  children 
+export function Button({
+  variant = 'primary',
+  size = 'md',
+  disabled = false,
+  onClick,
+  children
 }: ButtonProps) {
   return (
     <button
@@ -46,6 +47,7 @@ export function Button({
 ```
 
 ### Server Component with Data Fetching
+
 ```typescript
 interface User {
   id: string
@@ -79,6 +81,7 @@ export default async function UserList() {
 ```
 
 ### Client Component with State
+
 ```typescript
 'use client'
 
@@ -104,6 +107,7 @@ export function Counter({ initialValue = 0 }: CounterProps) {
 ## Layout Patterns
 
 ### App Layout Structure
+
 ```typescript
 // app/layout.tsx
 import './globals.css'
@@ -133,6 +137,7 @@ export default function RootLayout({
 ```
 
 ### Page Structure
+
 ```typescript
 // app/dashboard/page.tsx
 import { Suspense } from 'react'
@@ -147,12 +152,12 @@ export default function DashboardPage() {
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <p className="text-muted-foreground">Welcome back!</p>
       </div>
-      
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Suspense fallback={<LoadingSpinner />}>
           <UserStats />
         </Suspense>
-        
+
         <Suspense fallback={<LoadingSpinner />}>
           <RecentActivity />
         </Suspense>

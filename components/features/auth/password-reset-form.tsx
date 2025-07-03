@@ -11,7 +11,14 @@ import {
   type PasswordResetRequestData,
   type PasswordResetData,
 } from '@/lib/validation/auth.schema'
-import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
+import {
+  Button,
+  Input,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from '@/components/ui'
 import PasswordStrength from './password-strength'
 
 // Password Reset Request Form
@@ -23,7 +30,9 @@ export interface PasswordResetRequestFormProps {
   className?: string
 }
 
-export const PasswordResetRequestForm: React.FC<PasswordResetRequestFormProps> = ({
+export const PasswordResetRequestForm: React.FC<
+  PasswordResetRequestFormProps
+> = ({
   onSubmit,
   loading = false,
   error = null,
@@ -58,11 +67,11 @@ export const PasswordResetRequestForm: React.FC<PasswordResetRequestFormProps> =
 
   if (success) {
     return (
-      <Card className={cn('w-full max-w-md mx-auto', className)}>
+      <Card className={cn('mx-auto w-full max-w-md', className)}>
         <CardHeader className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
             <svg
-              className="w-8 h-8 text-green-600 dark:text-green-400"
+              className="h-8 w-8 text-green-600 dark:text-green-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -78,19 +87,19 @@ export const PasswordResetRequestForm: React.FC<PasswordResetRequestFormProps> =
           <CardTitle className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
             Check your email
           </CardTitle>
-          <p className="text-neutral-600 dark:text-neutral-400 mt-2">
+          <p className="mt-2 text-neutral-600 dark:text-neutral-400">
             We&apos;ve sent a password reset link to your email address.
           </p>
         </CardHeader>
-        
-        <CardContent className="text-center space-y-4">
-          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+
+        <CardContent className="space-y-4 text-center">
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
             <p className="text-sm text-blue-800 dark:text-blue-300">
-              If you don&apos;t see the email in your inbox, check your spam folder.
-              The link will expire in 1 hour.
+              If you don&apos;t see the email in your inbox, check your spam
+              folder. The link will expire in 1 hour.
             </p>
           </div>
-          
+
           <div className="space-y-2">
             <Button
               onClick={() => window.location.reload()}
@@ -99,10 +108,10 @@ export const PasswordResetRequestForm: React.FC<PasswordResetRequestFormProps> =
             >
               Send another email
             </Button>
-            
+
             <Link
               href="/auth/login"
-              className="block w-full text-center text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+              className="block w-full text-center text-sm text-primary-600 transition-colors hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
             >
               Back to sign in
             </Link>
@@ -113,23 +122,24 @@ export const PasswordResetRequestForm: React.FC<PasswordResetRequestFormProps> =
   }
 
   return (
-    <Card className={cn('w-full max-w-md mx-auto', className)}>
+    <Card className={cn('mx-auto w-full max-w-md', className)}>
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
           Reset your password
         </CardTitle>
-        <p className="text-neutral-600 dark:text-neutral-400 mt-2">
-          Enter your email address and we&apos;ll send you a link to reset your password.
+        <p className="mt-2 text-neutral-600 dark:text-neutral-400">
+          Enter your email address and we&apos;ll send you a link to reset your
+          password.
         </p>
       </CardHeader>
-      
+
       <CardContent>
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           {error && (
-            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
               <div className="flex items-center gap-2">
                 <svg
-                  className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0"
+                  className="h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -141,7 +151,9 @@ export const PasswordResetRequestForm: React.FC<PasswordResetRequestFormProps> =
                     d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  {error}
+                </p>
               </div>
             </div>
           )}
@@ -155,7 +167,12 @@ export const PasswordResetRequestForm: React.FC<PasswordResetRequestFormProps> =
             disabled={isLoading}
             autoComplete="email"
             leftIcon={
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -179,7 +196,7 @@ export const PasswordResetRequestForm: React.FC<PasswordResetRequestFormProps> =
           <div className="text-center">
             <Link
               href="/auth/login"
-              className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+              className="text-sm text-primary-600 transition-colors hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
             >
               Back to sign in
             </Link>
@@ -241,11 +258,11 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
 
   if (success) {
     return (
-      <Card className={cn('w-full max-w-md mx-auto', className)}>
+      <Card className={cn('mx-auto w-full max-w-md', className)}>
         <CardHeader className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
             <svg
-              className="w-8 h-8 text-green-600 dark:text-green-400"
+              className="h-8 w-8 text-green-600 dark:text-green-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -261,11 +278,11 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
           <CardTitle className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
             Password reset successful
           </CardTitle>
-          <p className="text-neutral-600 dark:text-neutral-400 mt-2">
+          <p className="mt-2 text-neutral-600 dark:text-neutral-400">
             Your password has been successfully updated.
           </p>
         </CardHeader>
-        
+
         <CardContent className="text-center">
           <Link href="/auth/login">
             <Button className="w-full" size="lg">
@@ -278,23 +295,23 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
   }
 
   return (
-    <Card className={cn('w-full max-w-md mx-auto', className)}>
+    <Card className={cn('mx-auto w-full max-w-md', className)}>
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
           Create new password
         </CardTitle>
-        <p className="text-neutral-600 dark:text-neutral-400 mt-2">
+        <p className="mt-2 text-neutral-600 dark:text-neutral-400">
           Your new password must be different from your previous password.
         </p>
       </CardHeader>
-      
+
       <CardContent>
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           {(error || errors.root) && (
-            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
               <div className="flex items-center gap-2">
                 <svg
-                  className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0"
+                  className="h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -328,7 +345,12 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
               autoComplete="new-password"
               showPasswordToggle
               leftIcon={
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -338,7 +360,7 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
                 </svg>
               }
             />
-            
+
             {watchedPassword && (
               <PasswordStrength
                 password={watchedPassword}
@@ -359,7 +381,12 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
             autoComplete="new-password"
             showPasswordToggle
             leftIcon={
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -383,7 +410,7 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
           <div className="text-center">
             <Link
               href="/auth/login"
-              className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+              className="text-sm text-primary-600 transition-colors hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
             >
               Back to sign in
             </Link>

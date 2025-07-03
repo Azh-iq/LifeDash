@@ -13,4 +13,8 @@ export * from './currency/amount-display'
 export * from './loading/chart-skeleton'
 
 // Re-export commonly used utilities
-export { formatCurrency, formatPercentage, calculatePercentageChange } from './currency/amount-display'
+export {
+  formatCurrency,
+  formatPercentage,
+  calculatePercentageChange,
+} from './currency/amount-display'

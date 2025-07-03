@@ -19,8 +19,7 @@ const badgeVariants = cva(
           'border-transparent bg-green-500 text-white hover:bg-green-500/80 dark:bg-green-900 dark:text-neutral-50 dark:hover:bg-green-900/80',
         warning:
           'border-transparent bg-yellow-500 text-white hover:bg-yellow-500/80 dark:bg-yellow-900 dark:text-neutral-50 dark:hover:bg-yellow-900/80',
-        info:
-          'border-transparent bg-blue-500 text-white hover:bg-blue-500/80 dark:bg-blue-900 dark:text-neutral-50 dark:hover:bg-blue-900/80',
+        info: 'border-transparent bg-blue-500 text-white hover:bg-blue-500/80 dark:bg-blue-900 dark:text-neutral-50 dark:hover:bg-blue-900/80',
         outline:
           'border-neutral-200 text-neutral-950 hover:bg-neutral-100 dark:border-neutral-800 dark:text-neutral-50 dark:hover:bg-neutral-800',
       },
@@ -46,7 +45,10 @@ export interface BadgeProps
 }
 
 const Badge = forwardRef<HTMLDivElement, BadgeProps>(
-  ({ className, variant, size, icon, removable, onRemove, children, ...props }, ref) => {
+  (
+    { className, variant, size, icon, removable, onRemove, children, ...props },
+    ref
+  ) => {
     return (
       <div
         ref={ref}
@@ -59,7 +61,7 @@ const Badge = forwardRef<HTMLDivElement, BadgeProps>(
           <button
             type="button"
             onClick={onRemove}
-            className="ml-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10 p-0.5 transition-colors"
+            className="ml-1 rounded-full p-0.5 transition-colors hover:bg-black/10 dark:hover:bg-white/10"
             aria-label="Remove badge"
           >
             <svg

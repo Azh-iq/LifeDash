@@ -12,12 +12,12 @@ export type Database = {
       accounts: {
         Row: {
           account_number: string | null
-          account_type: Database["public"]["Enums"]["account_type"]
+          account_type: Database['public']['Enums']['account_type']
           api_credentials: Json | null
           auto_sync: boolean | null
           cost_basis_method: string | null
           created_at: string
-          currency: Database["public"]["Enums"]["currency_code"] | null
+          currency: Database['public']['Enums']['currency_code'] | null
           id: string
           is_active: boolean | null
           last_sync_at: string | null
@@ -33,12 +33,12 @@ export type Database = {
         }
         Insert: {
           account_number?: string | null
-          account_type: Database["public"]["Enums"]["account_type"]
+          account_type: Database['public']['Enums']['account_type']
           api_credentials?: Json | null
           auto_sync?: boolean | null
           cost_basis_method?: string | null
           created_at?: string
-          currency?: Database["public"]["Enums"]["currency_code"] | null
+          currency?: Database['public']['Enums']['currency_code'] | null
           id?: string
           is_active?: boolean | null
           last_sync_at?: string | null
@@ -54,12 +54,12 @@ export type Database = {
         }
         Update: {
           account_number?: string | null
-          account_type?: Database["public"]["Enums"]["account_type"]
+          account_type?: Database['public']['Enums']['account_type']
           api_credentials?: Json | null
           auto_sync?: boolean | null
           cost_basis_method?: string | null
           created_at?: string
-          currency?: Database["public"]["Enums"]["currency_code"] | null
+          currency?: Database['public']['Enums']['currency_code'] | null
           id?: string
           is_active?: boolean | null
           last_sync_at?: string | null
@@ -75,25 +75,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "accounts_platform_id_fkey"
-            columns: ["platform_id"]
+            foreignKeyName: 'accounts_platform_id_fkey'
+            columns: ['platform_id']
             isOneToOne: false
-            referencedRelation: "platforms"
-            referencedColumns: ["id"]
+            referencedRelation: 'platforms'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "accounts_portfolio_id_fkey"
-            columns: ["portfolio_id"]
+            foreignKeyName: 'accounts_portfolio_id_fkey'
+            columns: ['portfolio_id']
             isOneToOne: false
-            referencedRelation: "portfolios"
-            referencedColumns: ["id"]
+            referencedRelation: 'portfolios'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "accounts_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'accounts_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
+            referencedRelation: 'user_profiles'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -163,17 +163,17 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "api_usage_logs_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'api_usage_logs_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
+            referencedRelation: 'user_profiles'
+            referencedColumns: ['id']
           },
         ]
       }
       audit_logs: {
         Row: {
-          action: Database["public"]["Enums"]["audit_action"]
+          action: Database['public']['Enums']['audit_action']
           browser: string | null
           changes: Json | null
           city: string | null
@@ -203,7 +203,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
-          action: Database["public"]["Enums"]["audit_action"]
+          action: Database['public']['Enums']['audit_action']
           browser?: string | null
           changes?: Json | null
           city?: string | null
@@ -233,7 +233,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
-          action?: Database["public"]["Enums"]["audit_action"]
+          action?: Database['public']['Enums']['audit_action']
           browser?: string | null
           changes?: Json | null
           city?: string | null
@@ -264,11 +264,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "audit_logs_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'audit_logs_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
+            referencedRelation: 'user_profiles'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -317,11 +317,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "data_changes_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'data_changes_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
+            referencedRelation: 'user_profiles'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -330,7 +330,7 @@ export type Database = {
           account_id: string
           amount_per_share: number
           created_at: string
-          currency: Database["public"]["Enums"]["currency_code"]
+          currency: Database['public']['Enums']['currency_code']
           ex_date: string
           exchange_rate: number | null
           foreign_tax_paid: number | null
@@ -351,7 +351,7 @@ export type Database = {
           account_id: string
           amount_per_share: number
           created_at?: string
-          currency: Database["public"]["Enums"]["currency_code"]
+          currency: Database['public']['Enums']['currency_code']
           ex_date: string
           exchange_rate?: number | null
           foreign_tax_paid?: number | null
@@ -372,7 +372,7 @@ export type Database = {
           account_id?: string
           amount_per_share?: number
           created_at?: string
-          currency?: Database["public"]["Enums"]["currency_code"]
+          currency?: Database['public']['Enums']['currency_code']
           ex_date?: string
           exchange_rate?: number | null
           foreign_tax_paid?: number | null
@@ -391,39 +391,39 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "dividend_payments_account_id_fkey"
-            columns: ["account_id"]
+            foreignKeyName: 'dividend_payments_account_id_fkey'
+            columns: ['account_id']
             isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
+            referencedRelation: 'accounts'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "dividend_payments_reinvestment_transaction_id_fkey"
-            columns: ["reinvestment_transaction_id"]
+            foreignKeyName: 'dividend_payments_reinvestment_transaction_id_fkey'
+            columns: ['reinvestment_transaction_id']
             isOneToOne: false
-            referencedRelation: "transactions"
-            referencedColumns: ["id"]
+            referencedRelation: 'transactions'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "dividend_payments_stock_id_fkey"
-            columns: ["stock_id"]
+            foreignKeyName: 'dividend_payments_stock_id_fkey'
+            columns: ['stock_id']
             isOneToOne: false
-            referencedRelation: "stocks"
-            referencedColumns: ["id"]
+            referencedRelation: 'stocks'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "dividend_payments_transaction_id_fkey"
-            columns: ["transaction_id"]
+            foreignKeyName: 'dividend_payments_transaction_id_fkey'
+            columns: ['transaction_id']
             isOneToOne: false
-            referencedRelation: "transactions"
-            referencedColumns: ["id"]
+            referencedRelation: 'transactions'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "dividend_payments_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'dividend_payments_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
+            referencedRelation: 'user_profiles'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -434,7 +434,7 @@ export type Database = {
           asset_class_allocation: number | null
           average_cost: number
           created_at: string
-          currency: Database["public"]["Enums"]["currency_code"]
+          currency: Database['public']['Enums']['currency_code']
           current_price: number | null
           day_change: number | null
           day_change_percent: number | null
@@ -462,7 +462,7 @@ export type Database = {
           asset_class_allocation?: number | null
           average_cost?: number
           created_at?: string
-          currency: Database["public"]["Enums"]["currency_code"]
+          currency: Database['public']['Enums']['currency_code']
           current_price?: number | null
           day_change?: number | null
           day_change_percent?: number | null
@@ -490,7 +490,7 @@ export type Database = {
           asset_class_allocation?: number | null
           average_cost?: number
           created_at?: string
-          currency?: Database["public"]["Enums"]["currency_code"]
+          currency?: Database['public']['Enums']['currency_code']
           current_price?: number | null
           day_change?: number | null
           day_change_percent?: number | null
@@ -514,25 +514,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "holdings_account_id_fkey"
-            columns: ["account_id"]
+            foreignKeyName: 'holdings_account_id_fkey'
+            columns: ['account_id']
             isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
+            referencedRelation: 'accounts'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "holdings_stock_id_fkey"
-            columns: ["stock_id"]
+            foreignKeyName: 'holdings_stock_id_fkey'
+            columns: ['stock_id']
             isOneToOne: false
-            referencedRelation: "stocks"
-            referencedColumns: ["id"]
+            referencedRelation: 'stocks'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "holdings_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'holdings_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
+            referencedRelation: 'user_profiles'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -540,7 +540,7 @@ export type Database = {
         Row: {
           close_price: number
           created_at: string
-          data_source: Database["public"]["Enums"]["data_source"] | null
+          data_source: Database['public']['Enums']['data_source'] | null
           high_price: number
           id: string | null
           interval_type: string
@@ -554,7 +554,7 @@ export type Database = {
         Insert: {
           close_price: number
           created_at?: string
-          data_source?: Database["public"]["Enums"]["data_source"] | null
+          data_source?: Database['public']['Enums']['data_source'] | null
           high_price: number
           id?: string | null
           interval_type?: string
@@ -568,7 +568,7 @@ export type Database = {
         Update: {
           close_price?: number
           created_at?: string
-          data_source?: Database["public"]["Enums"]["data_source"] | null
+          data_source?: Database['public']['Enums']['data_source'] | null
           high_price?: number
           id?: string | null
           interval_type?: string
@@ -581,11 +581,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "intraday_prices_stock_id_fkey"
-            columns: ["stock_id"]
+            foreignKeyName: 'intraday_prices_stock_id_fkey'
+            columns: ['stock_id']
             isOneToOne: false
-            referencedRelation: "stocks"
-            referencedColumns: ["id"]
+            referencedRelation: 'stocks'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -593,7 +593,7 @@ export type Database = {
         Row: {
           close_price: number
           created_at: string
-          data_source: Database["public"]["Enums"]["data_source"] | null
+          data_source: Database['public']['Enums']['data_source'] | null
           date: string
           high_price: number
           id: string | null
@@ -604,7 +604,7 @@ export type Database = {
         Insert: {
           close_price: number
           created_at?: string
-          data_source?: Database["public"]["Enums"]["data_source"] | null
+          data_source?: Database['public']['Enums']['data_source'] | null
           date: string
           high_price: number
           id?: string | null
@@ -615,7 +615,7 @@ export type Database = {
         Update: {
           close_price?: number
           created_at?: string
-          data_source?: Database["public"]["Enums"]["data_source"] | null
+          data_source?: Database['public']['Enums']['data_source'] | null
           date?: string
           high_price?: number
           id?: string | null
@@ -625,11 +625,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "market_index_prices_index_id_fkey"
-            columns: ["index_id"]
+            foreignKeyName: 'market_index_prices_index_id_fkey'
+            columns: ['index_id']
             isOneToOne: false
-            referencedRelation: "market_indices"
-            referencedColumns: ["id"]
+            referencedRelation: 'market_indices'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -638,7 +638,7 @@ export type Database = {
           component_count: number | null
           country_code: string | null
           created_at: string
-          currency: Database["public"]["Enums"]["currency_code"] | null
+          currency: Database['public']['Enums']['currency_code'] | null
           description: string | null
           id: string
           is_active: boolean | null
@@ -651,7 +651,7 @@ export type Database = {
           component_count?: number | null
           country_code?: string | null
           created_at?: string
-          currency?: Database["public"]["Enums"]["currency_code"] | null
+          currency?: Database['public']['Enums']['currency_code'] | null
           description?: string | null
           id?: string
           is_active?: boolean | null
@@ -664,7 +664,7 @@ export type Database = {
           component_count?: number | null
           country_code?: string | null
           created_at?: string
-          currency?: Database["public"]["Enums"]["currency_code"] | null
+          currency?: Database['public']['Enums']['currency_code'] | null
           description?: string | null
           id?: string
           is_active?: boolean | null
@@ -735,18 +735,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "platform_integrations_platform_id_fkey"
-            columns: ["platform_id"]
+            foreignKeyName: 'platform_integrations_platform_id_fkey'
+            columns: ['platform_id']
             isOneToOne: false
-            referencedRelation: "platforms"
-            referencedColumns: ["id"]
+            referencedRelation: 'platforms'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "platform_integrations_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'platform_integrations_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
+            referencedRelation: 'user_profiles'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -759,7 +759,7 @@ export type Database = {
           crypto_commission_percent: number | null
           csv_config: Json | null
           csv_import_supported: boolean | null
-          default_currency: Database["public"]["Enums"]["currency_code"] | null
+          default_currency: Database['public']['Enums']['currency_code'] | null
           display_name: string
           etf_commission: number | null
           fx_spread_percent: number | null
@@ -770,12 +770,12 @@ export type Database = {
           option_commission: number | null
           stock_commission: number | null
           supported_asset_classes:
-            | Database["public"]["Enums"]["asset_class"][]
+            | Database['public']['Enums']['asset_class'][]
             | null
           supported_currencies:
-            | Database["public"]["Enums"]["currency_code"][]
+            | Database['public']['Enums']['currency_code'][]
             | null
-          type: Database["public"]["Enums"]["platform_type"]
+          type: Database['public']['Enums']['platform_type']
           updated_at: string
           website_url: string | null
         }
@@ -787,7 +787,7 @@ export type Database = {
           crypto_commission_percent?: number | null
           csv_config?: Json | null
           csv_import_supported?: boolean | null
-          default_currency?: Database["public"]["Enums"]["currency_code"] | null
+          default_currency?: Database['public']['Enums']['currency_code'] | null
           display_name: string
           etf_commission?: number | null
           fx_spread_percent?: number | null
@@ -798,12 +798,12 @@ export type Database = {
           option_commission?: number | null
           stock_commission?: number | null
           supported_asset_classes?:
-            | Database["public"]["Enums"]["asset_class"][]
+            | Database['public']['Enums']['asset_class'][]
             | null
           supported_currencies?:
-            | Database["public"]["Enums"]["currency_code"][]
+            | Database['public']['Enums']['currency_code'][]
             | null
-          type: Database["public"]["Enums"]["platform_type"]
+          type: Database['public']['Enums']['platform_type']
           updated_at?: string
           website_url?: string | null
         }
@@ -815,7 +815,7 @@ export type Database = {
           crypto_commission_percent?: number | null
           csv_config?: Json | null
           csv_import_supported?: boolean | null
-          default_currency?: Database["public"]["Enums"]["currency_code"] | null
+          default_currency?: Database['public']['Enums']['currency_code'] | null
           display_name?: string
           etf_commission?: number | null
           fx_spread_percent?: number | null
@@ -826,12 +826,12 @@ export type Database = {
           option_commission?: number | null
           stock_commission?: number | null
           supported_asset_classes?:
-            | Database["public"]["Enums"]["asset_class"][]
+            | Database['public']['Enums']['asset_class'][]
             | null
           supported_currencies?:
-            | Database["public"]["Enums"]["currency_code"][]
+            | Database['public']['Enums']['currency_code'][]
             | null
-          type?: Database["public"]["Enums"]["platform_type"]
+          type?: Database['public']['Enums']['platform_type']
           updated_at?: string
           website_url?: string | null
         }
@@ -839,7 +839,7 @@ export type Database = {
       }
       portfolio_allocations: {
         Row: {
-          asset_class: Database["public"]["Enums"]["asset_class"]
+          asset_class: Database['public']['Enums']['asset_class']
           created_at: string
           id: string
           max_percentage: number | null
@@ -851,7 +851,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          asset_class: Database["public"]["Enums"]["asset_class"]
+          asset_class: Database['public']['Enums']['asset_class']
           created_at?: string
           id?: string
           max_percentage?: number | null
@@ -863,7 +863,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          asset_class?: Database["public"]["Enums"]["asset_class"]
+          asset_class?: Database['public']['Enums']['asset_class']
           created_at?: string
           id?: string
           max_percentage?: number | null
@@ -876,11 +876,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "portfolio_allocations_portfolio_id_fkey"
-            columns: ["portfolio_id"]
+            foreignKeyName: 'portfolio_allocations_portfolio_id_fkey'
+            columns: ['portfolio_id']
             isOneToOne: false
-            referencedRelation: "portfolios"
-            referencedColumns: ["id"]
+            referencedRelation: 'portfolios'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -896,7 +896,7 @@ export type Database = {
           created_at: string
           cumulative_return: number | null
           cumulative_return_percent: number | null
-          currency: Database["public"]["Enums"]["currency_code"]
+          currency: Database['public']['Enums']['currency_code']
           daily_return: number | null
           daily_return_percent: number | null
           date: string
@@ -922,7 +922,7 @@ export type Database = {
           created_at?: string
           cumulative_return?: number | null
           cumulative_return_percent?: number | null
-          currency: Database["public"]["Enums"]["currency_code"]
+          currency: Database['public']['Enums']['currency_code']
           daily_return?: number | null
           daily_return_percent?: number | null
           date: string
@@ -948,7 +948,7 @@ export type Database = {
           created_at?: string
           cumulative_return?: number | null
           cumulative_return_percent?: number | null
-          currency?: Database["public"]["Enums"]["currency_code"]
+          currency?: Database['public']['Enums']['currency_code']
           daily_return?: number | null
           daily_return_percent?: number | null
           date?: string
@@ -965,11 +965,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "portfolio_performance_portfolio_id_fkey"
-            columns: ["portfolio_id"]
+            foreignKeyName: 'portfolio_performance_portfolio_id_fkey'
+            columns: ['portfolio_id']
             isOneToOne: false
-            referencedRelation: "portfolios"
-            referencedColumns: ["id"]
+            referencedRelation: 'portfolios'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -978,8 +978,8 @@ export type Database = {
           allocation_breakdown: Json | null
           cash_balance: number | null
           created_at: string
-          currency: Database["public"]["Enums"]["currency_code"]
-          data_source: Database["public"]["Enums"]["data_source"] | null
+          currency: Database['public']['Enums']['currency_code']
+          data_source: Database['public']['Enums']['data_source'] | null
           day_change: number | null
           day_change_percent: number | null
           id: string
@@ -994,8 +994,8 @@ export type Database = {
           allocation_breakdown?: Json | null
           cash_balance?: number | null
           created_at?: string
-          currency: Database["public"]["Enums"]["currency_code"]
-          data_source?: Database["public"]["Enums"]["data_source"] | null
+          currency: Database['public']['Enums']['currency_code']
+          data_source?: Database['public']['Enums']['data_source'] | null
           day_change?: number | null
           day_change_percent?: number | null
           id?: string
@@ -1010,8 +1010,8 @@ export type Database = {
           allocation_breakdown?: Json | null
           cash_balance?: number | null
           created_at?: string
-          currency?: Database["public"]["Enums"]["currency_code"]
-          data_source?: Database["public"]["Enums"]["data_source"] | null
+          currency?: Database['public']['Enums']['currency_code']
+          data_source?: Database['public']['Enums']['data_source'] | null
           day_change?: number | null
           day_change_percent?: number | null
           id?: string
@@ -1024,11 +1024,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "portfolio_snapshots_portfolio_id_fkey"
-            columns: ["portfolio_id"]
+            foreignKeyName: 'portfolio_snapshots_portfolio_id_fkey'
+            columns: ['portfolio_id']
             isOneToOne: false
-            referencedRelation: "portfolios"
-            referencedColumns: ["id"]
+            referencedRelation: 'portfolios'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1036,7 +1036,7 @@ export type Database = {
         Row: {
           color_theme: string | null
           created_at: string
-          currency: Database["public"]["Enums"]["currency_code"] | null
+          currency: Database['public']['Enums']['currency_code'] | null
           description: string | null
           id: string
           inception_date: string | null
@@ -1053,7 +1053,7 @@ export type Database = {
         Insert: {
           color_theme?: string | null
           created_at?: string
-          currency?: Database["public"]["Enums"]["currency_code"] | null
+          currency?: Database['public']['Enums']['currency_code'] | null
           description?: string | null
           id?: string
           inception_date?: string | null
@@ -1070,7 +1070,7 @@ export type Database = {
         Update: {
           color_theme?: string | null
           created_at?: string
-          currency?: Database["public"]["Enums"]["currency_code"] | null
+          currency?: Database['public']['Enums']['currency_code'] | null
           description?: string | null
           id?: string
           inception_date?: string | null
@@ -1086,11 +1086,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "portfolios_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'portfolios_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
+            referencedRelation: 'user_profiles'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1100,7 +1100,7 @@ export type Database = {
           average_acquisition_date: string | null
           cost_basis: number
           created_at: string
-          currency: Database["public"]["Enums"]["currency_code"]
+          currency: Database['public']['Enums']['currency_code']
           disallowed_loss: number | null
           gross_proceeds: number
           holding_period_days: number | null
@@ -1123,7 +1123,7 @@ export type Database = {
           average_acquisition_date?: string | null
           cost_basis: number
           created_at?: string
-          currency: Database["public"]["Enums"]["currency_code"]
+          currency: Database['public']['Enums']['currency_code']
           disallowed_loss?: number | null
           gross_proceeds: number
           holding_period_days?: number | null
@@ -1146,7 +1146,7 @@ export type Database = {
           average_acquisition_date?: string | null
           cost_basis?: number
           created_at?: string
-          currency?: Database["public"]["Enums"]["currency_code"]
+          currency?: Database['public']['Enums']['currency_code']
           disallowed_loss?: number | null
           gross_proceeds?: number
           holding_period_days?: number | null
@@ -1166,32 +1166,32 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "realized_gains_account_id_fkey"
-            columns: ["account_id"]
+            foreignKeyName: 'realized_gains_account_id_fkey'
+            columns: ['account_id']
             isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
+            referencedRelation: 'accounts'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "realized_gains_sell_transaction_id_fkey"
-            columns: ["sell_transaction_id"]
+            foreignKeyName: 'realized_gains_sell_transaction_id_fkey'
+            columns: ['sell_transaction_id']
             isOneToOne: false
-            referencedRelation: "transactions"
-            referencedColumns: ["id"]
+            referencedRelation: 'transactions'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "realized_gains_stock_id_fkey"
-            columns: ["stock_id"]
+            foreignKeyName: 'realized_gains_stock_id_fkey'
+            columns: ['stock_id']
             isOneToOne: false
-            referencedRelation: "stocks"
-            referencedColumns: ["id"]
+            referencedRelation: 'stocks'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "realized_gains_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'realized_gains_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
+            referencedRelation: 'user_profiles'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1261,11 +1261,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "security_events_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'security_events_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
+            referencedRelation: 'user_profiles'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1299,11 +1299,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "stock_aliases_stock_id_fkey"
-            columns: ["stock_id"]
+            foreignKeyName: 'stock_aliases_stock_id_fkey'
+            columns: ['stock_id']
             isOneToOne: false
-            referencedRelation: "stocks"
-            referencedColumns: ["id"]
+            referencedRelation: 'stocks'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1311,7 +1311,7 @@ export type Database = {
         Row: {
           amount: number
           created_at: string
-          data_source: Database["public"]["Enums"]["data_source"] | null
+          data_source: Database['public']['Enums']['data_source'] | null
           dividend_type: string | null
           ex_date: string
           id: string
@@ -1322,7 +1322,7 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string
-          data_source?: Database["public"]["Enums"]["data_source"] | null
+          data_source?: Database['public']['Enums']['data_source'] | null
           dividend_type?: string | null
           ex_date: string
           id?: string
@@ -1333,7 +1333,7 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string
-          data_source?: Database["public"]["Enums"]["data_source"] | null
+          data_source?: Database['public']['Enums']['data_source'] | null
           dividend_type?: string | null
           ex_date?: string
           id?: string
@@ -1343,11 +1343,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "stock_dividends_stock_id_fkey"
-            columns: ["stock_id"]
+            foreignKeyName: 'stock_dividends_stock_id_fkey'
+            columns: ['stock_id']
             isOneToOne: false
-            referencedRelation: "stocks"
-            referencedColumns: ["id"]
+            referencedRelation: 'stocks'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1356,7 +1356,7 @@ export type Database = {
           book_value_per_share: number | null
           created_at: string
           current_ratio: number | null
-          data_source: Database["public"]["Enums"]["data_source"] | null
+          data_source: Database['public']['Enums']['data_source'] | null
           debt_to_equity: number | null
           dividend_per_share: number | null
           dividend_yield: number | null
@@ -1394,7 +1394,7 @@ export type Database = {
           book_value_per_share?: number | null
           created_at?: string
           current_ratio?: number | null
-          data_source?: Database["public"]["Enums"]["data_source"] | null
+          data_source?: Database['public']['Enums']['data_source'] | null
           debt_to_equity?: number | null
           dividend_per_share?: number | null
           dividend_yield?: number | null
@@ -1432,7 +1432,7 @@ export type Database = {
           book_value_per_share?: number | null
           created_at?: string
           current_ratio?: number | null
-          data_source?: Database["public"]["Enums"]["data_source"] | null
+          data_source?: Database['public']['Enums']['data_source'] | null
           debt_to_equity?: number | null
           dividend_per_share?: number | null
           dividend_yield?: number | null
@@ -1468,11 +1468,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "stock_fundamentals_stock_id_fkey"
-            columns: ["stock_id"]
+            foreignKeyName: 'stock_fundamentals_stock_id_fkey'
+            columns: ['stock_id']
             isOneToOne: false
-            referencedRelation: "stocks"
-            referencedColumns: ["id"]
+            referencedRelation: 'stocks'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1481,7 +1481,7 @@ export type Database = {
           adjusted_close: number | null
           close_price: number
           created_at: string
-          data_source: Database["public"]["Enums"]["data_source"] | null
+          data_source: Database['public']['Enums']['data_source'] | null
           date: string
           dividend_amount: number | null
           high_price: number
@@ -1498,7 +1498,7 @@ export type Database = {
           adjusted_close?: number | null
           close_price: number
           created_at?: string
-          data_source?: Database["public"]["Enums"]["data_source"] | null
+          data_source?: Database['public']['Enums']['data_source'] | null
           date: string
           dividend_amount?: number | null
           high_price: number
@@ -1515,7 +1515,7 @@ export type Database = {
           adjusted_close?: number | null
           close_price?: number
           created_at?: string
-          data_source?: Database["public"]["Enums"]["data_source"] | null
+          data_source?: Database['public']['Enums']['data_source'] | null
           date?: string
           dividend_amount?: number | null
           high_price?: number
@@ -1530,18 +1530,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "stock_prices_stock_id_fkey"
-            columns: ["stock_id"]
+            foreignKeyName: 'stock_prices_stock_id_fkey'
+            columns: ['stock_id']
             isOneToOne: false
-            referencedRelation: "stocks"
-            referencedColumns: ["id"]
+            referencedRelation: 'stocks'
+            referencedColumns: ['id']
           },
         ]
       }
       stock_splits: {
         Row: {
           created_at: string
-          data_source: Database["public"]["Enums"]["data_source"] | null
+          data_source: Database['public']['Enums']['data_source'] | null
           ex_date: string
           id: string
           split_ratio: number
@@ -1549,7 +1549,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          data_source?: Database["public"]["Enums"]["data_source"] | null
+          data_source?: Database['public']['Enums']['data_source'] | null
           ex_date: string
           id?: string
           split_ratio: number
@@ -1557,7 +1557,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          data_source?: Database["public"]["Enums"]["data_source"] | null
+          data_source?: Database['public']['Enums']['data_source'] | null
           ex_date?: string
           id?: string
           split_ratio?: number
@@ -1565,26 +1565,26 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "stock_splits_stock_id_fkey"
-            columns: ["stock_id"]
+            foreignKeyName: 'stock_splits_stock_id_fkey'
+            columns: ['stock_id']
             isOneToOne: false
-            referencedRelation: "stocks"
-            referencedColumns: ["id"]
+            referencedRelation: 'stocks'
+            referencedColumns: ['id']
           },
         ]
       }
       stocks: {
         Row: {
-          asset_class: Database["public"]["Enums"]["asset_class"] | null
+          asset_class: Database['public']['Enums']['asset_class'] | null
           aum: number | null
           avg_volume_30d: number | null
           bloomberg_ticker: string | null
           company_name: string | null
           country_code: string | null
           created_at: string
-          currency: Database["public"]["Enums"]["currency_code"] | null
+          currency: Database['public']['Enums']['currency_code'] | null
           cusip: string | null
-          data_source: Database["public"]["Enums"]["data_source"] | null
+          data_source: Database['public']['Enums']['data_source'] | null
           delisting_date: string | null
           description: string | null
           exchange: string
@@ -1612,16 +1612,16 @@ export type Database = {
           yahoo_symbol: string | null
         }
         Insert: {
-          asset_class?: Database["public"]["Enums"]["asset_class"] | null
+          asset_class?: Database['public']['Enums']['asset_class'] | null
           aum?: number | null
           avg_volume_30d?: number | null
           bloomberg_ticker?: string | null
           company_name?: string | null
           country_code?: string | null
           created_at?: string
-          currency?: Database["public"]["Enums"]["currency_code"] | null
+          currency?: Database['public']['Enums']['currency_code'] | null
           cusip?: string | null
-          data_source?: Database["public"]["Enums"]["data_source"] | null
+          data_source?: Database['public']['Enums']['data_source'] | null
           delisting_date?: string | null
           description?: string | null
           exchange: string
@@ -1649,16 +1649,16 @@ export type Database = {
           yahoo_symbol?: string | null
         }
         Update: {
-          asset_class?: Database["public"]["Enums"]["asset_class"] | null
+          asset_class?: Database['public']['Enums']['asset_class'] | null
           aum?: number | null
           avg_volume_30d?: number | null
           bloomberg_ticker?: string | null
           company_name?: string | null
           country_code?: string | null
           created_at?: string
-          currency?: Database["public"]["Enums"]["currency_code"] | null
+          currency?: Database['public']['Enums']['currency_code'] | null
           cusip?: string | null
-          data_source?: Database["public"]["Enums"]["data_source"] | null
+          data_source?: Database['public']['Enums']['data_source'] | null
           delisting_date?: string | null
           description?: string | null
           exchange?: string
@@ -1783,18 +1783,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "tax_lots_holding_id_fkey"
-            columns: ["holding_id"]
+            foreignKeyName: 'tax_lots_holding_id_fkey'
+            columns: ['holding_id']
             isOneToOne: false
-            referencedRelation: "holdings"
-            referencedColumns: ["id"]
+            referencedRelation: 'holdings'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "tax_lots_transaction_id_fkey"
-            columns: ["transaction_id"]
+            foreignKeyName: 'tax_lots_transaction_id_fkey'
+            columns: ['transaction_id']
             isOneToOne: false
-            referencedRelation: "transactions"
-            referencedColumns: ["id"]
+            referencedRelation: 'transactions'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1804,8 +1804,8 @@ export type Database = {
           commission: number | null
           corporate_action_type: string | null
           created_at: string
-          currency: Database["public"]["Enums"]["currency_code"]
-          data_source: Database["public"]["Enums"]["data_source"] | null
+          currency: Database['public']['Enums']['currency_code']
+          data_source: Database['public']['Enums']['data_source'] | null
           date: string
           description: string | null
           exchange_rate: number | null
@@ -1828,7 +1828,7 @@ export type Database = {
           time: string | null
           total_amount: number
           total_fees: number | null
-          transaction_type: Database["public"]["Enums"]["transaction_type"]
+          transaction_type: Database['public']['Enums']['transaction_type']
           updated_at: string
           user_id: string
           verification_date: string | null
@@ -1839,8 +1839,8 @@ export type Database = {
           commission?: number | null
           corporate_action_type?: string | null
           created_at?: string
-          currency: Database["public"]["Enums"]["currency_code"]
-          data_source?: Database["public"]["Enums"]["data_source"] | null
+          currency: Database['public']['Enums']['currency_code']
+          data_source?: Database['public']['Enums']['data_source'] | null
           date: string
           description?: string | null
           exchange_rate?: number | null
@@ -1863,7 +1863,7 @@ export type Database = {
           time?: string | null
           total_amount: number
           total_fees?: number | null
-          transaction_type: Database["public"]["Enums"]["transaction_type"]
+          transaction_type: Database['public']['Enums']['transaction_type']
           updated_at?: string
           user_id: string
           verification_date?: string | null
@@ -1874,8 +1874,8 @@ export type Database = {
           commission?: number | null
           corporate_action_type?: string | null
           created_at?: string
-          currency?: Database["public"]["Enums"]["currency_code"]
-          data_source?: Database["public"]["Enums"]["data_source"] | null
+          currency?: Database['public']['Enums']['currency_code']
+          data_source?: Database['public']['Enums']['data_source'] | null
           date?: string
           description?: string | null
           exchange_rate?: number | null
@@ -1898,7 +1898,7 @@ export type Database = {
           time?: string | null
           total_amount?: number
           total_fees?: number | null
-          transaction_type?: Database["public"]["Enums"]["transaction_type"]
+          transaction_type?: Database['public']['Enums']['transaction_type']
           updated_at?: string
           user_id?: string
           verification_date?: string | null
@@ -1906,32 +1906,32 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "transactions_account_id_fkey"
-            columns: ["account_id"]
+            foreignKeyName: 'transactions_account_id_fkey'
+            columns: ['account_id']
             isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
+            referencedRelation: 'accounts'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "transactions_related_transaction_id_fkey"
-            columns: ["related_transaction_id"]
+            foreignKeyName: 'transactions_related_transaction_id_fkey'
+            columns: ['related_transaction_id']
             isOneToOne: false
-            referencedRelation: "transactions"
-            referencedColumns: ["id"]
+            referencedRelation: 'transactions'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "transactions_stock_id_fkey"
-            columns: ["stock_id"]
+            foreignKeyName: 'transactions_stock_id_fkey'
+            columns: ['stock_id']
             isOneToOne: false
-            referencedRelation: "stocks"
-            referencedColumns: ["id"]
+            referencedRelation: 'stocks'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "transactions_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'transactions_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
+            referencedRelation: 'user_profiles'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1983,11 +1983,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "user_api_keys_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'user_api_keys_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
+            referencedRelation: 'user_profiles'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -2033,11 +2033,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "user_notifications_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'user_notifications_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
+            referencedRelation: 'user_profiles'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -2058,11 +2058,11 @@ export type Database = {
           portfolio_view_mode: string | null
           preload_data: boolean | null
           price_alerts: boolean | null
-          primary_currency: Database["public"]["Enums"]["currency_code"] | null
+          primary_currency: Database['public']['Enums']['currency_code'] | null
           push_notifications: boolean | null
           reduce_motion: boolean | null
           secondary_currency:
-            | Database["public"]["Enums"]["currency_code"]
+            | Database['public']['Enums']['currency_code']
             | null
           show_absolute_changes: boolean | null
           show_percentage_changes: boolean | null
@@ -2087,11 +2087,11 @@ export type Database = {
           portfolio_view_mode?: string | null
           preload_data?: boolean | null
           price_alerts?: boolean | null
-          primary_currency?: Database["public"]["Enums"]["currency_code"] | null
+          primary_currency?: Database['public']['Enums']['currency_code'] | null
           push_notifications?: boolean | null
           reduce_motion?: boolean | null
           secondary_currency?:
-            | Database["public"]["Enums"]["currency_code"]
+            | Database['public']['Enums']['currency_code']
             | null
           show_absolute_changes?: boolean | null
           show_percentage_changes?: boolean | null
@@ -2116,11 +2116,11 @@ export type Database = {
           portfolio_view_mode?: string | null
           preload_data?: boolean | null
           price_alerts?: boolean | null
-          primary_currency?: Database["public"]["Enums"]["currency_code"] | null
+          primary_currency?: Database['public']['Enums']['currency_code'] | null
           push_notifications?: boolean | null
           reduce_motion?: boolean | null
           secondary_currency?:
-            | Database["public"]["Enums"]["currency_code"]
+            | Database['public']['Enums']['currency_code']
             | null
           show_absolute_changes?: boolean | null
           show_percentage_changes?: boolean | null
@@ -2131,11 +2131,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "user_preferences_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'user_preferences_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: true
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
+            referencedRelation: 'user_profiles'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -2226,11 +2226,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "user_sessions_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'user_sessions_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
+            referencedRelation: 'user_profiles'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -2255,7 +2255,7 @@ export type Database = {
     Functions: {
       calculate_portfolio_metrics: {
         Args: { portfolio_uuid: string; calculation_date?: string }
-        Returns: Database["public"]["CompositeTypes"]["portfolio_metrics"]
+        Returns: Database['public']['CompositeTypes']['portfolio_metrics']
       }
       calculate_stock_return: {
         Args: { stock_uuid: string; start_date: string; end_date?: string }
@@ -2267,27 +2267,27 @@ export type Database = {
         }[]
       }
       citext: {
-        Args: { "": boolean } | { "": string } | { "": unknown }
+        Args: { '': boolean } | { '': string } | { '': unknown }
         Returns: string
       }
       citext_hash: {
-        Args: { "": string }
+        Args: { '': string }
         Returns: number
       }
       citextin: {
-        Args: { "": unknown }
+        Args: { '': unknown }
         Returns: string
       }
       citextout: {
-        Args: { "": string }
+        Args: { '': string }
         Returns: unknown
       }
       citextrecv: {
-        Args: { "": unknown }
+        Args: { '': unknown }
         Returns: string
       }
       citextsend: {
-        Args: { "": string }
+        Args: { '': string }
         Returns: string
       }
       cleanup_api_usage_logs: {
@@ -2313,7 +2313,7 @@ export type Database = {
       create_audit_log: {
         Args: {
           p_user_id: string
-          p_action: Database["public"]["Enums"]["audit_action"]
+          p_action: Database['public']['Enums']['audit_action']
           p_resource_type: string
           p_resource_id?: string
           p_old_values?: Json
@@ -2360,23 +2360,23 @@ export type Database = {
         Returns: number
       }
       gtrgm_compress: {
-        Args: { "": unknown }
+        Args: { '': unknown }
         Returns: unknown
       }
       gtrgm_decompress: {
-        Args: { "": unknown }
+        Args: { '': unknown }
         Returns: unknown
       }
       gtrgm_in: {
-        Args: { "": unknown }
+        Args: { '': unknown }
         Returns: unknown
       }
       gtrgm_options: {
-        Args: { "": unknown }
+        Args: { '': unknown }
         Returns: undefined
       }
       gtrgm_out: {
-        Args: { "": unknown }
+        Args: { '': unknown }
         Returns: unknown
       }
       jsonb_diff: {
@@ -2384,7 +2384,7 @@ export type Database = {
         Returns: Json
       }
       set_limit: {
-        Args: { "": number }
+        Args: { '': number }
         Returns: number
       }
       show_limit: {
@@ -2392,188 +2392,188 @@ export type Database = {
         Returns: number
       }
       show_trgm: {
-        Args: { "": string }
+        Args: { '': string }
         Returns: string[]
       }
     }
     Enums: {
       account_type:
-        | "TAXABLE"
-        | "TRADITIONAL_IRA"
-        | "ROTH_IRA"
-        | "SEP_IRA"
-        | "SIMPLE_IRA"
-        | "401K"
-        | "ROTH_401K"
-        | "403B"
-        | "457"
-        | "HSA"
-        | "TFSA"
-        | "RRSP"
-        | "RESP"
-        | "ISA"
-        | "PENSION"
-        | "TRUST"
-        | "JOINT"
-        | "INDIVIDUAL"
-        | "CORPORATE"
-        | "CRYPTO"
-        | "SAVINGS"
-        | "CHECKING"
+        | 'TAXABLE'
+        | 'TRADITIONAL_IRA'
+        | 'ROTH_IRA'
+        | 'SEP_IRA'
+        | 'SIMPLE_IRA'
+        | '401K'
+        | 'ROTH_401K'
+        | '403B'
+        | '457'
+        | 'HSA'
+        | 'TFSA'
+        | 'RRSP'
+        | 'RESP'
+        | 'ISA'
+        | 'PENSION'
+        | 'TRUST'
+        | 'JOINT'
+        | 'INDIVIDUAL'
+        | 'CORPORATE'
+        | 'CRYPTO'
+        | 'SAVINGS'
+        | 'CHECKING'
       asset_class:
-        | "STOCK"
-        | "ETF"
-        | "MUTUAL_FUND"
-        | "BOND"
-        | "CRYPTOCURRENCY"
-        | "COMMODITY"
-        | "REAL_ESTATE"
-        | "ALTERNATIVE"
-        | "CASH"
-        | "OPTION"
-        | "FUTURE"
-        | "FOREX"
+        | 'STOCK'
+        | 'ETF'
+        | 'MUTUAL_FUND'
+        | 'BOND'
+        | 'CRYPTOCURRENCY'
+        | 'COMMODITY'
+        | 'REAL_ESTATE'
+        | 'ALTERNATIVE'
+        | 'CASH'
+        | 'OPTION'
+        | 'FUTURE'
+        | 'FOREX'
       audit_action:
-        | "CREATE"
-        | "UPDATE"
-        | "DELETE"
-        | "LOGIN"
-        | "LOGOUT"
-        | "IMPORT"
-        | "EXPORT"
-        | "SYNC"
-        | "CALCULATE"
-        | "BACKUP"
-        | "RESTORE"
-        | "MIGRATE"
+        | 'CREATE'
+        | 'UPDATE'
+        | 'DELETE'
+        | 'LOGIN'
+        | 'LOGOUT'
+        | 'IMPORT'
+        | 'EXPORT'
+        | 'SYNC'
+        | 'CALCULATE'
+        | 'BACKUP'
+        | 'RESTORE'
+        | 'MIGRATE'
       currency_code:
-        | "USD"
-        | "EUR"
-        | "GBP"
-        | "JPY"
-        | "CAD"
-        | "AUD"
-        | "CHF"
-        | "CNY"
-        | "SEK"
-        | "NOK"
-        | "DKK"
-        | "PLN"
-        | "CZK"
-        | "HUF"
-        | "RUB"
-        | "BRL"
-        | "INR"
-        | "KRW"
-        | "SGD"
-        | "HKD"
-        | "NZD"
-        | "MXN"
-        | "ZAR"
-        | "TRY"
-        | "ILS"
-        | "AED"
-        | "SAR"
-        | "QAR"
-        | "KWD"
-        | "BHD"
-        | "OMR"
-        | "JOD"
-        | "LBP"
-        | "EGP"
-        | "MAD"
-        | "TND"
-        | "DZD"
-        | "LYD"
-        | "SDG"
-        | "ETB"
-        | "KES"
-        | "UGX"
-        | "TZS"
-        | "RWF"
-        | "BIF"
-        | "DJF"
-        | "SOS"
-        | "MGA"
-        | "KMF"
-        | "SCR"
-        | "MUR"
-        | "MWK"
-        | "ZMW"
-        | "BWP"
-        | "SZL"
-        | "LSL"
-        | "NAD"
-        | "AOA"
-        | "MZN"
-        | "ZWL"
-        | "CDF"
-        | "XAF"
-        | "XOF"
-        | "XPF"
-        | "STD"
-        | "CVE"
-        | "GNF"
-        | "SLL"
-        | "LRD"
-        | "GMD"
-        | "GHS"
-        | "NGN"
-        | "XDR"
-        | "BTC"
-        | "ETH"
-        | "LTC"
-        | "BCH"
-        | "ADA"
-        | "DOT"
-        | "LINK"
-        | "UNI"
-        | "DOGE"
-        | "MATIC"
-        | "SOL"
-        | "AVAX"
-        | "LUNA"
-        | "ATOM"
-        | "XRP"
-        | "XLM"
-        | "VET"
-        | "THETA"
-        | "FIL"
-        | "TRX"
-        | "EOS"
-        | "XMR"
-        | "ZEC"
-        | "DASH"
+        | 'USD'
+        | 'EUR'
+        | 'GBP'
+        | 'JPY'
+        | 'CAD'
+        | 'AUD'
+        | 'CHF'
+        | 'CNY'
+        | 'SEK'
+        | 'NOK'
+        | 'DKK'
+        | 'PLN'
+        | 'CZK'
+        | 'HUF'
+        | 'RUB'
+        | 'BRL'
+        | 'INR'
+        | 'KRW'
+        | 'SGD'
+        | 'HKD'
+        | 'NZD'
+        | 'MXN'
+        | 'ZAR'
+        | 'TRY'
+        | 'ILS'
+        | 'AED'
+        | 'SAR'
+        | 'QAR'
+        | 'KWD'
+        | 'BHD'
+        | 'OMR'
+        | 'JOD'
+        | 'LBP'
+        | 'EGP'
+        | 'MAD'
+        | 'TND'
+        | 'DZD'
+        | 'LYD'
+        | 'SDG'
+        | 'ETB'
+        | 'KES'
+        | 'UGX'
+        | 'TZS'
+        | 'RWF'
+        | 'BIF'
+        | 'DJF'
+        | 'SOS'
+        | 'MGA'
+        | 'KMF'
+        | 'SCR'
+        | 'MUR'
+        | 'MWK'
+        | 'ZMW'
+        | 'BWP'
+        | 'SZL'
+        | 'LSL'
+        | 'NAD'
+        | 'AOA'
+        | 'MZN'
+        | 'ZWL'
+        | 'CDF'
+        | 'XAF'
+        | 'XOF'
+        | 'XPF'
+        | 'STD'
+        | 'CVE'
+        | 'GNF'
+        | 'SLL'
+        | 'LRD'
+        | 'GMD'
+        | 'GHS'
+        | 'NGN'
+        | 'XDR'
+        | 'BTC'
+        | 'ETH'
+        | 'LTC'
+        | 'BCH'
+        | 'ADA'
+        | 'DOT'
+        | 'LINK'
+        | 'UNI'
+        | 'DOGE'
+        | 'MATIC'
+        | 'SOL'
+        | 'AVAX'
+        | 'LUNA'
+        | 'ATOM'
+        | 'XRP'
+        | 'XLM'
+        | 'VET'
+        | 'THETA'
+        | 'FIL'
+        | 'TRX'
+        | 'EOS'
+        | 'XMR'
+        | 'ZEC'
+        | 'DASH'
       data_source:
-        | "MANUAL"
-        | "API"
-        | "CSV_IMPORT"
-        | "PLATFORM_SYNC"
-        | "MARKET_DATA_PROVIDER"
-        | "CALCULATED"
-        | "ESTIMATED"
+        | 'MANUAL'
+        | 'API'
+        | 'CSV_IMPORT'
+        | 'PLATFORM_SYNC'
+        | 'MARKET_DATA_PROVIDER'
+        | 'CALCULATED'
+        | 'ESTIMATED'
       platform_type:
-        | "BROKER"
-        | "BANK"
-        | "CRYPTO_EXCHANGE"
-        | "ROBO_ADVISOR"
-        | "MANUAL"
-        | "IMPORT_ONLY"
+        | 'BROKER'
+        | 'BANK'
+        | 'CRYPTO_EXCHANGE'
+        | 'ROBO_ADVISOR'
+        | 'MANUAL'
+        | 'IMPORT_ONLY'
       transaction_type:
-        | "BUY"
-        | "SELL"
-        | "DIVIDEND"
-        | "SPLIT"
-        | "MERGER"
-        | "SPINOFF"
-        | "DEPOSIT"
-        | "WITHDRAWAL"
-        | "FEE"
-        | "INTEREST"
-        | "TAX"
-        | "TRANSFER_IN"
-        | "TRANSFER_OUT"
-        | "REINVESTMENT"
+        | 'BUY'
+        | 'SELL'
+        | 'DIVIDEND'
+        | 'SPLIT'
+        | 'MERGER'
+        | 'SPINOFF'
+        | 'DEPOSIT'
+        | 'WITHDRAWAL'
+        | 'FEE'
+        | 'INTEREST'
+        | 'TAX'
+        | 'TRANSFER_IN'
+        | 'TRANSFER_OUT'
+        | 'REINVESTMENT'
     }
     CompositeTypes: {
       portfolio_metrics: {
@@ -2583,7 +2583,7 @@ export type Database = {
         realized_pnl: number | null
         day_change: number | null
         day_change_percent: number | null
-        currency: Database["public"]["Enums"]["currency_code"] | null
+        currency: Database['public']['Enums']['currency_code'] | null
       }
       price_data: {
         open: number | null
@@ -2597,29 +2597,29 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, "public">]
+type DefaultSchema = Database[Extract<keyof Database, 'public'>]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
     | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+        Database[DefaultSchemaTableNameOrOptions['schema']]['Views'])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+  ? (Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+      Database[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] &
+        DefaultSchema['Views'])
+    ? (DefaultSchema['Tables'] &
+        DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -2628,21 +2628,21 @@ export type Tables<
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
+    | keyof DefaultSchema['Tables']
     | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof Database[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -2651,21 +2651,21 @@ export type TablesInsert<
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
+    | keyof DefaultSchema['Tables']
     | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof Database[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -2674,222 +2674,221 @@ export type TablesUpdate<
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
+    | keyof DefaultSchema['Enums']
     | { schema: keyof Database },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof Database[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+  ? Database[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
+    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
+    | keyof DefaultSchema['CompositeTypes']
     | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof Database[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+  ? Database[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
+    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {
   public: {
     Enums: {
       account_type: [
-        "TAXABLE",
-        "TRADITIONAL_IRA",
-        "ROTH_IRA",
-        "SEP_IRA",
-        "SIMPLE_IRA",
-        "401K",
-        "ROTH_401K",
-        "403B",
-        "457",
-        "HSA",
-        "TFSA",
-        "RRSP",
-        "RESP",
-        "ISA",
-        "PENSION",
-        "TRUST",
-        "JOINT",
-        "INDIVIDUAL",
-        "CORPORATE",
-        "CRYPTO",
-        "SAVINGS",
-        "CHECKING",
+        'TAXABLE',
+        'TRADITIONAL_IRA',
+        'ROTH_IRA',
+        'SEP_IRA',
+        'SIMPLE_IRA',
+        '401K',
+        'ROTH_401K',
+        '403B',
+        '457',
+        'HSA',
+        'TFSA',
+        'RRSP',
+        'RESP',
+        'ISA',
+        'PENSION',
+        'TRUST',
+        'JOINT',
+        'INDIVIDUAL',
+        'CORPORATE',
+        'CRYPTO',
+        'SAVINGS',
+        'CHECKING',
       ],
       asset_class: [
-        "STOCK",
-        "ETF",
-        "MUTUAL_FUND",
-        "BOND",
-        "CRYPTOCURRENCY",
-        "COMMODITY",
-        "REAL_ESTATE",
-        "ALTERNATIVE",
-        "CASH",
-        "OPTION",
-        "FUTURE",
-        "FOREX",
+        'STOCK',
+        'ETF',
+        'MUTUAL_FUND',
+        'BOND',
+        'CRYPTOCURRENCY',
+        'COMMODITY',
+        'REAL_ESTATE',
+        'ALTERNATIVE',
+        'CASH',
+        'OPTION',
+        'FUTURE',
+        'FOREX',
       ],
       audit_action: [
-        "CREATE",
-        "UPDATE",
-        "DELETE",
-        "LOGIN",
-        "LOGOUT",
-        "IMPORT",
-        "EXPORT",
-        "SYNC",
-        "CALCULATE",
-        "BACKUP",
-        "RESTORE",
-        "MIGRATE",
+        'CREATE',
+        'UPDATE',
+        'DELETE',
+        'LOGIN',
+        'LOGOUT',
+        'IMPORT',
+        'EXPORT',
+        'SYNC',
+        'CALCULATE',
+        'BACKUP',
+        'RESTORE',
+        'MIGRATE',
       ],
       currency_code: [
-        "USD",
-        "EUR",
-        "GBP",
-        "JPY",
-        "CAD",
-        "AUD",
-        "CHF",
-        "CNY",
-        "SEK",
-        "NOK",
-        "DKK",
-        "PLN",
-        "CZK",
-        "HUF",
-        "RUB",
-        "BRL",
-        "INR",
-        "KRW",
-        "SGD",
-        "HKD",
-        "NZD",
-        "MXN",
-        "ZAR",
-        "TRY",
-        "ILS",
-        "AED",
-        "SAR",
-        "QAR",
-        "KWD",
-        "BHD",
-        "OMR",
-        "JOD",
-        "LBP",
-        "EGP",
-        "MAD",
-        "TND",
-        "DZD",
-        "LYD",
-        "SDG",
-        "ETB",
-        "KES",
-        "UGX",
-        "TZS",
-        "RWF",
-        "BIF",
-        "DJF",
-        "SOS",
-        "MGA",
-        "KMF",
-        "SCR",
-        "MUR",
-        "MWK",
-        "ZMW",
-        "BWP",
-        "SZL",
-        "LSL",
-        "NAD",
-        "AOA",
-        "MZN",
-        "ZWL",
-        "CDF",
-        "XAF",
-        "XOF",
-        "XPF",
-        "STD",
-        "CVE",
-        "GNF",
-        "SLL",
-        "LRD",
-        "GMD",
-        "GHS",
-        "NGN",
-        "XDR",
-        "BTC",
-        "ETH",
-        "LTC",
-        "BCH",
-        "ADA",
-        "DOT",
-        "LINK",
-        "UNI",
-        "DOGE",
-        "MATIC",
-        "SOL",
-        "AVAX",
-        "LUNA",
-        "ATOM",
-        "XRP",
-        "XLM",
-        "VET",
-        "THETA",
-        "FIL",
-        "TRX",
-        "EOS",
-        "XMR",
-        "ZEC",
-        "DASH",
+        'USD',
+        'EUR',
+        'GBP',
+        'JPY',
+        'CAD',
+        'AUD',
+        'CHF',
+        'CNY',
+        'SEK',
+        'NOK',
+        'DKK',
+        'PLN',
+        'CZK',
+        'HUF',
+        'RUB',
+        'BRL',
+        'INR',
+        'KRW',
+        'SGD',
+        'HKD',
+        'NZD',
+        'MXN',
+        'ZAR',
+        'TRY',
+        'ILS',
+        'AED',
+        'SAR',
+        'QAR',
+        'KWD',
+        'BHD',
+        'OMR',
+        'JOD',
+        'LBP',
+        'EGP',
+        'MAD',
+        'TND',
+        'DZD',
+        'LYD',
+        'SDG',
+        'ETB',
+        'KES',
+        'UGX',
+        'TZS',
+        'RWF',
+        'BIF',
+        'DJF',
+        'SOS',
+        'MGA',
+        'KMF',
+        'SCR',
+        'MUR',
+        'MWK',
+        'ZMW',
+        'BWP',
+        'SZL',
+        'LSL',
+        'NAD',
+        'AOA',
+        'MZN',
+        'ZWL',
+        'CDF',
+        'XAF',
+        'XOF',
+        'XPF',
+        'STD',
+        'CVE',
+        'GNF',
+        'SLL',
+        'LRD',
+        'GMD',
+        'GHS',
+        'NGN',
+        'XDR',
+        'BTC',
+        'ETH',
+        'LTC',
+        'BCH',
+        'ADA',
+        'DOT',
+        'LINK',
+        'UNI',
+        'DOGE',
+        'MATIC',
+        'SOL',
+        'AVAX',
+        'LUNA',
+        'ATOM',
+        'XRP',
+        'XLM',
+        'VET',
+        'THETA',
+        'FIL',
+        'TRX',
+        'EOS',
+        'XMR',
+        'ZEC',
+        'DASH',
       ],
       data_source: [
-        "MANUAL",
-        "API",
-        "CSV_IMPORT",
-        "PLATFORM_SYNC",
-        "MARKET_DATA_PROVIDER",
-        "CALCULATED",
-        "ESTIMATED",
+        'MANUAL',
+        'API',
+        'CSV_IMPORT',
+        'PLATFORM_SYNC',
+        'MARKET_DATA_PROVIDER',
+        'CALCULATED',
+        'ESTIMATED',
       ],
       platform_type: [
-        "BROKER",
-        "BANK",
-        "CRYPTO_EXCHANGE",
-        "ROBO_ADVISOR",
-        "MANUAL",
-        "IMPORT_ONLY",
+        'BROKER',
+        'BANK',
+        'CRYPTO_EXCHANGE',
+        'ROBO_ADVISOR',
+        'MANUAL',
+        'IMPORT_ONLY',
       ],
       transaction_type: [
-        "BUY",
-        "SELL",
-        "DIVIDEND",
-        "SPLIT",
-        "MERGER",
-        "SPINOFF",
-        "DEPOSIT",
-        "WITHDRAWAL",
-        "FEE",
-        "INTEREST",
-        "TAX",
-        "TRANSFER_IN",
-        "TRANSFER_OUT",
-        "REINVESTMENT",
+        'BUY',
+        'SELL',
+        'DIVIDEND',
+        'SPLIT',
+        'MERGER',
+        'SPINOFF',
+        'DEPOSIT',
+        'WITHDRAWAL',
+        'FEE',
+        'INTEREST',
+        'TAX',
+        'TRANSFER_IN',
+        'TRANSFER_OUT',
+        'REINVESTMENT',
       ],
     },
   },
 } as const
-

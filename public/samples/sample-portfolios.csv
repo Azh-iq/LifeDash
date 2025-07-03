@@ -1,0 +1,6 @@
+Portfolio Name,Description,Type,Public
+My Investment Portfolio,Long-term growth portfolio focused on blue-chip stocks,INVESTMENT,false
+Retirement Fund,401k and IRA holdings for retirement planning,RETIREMENT,false
+Trading Account,Active trading portfolio for short-term gains,TRADING,true
+Emergency Savings,Conservative portfolio with bonds and cash equivalents,SAVINGS,false
+Tech Growth Fund,Technology-focused investment portfolio,INVESTMENT,true

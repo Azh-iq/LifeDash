@@ -10,14 +10,14 @@ export default function AuthLayout({
     <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-neutral-100 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-800">
       {/* Header */}
       <header className="relative z-10 p-6">
-        <nav className="max-w-7xl mx-auto flex items-center justify-between">
+        <nav className="mx-auto flex max-w-7xl items-center justify-between">
           <Link
             href="/"
-            className="flex items-center gap-2 text-2xl font-bold text-neutral-900 dark:text-neutral-100 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+            className="flex items-center gap-2 text-2xl font-bold text-neutral-900 transition-colors hover:text-primary-600 dark:text-neutral-100 dark:hover:text-primary-400"
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-primary-700">
               <svg
-                className="w-5 h-5 text-white"
+                className="h-5 w-5 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -36,7 +36,7 @@ export default function AuthLayout({
           <div className="flex items-center gap-4">
             <Link
               href="/"
-              className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+              className="text-sm text-neutral-600 transition-colors hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
             >
               ← Back to Home
             </Link>
@@ -45,10 +45,10 @@ export default function AuthLayout({
       </header>
 
       {/* Background decorations */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-100 dark:bg-primary-900/20 rounded-full blur-3xl opacity-50" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary-100 dark:bg-secondary-900/20 rounded-full blur-3xl opacity-50" />
-        
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -right-40 -top-40 h-80 w-80 rounded-full bg-primary-100 opacity-50 blur-3xl dark:bg-primary-900/20" />
+        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-secondary-100 opacity-50 blur-3xl dark:bg-secondary-900/20" />
+
         {/* Grid pattern */}
         <div
           className="absolute inset-0 opacity-[0.02] dark:opacity-[0.05]"
@@ -64,36 +64,34 @@ export default function AuthLayout({
 
       {/* Main content */}
       <main className="relative z-10 px-6 pb-12">
-        <div className="max-w-7xl mx-auto">
-          {children}
-        </div>
+        <div className="mx-auto max-w-7xl">{children}</div>
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-neutral-950/50 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+      <footer className="relative z-10 border-t border-neutral-200 bg-white/50 backdrop-blur-sm dark:border-neutral-800 dark:bg-neutral-950/50">
+        <div className="mx-auto max-w-7xl px-6 py-8">
+          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <div className="flex items-center gap-6 text-sm text-neutral-600 dark:text-neutral-400">
               <Link
                 href="/legal/privacy"
-                className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                className="transition-colors hover:text-neutral-900 dark:hover:text-neutral-100"
               >
                 Privacy Policy
               </Link>
               <Link
                 href="/legal/terms"
-                className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                className="transition-colors hover:text-neutral-900 dark:hover:text-neutral-100"
               >
                 Terms of Service
               </Link>
               <Link
                 href="/support"
-                className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                className="transition-colors hover:text-neutral-900 dark:hover:text-neutral-100"
               >
                 Support
               </Link>
             </div>
-            
+
             <div className="text-sm text-neutral-500 dark:text-neutral-400">
               © 2024 LifeDash. All rights reserved.
             </div>

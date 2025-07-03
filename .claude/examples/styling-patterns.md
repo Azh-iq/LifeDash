@@ -3,6 +3,7 @@
 ## Tailwind CSS Patterns
 
 ### Responsive Design (Mobile-First)
+
 ```typescript
 function ResponsiveCard({ children }: { children: React.ReactNode }) {
   return (
@@ -32,6 +33,7 @@ function ResponsiveGrid({ children }: { children: React.ReactNode }) {
 ```
 
 ### State Variants for Interactive Elements
+
 ```typescript
 function InteractiveButton({ children, variant = 'primary' }: {
   children: React.ReactNode
@@ -59,30 +61,32 @@ function InteractiveButton({ children, variant = 'primary' }: {
 ```
 
 ### Component Patterns with @apply
+
 ```css
 /* globals.css */
 @layer components {
   .btn-primary {
-    @apply px-4 py-2 bg-blue-500 text-white rounded-md font-medium;
+    @apply rounded-md bg-blue-500 px-4 py-2 font-medium text-white;
     @apply hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500;
-    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply disabled:cursor-not-allowed disabled:opacity-50;
     @apply transition-colors duration-200;
   }
 
   .card {
-    @apply bg-white rounded-lg border border-gray-200 shadow-sm;
-    @apply dark:bg-gray-800 dark:border-gray-700;
+    @apply rounded-lg border border-gray-200 bg-white shadow-sm;
+    @apply dark:border-gray-700 dark:bg-gray-800;
   }
 
   .input-field {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md;
-    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
-    @apply disabled:bg-gray-100 disabled:cursor-not-allowed;
+    @apply w-full rounded-md border border-gray-300 px-3 py-2;
+    @apply focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500;
+    @apply disabled:cursor-not-allowed disabled:bg-gray-100;
   }
 }
 ```
 
 ### Arbitrary Values for Specific Requirements
+
 ```typescript
 function CustomLayout() {
   return (
@@ -105,7 +109,7 @@ function CustomLayout() {
               Custom positioned element
             </div>
           </div>
-          
+
           {/* Custom grid with arbitrary values */}
           <div className="grid grid-cols-[1fr_2fr_1fr] gap-[32px] mt-8">
             <div className="bg-blue-50 p-4 rounded">Column 1</div>
@@ -125,6 +129,7 @@ function CustomLayout() {
 ```
 
 ### Spacing Utilities for Consistent Layout
+
 ```typescript
 function SpacingExamples() {
   return (
@@ -168,6 +173,7 @@ function SpacingExamples() {
 ## Using the cn() Utility
 
 ### Conditional Classes
+
 ```typescript
 import { cn } from '@/lib/utils/cn'
 
@@ -198,6 +204,7 @@ function Alert({ variant, className, children }: {
 ```
 
 ### Responsive Design
+
 ```typescript
 function Card({ children }: { children: React.ReactNode }) {
   return (
@@ -215,6 +222,7 @@ function Card({ children }: { children: React.ReactNode }) {
 ## Design System Usage
 
 ### Color Tokens
+
 ```typescript
 // Semantic colors from design system
 const StatusBadge = ({ status }: { status: 'active' | 'inactive' | 'pending' }) => {
@@ -234,6 +242,7 @@ const StatusBadge = ({ status }: { status: 'active' | 'inactive' | 'pending' }) 
 ```
 
 ### Typography Scale
+
 ```typescript
 function TypographyExample() {
   return (
@@ -250,6 +259,7 @@ function TypographyExample() {
 ```
 
 ### Spacing System
+
 ```typescript
 function SpacingExample() {
   return (
@@ -268,6 +278,7 @@ function SpacingExample() {
 ## Dark Mode Support
 
 ### Theme-aware Components
+
 ```typescript
 function ThemeToggle() {
   return (
@@ -284,6 +295,7 @@ function ThemeToggle() {
 ```
 
 ### Custom CSS Variables
+
 ```css
 /* In globals.css - already configured */
 :root {
@@ -304,6 +316,7 @@ function ThemeToggle() {
 ## Animation Patterns
 
 ### Transition Classes
+
 ```typescript
 function AnimatedButton({ children, ...props }: ButtonProps) {
   return (
@@ -323,6 +336,7 @@ function AnimatedButton({ children, ...props }: ButtonProps) {
 ```
 
 ### Loading States
+
 ```typescript
 function LoadingSpinner() {
   return (

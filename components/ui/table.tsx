@@ -4,21 +4,18 @@ import React, { forwardRef, useState, useMemo } from 'react'
 import { type VariantProps, cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils/cn'
 
-const tableVariants = cva(
-  'w-full caption-bottom text-sm border-collapse',
-  {
-    variants: {
-      variant: {
-        default: 'border-neutral-200 dark:border-neutral-700',
-        bordered: 'border border-neutral-200 dark:border-neutral-700',
-        striped: 'border-neutral-200 dark:border-neutral-700',
-      },
+const tableVariants = cva('w-full caption-bottom text-sm border-collapse', {
+  variants: {
+    variant: {
+      default: 'border-neutral-200 dark:border-neutral-700',
+      bordered: 'border border-neutral-200 dark:border-neutral-700',
+      striped: 'border-neutral-200 dark:border-neutral-700',
     },
-    defaultVariants: {
-      variant: 'default',
-    },
-  }
-)
+  },
+  defaultVariants: {
+    variant: 'default',
+  },
+})
 
 const Table = forwardRef<
   HTMLTableElement,
@@ -41,7 +38,7 @@ const TableHeader = forwardRef<
   <thead
     ref={ref}
     className={cn(
-      'border-b border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900',
+      'border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900',
       className
     )}
     {...props}
@@ -55,7 +52,10 @@ const TableBody = forwardRef<
 >(({ className, ...props }, ref) => (
   <tbody
     ref={ref}
-    className={cn('divide-y divide-neutral-200 dark:divide-neutral-700', className)}
+    className={cn(
+      'divide-y divide-neutral-200 dark:divide-neutral-700',
+      className
+    )}
     {...props}
   />
 ))
@@ -68,7 +68,7 @@ const TableFooter = forwardRef<
   <tfoot
     ref={ref}
     className={cn(
-      'border-t border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 font-medium',
+      'border-t border-neutral-200 bg-neutral-50 font-medium dark:border-neutral-700 dark:bg-neutral-900',
       className
     )}
     {...props}
@@ -87,7 +87,8 @@ const TableRow = forwardRef<
     ref={ref}
     className={cn(
       'transition-colors duration-200',
-      clickable && 'cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800',
+      clickable &&
+        'cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800',
       selected && 'bg-primary-50 dark:bg-primary-900/20',
       className
     )}
@@ -108,7 +109,8 @@ const TableHead = forwardRef<
     ref={ref}
     className={cn(
       'h-12 px-4 text-left align-middle font-medium text-neutral-700 dark:text-neutral-300',
-      sortable && 'cursor-pointer select-none hover:text-neutral-900 dark:hover:text-neutral-100',
+      sortable &&
+        'cursor-pointer select-none hover:text-neutral-900 dark:hover:text-neutral-100',
       className
     )}
     onClick={sortable ? onSort : undefined}
@@ -127,18 +129,28 @@ const TableHead = forwardRef<
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 15l7-7 7 7"
+            />
           </svg>
           <svg
             className={cn(
-              'h-3 w-3 -mt-1 transition-colors duration-200',
+              '-mt-1 h-3 w-3 transition-colors duration-200',
               sortDirection === 'desc' ? 'text-primary-600' : 'text-neutral-400'
             )}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </div>
       )}
@@ -171,7 +183,10 @@ const TableCaption = forwardRef<
 >(({ className, ...props }, ref) => (
   <caption
     ref={ref}
-    className={cn('mt-4 text-sm text-neutral-500 dark:text-neutral-400', className)}
+    className={cn(
+      'mt-4 text-sm text-neutral-500 dark:text-neutral-400',
+      className
+    )}
     {...props}
   />
 ))
@@ -187,7 +202,9 @@ export function useSortableTable<T extends Record<string, any>>(
   data: T[],
   initialSort?: SortConfig
 ) {
-  const [sortConfig, setSortConfig] = useState<SortConfig | null>(initialSort || null)
+  const [sortConfig, setSortConfig] = useState<SortConfig | null>(
+    initialSort || null
+  )
 
   const sortedData = useMemo(() => {
     if (!sortConfig) return data
@@ -208,7 +225,11 @@ export function useSortableTable<T extends Record<string, any>>(
 
   const requestSort = (key: string) => {
     let direction: 'asc' | 'desc' = 'asc'
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+    if (
+      sortConfig &&
+      sortConfig.key === key &&
+      sortConfig.direction === 'asc'
+    ) {
       direction = 'desc'
     }
     setSortConfig({ key, direction })
@@ -261,9 +282,12 @@ export function FinancialTable<T extends Record<string, any>>({
     return (
       <div className="space-y-4">
         <div className="animate-pulse">
-          <div className="h-12 bg-neutral-200 dark:bg-neutral-700 rounded mb-4" />
+          <div className="mb-4 h-12 rounded bg-neutral-200 dark:bg-neutral-700" />
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-16 bg-neutral-100 dark:bg-neutral-800 rounded mb-2" />
+            <div
+              key={i}
+              className="mb-2 h-16 rounded bg-neutral-100 dark:bg-neutral-800"
+            />
           ))}
         </div>
       </div>
@@ -274,7 +298,7 @@ export function FinancialTable<T extends Record<string, any>>({
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <svg
-          className="h-12 w-12 text-neutral-400 mb-4"
+          className="mb-4 h-12 w-12 text-neutral-400"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -295,7 +319,7 @@ export function FinancialTable<T extends Record<string, any>>({
     <Table>
       <TableHeader>
         <TableRow>
-          {columns.map((column) => (
+          {columns.map(column => (
             <TableHead
               key={column.key}
               sortable={column.sortable}
@@ -315,12 +339,11 @@ export function FinancialTable<T extends Record<string, any>>({
             selected={selectedRows?.has(row.id)}
             onClick={() => onRowClick?.(row)}
           >
-            {columns.map((column) => (
-              <TableCell
-                key={column.key}
-                numeric={column.numeric}
-              >
-                {column.render ? column.render(row[column.key], row) : row[column.key]}
+            {columns.map(column => (
+              <TableCell key={column.key} numeric={column.numeric}>
+                {column.render
+                  ? column.render(row[column.key], row)
+                  : row[column.key]}
               </TableCell>
             ))}
           </TableRow>

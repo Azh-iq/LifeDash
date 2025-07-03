@@ -46,6 +46,7 @@ LifeDash/
 ## Component File Patterns
 
 ### UI Component Structure
+
 ```typescript
 // components/ui/button.tsx
 import { forwardRef } from 'react'
@@ -86,6 +87,7 @@ Button.displayName = 'Button'
 ```
 
 ### Index File for Clean Imports
+
 ```typescript
 // components/ui/index.ts
 export { Button } from './button'
@@ -95,6 +97,7 @@ export { Label } from './label'
 ```
 
 ### Feature Component Structure
+
 ```typescript
 // components/dashboard/user-stats.tsx
 import { Card } from '@/components/ui'
@@ -127,6 +130,7 @@ export async function UserStats({ userId }: UserStatsProps) {
 ## Type Definition Patterns
 
 ### API Types
+
 ```typescript
 // types/api.ts
 export interface ApiResponse<T> {
@@ -147,6 +151,7 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
 ```
 
 ### Domain Types
+
 ```typescript
 // types/user.ts
 export interface User {
@@ -178,6 +183,7 @@ export interface UserPreferences {
 ## Utility Function Patterns
 
 ### Custom Hooks
+
 ```typescript
 // lib/hooks/use-local-storage.ts
 import { useState, useEffect } from 'react'
@@ -198,7 +204,8 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 
   const setValue = (value: T | ((val: T) => T)) => {
     try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value
+      const valueToStore =
+        value instanceof Function ? value(storedValue) : value
       setStoredValue(valueToStore)
       if (typeof window !== 'undefined') {
         window.localStorage.setItem(key, JSON.stringify(valueToStore))
@@ -213,6 +220,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 ```
 
 ### API Client
+
 ```typescript
 // lib/api/client.ts
 import { ApiResponse } from '@/types/api'
@@ -229,7 +237,7 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`
-    
+
     const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',

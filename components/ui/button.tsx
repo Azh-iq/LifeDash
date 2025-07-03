@@ -12,27 +12,26 @@ const buttonVariants = cva(
     variants: {
       variant: {
         // Primary button - main brand color
-        primary: 
+        primary:
           'bg-primary-600 text-white shadow-sm hover:bg-primary-700 focus-visible:ring-primary-600 active:bg-primary-800',
-        
+
         // Secondary button - subtle styling
-        secondary: 
+        secondary:
           'bg-neutral-100 text-neutral-900 border border-neutral-200 shadow-sm hover:bg-neutral-200 hover:border-neutral-300 focus-visible:ring-neutral-600 dark:bg-neutral-800 dark:text-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-700',
-        
+
         // Destructive button - for dangerous actions
-        destructive: 
+        destructive:
           'bg-red-600 text-white shadow-sm hover:bg-red-700 focus-visible:ring-red-600 active:bg-red-800',
-        
+
         // Ghost button - minimal styling
-        ghost: 
+        ghost:
           'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 focus-visible:ring-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-100',
-        
+
         // Link button - text styling
-        link: 
-          'text-primary-600 underline-offset-4 hover:underline focus-visible:ring-primary-600 dark:text-primary-400',
-        
+        link: 'text-primary-600 underline-offset-4 hover:underline focus-visible:ring-primary-600 dark:text-primary-400',
+
         // Outline button - bordered
-        outline: 
+        outline:
           'border border-neutral-200 bg-white text-neutral-900 shadow-sm hover:bg-neutral-50 hover:border-neutral-300 focus-visible:ring-neutral-600 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:bg-neutral-900',
       },
       size: {
@@ -98,7 +97,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {loading && (
           <svg
-            className="animate-spin h-4 w-4"
+            className="h-4 w-4 animate-spin"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -119,21 +118,19 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             />
           </svg>
         )}
-        
+
         {!loading && leftIcon && (
           <span className="flex-shrink-0" aria-hidden="true">
             {leftIcon}
           </span>
         )}
-        
+
         <span className={cn(loading && loadingText && 'sr-only')}>
           {children}
         </span>
-        
-        {loading && loadingText && (
-          <span>{loadingText}</span>
-        )}
-        
+
+        {loading && loadingText && <span>{loadingText}</span>}
+
         {!loading && rightIcon && (
           <span className="flex-shrink-0" aria-hidden="true">
             {rightIcon}

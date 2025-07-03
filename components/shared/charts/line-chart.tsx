@@ -81,19 +81,19 @@ const CustomTooltip = ({
 }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-lg p-3">
-        <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-2">
+      <div className="rounded-lg border border-neutral-200 bg-white p-3 shadow-lg dark:border-neutral-700 dark:bg-neutral-800">
+        <p className="mb-2 text-sm font-medium text-neutral-900 dark:text-neutral-100">
           {label}
         </p>
         {payload.map((entry, index) => {
           const [formattedValue, formattedName] = formatTooltip
             ? formatTooltip(entry.value, entry.name)
             : [entry.value, entry.name]
-          
+
           return (
             <div key={index} className="flex items-center gap-2 text-sm">
               <div
-                className="w-3 h-3 rounded-full"
+                className="h-3 w-3 rounded-full"
                 style={{ backgroundColor: entry.color }}
               />
               <span className="text-neutral-600 dark:text-neutral-400">
@@ -139,20 +139,24 @@ const LineChart = forwardRef<HTMLDivElement, LineChartProps>(
     // Loading state
     if (loading) {
       return (
-        <div ref={ref} className={cn(chartVariants({ variant, size }), className)} {...props}>
+        <div
+          ref={ref}
+          className={cn(chartVariants({ variant, size }), className)}
+          {...props}
+        >
           <div className="p-4">
             {title && (
               <div className="mb-4">
-                <div className="h-6 bg-neutral-200 dark:bg-neutral-700 rounded w-1/3 mb-2 animate-pulse" />
+                <div className="mb-2 h-6 w-1/3 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
                 {description && (
-                  <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2 animate-pulse" />
+                  <div className="h-4 w-1/2 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
                 )}
               </div>
             )}
-            <div className="h-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse flex items-center justify-center">
+            <div className="flex h-full animate-pulse items-center justify-center rounded bg-neutral-100 dark:bg-neutral-800">
               <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
                 <svg
-                  className="animate-spin h-5 w-5"
+                  className="h-5 w-5 animate-spin"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -182,7 +186,11 @@ const LineChart = forwardRef<HTMLDivElement, LineChartProps>(
     // Empty state
     if (!data || data.length === 0) {
       return (
-        <div ref={ref} className={cn(chartVariants({ variant, size }), className)} {...props}>
+        <div
+          ref={ref}
+          className={cn(chartVariants({ variant, size }), className)}
+          {...props}
+        >
           <div className="p-4">
             {title && (
               <div className="mb-4">
@@ -196,9 +204,9 @@ const LineChart = forwardRef<HTMLDivElement, LineChartProps>(
                 )}
               </div>
             )}
-            <div className="h-full flex flex-col items-center justify-center text-center">
+            <div className="flex h-full flex-col items-center justify-center text-center">
               <svg
-                className="h-12 w-12 text-neutral-400 mb-4"
+                className="mb-4 h-12 w-12 text-neutral-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -210,7 +218,9 @@ const LineChart = forwardRef<HTMLDivElement, LineChartProps>(
                   d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                 />
               </svg>
-              <p className="text-neutral-500 dark:text-neutral-400">{emptyMessage}</p>
+              <p className="text-neutral-500 dark:text-neutral-400">
+                {emptyMessage}
+              </p>
             </div>
           </div>
         </div>
@@ -218,7 +228,11 @@ const LineChart = forwardRef<HTMLDivElement, LineChartProps>(
     }
 
     return (
-      <div ref={ref} className={cn(chartVariants({ variant, size }), className)} {...props}>
+      <div
+        ref={ref}
+        className={cn(chartVariants({ variant, size }), className)}
+        {...props}
+      >
         <div className="p-4">
           {title && (
             <div className="mb-4">
@@ -232,7 +246,7 @@ const LineChart = forwardRef<HTMLDivElement, LineChartProps>(
               )}
             </div>
           )}
-          
+
           <ResponsiveContainer width="100%" height="100%">
             <RechartsLineChart
               data={data}

@@ -64,15 +64,16 @@ const SkeletonText = forwardRef<
   }
 
   return (
-    <div className={cn(spacingClasses[spacing], className)} ref={ref} {...props}>
+    <div
+      className={cn(spacingClasses[spacing], className)}
+      ref={ref}
+      {...props}
+    >
       {Array.from({ length: lines }).map((_, i) => (
         <Skeleton
           key={i}
           variant="text"
-          className={cn(
-            'h-4',
-            i === lines - 1 ? 'w-3/4' : 'w-full'
-          )}
+          className={cn('h-4', i === lines - 1 ? 'w-3/4' : 'w-full')}
         />
       ))}
     </div>
@@ -111,41 +112,47 @@ const SkeletonCard = forwardRef<
     showImage?: boolean
     lines?: number
   }
->(({ showAvatar = false, showImage = false, lines = 3, className, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      className={cn('rounded-lg border border-neutral-200 p-6 dark:border-neutral-800', className)}
-      {...props}
-    >
-      {showImage && (
-        <Skeleton className="h-48 w-full mb-4" />
-      )}
-      
-      <div className="space-y-4">
-        {showAvatar && (
-          <div className="flex items-center space-x-4">
-            <SkeletonAvatar />
-            <div className="space-y-2 flex-1">
-              <Skeleton className="h-4 w-1/4" />
-              <Skeleton className="h-3 w-1/3" />
-            </div>
-          </div>
+>(
+  (
+    { showAvatar = false, showImage = false, lines = 3, className, ...props },
+    ref
+  ) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          'rounded-lg border border-neutral-200 p-6 dark:border-neutral-800',
+          className
         )}
-        
-        <div className="space-y-2">
-          <Skeleton className="h-6 w-3/4" />
-          <SkeletonText lines={lines} />
-        </div>
-        
-        <div className="flex space-x-2">
-          <Skeleton className="h-8 w-20" />
-          <Skeleton className="h-8 w-16" />
+        {...props}
+      >
+        {showImage && <Skeleton className="mb-4 h-48 w-full" />}
+
+        <div className="space-y-4">
+          {showAvatar && (
+            <div className="flex items-center space-x-4">
+              <SkeletonAvatar />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-1/4" />
+                <Skeleton className="h-3 w-1/3" />
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-3/4" />
+            <SkeletonText lines={lines} />
+          </div>
+
+          <div className="flex space-x-2">
+            <Skeleton className="h-8 w-20" />
+            <Skeleton className="h-8 w-16" />
+          </div>
         </div>
       </div>
-    </div>
-  )
-})
+    )
+  }
+)
 SkeletonCard.displayName = 'SkeletonCard'
 
 const SkeletonTable = forwardRef<
@@ -157,24 +164,23 @@ const SkeletonTable = forwardRef<
   }
 >(({ rows = 5, columns = 4, showHeader = true, className, ...props }, ref) => {
   return (
-    <div
-      ref={ref}
-      className={cn('w-full', className)}
-      {...props}
-    >
+    <div ref={ref} className={cn('w-full', className)} {...props}>
       {showHeader && (
-        <div className="flex space-x-4 mb-4 pb-2 border-b border-neutral-200 dark:border-neutral-800">
+        <div className="mb-4 flex space-x-4 border-b border-neutral-200 pb-2 dark:border-neutral-800">
           {Array.from({ length: columns }).map((_, i) => (
             <Skeleton key={`header-${i}`} className="h-4 flex-1" />
           ))}
         </div>
       )}
-      
+
       <div className="space-y-3">
         {Array.from({ length: rows }).map((_, rowIndex) => (
           <div key={rowIndex} className="flex space-x-4">
             {Array.from({ length: columns }).map((_, colIndex) => (
-              <Skeleton key={`cell-${rowIndex}-${colIndex}`} className="h-4 flex-1" />
+              <Skeleton
+                key={`cell-${rowIndex}-${colIndex}`}
+                className="h-4 flex-1"
+              />
             ))}
           </div>
         ))}
@@ -196,7 +202,10 @@ const SkeletonChart = forwardRef<
       case 'line':
         return (
           <div className="relative h-full">
-            <svg className="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 300 200">
+            <svg
+              className="absolute inset-0 h-full w-full opacity-20"
+              viewBox="0 0 300 200"
+            >
               <path
                 d="M20,180 Q50,120 100,140 T200,100 T280,80"
                 stroke="currentColor"
@@ -209,21 +218,18 @@ const SkeletonChart = forwardRef<
         )
       case 'bar':
         return (
-          <div className="flex items-end justify-between h-full px-4 pb-4">
+          <div className="flex h-full items-end justify-between px-4 pb-4">
             {Array.from({ length: 6 }).map((_, i) => (
               <Skeleton
                 key={i}
-                className={cn(
-                  'w-8',
-                  `h-${Math.floor(Math.random() * 4) + 8}`
-                )}
+                className={cn('w-8', `h-${Math.floor(Math.random() * 4) + 8}`)}
               />
             ))}
           </div>
         )
       case 'pie':
         return (
-          <div className="flex items-center justify-center h-full">
+          <div className="flex h-full items-center justify-center">
             <Skeleton variant="circular" className="h-32 w-32" />
           </div>
         )
@@ -236,13 +242,13 @@ const SkeletonChart = forwardRef<
     <div
       ref={ref}
       className={cn(
-        'rounded-lg border border-neutral-200 dark:border-neutral-800 p-4',
+        'rounded-lg border border-neutral-200 p-4 dark:border-neutral-800',
         height,
         className
       )}
       {...props}
     >
-      <div className="space-y-2 mb-4">
+      <div className="mb-4 space-y-2">
         <Skeleton className="h-5 w-1/3" />
         <Skeleton className="h-3 w-1/2" />
       </div>
@@ -259,27 +265,28 @@ const SkeletonList = forwardRef<
     showAvatar?: boolean
     showIcon?: boolean
   }
->(({ items = 5, showAvatar = false, showIcon = false, className, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      className={cn('space-y-3', className)}
-      {...props}
-    >
-      {Array.from({ length: items }).map((_, i) => (
-        <div key={i} className="flex items-center space-x-3">
-          {showAvatar && <SkeletonAvatar size="sm" />}
-          {showIcon && <Skeleton className="h-5 w-5" />}
-          <div className="flex-1 space-y-1">
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-3 w-1/2" />
+>(
+  (
+    { items = 5, showAvatar = false, showIcon = false, className, ...props },
+    ref
+  ) => {
+    return (
+      <div ref={ref} className={cn('space-y-3', className)} {...props}>
+        {Array.from({ length: items }).map((_, i) => (
+          <div key={i} className="flex items-center space-x-3">
+            {showAvatar && <SkeletonAvatar size="sm" />}
+            {showIcon && <Skeleton className="h-5 w-5" />}
+            <div className="flex-1 space-y-1">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
+            <Skeleton className="h-6 w-16" />
           </div>
-          <Skeleton className="h-6 w-16" />
-        </div>
-      ))}
-    </div>
-  )
-})
+        ))}
+      </div>
+    )
+  }
+)
 SkeletonList.displayName = 'SkeletonList'
 
 export {

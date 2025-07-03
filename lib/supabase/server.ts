@@ -4,10 +4,10 @@ import type { Database } from '@/lib/types/database.types'
 
 /**
  * Creates a Supabase client for server-side usage (Server Components, Route Handlers)
- * 
+ *
  * This client handles cookie-based session management automatically
  * and provides full type safety for database operations.
- * 
+ *
  * @returns Typed Supabase client for server-side operations
  */
 export function createClient() {
@@ -40,7 +40,7 @@ export function createClient() {
 /**
  * Creates a Supabase client for Server Actions and Route Handlers
  * where cookie manipulation is required
- * 
+ *
  * @returns Typed Supabase client with cookie management capabilities
  */
 export function createAdminClient() {

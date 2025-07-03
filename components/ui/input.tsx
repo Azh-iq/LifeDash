@@ -10,11 +10,11 @@ const inputVariants = cva(
   {
     variants: {
       variant: {
-        default: 
+        default:
           'border-neutral-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 dark:border-neutral-800 dark:focus:border-primary-400',
-        error: 
+        error:
           'border-red-300 text-red-900 placeholder:text-red-300 focus:border-red-500 focus:ring-1 focus:ring-red-500 dark:border-red-800 dark:text-red-100',
-        success: 
+        success:
           'border-green-300 text-green-900 placeholder:text-green-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 dark:border-green-800 dark:text-green-100',
       },
       size: {
@@ -63,16 +63,16 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
   ) => {
     const [showPassword, setShowPassword] = useState(false)
     const [isFocused, setIsFocused] = useState(false)
-    
+
     // Determine the current variant based on validation state
     const currentVariant = error ? 'error' : success ? 'success' : variant
-    
+
     // Generate unique ID if not provided
     const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`
     const descriptionId = description ? `${inputId}-description` : undefined
     const errorId = error ? `${inputId}-error` : undefined
     const successId = success ? `${inputId}-success` : undefined
-    
+
     const isPassword = type === 'password' && showPasswordToggle
     const inputType = isPassword && showPassword ? 'text' : type
 
@@ -109,22 +109,24 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           <label
             htmlFor={inputId}
             className={cn(
-              'block text-sm font-medium mb-2 transition-colors duration-200',
-              error ? 'text-red-700 dark:text-red-400' : 'text-neutral-700 dark:text-neutral-300',
+              'mb-2 block text-sm font-medium transition-colors duration-200',
+              error
+                ? 'text-red-700 dark:text-red-400'
+                : 'text-neutral-700 dark:text-neutral-300',
               isFocused && !error && 'text-primary-600 dark:text-primary-400'
             )}
           >
             {label}
           </label>
         )}
-        
+
         <div className="relative">
           {leftIcon && (
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-neutral-500">
               {leftIcon}
             </div>
           )}
-          
+
           <input
             type={inputType}
             className={cn(
@@ -134,30 +136,26 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             )}
             ref={ref}
             id={inputId}
-            aria-describedby={cn(
-              descriptionId,
-              errorId,
-              successId
-            )}
+            aria-describedby={cn(descriptionId, errorId, successId)}
             aria-invalid={!!error}
-            onFocus={(e) => {
+            onFocus={e => {
               setIsFocused(true)
               props.onFocus?.(e)
             }}
-            onBlur={(e) => {
+            onBlur={e => {
               setIsFocused(false)
               props.onBlur?.(e)
             }}
             {...props}
           />
-          
+
           {(rightIcon || isPassword) && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
               {isPassword ? (
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="text-neutral-400 hover:text-neutral-600 focus:outline-none focus:text-neutral-600 transition-colors duration-200 dark:text-neutral-500 dark:hover:text-neutral-300"
+                  className="text-neutral-400 transition-colors duration-200 hover:text-neutral-600 focus:text-neutral-600 focus:outline-none dark:text-neutral-500 dark:hover:text-neutral-300"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   <EyeIcon open={showPassword} />
@@ -170,7 +168,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             </div>
           )}
         </div>
-        
+
         {description && !error && !success && (
           <p
             id={descriptionId}
@@ -179,11 +177,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             {description}
           </p>
         )}
-        
+
         {error && (
           <p
             id={errorId}
-            className="mt-1 text-xs text-red-600 dark:text-red-400 flex items-center gap-1"
+            className="mt-1 flex items-center gap-1 text-xs text-red-600 dark:text-red-400"
             role="alert"
           >
             <svg
@@ -201,11 +199,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             {error}
           </p>
         )}
-        
+
         {success && (
           <p
             id={successId}
-            className="mt-1 text-xs text-green-600 dark:text-green-400 flex items-center gap-1"
+            className="mt-1 flex items-center gap-1 text-xs text-green-600 dark:text-green-400"
             role="status"
           >
             <svg

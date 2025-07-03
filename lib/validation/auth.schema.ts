@@ -19,7 +19,9 @@ export const getPasswordStrength = (password: string) => {
   if (password.length >= passwordRequirements.minLength) {
     score += 20
   } else {
-    feedback.push(`Password must be at least ${passwordRequirements.minLength} characters`)
+    feedback.push(
+      `Password must be at least ${passwordRequirements.minLength} characters`
+    )
   }
 
   // Uppercase check
@@ -66,25 +68,41 @@ export const getPasswordStrength = (password: string) => {
     feedback.push('Avoid common patterns and words')
   }
 
-  const strength = score <= 40 ? 'weak' : score <= 70 ? 'medium' : score <= 90 ? 'strong' : 'very-strong'
-  
+  const strength =
+    score <= 40
+      ? 'weak'
+      : score <= 70
+        ? 'medium'
+        : score <= 90
+          ? 'strong'
+          : 'very-strong'
+
   return {
     score: Math.max(0, Math.min(100, score)),
     strength,
     feedback,
-    isValid: score >= 80 && feedback.length === 0
+    isValid: score >= 80 && feedback.length === 0,
   }
 }
 
 // Base password schema
 const passwordSchema = z
   .string()
-  .min(passwordRequirements.minLength, `Password must be at least ${passwordRequirements.minLength} characters`)
-  .max(passwordRequirements.maxLength, `Password must be no more than ${passwordRequirements.maxLength} characters`)
+  .min(
+    passwordRequirements.minLength,
+    `Password must be at least ${passwordRequirements.minLength} characters`
+  )
+  .max(
+    passwordRequirements.maxLength,
+    `Password must be no more than ${passwordRequirements.maxLength} characters`
+  )
   .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
   .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
   .regex(/\d/, 'Password must contain at least one number')
-  .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, 'Password must contain at least one special character')
+  .regex(
+    /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/,
+    'Password must contain at least one special character'
+  )
 
 // Email schema
 const emailSchema = z
@@ -110,22 +128,28 @@ export const registerSchema = z
       .min(1, 'First name is required')
       .min(2, 'First name must be at least 2 characters')
       .max(50, 'First name must be no more than 50 characters')
-      .regex(/^[a-zA-Z\s'-]+$/, 'First name can only contain letters, spaces, hyphens, and apostrophes'),
+      .regex(
+        /^[a-zA-Z\s'-]+$/,
+        'First name can only contain letters, spaces, hyphens, and apostrophes'
+      ),
     lastName: z
       .string()
       .min(1, 'Last name is required')
       .min(2, 'Last name must be at least 2 characters')
       .max(50, 'Last name must be no more than 50 characters')
-      .regex(/^[a-zA-Z\s'-]+$/, 'Last name can only contain letters, spaces, hyphens, and apostrophes'),
+      .regex(
+        /^[a-zA-Z\s'-]+$/,
+        'Last name can only contain letters, spaces, hyphens, and apostrophes'
+      ),
     email: emailSchema,
     password: passwordSchema,
     confirmPassword: z.string().min(1, 'Please confirm your password'),
-    acceptTerms: z.boolean().refine((val) => val === true, {
+    acceptTerms: z.boolean().refine(val => val === true, {
       message: 'You must accept the terms and conditions',
     }),
     marketingEmails: z.boolean().optional(),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine(data => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
     path: ['confirmPassword'],
   })
@@ -137,7 +161,9 @@ export const passwordResetRequestSchema = z.object({
   email: emailSchema,
 })
 
-export type PasswordResetRequestData = z.infer<typeof passwordResetRequestSchema>
+export type PasswordResetRequestData = z.infer<
+  typeof passwordResetRequestSchema
+>
 
 // Password reset schema
 export const passwordResetSchema = z
@@ -146,7 +172,7 @@ export const passwordResetSchema = z
     password: passwordSchema,
     confirmPassword: z.string().min(1, 'Please confirm your password'),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine(data => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
     path: ['confirmPassword'],
   })
@@ -183,11 +209,11 @@ export const changePasswordSchema = z
     newPassword: passwordSchema,
     confirmNewPassword: z.string().min(1, 'Please confirm your new password'),
   })
-  .refine((data) => data.newPassword === data.confirmNewPassword, {
+  .refine(data => data.newPassword === data.confirmNewPassword, {
     message: 'Passwords do not match',
     path: ['confirmNewPassword'],
   })
-  .refine((data) => data.currentPassword !== data.newPassword, {
+  .refine(data => data.currentPassword !== data.newPassword, {
     message: 'New password must be different from current password',
     path: ['newPassword'],
   })
@@ -201,18 +227,24 @@ export const profileUpdateSchema = z.object({
     .min(1, 'First name is required')
     .min(2, 'First name must be at least 2 characters')
     .max(50, 'First name must be no more than 50 characters')
-    .regex(/^[a-zA-Z\s'-]+$/, 'First name can only contain letters, spaces, hyphens, and apostrophes'),
+    .regex(
+      /^[a-zA-Z\s'-]+$/,
+      'First name can only contain letters, spaces, hyphens, and apostrophes'
+    ),
   lastName: z
     .string()
     .min(1, 'Last name is required')
     .min(2, 'Last name must be at least 2 characters')
     .max(50, 'Last name must be no more than 50 characters')
-    .regex(/^[a-zA-Z\s'-]+$/, 'Last name can only contain letters, spaces, hyphens, and apostrophes'),
+    .regex(
+      /^[a-zA-Z\s'-]+$/,
+      'Last name can only contain letters, spaces, hyphens, and apostrophes'
+    ),
   email: emailSchema,
   phone: z
     .string()
     .optional()
-    .refine((val) => !val || /^\+?[\d\s\-\(\)]+$/.test(val), {
+    .refine(val => !val || /^\+?[\d\s\-\(\)]+$/.test(val), {
       message: 'Please enter a valid phone number',
     }),
   bio: z
@@ -222,7 +254,7 @@ export const profileUpdateSchema = z.object({
   website: z
     .string()
     .optional()
-    .refine((val) => !val || z.string().url().safeParse(val).success, {
+    .refine(val => !val || z.string().url().safeParse(val).success, {
       message: 'Please enter a valid URL',
     }),
   location: z
@@ -240,7 +272,7 @@ export const accountDeletionSchema = z.object({
   confirmation: z
     .string()
     .min(1, 'Please type "DELETE" to confirm')
-    .refine((val) => val === 'DELETE', {
+    .refine(val => val === 'DELETE', {
       message: 'Please type "DELETE" to confirm account deletion',
     }),
   reason: z.enum([
@@ -262,32 +294,46 @@ export type AccountDeletionData = z.infer<typeof accountDeletionSchema>
 // Validation error formatting utilities
 export const formatZodError = (error: z.ZodError) => {
   const fieldErrors: Record<string, string> = {}
-  
-  error.errors.forEach((err) => {
+
+  error.errors.forEach(err => {
     const path = err.path.join('.')
     if (!fieldErrors[path]) {
       fieldErrors[path] = err.message
     }
   })
-  
+
   return fieldErrors
 }
 
-export const getFieldError = (errors: Record<string, string>, field: string) => {
+export const getFieldError = (
+  errors: Record<string, string>,
+  field: string
+) => {
   return errors[field] || null
 }
 
 // Security validation utilities
-export const validatePasswordHistory = (newPassword: string, passwordHistory: string[]) => {
+export const validatePasswordHistory = (
+  newPassword: string,
+  passwordHistory: string[]
+) => {
   return !passwordHistory.includes(newPassword)
 }
 
-export const validatePasswordAge = (lastChanged: Date, maxAgeInDays: number = 90) => {
-  const daysSinceChange = Math.floor((Date.now() - lastChanged.getTime()) / (1000 * 60 * 60 * 24))
+export const validatePasswordAge = (
+  lastChanged: Date,
+  maxAgeInDays: number = 90
+) => {
+  const daysSinceChange = Math.floor(
+    (Date.now() - lastChanged.getTime()) / (1000 * 60 * 60 * 24)
+  )
   return daysSinceChange <= maxAgeInDays
 }
 
-export const validateLoginAttempts = (attempts: number, maxAttempts: number = 5) => {
+export const validateLoginAttempts = (
+  attempts: number,
+  maxAttempts: number = 5
+) => {
   return attempts < maxAttempts
 }
 

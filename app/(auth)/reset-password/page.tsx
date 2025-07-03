@@ -13,7 +13,7 @@ export default function ResetPasswordPage() {
   const [success, setSuccess] = useState(false)
   const [token, setToken] = useState<string | null>(null)
   const [tokenValid, setTokenValid] = useState<boolean | null>(null)
-  
+
   const searchParams = useSearchParams()
   const router = useRouter()
   const { toast } = useToast()
@@ -28,7 +28,9 @@ export default function ResetPasswordPage() {
           setTokenValid(false)
         } else if (tokenParam === 'expired-token') {
           setTokenValid(false)
-          setError('This password reset link has expired. Please request a new one.')
+          setError(
+            'This password reset link has expired. Please request a new one.'
+          )
         } else {
           setTokenValid(true)
         }
@@ -46,12 +48,12 @@ export default function ResetPasswordPage() {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500))
-      
+
       // Simulate different scenarios
       if (data.token === 'invalid-token') {
         throw new Error('Invalid reset token')
       }
-      
+
       if (data.token === 'expired-token') {
         throw new Error('Reset token has expired')
       }
@@ -78,13 +80,13 @@ export default function ResetPasswordPage() {
   // Loading state while validating token
   if (tokenValid === null) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="w-full max-w-md mx-auto">
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Card className="mx-auto w-full max-w-md">
           <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <div className="w-8 h-8 mx-auto">
+            <div className="space-y-4 text-center">
+              <div className="mx-auto h-8 w-8">
                 <svg
-                  className="animate-spin h-8 w-8 text-primary-600"
+                  className="h-8 w-8 animate-spin text-primary-600"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -117,12 +119,12 @@ export default function ResetPasswordPage() {
   // Invalid token state
   if (!tokenValid || !token) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="w-full max-w-md mx-auto">
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Card className="mx-auto w-full max-w-md">
           <CardHeader className="text-center">
-            <div className="w-16 h-16 mx-auto mb-4 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
               <svg
-                className="w-8 h-8 text-red-600 dark:text-red-400"
+                className="h-8 w-8 text-red-600 dark:text-red-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -138,29 +140,29 @@ export default function ResetPasswordPage() {
             <CardTitle className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
               Invalid reset link
             </CardTitle>
-            <p className="text-neutral-600 dark:text-neutral-400 mt-2">
+            <p className="mt-2 text-neutral-600 dark:text-neutral-400">
               {error || 'This password reset link is invalid or has expired.'}
             </p>
           </CardHeader>
-          
-          <CardContent className="text-center space-y-4">
-            <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+
+          <CardContent className="space-y-4 text-center">
+            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-900/20">
               <p className="text-sm text-yellow-800 dark:text-yellow-300">
                 Password reset links expire after 1 hour for security reasons.
               </p>
             </div>
-            
+
             <div className="space-y-2">
               <button
                 onClick={() => router.push('/auth/forgot-password')}
-                className="w-full px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
+                className="w-full rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"
               >
                 Request new reset link
               </button>
-              
+
               <button
                 onClick={() => router.push('/auth/login')}
-                className="block w-full text-center text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                className="block w-full text-center text-sm text-neutral-600 transition-colors hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
               >
                 Back to sign in
               </button>
@@ -172,7 +174,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-[60vh]">
+    <div className="flex min-h-[60vh] items-center justify-center">
       <div className="w-full">
         <PasswordResetForm
           token={token}
@@ -181,12 +183,12 @@ export default function ResetPasswordPage() {
           error={error}
           success={success}
         />
-        
+
         {/* Demo information */}
         {!success && (
-          <div className="mt-8 max-w-md mx-auto">
-            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-              <h3 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
+          <div className="mx-auto mt-8 max-w-md">
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+              <h3 className="mb-2 font-medium text-blue-900 dark:text-blue-100">
                 Demo Information
               </h3>
               <div className="space-y-2 text-sm text-blue-800 dark:text-blue-300">
@@ -194,16 +196,29 @@ export default function ResetPasswordPage() {
                   <strong>Token validation examples:</strong>
                 </div>
                 <div>
-                  • <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">?token=invalid-token</code> - Shows invalid token error
+                  •{' '}
+                  <code className="rounded bg-blue-100 px-1 dark:bg-blue-800">
+                    ?token=invalid-token
+                  </code>{' '}
+                  - Shows invalid token error
                 </div>
                 <div>
-                  • <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">?token=expired-token</code> - Shows expired token error
+                  •{' '}
+                  <code className="rounded bg-blue-100 px-1 dark:bg-blue-800">
+                    ?token=expired-token
+                  </code>{' '}
+                  - Shows expired token error
                 </div>
                 <div>
-                  • <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">?token=valid-token</code> - Shows password reset form
+                  •{' '}
+                  <code className="rounded bg-blue-100 px-1 dark:bg-blue-800">
+                    ?token=valid-token
+                  </code>{' '}
+                  - Shows password reset form
                 </div>
                 <div className="pt-2 text-xs">
-                  <strong>Note:</strong> Try different URLs to see various token states.
+                  <strong>Note:</strong> Try different URLs to see various token
+                  states.
                 </div>
               </div>
             </div>

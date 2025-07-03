@@ -3,6 +3,7 @@
 ## Type Definitions and Interfaces
 
 ### Domain Types with TSDoc
+
 ```typescript
 // types/user.ts
 
@@ -48,6 +49,7 @@ export interface UserPreferences {
 ```
 
 ### API Response Types
+
 ```typescript
 // types/api.ts
 
@@ -92,6 +94,7 @@ export class ApiError extends Error {
 ## Advanced Type Patterns
 
 ### Discriminated Unions
+
 ```typescript
 // types/states.ts
 
@@ -118,6 +121,7 @@ export interface ValidationError {
 ```
 
 ### Generic Utility Types
+
 ```typescript
 // types/utilities.ts
 
@@ -134,11 +138,8 @@ export type RequiredBy<T, K extends keyof T> = T & Required<Pick<T, K>>
 /**
  * Extract function return type
  */
-export type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
-  ...args: any
-) => Promise<infer R>
-  ? R
-  : never
+export type AsyncReturnType<T extends (...args: any) => Promise<any>> =
+  T extends (...args: any) => Promise<infer R> ? R : never
 
 /**
  * Create update payload type
@@ -149,6 +150,7 @@ export type UpdatePayload<T> = PartialBy<T, 'id' | 'createdAt' | 'updatedAt'>
 ## Service Layer Patterns
 
 ### Type-Safe Service Class
+
 ```typescript
 // lib/services/user-service.ts
 import { User, UserProfile, ApiResponse } from '@/types'
@@ -172,7 +174,7 @@ export class UserService {
   async findUserByEmail(email: string): Promise<User | null> {
     try {
       const response = await fetch(`${this.baseUrl}/users?email=${email}`)
-      
+
       if (!response.ok) {
         throw new ApiError(
           'Failed to fetch user',
@@ -218,6 +220,7 @@ export class UserService {
 ```
 
 ### Type Guards and Predicates
+
 ```typescript
 // lib/utils/type-guards.ts
 
@@ -256,6 +259,7 @@ export function isValidEmail(email: string): email is string {
 ## React Component Type Patterns
 
 ### Strongly Typed Component Props
+
 ```typescript
 // components/user-card.tsx
 import { User } from '@/types'
@@ -267,18 +271,18 @@ interface UserCardProps {
   className?: string
 }
 
-export function UserCard({ 
-  user, 
-  showEmail = false, 
-  onEdit, 
-  className 
+export function UserCard({
+  user,
+  showEmail = false,
+  onEdit,
+  className
 }: UserCardProps) {
   return (
     <div className={cn('rounded-lg border p-4', className)}>
       <div className="flex items-center gap-3">
         {user.avatar && (
-          <img 
-            src={user.avatar} 
+          <img
+            src={user.avatar}
             alt={`${user.name}'s avatar`}
             className="h-10 w-10 rounded-full"
           />
@@ -291,7 +295,7 @@ export function UserCard({
         </div>
       </div>
       {onEdit && (
-        <button 
+        <button
           onClick={() => onEdit(user)}
           className="mt-3 text-sm text-primary hover:underline"
         >
@@ -304,6 +308,7 @@ export function UserCard({
 ```
 
 ### Generic Hook Pattern
+
 ```typescript
 // lib/hooks/use-api.ts
 import { useState, useEffect } from 'react'
@@ -323,7 +328,7 @@ export function useApi<T>(
 
     const fetchData = async () => {
       setState({ status: 'loading' })
-      
+
       try {
         const data = await fetcher()
         if (!cancelled) {
@@ -331,9 +336,9 @@ export function useApi<T>(
         }
       } catch (error) {
         if (!cancelled) {
-          setState({ 
-            status: 'error', 
-            error: error instanceof Error ? error.message : 'Unknown error' 
+          setState({
+            status: 'error',
+            error: error instanceof Error ? error.message : 'Unknown error'
           })
         }
       }
@@ -369,11 +374,12 @@ export function UserProfile({ userId }: { userId: string }) {
 ## Design Patterns
 
 ### Factory Pattern
+
 ```typescript
 // types/user.ts
 export enum UserRole {
   Admin = 'ADMIN',
-  User = 'USER'
+  User = 'USER',
 }
 
 export interface User {
@@ -388,13 +394,14 @@ export class UserFactory {
     return {
       id: data.id || crypto.randomUUID(),
       email: data.email || '',
-      role: data.role || UserRole.User
+      role: data.role || UserRole.User,
     }
   }
 }
 ```
 
 ### Observer Pattern
+
 ```typescript
 // lib/utils/event-emitter.ts
 export class EventEmitter<T> {
@@ -416,7 +423,7 @@ export class EventEmitter<T> {
 const userEvents = new EventEmitter<User>()
 
 // Subscribe to user events
-const unsubscribe = userEvents.subscribe((user) => {
+const unsubscribe = userEvents.subscribe(user => {
   console.log('User updated:', user)
 })
 
@@ -427,6 +434,7 @@ userEvents.emit(updatedUser)
 ## Performance Optimization
 
 ### Memoization Pattern
+
 ```typescript
 // lib/utils/memoize.ts
 export function memoize<T extends object, U>(fn: (arg: T) => U): (arg: T) => U {
@@ -435,7 +443,7 @@ export function memoize<T extends object, U>(fn: (arg: T) => U): (arg: T) => U {
   return (arg: T): U => {
     const key = JSON.stringify(arg)
     if (cache.has(key)) return cache.get(key)!
-    
+
     const result = fn(arg)
     cache.set(key, result)
     return result
@@ -451,6 +459,7 @@ const expensiveCalculation = memoize((data: { numbers: number[] }) => {
 ## Security Patterns
 
 ### Input Sanitization
+
 ```typescript
 // lib/utils/security.ts
 export function sanitizeInput(input: string): string {
@@ -467,6 +476,7 @@ export function validateEmail(email: string): boolean {
 ```
 
 ### Comprehensive Error Handling
+
 ```typescript
 // lib/api/user-api.ts
 interface ApiResponse<T> {
@@ -480,19 +490,19 @@ interface ApiResponse<T> {
 export async function fetchUser(id: string): Promise<ApiResponse<User>> {
   try {
     const response = await fetch(`/api/users/${id}`)
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
-    
+
     const data = await response.json()
     return { data: UserFactory.createUser(data) }
   } catch (error) {
     return {
       error: {
         code: 'FETCH_ERROR',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      }
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
     }
   }
 }
@@ -501,6 +511,7 @@ export async function fetchUser(id: string): Promise<ApiResponse<User>> {
 ## Form Handling with Types
 
 ### Typed Form State
+
 ```typescript
 // lib/hooks/use-form.ts
 import { useState } from 'react'
@@ -538,14 +549,14 @@ export function useForm<T extends Record<string, any>>({
 
   const handleSubmit = async () => {
     const errors = validate?.(state.values) || {}
-    
+
     if (Object.keys(errors).length > 0) {
       setState(prev => ({ ...prev, errors }))
       return
     }
 
     setState(prev => ({ ...prev, isSubmitting: true }))
-    
+
     try {
       await onSubmit(state.values)
     } finally {

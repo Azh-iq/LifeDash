@@ -3,7 +3,7 @@ import type { Database } from '@/lib/types/database.types'
 
 /**
  * Supabase client for browser/client-side usage
- * 
+ *
  * This client is configured for client-side operations and includes
  * automatic session management and real-time subscriptions.
  */
@@ -17,7 +17,7 @@ export function createClient() {
 
 /**
  * Get a typed Supabase client instance for browser usage
- * 
+ *
  * @example
  * ```typescript
  * const supabase = createClient()

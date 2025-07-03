@@ -41,26 +41,32 @@ export default function UIDemo() {
   const [modalOpen, setModalOpen] = useState(false)
   const [inputValue, setInputValue] = useState('')
   const [inputError, setInputError] = useState('')
-  
+
   return (
     <ToastContainer>
-      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-neutral-50 py-8 dark:bg-neutral-900">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
               LifeDash UI Component Library
             </h1>
             <p className="mt-2 text-neutral-600 dark:text-neutral-400">
-              Comprehensive showcase of all available UI components with interactive states and animations.
+              Comprehensive showcase of all available UI components with
+              interactive states and animations.
             </p>
           </div>
 
           <div className="space-y-12">
             {/* Buttons Section */}
-            <ComponentSection title="Buttons" description="Interactive buttons with various states and styles">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <ComponentSection
+              title="Buttons"
+              description="Interactive buttons with various states and styles"
+            >
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <div className="space-y-4">
-                  <h4 className="font-medium text-neutral-900 dark:text-neutral-100">Variants</h4>
+                  <h4 className="font-medium text-neutral-900 dark:text-neutral-100">
+                    Variants
+                  </h4>
                   <div className="space-y-2">
                     <Button variant="primary">Primary Button</Button>
                     <Button variant="secondary">Secondary Button</Button>
@@ -70,9 +76,11 @@ export default function UIDemo() {
                     <Button variant="outline">Outline Button</Button>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
-                  <h4 className="font-medium text-neutral-900 dark:text-neutral-100">Sizes</h4>
+                  <h4 className="font-medium text-neutral-900 dark:text-neutral-100">
+                    Sizes
+                  </h4>
                   <div className="space-y-2">
                     <Button size="sm">Small Button</Button>
                     <Button size="default">Default Button</Button>
@@ -80,12 +88,14 @@ export default function UIDemo() {
                     <Button size="xl">Extra Large</Button>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
-                  <h4 className="font-medium text-neutral-900 dark:text-neutral-100">States</h4>
+                  <h4 className="font-medium text-neutral-900 dark:text-neutral-100">
+                    States
+                  </h4>
                   <div className="space-y-2">
-                    <Button 
-                      loading={loading} 
+                    <Button
+                      loading={loading}
                       loadingText="Saving..."
                       onClick={() => {
                         setLoading(true)
@@ -95,7 +105,7 @@ export default function UIDemo() {
                       Click to Load
                     </Button>
                     <Button disabled>Disabled Button</Button>
-                    <Button 
+                    <Button
                       leftIcon={<span>🚀</span>}
                       rightIcon={<span>→</span>}
                     >
@@ -107,8 +117,11 @@ export default function UIDemo() {
             </ComponentSection>
 
             {/* Inputs Section */}
-            <ComponentSection title="Inputs" description="Form inputs with validation states and interactive feedback">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <ComponentSection
+              title="Inputs"
+              description="Form inputs with validation states and interactive feedback"
+            >
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="space-y-4">
                   <Input
                     label="Default Input"
@@ -119,8 +132,18 @@ export default function UIDemo() {
                     label="Input with Icon"
                     placeholder="Search..."
                     leftIcon={
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
                       </svg>
                     }
                   />
@@ -131,7 +154,7 @@ export default function UIDemo() {
                     showPasswordToggle
                   />
                 </div>
-                
+
                 <div className="space-y-4">
                   <Input
                     label="Success State"
@@ -141,9 +164,13 @@ export default function UIDemo() {
                   <Input
                     label="Error State"
                     value={inputValue}
-                    onChange={(e) => {
+                    onChange={e => {
                       setInputValue(e.target.value)
-                      setInputError(e.target.value.length < 3 ? 'Must be at least 3 characters' : '')
+                      setInputError(
+                        e.target.value.length < 3
+                          ? 'Must be at least 3 characters'
+                          : ''
+                      )
                     }}
                     error={inputError}
                     placeholder="Type to see validation..."
@@ -158,13 +185,17 @@ export default function UIDemo() {
             </ComponentSection>
 
             {/* Cards Section */}
-            <ComponentSection title="Cards" description="Flexible card components with hover animations">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <ComponentSection
+              title="Cards"
+              description="Flexible card components with hover animations"
+            >
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <Card variant="default">
                   <CardHeader>
                     <CardTitle>Default Card</CardTitle>
                     <CardDescription>
-                      This is a basic card with default styling and hover effects.
+                      This is a basic card with default styling and hover
+                      effects.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -198,8 +229,18 @@ export default function UIDemo() {
                   trend="up"
                   trendValue="+12.5%"
                   icon={
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                      />
                     </svg>
                   }
                 />
@@ -207,7 +248,10 @@ export default function UIDemo() {
             </ComponentSection>
 
             {/* Modal Section */}
-            <ComponentSection title="Modals" description="Accessible modal dialogs with focus management">
+            <ComponentSection
+              title="Modals"
+              description="Accessible modal dialogs with focus management"
+            >
               <div className="flex flex-wrap gap-4">
                 <Modal open={modalOpen} onOpenChange={setModalOpen}>
                   <ModalTrigger asChild>
@@ -217,16 +261,21 @@ export default function UIDemo() {
                     <ModalHeader>
                       <ModalTitle>Modal Example</ModalTitle>
                       <ModalDescription>
-                        This is a modal dialog with proper accessibility features and animations.
+                        This is a modal dialog with proper accessibility
+                        features and animations.
                       </ModalDescription>
                     </ModalHeader>
                     <div className="py-4">
                       <p className="text-neutral-600 dark:text-neutral-400">
-                        Modal content can include forms, information, or any other UI elements.
+                        Modal content can include forms, information, or any
+                        other UI elements.
                       </p>
                     </div>
                     <ModalFooter>
-                      <Button variant="secondary" onClick={() => setModalOpen(false)}>
+                      <Button
+                        variant="secondary"
+                        onClick={() => setModalOpen(false)}
+                      >
                         Cancel
                       </Button>
                       <Button onClick={() => setModalOpen(false)}>
@@ -250,7 +299,7 @@ export default function UIDemo() {
                   variant="destructive"
                   onConfirm={() => {
                     // Simulate async action
-                    return new Promise((resolve) => {
+                    return new Promise(resolve => {
                       setTimeout(resolve, 1000)
                     })
                   }}
@@ -261,48 +310,66 @@ export default function UIDemo() {
             </ComponentSection>
 
             {/* Skeleton Section */}
-            <ComponentSection title="Skeleton Loaders" description="Loading states for better perceived performance">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <ComponentSection
+              title="Skeleton Loaders"
+              description="Loading states for better perceived performance"
+            >
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <div className="space-y-4">
-                  <h4 className="font-medium text-neutral-900 dark:text-neutral-100">Basic Skeletons</h4>
+                  <h4 className="font-medium text-neutral-900 dark:text-neutral-100">
+                    Basic Skeletons
+                  </h4>
                   <Skeleton className="h-4 w-full" />
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-8 w-1/2" />
                   <SkeletonAvatar size="lg" />
                 </div>
-                
+
                 <div className="space-y-4">
-                  <h4 className="font-medium text-neutral-900 dark:text-neutral-100">Text Patterns</h4>
+                  <h4 className="font-medium text-neutral-900 dark:text-neutral-100">
+                    Text Patterns
+                  </h4>
                   <SkeletonText lines={1} />
                   <SkeletonText lines={3} spacing="normal" />
                   <SkeletonText lines={2} spacing="relaxed" />
                 </div>
-                
+
                 <div>
-                  <h4 className="font-medium text-neutral-900 dark:text-neutral-100 mb-4">Complex Layouts</h4>
+                  <h4 className="mb-4 font-medium text-neutral-900 dark:text-neutral-100">
+                    Complex Layouts
+                  </h4>
                   <SkeletonCard showAvatar showImage={false} lines={2} />
                 </div>
               </div>
-              
-              <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+              <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <div>
-                  <h4 className="font-medium text-neutral-900 dark:text-neutral-100 mb-4">Table Loading</h4>
+                  <h4 className="mb-4 font-medium text-neutral-900 dark:text-neutral-100">
+                    Table Loading
+                  </h4>
                   <SkeletonTable rows={3} columns={4} />
                 </div>
-                
+
                 <div>
-                  <h4 className="font-medium text-neutral-900 dark:text-neutral-100 mb-4">Chart Loading</h4>
+                  <h4 className="mb-4 font-medium text-neutral-900 dark:text-neutral-100">
+                    Chart Loading
+                  </h4>
                   <SkeletonChart type="line" height="h-48" />
                 </div>
               </div>
             </ComponentSection>
 
             {/* Badges and Avatars Section */}
-            <ComponentSection title="Badges & Avatars" description="Small UI elements for status and identity">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <ComponentSection
+              title="Badges & Avatars"
+              description="Small UI elements for status and identity"
+            >
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                 <div className="space-y-6">
                   <div>
-                    <h4 className="font-medium text-neutral-900 dark:text-neutral-100 mb-4">Badges</h4>
+                    <h4 className="mb-4 font-medium text-neutral-900 dark:text-neutral-100">
+                      Badges
+                    </h4>
                     <div className="flex flex-wrap gap-2">
                       <Badge>Default</Badge>
                       <Badge variant="secondary">Secondary</Badge>
@@ -313,30 +380,36 @@ export default function UIDemo() {
                       <Badge variant="outline">Outline</Badge>
                     </div>
                   </div>
-                  
+
                   <div>
-                    <h4 className="font-medium text-neutral-900 dark:text-neutral-100 mb-4">Interactive Badges</h4>
+                    <h4 className="mb-4 font-medium text-neutral-900 dark:text-neutral-100">
+                      Interactive Badges
+                    </h4>
                     <div className="flex flex-wrap gap-2">
-                      <Badge 
-                        variant="secondary" 
-                        removable 
+                      <Badge
+                        variant="secondary"
+                        removable
                         onRemove={() => console.log('Badge removed')}
                       >
                         Removable
                       </Badge>
-                      <Badge 
+                      <Badge
                         variant="info"
-                        icon={<span className="w-2 h-2 bg-blue-400 rounded-full"></span>}
+                        icon={
+                          <span className="h-2 w-2 rounded-full bg-blue-400"></span>
+                        }
                       >
                         With Icon
                       </Badge>
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-6">
                   <div>
-                    <h4 className="font-medium text-neutral-900 dark:text-neutral-100 mb-4">Avatars</h4>
+                    <h4 className="mb-4 font-medium text-neutral-900 dark:text-neutral-100">
+                      Avatars
+                    </h4>
                     <div className="flex items-center gap-4">
                       <Avatar size="sm" fallback="JD" />
                       <Avatar size="default" fallback="AS" />
@@ -344,9 +417,11 @@ export default function UIDemo() {
                       <Avatar size="xl" fallback="LK" />
                     </div>
                   </div>
-                  
+
                   <div>
-                    <h4 className="font-medium text-neutral-900 dark:text-neutral-100 mb-4">Avatar Group</h4>
+                    <h4 className="mb-4 font-medium text-neutral-900 dark:text-neutral-100">
+                      Avatar Group
+                    </h4>
                     <AvatarGroup max={4} size="default">
                       <Avatar fallback="JD" />
                       <Avatar fallback="AS" />
@@ -366,7 +441,11 @@ export default function UIDemo() {
   )
 }
 
-function ComponentSection({ title, description, children }: {
+function ComponentSection({
+  title,
+  description,
+  children,
+}: {
   title: string
   description: string
   children: React.ReactNode
@@ -382,9 +461,7 @@ function ComponentSection({ title, description, children }: {
         </p>
       </div>
       <Separator />
-      <div className="space-y-6">
-        {children}
-      </div>
+      <div className="space-y-6">{children}</div>
     </section>
   )
 }
@@ -392,13 +469,27 @@ function ComponentSection({ title, description, children }: {
 function ToastDemo() {
   const { toast } = useToast()
 
-  const showToast = (variant: 'default' | 'success' | 'warning' | 'destructive' | 'info') => {
+  const showToast = (
+    variant: 'default' | 'success' | 'warning' | 'destructive' | 'info'
+  ) => {
     const messages = {
-      default: { title: 'Default Toast', description: 'This is a default notification.' },
-      success: { title: 'Success!', description: 'Your action was completed successfully.' },
+      default: {
+        title: 'Default Toast',
+        description: 'This is a default notification.',
+      },
+      success: {
+        title: 'Success!',
+        description: 'Your action was completed successfully.',
+      },
       warning: { title: 'Warning', description: 'Please review your input.' },
-      destructive: { title: 'Error', description: 'Something went wrong. Please try again.' },
-      info: { title: 'Information', description: 'Here\'s some useful information.' },
+      destructive: {
+        title: 'Error',
+        description: 'Something went wrong. Please try again.',
+      },
+      info: {
+        title: 'Information',
+        description: "Here's some useful information.",
+      },
     }
 
     toast({
@@ -410,16 +501,32 @@ function ToastDemo() {
 
   return (
     <div className="space-x-2">
-      <Button onClick={() => showToast('default')} variant="secondary" size="sm">
+      <Button
+        onClick={() => showToast('default')}
+        variant="secondary"
+        size="sm"
+      >
         Default Toast
       </Button>
-      <Button onClick={() => showToast('success')} variant="secondary" size="sm">
+      <Button
+        onClick={() => showToast('success')}
+        variant="secondary"
+        size="sm"
+      >
         Success Toast
       </Button>
-      <Button onClick={() => showToast('warning')} variant="secondary" size="sm">
+      <Button
+        onClick={() => showToast('warning')}
+        variant="secondary"
+        size="sm"
+      >
         Warning Toast
       </Button>
-      <Button onClick={() => showToast('destructive')} variant="secondary" size="sm">
+      <Button
+        onClick={() => showToast('destructive')}
+        variant="secondary"
+        size="sm"
+      >
         Error Toast
       </Button>
       <Button onClick={() => showToast('info')} variant="secondary" size="sm">

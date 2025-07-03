@@ -84,29 +84,77 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        sans: [
+          'Inter',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'sans-serif',
+        ],
         mono: ['JetBrains Mono', 'monospace'],
       },
       fontSize: {
         // Display sizes
-        'display-lg': ['48px', { lineHeight: '56px', letterSpacing: '-0.5px', fontWeight: '700' }],
-        'display-md': ['36px', { lineHeight: '44px', letterSpacing: '-0.3px', fontWeight: '700' }],
+        'display-lg': [
+          '48px',
+          { lineHeight: '56px', letterSpacing: '-0.5px', fontWeight: '700' },
+        ],
+        'display-md': [
+          '36px',
+          { lineHeight: '44px', letterSpacing: '-0.3px', fontWeight: '700' },
+        ],
         // Headings
-        'h1': ['32px', { lineHeight: '40px', letterSpacing: '-0.3px', fontWeight: '700' }],
-        'h2': ['24px', { lineHeight: '32px', letterSpacing: '-0.2px', fontWeight: '600' }],
-        'h3': ['20px', { lineHeight: '28px', letterSpacing: '-0.1px', fontWeight: '600' }],
+        h1: [
+          '32px',
+          { lineHeight: '40px', letterSpacing: '-0.3px', fontWeight: '700' },
+        ],
+        h2: [
+          '24px',
+          { lineHeight: '32px', letterSpacing: '-0.2px', fontWeight: '600' },
+        ],
+        h3: [
+          '20px',
+          { lineHeight: '28px', letterSpacing: '-0.1px', fontWeight: '600' },
+        ],
         // Body text
-        'body-lg': ['16px', { lineHeight: '24px', letterSpacing: '0px', fontWeight: '400' }],
-        'body': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '400' }],
-        'body-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.1px', fontWeight: '400' }],
+        'body-lg': [
+          '16px',
+          { lineHeight: '24px', letterSpacing: '0px', fontWeight: '400' },
+        ],
+        body: [
+          '14px',
+          { lineHeight: '20px', letterSpacing: '0px', fontWeight: '400' },
+        ],
+        'body-sm': [
+          '12px',
+          { lineHeight: '16px', letterSpacing: '0.1px', fontWeight: '400' },
+        ],
         // Data text (monospace)
-        'data-lg': ['24px', { lineHeight: '28px', letterSpacing: '0px', fontWeight: '500' }],
-        'data-md': ['18px', { lineHeight: '24px', letterSpacing: '0px', fontWeight: '400' }],
-        'data-sm': ['14px', { lineHeight: '18px', letterSpacing: '0px', fontWeight: '400' }],
+        'data-lg': [
+          '24px',
+          { lineHeight: '28px', letterSpacing: '0px', fontWeight: '500' },
+        ],
+        'data-md': [
+          '18px',
+          { lineHeight: '24px', letterSpacing: '0px', fontWeight: '400' },
+        ],
+        'data-sm': [
+          '14px',
+          { lineHeight: '18px', letterSpacing: '0px', fontWeight: '400' },
+        ],
         // Special text
-        'label': ['12px', { lineHeight: '16px', letterSpacing: '0.5px', fontWeight: '500' }],
-        'button': ['14px', { lineHeight: '20px', letterSpacing: '0.2px', fontWeight: '500' }],
-        'caption': ['11px', { lineHeight: '14px', letterSpacing: '0.2px', fontWeight: '400' }],
+        label: [
+          '12px',
+          { lineHeight: '16px', letterSpacing: '0.5px', fontWeight: '500' },
+        ],
+        button: [
+          '14px',
+          { lineHeight: '20px', letterSpacing: '0.2px', fontWeight: '500' },
+        ],
+        caption: [
+          '11px',
+          { lineHeight: '14px', letterSpacing: '0.2px', fontWeight: '400' },
+        ],
       },
       spacing: {
         '1': '4px',
@@ -119,16 +167,16 @@ const config: Config = {
         '12': '48px',
       },
       borderRadius: {
-        'xs': '8px',
-        'sm': '12px',
-        'md': '16px',
-        'lg': '20px',
-        'xl': '24px',
+        xs: '8px',
+        sm: '12px',
+        md: '16px',
+        lg: '20px',
+        xl: '24px',
       },
       transitionTimingFunction: {
-        'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
-        'responsive': 'cubic-bezier(0.2, 0, 0, 1)',
-        'bounce': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+        smooth: 'cubic-bezier(0.4, 0, 0.2, 1)',
+        responsive: 'cubic-bezier(0.2, 0, 0, 1)',
+        bounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
       },
       transitionDuration: {
         '150': '150ms',
@@ -138,15 +186,15 @@ const config: Config = {
       },
       animation: {
         'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'float': 'float 2s ease-in-out infinite',
-        'shimmer': 'shimmer 1.5s ease-in-out infinite',
+        float: 'float 2s ease-in-out infinite',
+        shimmer: 'shimmer 1.5s ease-in-out infinite',
         'fade-in': 'fadeIn 200ms cubic-bezier(0.4, 0, 0.2, 1)',
         'slide-up': 'slideUp 300ms cubic-bezier(0.4, 0, 0.2, 1)',
         'scale-in': 'scaleIn 150ms cubic-bezier(0.2, 0, 0, 1)',
         'bounce-in': 'bounceIn 300ms cubic-bezier(0.68, -0.55, 0.265, 1.55)',
         'count-up': 'countUp 1000ms cubic-bezier(0.4, 0, 0.2, 1)',
         'draw-line': 'drawLine 1000ms cubic-bezier(0.4, 0, 0.2, 1)',
-        'shake': 'shake 150ms ease-in-out',
+        shake: 'shake 150ms ease-in-out',
       },
       keyframes: {
         float: {
@@ -190,9 +238,9 @@ const config: Config = {
         },
       },
       boxShadow: {
-        'card': '0 1px 3px rgba(0, 0, 0, 0.08)',
-        'elevated': '0 4px 12px rgba(0, 0, 0, 0.15)',
-        'focus': '0 0 0 2px rgba(65, 105, 225, 0.2)',
+        card: '0 1px 3px rgba(0, 0, 0, 0.08)',
+        elevated: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        focus: '0 0 0 2px rgba(65, 105, 225, 0.2)',
       },
     },
   },
