@@ -2,165 +2,265 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @layer base {
   :root {
-    /* LifeDash Design System Variables */
-    --font-inter:
-      'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-jetbrains-mono: 'JetBrains Mono', monospace;
+    /* Untitled UI + Financial Dashboard Integration */
+    --color-primary: #1e40af;
+    --color-primary-hover: #1d4ed8;
+
+    /* Category-specific gradients - New 4 Main Areas */
+    /* 🔵 Investeringer (Investments) - Deep Navy Theme */
+    --gradient-investments: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    --gradient-investments-light: linear-gradient(
+      135deg,
+      #dbeafe 0%,
+      #bfdbfe 100%
+    );
+
+    /* 🟣 Hobby Prosjekter (Hobby Projects) - Creative Purple Theme */
+    --gradient-projects: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+    --gradient-projects-light: linear-gradient(
+      135deg,
+      #f3e8ff 0%,
+      #e9d5ff 100%
+    );
+
+    /* 🟢 Økonomi (Economy) - Financial Green Theme */
+    --gradient-economy: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    --gradient-economy-light: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+
+    /* 🟠 Verktøy (Tools) - Utility Orange Theme */
+    --gradient-tools: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+    --gradient-tools-light: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+
+    /* Neutral foundation (Untitled UI standard) */
+    --color-gray-50: #f9fafb;
+    --color-gray-100: #f3f4f6;
+    --color-gray-200: #e5e7eb;
+    --color-gray-300: #d1d5db;
+    --color-gray-400: #9ca3af;
+    --color-gray-500: #6b7280;
+    --color-gray-600: #4b5563;
+    --color-gray-700: #374151;
+    --color-gray-800: #1f2937;
+    --color-gray-900: #111827;
+
+    /* Layout variables */
+    --bg-main: var(--color-gray-50);
+    --bg-card: #ffffff;
+    --border-color: var(--color-gray-200);
+    --text-primary: var(--color-gray-900);
+    --text-secondary: var(--color-gray-600);
+
+    /* Category color variables */
+    --color-investments: #1e40af;
+    --color-projects: #7c3aed;
+    --color-economy: #059669;
+    --color-tools: #ea580c;
   }
 
   * {
-    @apply border-neutral-200 dark:border-neutral-800;
+    border-color: var(--border-color);
   }
 
   body {
-    font-family: var(--font-inter);
-    @apply bg-background-primary text-primary-light;
-  }
-
-  /* Typography utilities based on LifeDash design system */
-  .display-lg {
-    @apply text-5xl font-bold tracking-tight;
-  }
-
-  .display-md {
-    @apply text-4xl font-bold tracking-tight;
-  }
-
-  .heading-1 {
-    @apply text-3xl font-bold tracking-tight;
-  }
-
-  .heading-2 {
-    @apply text-2xl font-semibold tracking-tight;
-  }
-
-  .heading-3 {
-    @apply text-xl font-semibold tracking-tight;
-  }
-
-  .body-large {
-    @apply text-lg font-normal;
-  }
-
-  .body-base {
-    @apply text-base font-normal;
-  }
-
-  .body-small {
-    @apply text-sm font-normal;
-  }
-
-  .data-large {
-    @apply font-mono text-2xl font-medium;
-  }
-
-  .data-medium {
-    @apply font-mono text-lg font-normal;
-  }
-
-  .data-small {
-    @apply font-mono text-sm font-normal;
-  }
-
-  .label-text {
-    @apply text-xs font-medium uppercase tracking-wide;
-  }
-
-  .button-text {
-    @apply text-sm font-medium tracking-wide;
-  }
-
-  .caption-text {
-    @apply text-xs font-normal tracking-wide;
+    font-family:
+      'Inter',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
 @layer components {
-  /* Button Components */
-  .btn-primary {
-    @apply h-12 rounded-lg bg-secondary-blue px-4 text-sm font-medium text-primary-light;
-    @apply hover:bg-secondary-blue/90 active:bg-secondary-blue/95;
-    @apply transition-colors duration-200;
+  /* Untitled UI + Financial Dashboard Component Styles */
+
+  /* Enhanced card entrance animations */
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
-  .btn-secondary {
-    @apply h-12 rounded-lg border border-secondary-gray bg-transparent px-4 text-sm font-medium text-secondary-gray;
-    @apply transition-colors duration-200 hover:bg-secondary-gray/10;
+  .card-entrance {
+    animation: slideInUp 0.6s ease-out forwards;
+    opacity: 0;
   }
 
-  .btn-ghost {
-    @apply h-11 bg-transparent px-3 text-sm font-medium text-secondary-blue;
-    @apply transition-colors duration-200 hover:bg-secondary-blue/10;
+  /* Glass morphism effect (Untitled UI style) */
+  .glass-effect {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
-  /* Card Component */
-  .card {
-    @apply rounded-lg border border-secondary-gray/10 bg-background-secondary p-5;
-    @apply transition-colors duration-200 hover:border-secondary-blue/30;
+  /* Category-specific button styles */
+  .btn-investments {
+    @apply transform rounded-xl bg-investments-500 px-6 py-3 font-medium text-white transition-all duration-200 hover:scale-105 hover:bg-investments-600 focus:outline-none focus:ring-2 focus:ring-investments-500/20;
   }
 
-  /* Input Field */
-  .input-field {
-    @apply h-12 rounded-lg border border-transparent bg-background-tertiary px-4;
-    @apply text-primary-light placeholder:text-secondary-gray;
-    @apply focus:border-2 focus:border-secondary-blue focus:bg-secondary-blue/5;
-    @apply transition-all duration-200;
+  .btn-projects {
+    @apply transform rounded-xl bg-projects-500 px-6 py-3 font-medium text-white transition-all duration-200 hover:scale-105 hover:bg-projects-600 focus:outline-none focus:ring-2 focus:ring-projects-500/20;
   }
 
-  /* Data Visualization */
-  .chart-grid {
-    @apply text-secondary-gray opacity-10;
+  .btn-economy {
+    @apply transform rounded-xl bg-economy-500 px-6 py-3 font-medium text-white transition-all duration-200 hover:scale-105 hover:bg-economy-600 focus:outline-none focus:ring-2 focus:ring-economy-500/20;
   }
 
-  .chart-text {
-    @apply text-secondary-gray;
+  .btn-tools {
+    @apply transform rounded-xl bg-tools-500 px-6 py-3 font-medium text-white transition-all duration-200 hover:scale-105 hover:bg-tools-600 focus:outline-none focus:ring-2 focus:ring-tools-500/20;
   }
 
-  .trend-positive {
-    @apply text-accent-green;
+  /* Enhanced input styles (Untitled UI standard) */
+  .input-base {
+    @apply w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 transition-all duration-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20;
   }
 
-  .trend-negative {
-    @apply text-accent-red;
+  /* Enhanced card hover effects */
+  .card-hover {
+    @apply transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl;
   }
 
-  .trend-neutral {
-    @apply text-secondary-blue;
+  /* Category-specific card styles */
+  .card-investments {
+    @apply transform rounded-xl border border-gray-200 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-investments-500 hover:shadow-xl;
   }
 
-  /* Animation utilities */
-  .float-animation {
-    animation: float 2s ease-in-out infinite;
+  .card-projects {
+    @apply transform rounded-xl border border-gray-200 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-projects-500 hover:shadow-xl;
   }
 
-  .shimmer-animation {
-    animation: shimmer 1.5s ease-in-out infinite;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.1),
-      transparent
-    );
-    background-size: 200px 100%;
+  .card-economy {
+    @apply transform rounded-xl border border-gray-200 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-economy-500 hover:shadow-xl;
   }
 
-  /* Focus states */
-  .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-secondary-blue/20 focus:ring-offset-2;
+  .card-tools {
+    @apply transform rounded-xl border border-gray-200 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-tools-500 hover:shadow-xl;
   }
 
-  /* Light mode overrides */
-  .light {
-    @apply bg-light-primary text-light-text-primary;
+  /* Category header styles with gradients */
+  .header-investments {
+    background: var(--gradient-investments);
+    @apply rounded-xl text-white shadow-lg;
   }
 
-  .light .card {
-    @apply border-secondary-gray/20 bg-light-secondary shadow-card;
+  .header-projects {
+    background: var(--gradient-projects);
+    @apply rounded-xl text-white shadow-lg;
   }
 
-  .light .input-field {
-    @apply bg-light-tertiary text-light-text-primary;
+  .header-economy {
+    background: var(--gradient-economy);
+    @apply rounded-xl text-white shadow-lg;
+  }
+
+  .header-tools {
+    background: var(--gradient-tools);
+    @apply rounded-xl text-white shadow-lg;
+  }
+
+  /* Light theme headers for sub-pages */
+  .header-investments-light {
+    background: var(--gradient-investments-light);
+    @apply rounded-xl border border-investments-200 text-investments-700 shadow-lg;
+  }
+
+  /* Financial number styling (JetBrains Mono) */
+  .financial-number {
+    @apply font-mono font-bold tabular-nums;
+  }
+
+  /* Untitled UI icon styling */
+  .ui-icon {
+    @apply h-5 w-5;
+    stroke-width: 2px;
+  }
+
+  .ui-icon-lg {
+    @apply h-8 w-8;
+    stroke-width: 2px;
+  }
+
+  /* Real-time price update animations */
+  .price-flash-green {
+    animation: flashGreen 1s ease-out;
+  }
+
+  .price-flash-red {
+    animation: flashRed 1s ease-out;
+  }
+
+  .price-update {
+    animation: priceUpdate 0.5s ease-out;
+  }
+
+  @keyframes flashGreen {
+    0% {
+      background-color: rgba(34, 197, 94, 0.2);
+      transform: scale(1.02);
+    }
+    50% {
+      background-color: rgba(34, 197, 94, 0.1);
+      transform: scale(1.01);
+    }
+    100% {
+      background-color: transparent;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes flashRed {
+    0% {
+      background-color: rgba(239, 68, 68, 0.2);
+      transform: scale(1.02);
+    }
+    50% {
+      background-color: rgba(239, 68, 68, 0.1);
+      transform: scale(1.01);
+    }
+    100% {
+      background-color: transparent;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes priceUpdate {
+    0% {
+      opacity: 0.7;
+      transform: translateY(-2px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Pulse effect for live indicators */
+  .live-pulse {
+    animation: livePulse 2s ease-in-out infinite;
+  }
+
+  @keyframes livePulse {
+    0%,
+    100% {
+      opacity: 1;
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+    }
+    50% {
+      opacity: 0.8;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0);
+    }
   }
 }

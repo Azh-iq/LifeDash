@@ -1,6 +1,6 @@
 # LifeDash 📊
 
-> **Your Personal Life Dashboard** - A modern, feature-rich web application for tracking and managing various aspects of your daily life.
+> **Your Complete Life Management System** - A comprehensive platform for tracking investments, health, goals, and life metrics with mobile-first design and real-time insights.
 
 ![LifeDash](https://img.shields.io/badge/LifeDash-Personal%20Dashboard-blue?style=for-the-badge)
 ![Next.js](https://img.shields.io/badge/Next.js-14+-000000?style=for-the-badge&logo=next.js&logoColor=white)
@@ -141,42 +141,41 @@ Explore all the components and features through our comprehensive demo pages:
 
 ```
 LifeDash/
-├── 📁 app/                          # Next.js App Router
-│   ├── 📁 (auth)/                   # Auth pages group
-│   │   ├── 📄 layout.tsx           # Auth layout
-│   │   ├── 📁 login/               # Login page
-│   │   ├── 📁 register/            # Register page
-│   │   └── 📁 forgot-password/     # Password reset
+├── 📁 docs/                        # 📋 Master Documentation
+│   ├── 📄 PROJECT_SPECIFICATION.md # Complete technical specification
+│   ├── 📄 ARCHITECTURE.md         # System architecture & design
+│   ├── 📄 FEATURE_SPECIFICATION.md # Feature requirements & UX
+│   └── 📄 DEVELOPMENT_GUIDE.md     # Development workflow
+├── 📁 style-guide/                 # 🎨 LifeDash Design System
+│   └── 📄 style-guide.md          # Complete design specifications
+├── 📁 app/                         # 🚀 Next.js App Router
+│   ├── 📁 (auth)/                  # Authentication pages
+│   ├── 📁 (dashboard)/             # Main application
+│   │   ├── 📁 portfolios/          # Portfolio management
+│   │   └── 📁 import/              # CSV import workflow
 │   ├── 📄 auth-demo/               # Auth demo page
 │   ├── 📄 data-demo/               # Data display demo
 │   ├── 📄 ui-demo/                 # UI components demo
 │   ├── 📄 globals.css              # Global styles
 │   ├── 📄 layout.tsx               # Root layout
 │   └── 📄 page.tsx                 # Homepage
-├── 📁 components/                   # React components
-│   ├── 📁 ui/                      # Base UI components
-│   │   ├── 📄 button.tsx           # Button component
-│   │   ├── 📄 input.tsx            # Input component
-│   │   ├── 📄 card.tsx             # Card component
-│   │   ├── 📄 modal.tsx            # Modal component
-│   │   ├── 📄 table.tsx            # Table component
-│   │   └── 📄 index.ts             # Component exports
+├── 📁 components/                   # 🧩 React Components
+│   ├── 📁 ui/                      # Base design system components
 │   ├── 📁 features/                # Feature-specific components
-│   │   └── 📁 auth/                # Authentication components
-│   └── 📁 shared/                  # Shared components
-│       ├── 📁 charts/              # Chart components
-│       ├── 📁 metrics/             # Metric components
-│       ├── 📁 currency/            # Currency formatting
-│       └── 📁 loading/             # Loading components
-├── 📁 lib/                         # Utility libraries
-│   ├── 📁 supabase/                # Supabase integration
-│   ├── 📁 validation/              # Validation schemas
-│   ├── 📁 utils/                   # Utility functions
-│   └── 📁 types/                   # TypeScript types
-├── 📁 supabase/                    # Database configuration
+│   ├── 📁 layouts/                 # Page layouts
+│   └── 📁 shared/                  # Shared utility components
+├── 📁 lib/                         # 🛠️ Utilities & Configuration
+│   ├── 📁 actions/                 # Server Actions (API layer)
+│   ├── 📁 hooks/                   # Custom React hooks
+│   ├── 📁 supabase/                # Database configuration
+│   ├── 📁 types/                   # TypeScript definitions
+│   └── 📁 utils/                   # Utility functions
+├── 📁 supabase/                    # 🗄️ Database Schema
 │   ├── 📁 migrations/              # Database migrations
-│   └── 📄 seed.sql                 # Seed data
-├── 📁 .claude/                     # AI assistant configuration
+│   └── 📄 seed.sql                 # Test data
+├── 📁 .claude/                     # 🤖 AI Assistant Configuration
+│   ├── 📄 rules.md                 # LifeDash context & coding rules
+│   └── 📁 examples/                # Code pattern examples
 └── 📄 README.md                    # This file
 ```
 
@@ -270,12 +269,44 @@ Test the authentication system with these demo scenarios:
 - **Phase 3**: Core UI Component Library
 - **Phase 4**: Data Display Components
 - **Phase 5**: Authentication & Navigation
+- **Phase 6**: Portfolio Management System
+- **Phase 7**: Documentation & Context Preservation
 
-### 🚧 Next Steps
+### 🚧 Currently Active
 
-- **Phase 6**: Dashboard Implementation
-- **Phase 7**: Advanced Features & Analytics
-- **Phase 8**: Deployment & Production
+- **Phase 8**: Stock Analysis Pages (Step 12)
+  - Interactive price charts with Recharts
+  - P&L breakdown with real-time calculations
+  - Performance metrics dashboard
+  - Mobile-first design implementation
+
+### 📋 Next Phases
+
+- **Phase 9**: Real-Time Data Integration
+- **Phase 10**: Mobile Optimization & PWA
+- **Phase 11**: Advanced Analytics
+- **Phase 12**: Production Deployment
+
+## 📚 Documentation
+
+### Master Documentation (docs/)
+
+All project specifications and guidelines are maintained in the `/docs/` directory:
+
+- **[PROJECT_SPECIFICATION.md](docs/PROJECT_SPECIFICATION.md)** - Complete technical specification
+- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System architecture and design decisions
+- **[FEATURE_SPECIFICATION.md](docs/FEATURE_SPECIFICATION.md)** - Feature requirements with user stories
+- **[DEVELOPMENT_GUIDE.md](docs/DEVELOPMENT_GUIDE.md)** - Development workflow and best practices
+
+### Design System
+
+- **[style-guide.md](style-guide/style-guide.md)** - Complete LifeDash design system
+- **[.claude/rules.md](.claude/rules.md)** - LifeDash context and coding standards
+
+### Living Documentation
+
+- **[TASKS.md](TASKS.md)** - Current project status and task tracking
+- **Development rules mandate** checking master documentation before implementation
 
 ## 🤝 Contributing
 

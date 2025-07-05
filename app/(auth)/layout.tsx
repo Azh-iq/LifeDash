@@ -13,9 +13,9 @@ export default function AuthLayout({
         <nav className="mx-auto flex max-w-7xl items-center justify-between">
           <Link
             href="/"
-            className="flex items-center gap-2 text-2xl font-bold text-neutral-900 transition-colors hover:text-primary-600 dark:text-neutral-100 dark:hover:text-primary-400"
+            className="hover:text-primary-600 dark:hover:text-primary-400 flex items-center gap-2 text-2xl font-bold text-neutral-900 transition-colors dark:text-neutral-100"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-primary-700">
+            <div className="from-primary-500 to-primary-700 flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br">
               <svg
                 className="h-5 w-5 text-white"
                 fill="none"
@@ -46,8 +46,8 @@ export default function AuthLayout({
 
       {/* Background decorations */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -right-40 -top-40 h-80 w-80 rounded-full bg-primary-100 opacity-50 blur-3xl dark:bg-primary-900/20" />
-        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-secondary-100 opacity-50 blur-3xl dark:bg-secondary-900/20" />
+        <div className="bg-primary-100 dark:bg-primary-900/20 absolute -right-40 -top-40 h-80 w-80 rounded-full opacity-50 blur-3xl" />
+        <div className="bg-secondary-100 dark:bg-secondary-900/20 absolute -bottom-40 -left-40 h-80 w-80 rounded-full opacity-50 blur-3xl" />
 
         {/* Grid pattern */}
         <div

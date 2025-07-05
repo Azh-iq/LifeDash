@@ -6,8 +6,14 @@ import { z } from 'zod'
 
 // Portfolio validation schemas
 const createPortfolioSchema = z.object({
-  name: z.string().min(1, 'Portfolio name is required').max(100, 'Portfolio name must be less than 100 characters'),
-  description: z.string().max(500, 'Description must be less than 500 characters').optional(),
+  name: z
+    .string()
+    .min(1, 'Portfolio name is required')
+    .max(100, 'Portfolio name must be less than 100 characters'),
+  description: z
+    .string()
+    .max(500, 'Description must be less than 500 characters')
+    .optional(),
   type: z.enum(['INVESTMENT', 'RETIREMENT', 'SAVINGS', 'TRADING'], {
     errorMap: () => ({ message: 'Please select a valid portfolio type' }),
   }),
@@ -27,12 +33,17 @@ export interface PortfolioResult {
 /**
  * Create a new portfolio
  */
-export async function createPortfolio(formData: FormData): Promise<PortfolioResult> {
+export async function createPortfolio(
+  formData: FormData
+): Promise<PortfolioResult> {
   try {
     const supabase = createClient()
-    
+
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
     if (userError || !user) {
       return {
         success: false,
@@ -95,12 +106,17 @@ export async function createPortfolio(formData: FormData): Promise<PortfolioResu
 /**
  * Update an existing portfolio
  */
-export async function updatePortfolio(formData: FormData): Promise<PortfolioResult> {
+export async function updatePortfolio(
+  formData: FormData
+): Promise<PortfolioResult> {
   try {
     const supabase = createClient()
-    
+
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
     if (userError || !user) {
       return {
         success: false,
@@ -180,12 +196,17 @@ export async function updatePortfolio(formData: FormData): Promise<PortfolioResu
 /**
  * Delete a portfolio
  */
-export async function deletePortfolio(portfolioId: string): Promise<PortfolioResult> {
+export async function deletePortfolio(
+  portfolioId: string
+): Promise<PortfolioResult> {
   try {
     const supabase = createClient()
-    
+
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
     if (userError || !user) {
       return {
         success: false,
@@ -204,12 +225,16 @@ export async function deletePortfolio(portfolioId: string): Promise<PortfolioRes
     // Check if portfolio belongs to user and get holdings count
     const { data: portfolioCheck, error: checkError } = await supabase
       .from('portfolios')
-      .select(`
+      .select(
+        `
         id, 
         user_id, 
         name,
-        holdings:holdings(id)
-      `)
+        accounts:accounts(
+          holdings:holdings(id)
+        )
+      `
+      )
       .eq('id', portfolioId)
       .eq('user_id', user.id)
       .single()
@@ -222,11 +247,19 @@ export async function deletePortfolio(portfolioId: string): Promise<PortfolioRes
     }
 
     // Check if portfolio has holdings
-    const holdingsCount = Array.isArray(portfolioCheck.holdings) ? portfolioCheck.holdings.length : 0
+    let holdingsCount = 0
+    if (Array.isArray(portfolioCheck.accounts)) {
+      portfolioCheck.accounts.forEach((account: any) => {
+        if (Array.isArray(account.holdings)) {
+          holdingsCount += account.holdings.length
+        }
+      })
+    }
     if (holdingsCount > 0) {
       return {
         success: false,
-        error: 'Cannot delete portfolio with existing holdings. Please remove all holdings first.',
+        error:
+          'Cannot delete portfolio with existing holdings. Please remove all holdings first.',
       }
     }
 
@@ -266,9 +299,12 @@ export async function deletePortfolio(portfolioId: string): Promise<PortfolioRes
 export async function getUserPortfolios(): Promise<PortfolioResult> {
   try {
     const supabase = createClient()
-    
+
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
     if (userError || !user) {
       return {
         success: false,
@@ -279,18 +315,23 @@ export async function getUserPortfolios(): Promise<PortfolioResult> {
     // Fetch portfolios with holdings count and total value
     const { data: portfolios, error: fetchError } = await supabase
       .from('portfolios')
-      .select(`
+      .select(
+        `
         *,
-        holdings:holdings(
+        accounts:accounts(
           id,
-          quantity,
-          average_cost,
-          stock:stocks(
-            symbol,
-            current_price
+          holdings:holdings(
+            id,
+            quantity,
+            average_cost,
+            stock:stocks(
+              symbol,
+              current_price
+            )
           )
         )
-      `)
+      `
+      )
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
@@ -303,26 +344,36 @@ export async function getUserPortfolios(): Promise<PortfolioResult> {
     }
 
     // Calculate total values for each portfolio
-    const portfoliosWithTotals = portfolios?.map(portfolio => {
-      const holdings = Array.isArray(portfolio.holdings) ? portfolio.holdings : []
-      
-      const totalValue = holdings.reduce((sum: number, holding: any) => {
-        const currentPrice = holding.stock?.current_price || 0
-        return sum + (holding.quantity * currentPrice)
-      }, 0)
+    const portfoliosWithTotals =
+      portfolios?.map(portfolio => {
+        // Flatten holdings from all accounts
+        const allHoldings: any[] = []
+        if (Array.isArray(portfolio.accounts)) {
+          portfolio.accounts.forEach((account: any) => {
+            if (Array.isArray(account.holdings)) {
+              allHoldings.push(...account.holdings)
+            }
+          })
+        }
 
-      const totalCost = holdings.reduce((sum: number, holding: any) => {
-        return sum + (holding.quantity * holding.average_cost)
-      }, 0)
+        const totalValue = allHoldings.reduce((sum: number, holding: any) => {
+          const currentPrice = holding.stock?.current_price || 0
+          return sum + holding.quantity * currentPrice
+        }, 0)
 
-      return {
-        ...portfolio,
-        total_value: totalValue,
-        total_cost: totalCost,
-        total_gain_loss: totalValue - totalCost,
-        holdings_count: holdings.length,
-      }
-    }) || []
+        const totalCost = allHoldings.reduce((sum: number, holding: any) => {
+          return sum + holding.quantity * holding.average_cost
+        }, 0)
+
+        return {
+          ...portfolio,
+          total_value: totalValue,
+          total_cost: totalCost,
+          total_gain_loss: totalValue - totalCost,
+          holdings_count: allHoldings.length,
+          holdings: allHoldings, // Add flattened holdings for compatibility
+        }
+      }) || []
 
     return {
       success: true,
@@ -340,12 +391,17 @@ export async function getUserPortfolios(): Promise<PortfolioResult> {
 /**
  * Get a single portfolio by ID
  */
-export async function getPortfolioById(portfolioId: string): Promise<PortfolioResult> {
+export async function getPortfolioById(
+  portfolioId: string
+): Promise<PortfolioResult> {
   try {
     const supabase = createClient()
-    
+
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
     if (userError || !user) {
       return {
         success: false,
@@ -356,13 +412,18 @@ export async function getPortfolioById(portfolioId: string): Promise<PortfolioRe
     // Fetch portfolio with detailed holdings
     const { data: portfolio, error: fetchError } = await supabase
       .from('portfolios')
-      .select(`
+      .select(
+        `
         *,
-        holdings:holdings(
+        accounts:accounts(
           *,
-          stock:stocks(*)
+          holdings:holdings(
+            *,
+            stock:stocks(*)
+          )
         )
-      `)
+      `
+      )
       .eq('id', portfolioId)
       .eq('user_id', user.id)
       .single()
@@ -375,15 +436,22 @@ export async function getPortfolioById(portfolioId: string): Promise<PortfolioRe
     }
 
     // Calculate portfolio metrics
-    const holdings = Array.isArray(portfolio.holdings) ? portfolio.holdings : []
-    
-    const totalValue = holdings.reduce((sum: number, holding: any) => {
+    const allHoldings: any[] = []
+    if (Array.isArray(portfolio.accounts)) {
+      portfolio.accounts.forEach((account: any) => {
+        if (Array.isArray(account.holdings)) {
+          allHoldings.push(...account.holdings)
+        }
+      })
+    }
+
+    const totalValue = allHoldings.reduce((sum: number, holding: any) => {
       const currentPrice = holding.stock?.current_price || 0
-      return sum + (holding.quantity * currentPrice)
+      return sum + holding.quantity * currentPrice
     }, 0)
 
-    const totalCost = holdings.reduce((sum: number, holding: any) => {
-      return sum + (holding.quantity * holding.average_cost)
+    const totalCost = allHoldings.reduce((sum: number, holding: any) => {
+      return sum + holding.quantity * holding.average_cost
     }, 0)
 
     const portfolioWithMetrics = {
@@ -391,7 +459,8 @@ export async function getPortfolioById(portfolioId: string): Promise<PortfolioRe
       total_value: totalValue,
       total_cost: totalCost,
       total_gain_loss: totalValue - totalCost,
-      holdings_count: holdings.length,
+      holdings_count: allHoldings.length,
+      holdings: allHoldings, // Add flattened holdings for compatibility
     }
 
     return {

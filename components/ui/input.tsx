@@ -5,17 +5,17 @@ import { type VariantProps, cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils/cn'
 
 const inputVariants = cva(
-  // Base styles with LifeDash design system
-  'flex w-full rounded-lg border bg-white px-3 py-2 text-sm transition-all duration-200 placeholder:text-neutral-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-neutral-950 dark:placeholder:text-neutral-400',
+  // Base styles with LifeDash design system - white background with dark text
+  'flex w-full rounded-lg border bg-white px-3 py-2 text-sm transition-all duration-200 text-gray-900 placeholder:text-gray-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
       variant: {
         default:
-          'border-neutral-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 dark:border-neutral-800 dark:focus:border-primary-400',
+          'border-gray-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20',
         error:
-          'border-red-300 text-red-900 placeholder:text-red-300 focus:border-red-500 focus:ring-1 focus:ring-red-500 dark:border-red-800 dark:text-red-100',
+          'border-error-500 text-error-600 placeholder:text-error-400 focus:border-error-500 focus:ring-1 focus:ring-error-500/20',
         success:
-          'border-green-300 text-green-900 placeholder:text-green-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 dark:border-green-800 dark:text-green-100',
+          'border-success-500 text-success-600 placeholder:text-success-400 focus:border-success-500 focus:ring-1 focus:ring-success-500/20',
       },
       size: {
         sm: 'h-8 px-2 text-xs',
@@ -110,10 +110,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             htmlFor={inputId}
             className={cn(
               'mb-2 block text-sm font-medium transition-colors duration-200',
-              error
-                ? 'text-red-700 dark:text-red-400'
-                : 'text-neutral-700 dark:text-neutral-300',
-              isFocused && !error && 'text-primary-600 dark:text-primary-400'
+              error ? 'text-error-600' : 'text-gray-900',
+              isFocused && !error && 'text-primary-600'
             )}
           >
             {label}
@@ -122,7 +120,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
         <div className="relative">
           {leftIcon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-neutral-500">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
               {leftIcon}
             </div>
           )}
@@ -155,15 +153,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="text-neutral-400 transition-colors duration-200 hover:text-neutral-600 focus:text-neutral-600 focus:outline-none dark:text-neutral-500 dark:hover:text-neutral-300"
+                  className="text-gray-400 transition-colors duration-200 hover:text-gray-600 focus:text-gray-600 focus:outline-none"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   <EyeIcon open={showPassword} />
                 </button>
               ) : (
-                <div className="text-neutral-400 dark:text-neutral-500">
-                  {rightIcon}
-                </div>
+                <div className="text-gray-400">{rightIcon}</div>
               )}
             </div>
           )}

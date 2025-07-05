@@ -11,77 +11,144 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // LifeDash Design System Colors
-        primary: {
-          dark: '#1A1D29',
-          light: '#FFFFFF',
-          50: '#F8F9FA',
-          100: '#F1F3F4',
-          200: '#E8EAED',
-          300: '#DADCE0',
-          400: '#BDC1C6',
-          500: '#9AA0A6',
-          600: '#80868B',
-          700: '#5F6368',
-          800: '#3C4043',
-          900: '#202124',
+        // Modern Financial Dashboard Colors
+
+        // Brand Colors (Blue theme)
+        brand: {
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6', // Main brand blue
+          600: '#2563eb', // Hover states
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a', // Dark text
         },
-        secondary: {
-          blue: '#4169E1',
-          gray: '#8B91A7',
-          50: '#F8F9FF',
-          100: '#F1F3FF',
-          200: '#E8EBFF',
-          300: '#D4D9FF',
-          400: '#A8B1FF',
-          500: '#7C85FF',
-          600: '#4169E1',
-          700: '#2952CC',
-          800: '#1A3BA8',
-          900: '#0F2B85',
+
+        // Dark theme backgrounds (like FINEbank)
+        surface: {
+          50: '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          700: '#334155',
+          800: '#1e293b', // Dark sidebar bg
+          900: '#0f172a', // Darker background
+          950: '#020617', // Darkest
         },
-        accent: {
-          green: '#00C853',
-          red: '#F44336',
-          amber: '#FFA726',
-          purple: '#7C4DFF',
-        },
-        functional: {
-          success: '#00C853',
-          error: '#F44336',
-          warning: '#FFA726',
-          info: '#2196F3',
-        },
-        background: {
-          primary: '#0F1115',
-          secondary: '#1A1D29',
-          tertiary: '#242837',
-          light: '#F8F9FA',
-        },
-        // Light mode variants
-        light: {
-          primary: '#FFFFFF',
-          secondary: '#F8F9FA',
-          tertiary: '#E9ECEF',
-          text: {
-            primary: '#1A1D29',
-            secondary: '#495057',
-          },
-        },
-        // Neutral colors for UI components
-        neutral: {
-          50: '#F9FAFB',
-          100: '#F3F4F6',
-          200: '#E5E7EB',
-          300: '#D1D5DB',
-          400: '#9CA3AF',
-          500: '#6B7280',
-          600: '#4B5563',
+
+        // Gray/Neutral Scale
+        gray: {
+          50: '#f9fafb',
+          100: '#f3f4f6', // Card backgrounds
+          200: '#e5e7eb', // Borders
+          300: '#d1d5db',
+          400: '#9ca3af',
+          500: '#6b7280', // Secondary text
+          600: '#4b5563',
           700: '#374151',
-          800: '#1F2937',
-          900: '#111827',
+          800: '#1f2937',
+          900: '#111827', // Primary text
           950: '#030712',
         },
+
+        // New Life Area Colors - Untitled UI + Financial Dashboard Theme
+        // 🔵 Investeringer (Investments) - Deep Navy Theme
+        investments: {
+          50: '#dbeafe', // Light blue background
+          100: '#bfdbfe',
+          200: '#93c5fd',
+          300: '#60a5fa',
+          400: '#3b82f6',
+          500: '#1e40af', // Deep Navy Blue - Primary color
+          600: '#1d4ed8', // Darker hover state
+          700: '#1e3a8a',
+          800: '#1e3a8a',
+          900: '#1e3a8a',
+        },
+
+        // 🟣 Hobby Prosjekter (Hobby Projects) - Creative Purple Theme
+        projects: {
+          50: '#f3e8ff', // Light purple background
+          100: '#e9d5ff',
+          200: '#d8b4fe',
+          300: '#c084fc',
+          400: '#a855f7',
+          500: '#7c3aed', // Vibrant Purple - Primary color
+          600: '#6d28d9', // Darker hover state
+          700: '#5b21b6',
+          800: '#4c1d95',
+          900: '#4c1d95',
+        },
+
+        // 🟢 Økonomi (Economy) - Financial Green Theme
+        economy: {
+          50: '#d1fae5', // Light green background
+          100: '#a7f3d0',
+          200: '#6ee7b7',
+          300: '#34d399',
+          400: '#10b981',
+          500: '#059669', // Emerald Green - Primary color
+          600: '#047857', // Darker hover state
+          700: '#065f46',
+          800: '#064e3b',
+          900: '#064e3b',
+        },
+
+        // 🟠 Verktøy (Tools) - Utility Orange Theme
+        tools: {
+          50: '#fed7aa', // Light orange background
+          100: '#fdba74',
+          200: '#fb923c',
+          300: '#f97316',
+          400: '#ea580c',
+          500: '#ea580c', // Warm Orange - Primary color
+          600: '#c2410c', // Darker hover state
+          700: '#9a3412',
+          800: '#7c2d12',
+          900: '#7c2d12',
+        },
+
+        // Semantic Colors (Aligned with new category colors)
+        success: {
+          50: '#d1fae5',
+          100: '#a7f3d0',
+          500: '#059669', // Matches Økonomi green
+          600: '#047857',
+          900: '#064e3b',
+        },
+
+        error: {
+          50: '#fef2f2',
+          100: '#fee2e2',
+          500: '#ef4444',
+          600: '#dc2626',
+          900: '#7f1d1d',
+        },
+
+        warning: {
+          50: '#fed7aa',
+          100: '#fdba74',
+          500: '#ea580c', // Matches Verktøy orange
+          600: '#c2410c',
+          900: '#7c2d12',
+        },
+
+        info: {
+          50: '#dbeafe',
+          100: '#bfdbfe',
+          500: '#1e40af', // Matches Investeringer navy
+          600: '#1d4ed8',
+          900: '#1e3a8a',
+        },
+
+        // Make sure brand colors are accessible
+        'brand-50': '#eff6ff',
+        'brand-100': '#dbeafe',
+        'brand-500': '#3b82f6',
+        'brand-600': '#2563eb',
       },
       fontFamily: {
         sans: [

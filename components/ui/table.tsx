@@ -363,4 +363,5 @@ export {
   TableRow,
   TableCell,
   TableCaption,
+  tableVariants,
 }

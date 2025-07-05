@@ -13,10 +13,16 @@ import type { Database } from '@/lib/types/database.types'
  */
 
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
+  const supabaseResponse = NextResponse.next({
     request,
   })
 
+  // DEMO MODE: Disable authentication checks for demo purposes
+  // In production, you would enable full authentication
+  return supabaseResponse
+
+  // The following code is disabled for demo mode:
+  /*
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -54,13 +60,13 @@ export async function updateSession(request: NextRequest) {
   // Redirect to login if accessing protected route without authentication
   if (isProtectedPath && !user) {
     const url = request.nextUrl.clone()
-    url.pathname = '/auth/login'
+    url.pathname = '/login'  // Fixed: Use correct login path
     url.searchParams.set('redirectTo', request.nextUrl.pathname)
     return NextResponse.redirect(url)
   }
 
   // Redirect authenticated users away from auth pages
-  const authPaths = ['/auth/login', '/auth/register', '/auth/forgot-password']
+  const authPaths = ['/login', '/register', '/forgot-password']  // Fixed: Use correct auth paths
   const isAuthPath = authPaths.some(path =>
     request.nextUrl.pathname.startsWith(path)
   )
@@ -72,6 +78,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   return supabaseResponse
+  */
 }
 
 /**

@@ -239,21 +239,25 @@ export function ToastContainer({ children }: { children: React.ReactNode }) {
 
   return (
     <ToastContext.Provider value={{ toast, dismiss }}>
-      {children}
       <ToastProvider>
+        {children}
         {toasts.map(toastData => (
           <Toast key={toastData.id} variant={toastData.variant}>
-            <div className="flex items-start gap-3">
-              {getIcon(toastData.variant)}
-              <div className="flex-1">
-                {toastData.title && <ToastTitle>{toastData.title}</ToastTitle>}
-                {toastData.description && (
-                  <ToastDescription>{toastData.description}</ToastDescription>
-                )}
+            <>
+              <div className="flex items-start gap-3">
+                {getIcon(toastData.variant)}
+                <div className="flex-1">
+                  {toastData.title && (
+                    <ToastTitle>{toastData.title}</ToastTitle>
+                  )}
+                  {toastData.description && (
+                    <ToastDescription>{toastData.description}</ToastDescription>
+                  )}
+                </div>
               </div>
-            </div>
-            {toastData.action && <ToastAction>{toastData.action}</ToastAction>}
-            <ToastClose />
+              {toastData.action && toastData.action}
+              <ToastClose />
+            </>
           </Toast>
         ))}
         <ToastViewport />

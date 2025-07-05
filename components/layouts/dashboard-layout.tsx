@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { DesktopSidebar } from '@/components/shared/navigation/desktop-sidebar'
-import { MobileBottomNav } from '@/components/shared/navigation/mobile-bottom-nav'
 import { Breadcrumbs } from '@/components/shared/navigation/breadcrumbs'
 
 interface DashboardLayoutProps {
@@ -22,10 +21,10 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
     }
-    
+
     checkMobile()
     window.addEventListener('resize', checkMobile)
-    
+
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
@@ -42,7 +41,7 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
       if (isMobile && sidebarOpen) {
         const sidebar = document.getElementById('mobile-sidebar')
         const button = document.getElementById('sidebar-toggle')
-        
+
         if (
           sidebar &&
           button &&
@@ -62,37 +61,39 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
     <div className="min-h-screen bg-gray-50">
       {/* Mobile sidebar overlay */}
       {isMobile && sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Desktop sidebar */}
-      <DesktopSidebar 
+      <DesktopSidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         isMobile={isMobile}
       />
 
       {/* Main content area */}
-      <div className={cn(
-        'flex flex-col transition-all duration-300',
-        isMobile ? 'ml-0' : sidebarOpen ? 'ml-64' : 'ml-16',
-        className
-      )}>
+      <div
+        className={cn(
+          'flex flex-col transition-all duration-300',
+          isMobile ? 'ml-0' : sidebarOpen ? 'ml-64' : 'ml-16',
+          className
+        )}
+      >
         {/* Top bar with breadcrumbs */}
-        <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-4 py-3 md:px-6">
+        <header className="sticky top-0 z-30 border-b border-gray-200 bg-white px-4 py-3 md:px-6">
           <div className="flex items-center justify-between">
             {/* Mobile menu button */}
             <button
               id="sidebar-toggle"
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 md:hidden"
+              className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 md:hidden"
               aria-label="Toggle sidebar"
             >
               <svg
-                className="w-6 h-6"
+                className="h-6 w-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -109,12 +110,12 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
             {/* Desktop sidebar toggle */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="hidden md:block p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+              className="hidden rounded-lg p-2 text-gray-600 hover:bg-gray-100 md:block"
               aria-label="Toggle sidebar"
             >
               <svg
                 className={cn(
-                  'w-5 h-5 transition-transform duration-200',
+                  'h-5 w-5 transition-transform duration-200',
                   sidebarOpen ? 'rotate-180' : ''
                 )}
                 fill="none"
@@ -135,13 +136,8 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
         </header>
 
         {/* Main content */}
-        <main className="flex-1 p-4 md:p-6 pb-20 md:pb-6">
-          {children}
-        </main>
+        <main className="flex-1 p-4 md:p-6">{children}</main>
       </div>
-
-      {/* Mobile bottom navigation */}
-      {isMobile && <MobileBottomNav />}
     </div>
   )
 }

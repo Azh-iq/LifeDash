@@ -1,421 +1,502 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { CSVParser, type CSVRow, type ColumnMapping, type ImportValidationResult } from '@/lib/utils/csv/parser'
-import { cn } from '@/lib/utils'
+// Field Mapper Component
+// Visual interface for mapping CSV fields to internal database structure
 
-interface FieldDefinition {
-  key: string
-  label: string
-  required: boolean
-  dataType: 'string' | 'number' | 'date' | 'boolean'
-  description?: string
-  example?: string
-}
+import React, { useState, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { 
+  ArrowRight, 
+  Check, 
+  X, 
+  AlertTriangle, 
+  Info, 
+  Shuffle, 
+  RotateCcw,
+  Eye,
+  EyeOff
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { 
+  NordnetFieldMapping, 
+  NordnetCSVRow,
+  NordnetParseResult 
+} from '@/lib/integrations/nordnet/types'
+import { NordnetFieldMapper } from '@/lib/integrations/nordnet/field-mapping'
 
 interface FieldMapperProps {
-  headers: string[]
-  rows: CSVRow[]
-  targetFields: FieldDefinition[]
-  onMappingComplete: (mappings: ColumnMapping[], validationResult: ImportValidationResult) => void
-  onBack: () => void
+  parseResult: NordnetParseResult
+  onMappingChange: (mappings: NordnetFieldMapping[]) => void
+  onValidationChange: (isValid: boolean, errors: string[], warnings: string[]) => void
   className?: string
 }
 
-const DATA_TYPE_COLORS = {
-  string: 'bg-blue-100 text-blue-800',
-  number: 'bg-green-100 text-green-800',
-  date: 'bg-purple-100 text-purple-800',
-  boolean: 'bg-yellow-100 text-yellow-800',
-}
-
-const DATA_TYPE_ICONS = {
-  string: (
-    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v6a2 2 0 01-2 2h-2l-4 4z" />
-    </svg>
-  ),
-  number: (
-    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-    </svg>
-  ),
-  date: (
-    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-    </svg>
-  ),
-  boolean: (
-    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  ),
+interface MappingState {
+  mappings: NordnetFieldMapping[]
+  autoMappings: NordnetFieldMapping[]
+  showPreview: boolean
+  previewRowIndex: number
+  validationResult: {
+    valid: boolean
+    errors: string[]
+    warnings: string[]
+  }
 }
 
 export function FieldMapper({
-  headers,
-  rows,
-  targetFields,
-  onMappingComplete,
-  onBack,
+  parseResult,
+  onMappingChange,
+  onValidationChange,
   className
 }: FieldMapperProps) {
-  const [mappings, setMappings] = useState<ColumnMapping[]>([])
-  const [validationResult, setValidationResult] = useState<ImportValidationResult | null>(null)
-  const [previewRows, setPreviewRows] = useState(5)
+  const [state, setState] = useState<MappingState>({
+    mappings: [],
+    autoMappings: [],
+    showPreview: false,
+    previewRowIndex: 0,
+    validationResult: { valid: false, errors: [], warnings: [] }
+  })
 
-  // Auto-detect column mappings on mount
+  // Initialize with auto-detected mappings
   useEffect(() => {
-    const autoMappings: ColumnMapping[] = targetFields.map(field => {
-      // Try to find exact match first
-      let csvColumn = headers.find(header => 
-        header.toLowerCase() === field.key.toLowerCase() ||
-        header.toLowerCase() === field.label.toLowerCase()
-      )
+    const autoMappings = NordnetFieldMapper.autoDetectMappings(parseResult.headers)
+    const validation = NordnetFieldMapper.validateMappings(autoMappings, parseResult.headers)
+    
+    setState(prev => ({
+      ...prev,
+      mappings: autoMappings,
+      autoMappings,
+      validationResult: validation
+    }))
 
-      // Try partial matches
-      if (!csvColumn) {
-        csvColumn = headers.find(header => {
-          const headerLower = header.toLowerCase()
-          const fieldLower = field.key.toLowerCase()
-          return headerLower.includes(fieldLower) || fieldLower.includes(headerLower)
-        })
-      }
+    onMappingChange(autoMappings)
+    onValidationChange(validation.valid, validation.errors, validation.warnings)
+  }, [parseResult.headers, onMappingChange, onValidationChange])
 
+  const handleMappingChange = useCallback((index: number, field: 'csvField' | 'internalField' | 'required', value: any) => {
+    setState(prev => {
+      const newMappings = [...prev.mappings]
+      newMappings[index] = { ...newMappings[index], [field]: value }
+      
+      const validation = NordnetFieldMapper.validateMappings(newMappings, parseResult.headers)
+      
+      onMappingChange(newMappings)
+      onValidationChange(validation.valid, validation.errors, validation.warnings)
+      
       return {
-        csvColumn: csvColumn || '',
-        targetField: field.key,
-        required: field.required,
-        dataType: field.dataType,
+        ...prev,
+        mappings: newMappings,
+        validationResult: validation
       }
     })
+  }, [parseResult.headers, onMappingChange, onValidationChange])
 
-    setMappings(autoMappings)
-  }, [headers, targetFields])
-
-  // Validate mappings whenever they change
-  useEffect(() => {
-    if (mappings.length > 0) {
-      const result = CSVParser.validateAndTransformData(rows, mappings)
-      setValidationResult(result)
+  const handleAddMapping = useCallback(() => {
+    const newMapping: NordnetFieldMapping = {
+      csvField: '' as keyof NordnetCSVRow,
+      internalField: '',
+      required: false,
+      dataType: 'string'
     }
-  }, [mappings, rows])
+    
+    setState(prev => ({
+      ...prev,
+      mappings: [...prev.mappings, newMapping]
+    }))
+  }, [])
 
-  // Get sample values for a CSV column
-  const getSampleValues = (csvColumn: string) => {
-    if (!csvColumn) return []
-    return rows.slice(0, 5).map(row => row[csvColumn]).filter(value => value && value.trim() !== '')
-  }
+  const handleRemoveMapping = useCallback((index: number) => {
+    setState(prev => {
+      const newMappings = prev.mappings.filter((_, i) => i !== index)
+      const validation = NordnetFieldMapper.validateMappings(newMappings, parseResult.headers)
+      
+      onMappingChange(newMappings)
+      onValidationChange(validation.valid, validation.errors, validation.warnings)
+      
+      return {
+        ...prev,
+        mappings: newMappings,
+        validationResult: validation
+      }
+    })
+  }, [parseResult.headers, onMappingChange, onValidationChange])
 
-  // Auto-detect data type for a CSV column
-  const detectDataType = (csvColumn: string) => {
-    if (!csvColumn) return 'string'
-    const values = rows.slice(0, 20).map(row => row[csvColumn]).filter(v => v && v.trim() !== '')
-    return CSVParser.detectDataType(values)
-  }
+  const handleResetToAuto = useCallback(() => {
+    setState(prev => {
+      const validation = NordnetFieldMapper.validateMappings(prev.autoMappings, parseResult.headers)
+      
+      onMappingChange(prev.autoMappings)
+      onValidationChange(validation.valid, validation.errors, validation.warnings)
+      
+      return {
+        ...prev,
+        mappings: [...prev.autoMappings],
+        validationResult: validation
+      }
+    })
+  }, [parseResult.headers, onMappingChange, onValidationChange])
 
-  const updateMapping = (targetField: string, csvColumn: string) => {
-    setMappings(prev => 
-      prev.map(mapping => 
-        mapping.targetField === targetField 
-          ? { ...mapping, csvColumn }
-          : mapping
-      )
-    )
-  }
+  const handleAutoSuggest = useCallback(() => {
+    const suggestions = NordnetFieldMapper.generateMappingSuggestions(parseResult.headers)
+    
+    setState(prev => {
+      const newMappings = [...prev.mappings]
+      
+      // Apply suggestions with high confidence
+      for (const suggestion of suggestions) {
+        if (suggestion.confidence > 0.7) {
+          const existingIndex = newMappings.findIndex(m => m.csvField === suggestion.csvField)
+          if (existingIndex >= 0) {
+            newMappings[existingIndex] = {
+              ...newMappings[existingIndex],
+              internalField: suggestion.suggestedInternalField
+            }
+          }
+        }
+      }
+      
+      const validation = NordnetFieldMapper.validateMappings(newMappings, parseResult.headers)
+      
+      onMappingChange(newMappings)
+      onValidationChange(validation.valid, validation.errors, validation.warnings)
+      
+      return {
+        ...prev,
+        mappings: newMappings,
+        validationResult: validation
+      }
+    })
+  }, [parseResult.headers, onMappingChange, onValidationChange])
 
-  const handleContinue = () => {
-    if (validationResult) {
-      onMappingComplete(mappings, validationResult)
-    }
-  }
+  const togglePreview = useCallback(() => {
+    setState(prev => ({ ...prev, showPreview: !prev.showPreview }))
+  }, [])
 
-  const requiredMappings = mappings.filter(m => m.required)
-  const missingRequired = requiredMappings.filter(m => !m.csvColumn)
-  const canContinue = missingRequired.length === 0 && (validationResult?.processedRows.length || 0) > 0
+  const getAvailableInternalFields = useCallback(() => {
+    return NordnetFieldMapper.DEFAULT_MAPPINGS.map(m => ({
+      value: m.internalField,
+      label: m.internalField.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      required: m.required,
+      dataType: m.dataType
+    }))
+  }, [])
+
+  const getUnmappedHeaders = useCallback(() => {
+    const mappedHeaders = new Set(state.mappings.map(m => m.csvField))
+    return parseResult.headers.filter(header => !mappedHeaders.has(header as keyof NordnetCSVRow))
+  }, [parseResult.headers, state.mappings])
+
+  const previewTransformation = useCallback(() => {
+    if (parseResult.rows.length === 0) return null
+    
+    const sampleRow = parseResult.rows[state.previewRowIndex]
+    return NordnetFieldMapper.transformRow(sampleRow, state.mappings)
+  }, [parseResult.rows, state.previewRowIndex, state.mappings])
 
   return (
     <div className={cn('space-y-6', className)}>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900">Map Your Fields</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Match your CSV columns to the target fields. Required fields must be mapped.
-          </p>
-        </div>
-        <Button variant="outline" onClick={onBack}>
-          Back to Upload
-        </Button>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="p-4">
-          <div className="text-2xl font-bold text-gray-900">{headers.length}</div>
-          <div className="text-sm text-gray-600">CSV Columns</div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-2xl font-bold text-gray-900">{rows.length}</div>
-          <div className="text-sm text-gray-600">Data Rows</div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-2xl font-bold text-gray-900">
-            {mappings.filter(m => m.csvColumn).length}/{targetFields.length}
-          </div>
-          <div className="text-sm text-gray-600">Fields Mapped</div>
-        </Card>
-        <Card className="p-4">
-          <div className={cn(
-            "text-2xl font-bold",
-            validationResult?.valid ? "text-green-600" : "text-red-600"
-          )}>
-            {validationResult?.processedRows.length || 0}
-          </div>
-          <div className="text-sm text-gray-600">Valid Rows</div>
-        </Card>
-      </div>
-
-      {/* Field Mapping */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: Target Fields */}
-        <div>
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Target Fields</h3>
-          <div className="space-y-3">
-            {targetFields.map((field) => {
-              const mapping = mappings.find(m => m.targetField === field.key)
-              const csvColumn = mapping?.csvColumn || ''
-              const sampleValues = getSampleValues(csvColumn)
-              const detectedType = csvColumn ? detectDataType(csvColumn) : 'string'
-              const typeMatch = detectedType === field.dataType
-
-              return (
-                <Card key={field.key} className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <h4 className="font-medium text-gray-900">{field.label}</h4>
-                        {field.required && (
-                          <Badge variant="destructive" className="text-xs">Required</Badge>
-                        )}
-                        <Badge className={cn('text-xs', DATA_TYPE_COLORS[field.dataType])}>
-                          <div className="flex items-center space-x-1">
-                            {DATA_TYPE_ICONS[field.dataType]}
-                            <span>{field.dataType}</span>
-                          </div>
-                        </Badge>
-                      </div>
-                      {field.description && (
-                        <p className="text-xs text-gray-600 mb-2">{field.description}</p>
-                      )}
-                      {field.example && (
-                        <p className="text-xs text-gray-500">Example: {field.example}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Column Selection */}
-                  <div className="space-y-2">
-                    <label className="block text-xs font-medium text-gray-700">
-                      Map to CSV Column:
-                    </label>
-                    <select
-                      value={csvColumn}
-                      onChange={(e) => updateMapping(field.key, e.target.value)}
-                      className={cn(
-                        "w-full px-3 py-2 border rounded-md text-sm",
-                        !csvColumn && field.required 
-                          ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                          : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                      )}
-                    >
-                      <option value="">-- Select Column --</option>
-                      {headers.map((header) => (
-                        <option key={header} value={header}>
-                          {header}
-                        </option>
-                      ))}
-                    </select>
-
-                    {/* Data Type Warning */}
-                    {csvColumn && !typeMatch && (
-                      <div className="flex items-center space-x-1 text-xs text-yellow-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.08 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                        </svg>
-                        <span>Expected {field.dataType}, detected {detectedType}</span>
-                      </div>
-                    )}
-
-                    {/* Sample Values */}
-                    {sampleValues.length > 0 && (
-                      <div className="bg-gray-50 rounded p-2">
-                        <div className="text-xs font-medium text-gray-700 mb-1">Sample values:</div>
-                        <div className="text-xs text-gray-600 space-y-1">
-                          {sampleValues.slice(0, 3).map((value, index) => (
-                            <div key={index} className="truncate">{value}</div>
-                          ))}
-                          {sampleValues.length > 3 && (
-                            <div className="text-gray-500">+{sampleValues.length - 3} more...</div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </Card>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Right: Preview */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-gray-900">Data Preview</h3>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Field Mapping</CardTitle>
+              <CardDescription>
+                Map CSV columns to internal fields. {state.mappings.length} mappings configured.
+              </CardDescription>
+            </div>
             <div className="flex items-center space-x-2">
-              <label className="text-sm text-gray-600">Show rows:</label>
-              <select
-                value={previewRows}
-                onChange={(e) => setPreviewRows(Number(e.target.value))}
-                className="px-2 py-1 border border-gray-300 rounded text-sm"
-              >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-              </select>
+              <Button variant="outline" size="sm" onClick={handleAutoSuggest}>
+                <Shuffle className="w-4 h-4 mr-2" />
+                Auto Suggest
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleResetToAuto}>
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Reset
+              </Button>
+              <Button variant="outline" size="sm" onClick={togglePreview}>
+                {state.showPreview ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
+                Preview
+              </Button>
             </div>
           </div>
-
-          {/* CSV Preview */}
-          <Card className="p-4 mb-4">
-            <h4 className="font-medium text-gray-900 mb-3">Original CSV Data</h4>
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead>
-                  <tr className="border-b">
-                    {headers.map((header) => (
-                      <th key={header} className="text-left p-2 font-medium text-gray-700 bg-gray-50">
-                        {header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.slice(0, previewRows).map((row, index) => (
-                    <tr key={index} className="border-b border-gray-100">
-                      {headers.map((header) => (
-                        <td key={header} className="p-2 text-gray-600 max-w-32 truncate">
-                          {row[header]}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-
-          {/* Mapped Preview */}
-          {validationResult && validationResult.processedRows.length > 0 && (
-            <Card className="p-4">
-              <h4 className="font-medium text-gray-900 mb-3">Mapped Data Preview</h4>
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-sm">
-                  <thead>
-                    <tr className="border-b">
-                      {targetFields.filter(f => mappings.find(m => m.targetField === f.key)?.csvColumn).map((field) => (
-                        <th key={field.key} className="text-left p-2 font-medium text-gray-700 bg-gray-50">
-                          {field.label}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {validationResult.processedRows.slice(0, previewRows).map((row, index) => (
-                      <tr key={index} className="border-b border-gray-100">
-                        {targetFields.filter(f => mappings.find(m => m.targetField === f.key)?.csvColumn).map((field) => (
-                          <td key={field.key} className="p-2 text-gray-600 max-w-32 truncate">
-                            {String(row[field.key] || '')}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-          )}
-        </div>
-      </div>
+        </CardHeader>
+      </Card>
 
       {/* Validation Results */}
-      {validationResult && (
-        <Card className="p-4">
-          <h3 className="font-medium text-gray-900 mb-3">Validation Results</h3>
-          
-          {validationResult.errors.length > 0 && (
-            <div className="mb-4">
-              <h4 className="font-medium text-red-800 mb-2">Errors ({validationResult.errors.length})</h4>
-              <div className="bg-red-50 border border-red-200 rounded p-3 max-h-40 overflow-y-auto">
-                {validationResult.errors.slice(0, 10).map((error, index) => (
-                  <div key={index} className="text-sm text-red-700 mb-1">{error}</div>
-                ))}
-                {validationResult.errors.length > 10 && (
-                  <div className="text-sm text-red-600 italic">
-                    +{validationResult.errors.length - 10} more errors...
+      <AnimatePresence>
+        {(state.validationResult.errors.length > 0 || state.validationResult.warnings.length > 0) && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="space-y-2"
+          >
+            {state.validationResult.errors.length > 0 && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  <div className="space-y-1">
+                    <p className="font-medium">Mapping Errors:</p>
+                    <ul className="text-sm space-y-1">
+                      {state.validationResult.errors.map((error, index) => (
+                        <li key={index} className="list-disc list-inside">
+                          {error}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                )}
-              </div>
-            </div>
-          )}
+                </AlertDescription>
+              </Alert>
+            )}
 
-          {validationResult.warnings.length > 0 && (
-            <div className="mb-4">
-              <h4 className="font-medium text-yellow-800 mb-2">Warnings ({validationResult.warnings.length})</h4>
-              <div className="bg-yellow-50 border border-yellow-200 rounded p-3 max-h-32 overflow-y-auto">
-                {validationResult.warnings.map((warning, index) => (
-                  <div key={index} className="text-sm text-yellow-700 mb-1">{warning}</div>
-                ))}
-              </div>
-            </div>
-          )}
+            {state.validationResult.warnings.length > 0 && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  <div className="space-y-1">
+                    <p className="font-medium">Mapping Warnings:</p>
+                    <ul className="text-sm space-y-1">
+                      {state.validationResult.warnings.map((warning, index) => (
+                        <li key={index} className="list-disc list-inside">
+                          {warning}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-600">
-              {validationResult.processedRows.length} of {rows.length} rows will be imported
-              {validationResult.errors.length > 0 && (
-                <span className="text-red-600 ml-2">
-                  ({rows.length - validationResult.processedRows.length} rows have errors)
-                </span>
-              )}
+      {/* Mapping Interface */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Field Mappings</CardTitle>
+          <CardDescription>
+            Configure how CSV columns map to internal database fields
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-96">
+            <div className="space-y-4">
+              {state.mappings.map((mapping, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="flex items-center space-x-4 p-4 border rounded-lg"
+                >
+                  {/* CSV Field */}
+                  <div className="flex-1">
+                    <Label className="text-xs font-medium">CSV Column</Label>
+                    <Select
+                      value={mapping.csvField as string}
+                      onValueChange={(value) => handleMappingChange(index, 'csvField', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select CSV column" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {parseResult.headers.map((header) => (
+                          <SelectItem key={header} value={header}>
+                            {header}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Arrow */}
+                  <div className="flex-shrink-0">
+                    <ArrowRight className="w-4 h-4 text-gray-400" />
+                  </div>
+
+                  {/* Internal Field */}
+                  <div className="flex-1">
+                    <Label className="text-xs font-medium">Internal Field</Label>
+                    <Select
+                      value={mapping.internalField}
+                      onValueChange={(value) => {
+                        const internalField = getAvailableInternalFields().find(f => f.value === value)
+                        handleMappingChange(index, 'internalField', value)
+                        if (internalField) {
+                          handleMappingChange(index, 'required', internalField.required)
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select internal field" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getAvailableInternalFields().map((field) => (
+                          <SelectItem key={field.value} value={field.value}>
+                            <div className="flex items-center space-x-2">
+                              <span>{field.label}</span>
+                              {field.required && (
+                                <Badge variant="secondary" className="text-xs">Required</Badge>
+                              )}
+                              <Badge variant="outline" className="text-xs">
+                                {field.dataType}
+                              </Badge>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Required Toggle */}
+                  <div className="flex-shrink-0 flex items-center space-x-2">
+                    <Switch
+                      checked={mapping.required}
+                      onCheckedChange={(checked) => handleMappingChange(index, 'required', checked)}
+                    />
+                    <Label className="text-xs">Required</Label>
+                  </div>
+
+                  {/* Remove Button */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveMapping(index)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </motion.div>
+              ))}
+
+              {/* Add Mapping Button */}
+              <Button
+                variant="outline"
+                onClick={handleAddMapping}
+                className="w-full"
+                disabled={getUnmappedHeaders().length === 0}
+              >
+                Add Mapping
+              </Button>
             </div>
-          </div>
+          </ScrollArea>
+        </CardContent>
+      </Card>
+
+      {/* Unmapped Headers */}
+      {getUnmappedHeaders().length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Unmapped Columns</CardTitle>
+            <CardDescription>
+              CSV columns that haven't been mapped yet
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {getUnmappedHeaders().map((header) => (
+                <Badge key={header} variant="outline" className="cursor-pointer" onClick={handleAddMapping}>
+                  {header}
+                </Badge>
+              ))}
+            </div>
+          </CardContent>
         </Card>
       )}
 
-      {/* Actions */}
-      <div className="flex justify-between">
-        <div>
-          {missingRequired.length > 0 && (
-            <p className="text-sm text-red-600">
-              Please map all required fields: {missingRequired.map(m => m.targetField).join(', ')}
-            </p>
-          )}
-        </div>
-        <Button
-          onClick={handleContinue}
-          disabled={!canContinue}
-          className="px-8"
-        >
-          Continue to Import
-          <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </Button>
-      </div>
+      {/* Preview */}
+      <AnimatePresence>
+        {state.showPreview && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+          >
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-lg">Transformation Preview</CardTitle>
+                    <CardDescription>
+                      Preview how the first row will be transformed
+                    </CardDescription>
+                  </div>
+                  {parseResult.rows.length > 1 && (
+                    <Select
+                      value={state.previewRowIndex.toString()}
+                      onValueChange={(value) => setState(prev => ({ ...prev, previewRowIndex: parseInt(value) }))}
+                    >
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {parseResult.rows.slice(0, 10).map((_, index) => (
+                          <SelectItem key={index} value={index.toString()}>
+                            Row {index + 1}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Original Data */}
+                  <div>
+                    <h4 className="font-medium text-sm mb-2">Original CSV Data:</h4>
+                    <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg text-sm font-mono">
+                      <pre className="whitespace-pre-wrap">
+                        {JSON.stringify(parseResult.rows[state.previewRowIndex], null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+
+                  {/* Transformed Data */}
+                  <div>
+                    <h4 className="font-medium text-sm mb-2">Transformed Data:</h4>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm font-mono">
+                      <pre className="whitespace-pre-wrap">
+                        {JSON.stringify(previewTransformation(), null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+
+                  {/* Validation Status */}
+                  {previewTransformation() && (
+                    <div className="flex items-center space-x-2 text-sm">
+                      {previewTransformation()!.validation_errors.length === 0 ? (
+                        <>
+                          <Check className="w-4 h-4 text-green-500" />
+                          <span className="text-green-600">Valid transformation</span>
+                        </>
+                      ) : (
+                        <>
+                          <X className="w-4 h-4 text-red-500" />
+                          <span className="text-red-600">
+                            {previewTransformation()!.validation_errors.length} validation errors
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
+
+export default FieldMapper

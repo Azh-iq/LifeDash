@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { inter, jetbrainsMono } from '@/lib/fonts'
+import { ToastContainer } from '@/components/ui/toast'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -14,8 +15,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-screen bg-background-primary font-sans text-primary-light antialiased">
-        {children}
+      <body className="main-layout min-h-screen bg-gray-50 font-sans text-gray-900 antialiased">
+        <ToastContainer>{children}</ToastContainer>
       </body>
     </html>
   )

@@ -32,7 +32,7 @@ export class CSVParser {
     if (file.size > this.MAX_FILE_SIZE) {
       return {
         valid: false,
-        error: `File size exceeds 10MB limit. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`
+        error: `File size exceeds 10MB limit. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`,
       }
     }
 
@@ -41,7 +41,7 @@ export class CSVParser {
     if (!this.SUPPORTED_EXTENSIONS.includes(extension)) {
       return {
         valid: false,
-        error: `Unsupported file type. Please upload a CSV file (.csv or .txt)`
+        error: `Unsupported file type. Please upload a CSV file (.csv or .txt)`,
       }
     }
 
@@ -55,7 +55,7 @@ export class CSVParser {
         headers: [],
         rows: [],
         totalRows: 0,
-        errors: [validation.error!]
+        errors: [validation.error!],
       }
     }
 
@@ -67,7 +67,9 @@ export class CSVParser {
         headers: [],
         rows: [],
         totalRows: 0,
-        errors: [`Failed to read file: ${error instanceof Error ? error.message : 'Unknown error'}`]
+        errors: [
+          `Failed to read file: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        ],
       }
     }
   }
@@ -75,13 +77,13 @@ export class CSVParser {
   static parseCSVText(csvText: string): CSVParseResult {
     const errors: string[] = []
     const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== '')
-    
+
     if (lines.length === 0) {
       return {
         headers: [],
         rows: [],
         totalRows: 0,
-        errors: ['File is empty or contains no valid data']
+        errors: ['File is empty or contains no valid data'],
       }
     }
 
@@ -92,12 +94,14 @@ export class CSVParser {
         headers: [],
         rows: [],
         totalRows: 0,
-        errors: ['No headers found in the first row']
+        errors: ['No headers found in the first row'],
       }
     }
 
     // Check for duplicate headers
-    const duplicateHeaders = headers.filter((header, index) => headers.indexOf(header) !== index)
+    const duplicateHeaders = headers.filter(
+      (header, index) => headers.indexOf(header) !== index
+    )
     if (duplicateHeaders.length > 0) {
       errors.push(`Duplicate headers found: ${duplicateHeaders.join(', ')}`)
     }
@@ -117,12 +121,16 @@ export class CSVParser {
 
         // Warn about row length mismatch
         if (values.length !== headers.length) {
-          errors.push(`Row ${i + 1}: Expected ${headers.length} columns, found ${values.length}`)
+          errors.push(
+            `Row ${i + 1}: Expected ${headers.length} columns, found ${values.length}`
+          )
         }
 
         rows.push(row)
       } catch (error) {
-        errors.push(`Row ${i + 1}: ${error instanceof Error ? error.message : 'Parse error'}`)
+        errors.push(
+          `Row ${i + 1}: ${error instanceof Error ? error.message : 'Parse error'}`
+        )
       }
     }
 
@@ -130,7 +138,7 @@ export class CSVParser {
       headers,
       rows,
       totalRows: rows.length,
-      errors
+      errors,
     }
   }
 
@@ -167,7 +175,7 @@ export class CSVParser {
 
     // Add the last field
     result.push(current.trim())
-    
+
     return result
   }
 
@@ -182,9 +190,11 @@ export class CSVParser {
     // Check required mappings
     const requiredMappings = mappings.filter(m => m.required)
     const missingRequired = requiredMappings.filter(m => !m.csvColumn)
-    
+
     if (missingRequired.length > 0) {
-      errors.push(`Missing required field mappings: ${missingRequired.map(m => m.targetField).join(', ')}`)
+      errors.push(
+        `Missing required field mappings: ${missingRequired.map(m => m.targetField).join(', ')}`
+      )
     }
 
     if (errors.length > 0) {
@@ -207,12 +217,18 @@ export class CSVParser {
         try {
           switch (mapping.dataType) {
             case 'number':
-              if (rawValue === '' || rawValue === null || rawValue === undefined) {
+              if (
+                rawValue === '' ||
+                rawValue === null ||
+                rawValue === undefined
+              ) {
                 processedValue = mapping.required ? null : 0
               } else {
                 const num = parseFloat(rawValue.replace(/[,$]/g, ''))
                 if (isNaN(num)) {
-                  rowErrors.push(`"${mapping.targetField}" must be a number, got "${rawValue}"`)
+                  rowErrors.push(
+                    `"${mapping.targetField}" must be a number, got "${rawValue}"`
+                  )
                   processedValue = null
                 } else {
                   processedValue = num
@@ -221,12 +237,18 @@ export class CSVParser {
               break
 
             case 'date':
-              if (rawValue === '' || rawValue === null || rawValue === undefined) {
+              if (
+                rawValue === '' ||
+                rawValue === null ||
+                rawValue === undefined
+              ) {
                 processedValue = mapping.required ? null : null
               } else {
                 const date = new Date(rawValue)
                 if (isNaN(date.getTime())) {
-                  rowErrors.push(`"${mapping.targetField}" must be a valid date, got "${rawValue}"`)
+                  rowErrors.push(
+                    `"${mapping.targetField}" must be a valid date, got "${rawValue}"`
+                  )
                   processedValue = null
                 } else {
                   processedValue = date.toISOString()
@@ -235,7 +257,11 @@ export class CSVParser {
               break
 
             case 'boolean':
-              if (rawValue === '' || rawValue === null || rawValue === undefined) {
+              if (
+                rawValue === '' ||
+                rawValue === null ||
+                rawValue === undefined
+              ) {
                 processedValue = mapping.required ? null : false
               } else {
                 const lower = rawValue.toLowerCase().trim()
@@ -244,7 +270,9 @@ export class CSVParser {
                 } else if (['false', '0', 'no', 'n'].includes(lower)) {
                   processedValue = false
                 } else {
-                  rowErrors.push(`"${mapping.targetField}" must be true/false, got "${rawValue}"`)
+                  rowErrors.push(
+                    `"${mapping.targetField}" must be true/false, got "${rawValue}"`
+                  )
                   processedValue = null
                 }
               }
@@ -257,13 +285,20 @@ export class CSVParser {
           }
 
           // Required field validation
-          if (mapping.required && (processedValue === null || processedValue === '' || processedValue === undefined)) {
+          if (
+            mapping.required &&
+            (processedValue === null ||
+              processedValue === '' ||
+              processedValue === undefined)
+          ) {
             rowErrors.push(`"${mapping.targetField}" is required but is empty`)
           }
 
           processedRow[mapping.targetField] = processedValue
         } catch (error) {
-          rowErrors.push(`Error processing "${mapping.targetField}": ${error instanceof Error ? error.message : 'Unknown error'}`)
+          rowErrors.push(
+            `Error processing "${mapping.targetField}": ${error instanceof Error ? error.message : 'Unknown error'}`
+          )
         }
       })
 
@@ -278,18 +313,20 @@ export class CSVParser {
       valid: errors.length === 0,
       errors,
       warnings,
-      processedRows
+      processedRows,
     }
   }
 
-  static generateSampleCSV(type: 'portfolio' | 'holdings' | 'transactions'): string {
+  static generateSampleCSV(
+    type: 'portfolio' | 'holdings' | 'transactions'
+  ): string {
     switch (type) {
       case 'portfolio':
         return [
           'Portfolio Name,Description,Type,Public',
           'My Investment Portfolio,Long-term growth portfolio,INVESTMENT,false',
           'Retirement Fund,401k and IRA holdings,RETIREMENT,false',
-          'Trading Account,Active trading portfolio,TRADING,true'
+          'Trading Account,Active trading portfolio,TRADING,true',
         ].join('\n')
 
       case 'holdings':
@@ -298,7 +335,7 @@ export class CSVParser {
           'My Investment Portfolio,AAPL,100,150.00,2023-01-15',
           'My Investment Portfolio,GOOGL,50,2500.00,2023-02-01',
           'Retirement Fund,VTI,200,220.00,2023-01-01',
-          'Trading Account,TSLA,25,800.00,2023-03-10'
+          'Trading Account,TSLA,25,800.00,2023-03-10',
         ].join('\n')
 
       case 'transactions':
@@ -307,7 +344,7 @@ export class CSVParser {
           '2023-01-15,BUY,AAPL,100,150.00,My Investment Portfolio,Initial purchase',
           '2023-02-01,BUY,GOOGL,50,2500.00,My Investment Portfolio,Tech diversification',
           '2023-03-10,SELL,AAPL,25,165.00,My Investment Portfolio,Profit taking',
-          '2023-03-15,DIVIDEND,VTI,0,5.50,Retirement Fund,Quarterly dividend'
+          '2023-03-15,DIVIDEND,VTI,0,5.50,Retirement Fund,Quarterly dividend',
         ].join('\n')
 
       default:
@@ -315,7 +352,9 @@ export class CSVParser {
     }
   }
 
-  static detectDataType(values: string[]): 'string' | 'number' | 'date' | 'boolean' {
+  static detectDataType(
+    values: string[]
+  ): 'string' | 'number' | 'date' | 'boolean' {
     const nonEmptyValues = values.filter(v => v && v.trim() !== '').slice(0, 10) // Sample first 10 non-empty values
 
     if (nonEmptyValues.length === 0) return 'string'
@@ -328,7 +367,11 @@ export class CSVParser {
 
     // Check for number
     const numberPattern = /^-?[\d,]+\.?\d*$/
-    if (nonEmptyValues.every(v => numberPattern.test(v.replace(/[$,]/g, '').trim()))) {
+    if (
+      nonEmptyValues.every(v =>
+        numberPattern.test(v.replace(/[$,]/g, '').trim())
+      )
+    ) {
       return 'number'
     }
 
@@ -338,9 +381,15 @@ export class CSVParser {
       /^\d{2}\/\d{2}\/\d{4}/, // MM/DD/YYYY
       /^\d{2}-\d{2}-\d{4}/, // MM-DD-YYYY
     ]
-    
-    if (nonEmptyValues.some(v => datePatterns.some(pattern => pattern.test(v.trim())))) {
-      const validDates = nonEmptyValues.filter(v => !isNaN(new Date(v).getTime()))
+
+    if (
+      nonEmptyValues.some(v =>
+        datePatterns.some(pattern => pattern.test(v.trim()))
+      )
+    ) {
+      const validDates = nonEmptyValues.filter(
+        v => !isNaN(new Date(v).getTime())
+      )
       if (validDates.length / nonEmptyValues.length > 0.7) {
         return 'date'
       }

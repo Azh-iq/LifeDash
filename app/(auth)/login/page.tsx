@@ -2,215 +2,210 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import LoginForm from '@/components/features/auth/login-form'
-import { TwoFactorVerify } from '@/components/features/auth/two-factor-auth'
-import {
-  type LoginFormData,
-  type TwoFactorVerifyData,
-} from '@/lib/validation/auth.schema'
-import { useToast } from '@/components/ui/toast'
-
-type AuthStep = 'login' | '2fa' | 'success'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function LoginPage() {
-  const [step, setStep] = useState<AuthStep>('login')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const router = useRouter()
-  const { toast } = useToast()
 
-  const handleLogin = async (data: LoginFormData) => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
     setLoading(true)
     setError(null)
-    setEmail(data.email)
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // Import Supabase client
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
 
-      // Simulate different login scenarios
-      if (data.email === 'user@2fa.com') {
-        // User has 2FA enabled
-        setStep('2fa')
-        toast({
-          title: '2FA Required',
-          description: 'Please enter your two-factor authentication code.',
-          variant: 'info',
-        })
-      } else if (data.email === 'error@test.com') {
-        // Simulate login error
-        throw new Error('Invalid email or password')
-      } else {
-        // Successful login without 2FA
-        setStep('success')
-        toast({
-          title: 'Welcome back!',
-          description: 'You have been successfully signed in.',
-          variant: 'success',
-        })
+      // Attempt real Supabase login
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      })
 
-        // Redirect after short delay
-        setTimeout(() => {
-          router.push('/dashboard')
-        }, 1000)
+      if (error) {
+        throw new Error(error.message)
       }
+
+      // Successful login - redirect to dashboard
+      router.push('/dashboard')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
-      toast({
-        title: 'Login Failed',
-        description: err instanceof Error ? err.message : 'Please try again.',
-        variant: 'destructive',
-      })
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleTwoFactor = async (data: TwoFactorVerifyData) => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      // Simulate 2FA verification
-      if (data.code === '123456' || data.backupCode === 'BACKUP123') {
-        setStep('success')
-        toast({
-          title: 'Welcome back!',
-          description: 'Two-factor authentication successful.',
-          variant: 'success',
-        })
-
-        // Redirect after short delay
-        setTimeout(() => {
-          router.push('/dashboard')
-        }, 1000)
-      } else {
-        throw new Error('Invalid authentication code')
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '2FA verification failed')
-      toast({
-        title: '2FA Failed',
-        description:
-          err instanceof Error
-            ? err.message
-            : 'Please check your code and try again.',
-        variant: 'destructive',
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  if (step === 'success') {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="space-y-4 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
-            <svg
-              className="h-8 w-8 text-green-600 dark:text-green-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-            Welcome back!
-          </h1>
-          <p className="text-neutral-600 dark:text-neutral-400">
-            Redirecting to your dashboard...
-          </p>
-          <div className="mx-auto h-8 w-8">
-            <svg
-              className="h-8 w-8 animate-spin text-primary-600"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   return (
-    <div className="flex min-h-[60vh] items-center justify-center">
-      {step === 'login' && (
-        <div className="w-full">
-          <LoginForm onSubmit={handleLogin} loading={loading} error={error} />
-
-          {/* Demo credentials */}
-          <div className="mx-auto mt-8 max-w-md">
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
-              <h3 className="mb-2 font-medium text-blue-900 dark:text-blue-100">
-                Demo Credentials
-              </h3>
-              <div className="space-y-2 text-sm text-blue-800 dark:text-blue-300">
-                <div>
-                  <strong>Regular login:</strong> any email + any password
-                </div>
-                <div>
-                  <strong>2FA demo:</strong> user@2fa.com + any password
-                  <br />
-                  <span className="text-xs">
-                    Then use code: 123456 or backup: BACKUP123
-                  </span>
-                </div>
-                <div>
-                  <strong>Error demo:</strong> error@test.com + any password
-                </div>
-              </div>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100 px-4">
+      <div className="w-full max-w-lg">
+        {/* Enhanced Logo with Untitled UI styling */}
+        <div className="card-entrance mb-10 text-center">
+          <div className="mb-6 inline-flex items-center space-x-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg">
+              <span className="text-2xl font-bold text-white">L</span>
+            </div>
+            <div className="text-left">
+              <h1 className="text-3xl font-bold text-gray-900">LifeDash</h1>
+              <p className="text-gray-600">Din personlige kontrollpanel</p>
             </div>
           </div>
         </div>
-      )}
 
-      {step === '2fa' && (
-        <div className="w-full">
-          <TwoFactorVerify
-            onSubmit={handleTwoFactor}
-            loading={loading}
-            error={error}
-          />
+        {/* Enhanced Login Form */}
+        <Card
+          className="card-entrance border-0 bg-white/90 shadow-2xl backdrop-blur-sm"
+          style={{ animationDelay: '200ms' }}
+        >
+          <CardHeader className="pb-8 text-center">
+            <CardTitle className="text-3xl font-bold text-gray-900">
+              Velkommen tilbake
+            </CardTitle>
+            <p className="mt-3 text-lg text-gray-600">
+              Logg inn på din LifeDash konto
+            </p>
+          </CardHeader>
 
-          <div className="mt-4 text-center">
-            <button
-              onClick={() => {
-                setStep('login')
-                setError(null)
-              }}
-              className="text-sm text-neutral-600 transition-colors hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
-            >
-              ← Back to login
-            </button>
+          <CardContent className="px-8 pb-8">
+            <form onSubmit={handleLogin} className="space-y-6">
+              {error && (
+                <div className="shake rounded-xl border border-red-200 bg-red-50 p-4">
+                  <div className="flex items-center space-x-2">
+                    <svg
+                      className="h-5 w-5 text-red-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <p className="text-sm font-medium text-red-600">{error}</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-5">
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="mb-3 block text-sm font-semibold uppercase tracking-wide text-gray-700"
+                  >
+                    E-post adresse
+                  </label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="din@epost.no"
+                    required
+                    className="input-base h-12 text-base"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="mb-3 block text-sm font-semibold uppercase tracking-wide text-gray-700"
+                  >
+                    Passord
+                  </label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    placeholder="Ditt passord"
+                    required
+                    className="input-base h-12 text-base"
+                  />
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="h-14 w-full transform rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-lg font-semibold text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              >
+                {loading ? (
+                  <div className="flex items-center justify-center space-x-3">
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>Logger inn...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center space-x-2">
+                    <span>Logg inn</span>
+                    <svg
+                      className="ui-icon h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                      />
+                    </svg>
+                  </div>
+                )}
+              </Button>
+            </form>
+
+            <div className="mt-8 text-center">
+              <a
+                href="#"
+                className="text-sm font-medium text-blue-600 transition-colors hover:text-blue-700 hover:underline"
+              >
+                Glemt passord? Klikk her for å nullstille
+              </a>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Enhanced Demo info */}
+        <div
+          className="card-entrance mt-8 rounded-xl border border-blue-200/50 bg-gradient-to-r from-blue-50 to-indigo-50 p-6"
+          style={{ animationDelay: '400ms' }}
+        >
+          <div className="flex items-start space-x-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100">
+              <svg
+                className="h-5 w-5 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h3 className="mb-1 font-semibold text-blue-900">Demo Tilgang</h3>
+              <p className="text-sm leading-relaxed text-blue-800">
+                Du kan bruke hvilken som helst e-post og passord for å teste
+                systemet. Alle funksjoner er tilgjengelige i demo-modus.
+              </p>
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }

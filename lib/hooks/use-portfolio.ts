@@ -2,7 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { getUserPortfolios, getPortfolioById, type PortfolioResult } from '@/lib/actions/portfolio/crud'
+import {
+  getUserPortfolios,
+  getPortfolioById,
+  type PortfolioResult,
+} from '@/lib/actions/portfolio/crud'
 
 export interface Portfolio {
   id: string
@@ -46,9 +50,9 @@ export function usePortfolios(): UsePortfoliosReturn {
     try {
       setLoading(true)
       setError(null)
-      
+
       const result = await getUserPortfolios()
-      
+
       if (result.success) {
         setPortfolios(result.data || [])
       } else {
@@ -65,7 +69,7 @@ export function usePortfolios(): UsePortfoliosReturn {
   // Set up real-time subscription
   useEffect(() => {
     const supabase = createClient()
-    
+
     // Initial fetch
     fetchPortfolios()
 
@@ -79,9 +83,9 @@ export function usePortfolios(): UsePortfoliosReturn {
           schema: 'public',
           table: 'portfolios',
         },
-        (payload) => {
+        payload => {
           console.log('Portfolio change detected:', payload)
-          
+
           if (payload.eventType === 'INSERT') {
             // Add new portfolio to the list
             const newPortfolio = {
@@ -91,20 +95,20 @@ export function usePortfolios(): UsePortfoliosReturn {
               total_gain_loss: 0,
               holdings_count: 0,
             } as Portfolio
-            
+
             setPortfolios(prev => [newPortfolio, ...prev])
           } else if (payload.eventType === 'UPDATE') {
             // Update existing portfolio
-            setPortfolios(prev => 
-              prev.map(portfolio => 
-                portfolio.id === payload.new.id 
+            setPortfolios(prev =>
+              prev.map(portfolio =>
+                portfolio.id === payload.new.id
                   ? { ...portfolio, ...payload.new }
                   : portfolio
               )
             )
           } else if (payload.eventType === 'DELETE') {
             // Remove deleted portfolio
-            setPortfolios(prev => 
+            setPortfolios(prev =>
               prev.filter(portfolio => portfolio.id !== payload.old.id)
             )
           }
@@ -176,9 +180,9 @@ export function usePortfolio(portfolioId: string): UsePortfolioReturn {
     try {
       setLoading(true)
       setError(null)
-      
+
       const result = await getPortfolioById(portfolioId)
-      
+
       if (result.success) {
         setPortfolio(result.data || null)
       } else {
@@ -197,7 +201,7 @@ export function usePortfolio(portfolioId: string): UsePortfolioReturn {
     if (!portfolioId) return
 
     const supabase = createClient()
-    
+
     // Initial fetch
     fetchPortfolio()
 
@@ -212,13 +216,11 @@ export function usePortfolio(portfolioId: string): UsePortfolioReturn {
           table: 'portfolios',
           filter: `id=eq.${portfolioId}`,
         },
-        (payload) => {
+        payload => {
           console.log('Portfolio change detected:', payload)
-          
+
           if (payload.eventType === 'UPDATE') {
-            setPortfolio(prev => 
-              prev ? { ...prev, ...payload.new } : null
-            )
+            setPortfolio(prev => (prev ? { ...prev, ...payload.new } : null))
           } else if (payload.eventType === 'DELETE') {
             setPortfolio(null)
           }
@@ -282,40 +284,48 @@ export function usePortfolio(portfolioId: string): UsePortfolioReturn {
  */
 export function useOptimisticPortfolios() {
   const { portfolios, loading, error, refresh } = usePortfolios()
-  const [optimisticPortfolios, setOptimisticPortfolios] = useState<Portfolio[]>([])
+  const [optimisticPortfolios, setOptimisticPortfolios] = useState<Portfolio[]>(
+    []
+  )
 
   // Update optimistic state when real data changes
   useEffect(() => {
     setOptimisticPortfolios(portfolios)
   }, [portfolios])
 
-  const addOptimisticPortfolio = useCallback((portfolio: Partial<Portfolio>) => {
-    const optimisticPortfolio: Portfolio = {
-      id: `temp_${Date.now()}`,
-      name: portfolio.name || '',
-      description: portfolio.description,
-      type: portfolio.type || 'INVESTMENT',
-      is_public: portfolio.is_public || false,
-      user_id: '',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      total_value: 0,
-      total_cost: 0,
-      total_gain_loss: 0,
-      holdings_count: 0,
-      ...portfolio,
-    }
+  const addOptimisticPortfolio = useCallback(
+    (portfolio: Partial<Portfolio>) => {
+      const optimisticPortfolio: Portfolio = {
+        id: `temp_${Date.now()}`,
+        name: portfolio.name || '',
+        description: portfolio.description,
+        type: portfolio.type || 'INVESTMENT',
+        is_public: portfolio.is_public || false,
+        user_id: '',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        total_value: 0,
+        total_cost: 0,
+        total_gain_loss: 0,
+        holdings_count: 0,
+        ...portfolio,
+      }
 
-    setOptimisticPortfolios(prev => [optimisticPortfolio, ...prev])
-  }, [])
+      setOptimisticPortfolios(prev => [optimisticPortfolio, ...prev])
+    },
+    []
+  )
 
-  const updateOptimisticPortfolio = useCallback((id: string, updates: Partial<Portfolio>) => {
-    setOptimisticPortfolios(prev =>
-      prev.map(portfolio =>
-        portfolio.id === id ? { ...portfolio, ...updates } : portfolio
+  const updateOptimisticPortfolio = useCallback(
+    (id: string, updates: Partial<Portfolio>) => {
+      setOptimisticPortfolios(prev =>
+        prev.map(portfolio =>
+          portfolio.id === id ? { ...portfolio, ...updates } : portfolio
+        )
       )
-    )
-  }, [])
+    },
+    []
+  )
 
   const removeOptimisticPortfolio = useCallback((id: string) => {
     setOptimisticPortfolios(prev =>

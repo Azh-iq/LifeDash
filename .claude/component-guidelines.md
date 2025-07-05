@@ -44,7 +44,7 @@
 ```tsx
 <div className="card">
   <h2 className="text-h2">Card Title</h2>
-  <p className="text-body text-secondary-gray">Card content</p>
+  <p className="text-secondary-gray text-body">Card content</p>
 </div>
 ```
 
@@ -86,7 +86,7 @@
 
 ```tsx
 <div className="space-y-2">
-  <label className="text-label text-secondary-gray">Email</label>
+  <label className="text-secondary-gray text-label">Email</label>
   <input className="input-field focus-ring" type="email" />
 </div>
 ```
@@ -121,9 +121,9 @@
 ### Bottom Tab Bar (Mobile)
 
 ```tsx
-<nav className="fixed bottom-0 left-0 right-0 border-t border-secondary-gray/10 bg-background-secondary">
+<nav className="border-secondary-gray/10 bg-background-secondary fixed bottom-0 left-0 right-0 border-t">
   <div className="flex justify-around py-2">
-    <button className="flex flex-col items-center p-2 text-secondary-blue">
+    <button className="text-secondary-blue flex flex-col items-center p-2">
       <Icon className="h-6 w-6" />
       <span className="text-caption">Home</span>
     </button>
@@ -134,11 +134,11 @@
 ### Side Navigation (Desktop)
 
 ```tsx
-<nav className="w-64 border-r border-secondary-gray/10 bg-background-secondary">
+<nav className="border-secondary-gray/10 bg-background-secondary w-64 border-r">
   <div className="space-y-2 p-4">
     <a
       href="#"
-      className="flex items-center rounded-sm p-3 text-primary-light hover:bg-secondary-blue/10"
+      className="text-primary-light hover:bg-secondary-blue/10 flex items-center rounded-sm p-3"
     >
       <Icon className="mr-3 h-5 w-5" />
       <span className="text-body">Dashboard</span>
@@ -152,14 +152,14 @@
 ### Skeleton Loading
 
 ```tsx
-<div className="h-4 animate-shimmer rounded-sm bg-background-tertiary"></div>
+<div className="bg-background-tertiary h-4 animate-shimmer rounded-sm"></div>
 ```
 
 ### Floating Animation
 
 ```tsx
 <div className="animate-float">
-  <Icon className="h-8 w-8 text-secondary-blue" />
+  <Icon className="text-secondary-blue h-8 w-8" />
 </div>
 ```
 
@@ -187,7 +187,7 @@
 <div className="chart-container">
   <svg className="h-64 w-full">
     <g className="chart-grid">{/* Grid lines */}</g>
-    <path className="fill-none stroke-secondary-blue stroke-2" />
+    <path className="stroke-secondary-blue fill-none stroke-2" />
   </svg>
 </div>
 ```
@@ -198,7 +198,7 @@
 <div className="flex items-center space-x-2">
   <span className="font-mono text-data-md">$45,250.30</span>
   <span className="trend-positive text-data-sm">+2.4%</span>
-  <TrendUpIcon className="h-4 w-4 text-accent-green" />
+  <TrendUpIcon className="text-accent-green h-4 w-4" />
 </div>
 ```
 
@@ -209,11 +209,11 @@
 ```tsx
 <form className="space-y-4">
   <div>
-    <label className="text-label text-secondary-gray">Email</label>
+    <label className="text-secondary-gray text-label">Email</label>
     <input className="input-field focus-ring w-full" type="email" />
   </div>
   <div>
-    <label className="text-label text-secondary-gray">Password</label>
+    <label className="text-secondary-gray text-label">Password</label>
     <input className="input-field focus-ring w-full" type="password" />
   </div>
   <button className="btn-primary w-full">Sign In</button>
@@ -224,7 +224,7 @@
 
 ```tsx
 <div className="relative">
-  <SearchIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-secondary-gray" />
+  <SearchIcon className="text-secondary-gray absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform" />
   <input
     className="input-field focus-ring w-full pl-10"
     placeholder="Search stocks..."
@@ -238,9 +238,9 @@
 
 ```tsx
 <div className="fixed inset-0 flex items-center justify-center bg-black/50 p-4">
-  <div className="w-full max-w-md rounded-md bg-background-secondary p-6">
+  <div className="bg-background-secondary w-full max-w-md rounded-md p-6">
     <h2 className="mb-4 text-h2">Modal Title</h2>
-    <p className="mb-6 text-body text-secondary-gray">Modal content</p>
+    <p className="text-secondary-gray mb-6 text-body">Modal content</p>
     <div className="flex justify-end space-x-3">
       <button className="btn-secondary">Cancel</button>
       <button className="btn-primary">Confirm</button>
@@ -255,9 +255,9 @@
 
 ```tsx
 <div className="p-6 text-center">
-  <CheckCircleIcon className="mx-auto mb-4 h-16 w-16 text-accent-green" />
+  <CheckCircleIcon className="text-accent-green mx-auto mb-4 h-16 w-16" />
   <h3 className="mb-2 text-h3">Success!</h3>
-  <p className="text-body text-secondary-gray">Account created successfully</p>
+  <p className="text-secondary-gray text-body">Account created successfully</p>
 </div>
 ```
 
@@ -265,9 +265,9 @@
 
 ```tsx
 <div className="p-6 text-center">
-  <XCircleIcon className="mx-auto mb-4 h-16 w-16 text-accent-red" />
+  <XCircleIcon className="text-accent-red mx-auto mb-4 h-16 w-16" />
   <h3 className="mb-2 text-h3">Error</h3>
-  <p className="text-body text-secondary-gray">Something went wrong</p>
+  <p className="text-secondary-gray text-body">Something went wrong</p>
 </div>
 ```
 
@@ -275,11 +275,11 @@
 
 ```tsx
 <div className="p-12 text-center">
-  <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-secondary-gray/10">
-    <Icon className="h-12 w-12 text-secondary-gray" />
+  <div className="bg-secondary-gray/10 mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full">
+    <Icon className="text-secondary-gray h-12 w-12" />
   </div>
   <h3 className="mb-2 text-h3">No data available</h3>
-  <p className="mb-6 text-body text-secondary-gray">
+  <p className="text-secondary-gray mb-6 text-body">
     Get started by adding your first investment
   </p>
   <button className="btn-primary">Add Investment</button>

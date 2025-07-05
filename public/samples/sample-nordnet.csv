@@ -1,0 +1,6 @@
+Id	Bokføringsdag	Handelsdag	Oppgjørsdag	Portefølje	Transaksjonstype	Verdipapir	ISIN	Antall	Kurs	Rente	Totale Avgifter	Valuta	Beløp	Valuta	Kjøpsverdi	Valuta	Resultat	Valuta	Totalt antall	Saldo	Vekslingskurs	Transaksjonstekst	Makuleringsddato	Sluttseddelnummer	Verifikasjonsnummer	Kurtasje	Valuta	Valutakurs	Innledende rente
+213948411	2025-06-24	2025-06-24	2025-06-25	551307769	KJØPT	Hims & Hers Health A	US4330001060	66	42,7597	0	99	NOK	-28706,04	NOK	2831,91	USD	0	USD	131	179,97	10,1366				99	NOK	10,1366	0
+213948412	2025-06-25	2025-06-25	2025-06-26	551307769	SALG	Apple Inc	US0378331005	50	180,25	0	99	NOK	9012,50	NOK	9012,50	USD	450,75	USD	0	9012,50	10,1366				99	NOK	10,1366	0
+213948413	2025-06-26	2025-06-26	2025-06-27	551307769	Utbetaling aksjelån	Microsoft Corporation	US5949181045	0	0	0	0	NOK	120,00	NOK	0	USD	0	USD	100	120,00	10,1366	Kvartalsvis utbytte			0	NOK	10,1366	0
+213948414	2025-06-27	2025-06-27	2025-06-28	551307769	Overføring via Trustly				0	0	0	0	NOK	50000,00	NOK	0	NOK	0	NOK	0	50000,00	1,0000	Innskudd fra bankkonto			0	NOK	1,0000	0
+213948415	2025-06-28	2025-06-28	2025-06-29	551307769	FORSIKRINGSKOSTNAD				0	0	0	25	NOK	-25,00	NOK	0	NOK	0	NOK	0	49975,00	1,0000	Månedsavgift depot			25	NOK	1,0000	0
