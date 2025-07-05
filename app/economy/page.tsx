@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 export default function EconomyPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<any>(null) // TODO: Replace with proper User type
 
   // Check authentication
   useEffect(() => {
@@ -262,9 +262,7 @@ export default function EconomyPage() {
               <div className="text-right">
                 <p className="text-sm text-white/70">Finansiell helse</p>
                 <p className="font-semibold text-white">
-                  {user?.user_metadata?.full_name ||
-                    user?.email?.split('@')[0] ||
-                    'Bruker'}
+                  {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Bruker'}
                 </p>
               </div>
               <button
