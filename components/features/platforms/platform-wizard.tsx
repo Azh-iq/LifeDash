@@ -400,16 +400,16 @@ function PlatformSelectionStep({
             </p>
           </div>
 
-          <div className="flex items-center space-x-3">
-            {/* Skip knapp - liten og til høyre */}
+          <div className="flex items-center space-x-4">
+            {/* Skip knapp - mer synlig */}
             {onSkip && (
               <Button
-                variant="ghost"
-                size="sm"
+                variant="outline"
+                size="default"
                 onClick={onSkip}
-                className="text-gray-500 hover:text-gray-700 text-sm px-3 py-1"
+                className="text-gray-600 hover:text-gray-800 px-6 border-gray-300"
               >
-                Hopp over
+                Hopp over oppsett
               </Button>
             )}
             
@@ -417,9 +417,9 @@ function PlatformSelectionStep({
             <Button
               onClick={onNext}
               disabled={selectedPlatforms.length === 0}
-              className="px-6"
+              className="px-8 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
             >
-              Fortsett
+              Fortsett med {selectedPlatforms.length} plattform{selectedPlatforms.length !== 1 ? 'er' : ''}
               <svg className="ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
@@ -625,22 +625,26 @@ function ConnectionStep({
             </p>
           </div>
 
-          <div className="flex items-center space-x-3">
-            {/* Skip knapp - liten og til høyre */}
+          <div className="flex items-center space-x-4">
+            {/* Skip knapp - mer synlig */}
             {onSkip && (
               <Button
-                variant="ghost"
-                size="sm"
+                variant="outline"
+                size="default"
                 onClick={onSkip}
-                className="text-gray-500 hover:text-gray-700 text-sm px-3 py-1"
+                className="text-gray-600 hover:text-gray-800 px-6 border-gray-300"
               >
-                Hopp over
+                Hopp over oppsett
               </Button>
             )}
             
             {/* Hovedknapp for å fortsette */}
-            <Button onClick={onNext} disabled={!canProceed} className="px-6">
-              Fortsett
+            <Button 
+              onClick={onNext} 
+              disabled={!canProceed} 
+              className="px-8 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            >
+              {canProceed ? 'Fullfør oppsett' : 'Koble til alle plattformer'}
               <svg className="ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"

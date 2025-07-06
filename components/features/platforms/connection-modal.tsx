@@ -15,7 +15,7 @@ interface Platform {
   name: string
   description: string
   connectionTypes: string[]
-  logo: string
+  logo: React.ReactNode
 }
 
 interface ConnectionModalProps {
@@ -80,7 +80,7 @@ function CSVUploadModal({
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 text-2xl">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-50 shadow-sm">
           {platform.logo}
         </div>
         <h3 className="mb-2 text-xl font-bold text-gray-900">
@@ -248,7 +248,7 @@ function OAuth2Modal({ platform, onClose, onSuccess }: ConnectionModalProps) {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 text-2xl">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-50 shadow-sm">
           {platform.logo}
         </div>
         <h3 className="mb-2 text-xl font-bold text-gray-900">
