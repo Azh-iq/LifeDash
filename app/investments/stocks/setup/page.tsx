@@ -245,13 +245,13 @@ export default function PlatformSetupPage() {
           </div>
         </motion.header>
 
-        {/* Step Indicator */}
-        <div className="flex-shrink-0 py-8">
+        {/* Step Indicator - Hidden on mobile */}
+        <div className="flex-shrink-0 py-8 hidden md:block">
           <StepIndicator steps={steps} currentStep={currentStep} />
         </div>
 
         {/* Wizard Content */}
-        <div className="flex flex-1 items-center justify-center px-6 pb-12">
+        <div className="flex flex-1 items-center justify-center px-4 md:px-6 pb-6 md:pb-12">
           <motion.div
             className="w-full max-w-4xl"
             key={currentStep}

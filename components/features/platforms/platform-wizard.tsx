@@ -363,7 +363,7 @@ function PlatformSelectionStep({
         </p>
       </div>
 
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-3">
         {availablePlatforms.map((platform, index) => (
           <motion.div
             key={platform.id}
@@ -382,8 +382,8 @@ function PlatformSelectionStep({
 
       <div className="mx-auto max-w-3xl pt-8">
         {/* Navigation Buttons */}
-        <div className="flex items-center justify-between">
-          <Button variant="outline" onClick={onBack} className="px-6">
+        <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:items-center md:justify-between">
+          <Button variant="outline" onClick={onBack} className="px-6 py-3 md:py-2">
             <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
               <path
                 fillRule="evenodd"
@@ -394,20 +394,20 @@ function PlatformSelectionStep({
             Tilbake
           </Button>
 
-          <div className="text-center">
+          <div className="text-center order-first md:order-none">
             <p className="text-sm text-gray-600">
               {selectedPlatforms.length} plattformer valgt
             </p>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-col space-y-3 md:flex-row md:space-y-0 md:space-x-4">
             {/* Skip knapp - mer synlig */}
             {onSkip && (
               <Button
                 variant="outline"
                 size="default"
                 onClick={onSkip}
-                className="text-gray-600 hover:text-gray-800 px-6 border-gray-300"
+                className="text-gray-600 hover:text-gray-800 px-6 py-3 md:py-2 border-gray-300 w-full md:w-auto"
               >
                 Hopp over oppsett
               </Button>
@@ -417,7 +417,7 @@ function PlatformSelectionStep({
             <Button
               onClick={onNext}
               disabled={selectedPlatforms.length === 0}
-              className="px-8 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              className="px-8 py-3 md:py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 w-full md:w-auto"
             >
               Fortsett med {selectedPlatforms.length} plattform{selectedPlatforms.length !== 1 ? 'er' : ''}
               <svg className="ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
