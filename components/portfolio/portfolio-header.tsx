@@ -5,7 +5,6 @@ import { motion } from 'framer-motion'
 import {
   ArrowLeftIcon,
   ShareIcon,
-  Cog6ToothIcon,
   EllipsisVerticalIcon,
   PencilIcon,
   TrashIcon,
@@ -72,6 +71,36 @@ const PortfolioHeader = memo(function PortfolioHeader({
     handleCloseShareModal()
   }, [portfolioId, handleCloseShareModal])
 
+  const getPortfolioTypeColor = useCallback((type: string) => {
+    switch (type) {
+      case 'INVESTMENT':
+        return 'bg-blue-100 text-blue-800'
+      case 'RETIREMENT':
+        return 'bg-green-100 text-green-800'
+      case 'SAVINGS':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'TRADING':
+        return 'bg-purple-100 text-purple-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }, [])
+
+  const getPortfolioTypeLabel = useCallback((type: string) => {
+    switch (type) {
+      case 'INVESTMENT':
+        return 'Investering'
+      case 'RETIREMENT':
+        return 'Pensjon'
+      case 'SAVINGS':
+        return 'Sparing'
+      case 'TRADING':
+        return 'Trading'
+      default:
+        return 'Annet'
+    }
+  }, [])
+
   if (loading) {
     return (
       <MobileResponsiveWrapper className="mb-6">
@@ -124,36 +153,6 @@ const PortfolioHeader = memo(function PortfolioHeader({
       </div>
     )
   }
-
-  const getPortfolioTypeColor = useCallback((type: string) => {
-    switch (type) {
-      case 'INVESTMENT':
-        return 'bg-blue-100 text-blue-800'
-      case 'RETIREMENT':
-        return 'bg-green-100 text-green-800'
-      case 'SAVINGS':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'TRADING':
-        return 'bg-purple-100 text-purple-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
-  }, [])
-
-  const getPortfolioTypeLabel = useCallback((type: string) => {
-    switch (type) {
-      case 'INVESTMENT':
-        return 'Investering'
-      case 'RETIREMENT':
-        return 'Pensjon'
-      case 'SAVINGS':
-        return 'Sparing'
-      case 'TRADING':
-        return 'Trading'
-      default:
-        return type
-    }
-  }, [])
 
   return (
     <>
@@ -298,16 +297,6 @@ const PortfolioHeader = memo(function PortfolioHeader({
                       >
                         <ShareIcon className="mr-3 h-4 w-4" />
                         Del portefølje
-                      </button>
-                      <button
-                        onClick={() => {
-                          setShowMenu(false)
-                          // Add export functionality
-                        }}
-                        className={`flex w-full touch-manipulation items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isMobile ? 'py-3' : ''}`}
-                      >
-                        <Cog6ToothIcon className="mr-3 h-4 w-4" />
-                        Eksporter data
                       </button>
                       <Separator />
                       <button

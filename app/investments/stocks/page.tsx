@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { User } from '@supabase/supabase-js'
 import {
@@ -12,13 +11,10 @@ import {
 import { useRealtimeUpdates } from '@/lib/hooks/use-realtime-updates'
 import { useSmartRefresh } from '@/lib/hooks/use-smart-refresh'
 import { getUserPortfolios } from '@/lib/actions/portfolio/crud'
-import PortfolioHeader from '@/components/portfolio/portfolio-header'
-import PortfolioMetrics from '@/components/portfolio/portfolio-metrics'
 import PortfolioChartSection from '@/components/portfolio/portfolio-chart-section'
 import HoldingsSection from '@/components/portfolio/holdings-section'
-import RecentActivity from '@/components/portfolio/recent-activity'
-import QuickActions from '@/components/portfolio/quick-actions'
 import StockDetailModal from '@/components/stocks/stock-detail-modal'
+import TopNavigationMenu from '@/components/layout/top-navigation-menu'
 import MobilePortfolioDashboard from '@/components/mobile/mobile-portfolio-dashboard'
 import {
   EmptyPortfolioState,
@@ -83,26 +79,28 @@ export default function StocksPage() {
     []
   )
 
-  // Only initialize portfolio state if we have a valid portfolio ID
+  // Always call hooks with consistent values to avoid conditional hook calls
+  // Use empty string as default to ensure hooks are called consistently
+  const safePortfolioId = portfolioId || ''
   const portfolioState = usePortfolioState(
-    portfolioId || '',
+    safePortfolioId,
     portfolioStateOptions
   )
 
-  // Enhanced real-time updates - only when we have a portfolio ID
-  useRealtimeUpdates(portfolioId || '', realtimeUpdatesOptions)
+  // Enhanced real-time updates - called consistently with safe portfolio ID
+  useRealtimeUpdates(safePortfolioId, realtimeUpdatesOptions)
 
-  // Smart refresh for better performance - only when we have a portfolio ID
+  // Smart refresh for better performance - use consistent key
   const smartRefreshKey = useMemo(
-    () => (portfolioId ? `portfolio-${portfolioId}` : 'no-portfolio'),
-    [portfolioId]
+    () => `portfolio-${safePortfolioId}`,
+    [safePortfolioId]
   )
 
   const smartRefreshFetcher = useCallback(async () => {
-    if (portfolioState.refresh) {
+    if (portfolioState.refresh && safePortfolioId) {
       return await portfolioState.refresh()
     }
-  }, [portfolioState])
+  }, [portfolioState, safePortfolioId])
 
   const { refresh: smartRefresh } = useSmartRefresh(
     smartRefreshKey,
@@ -110,15 +108,7 @@ export default function StocksPage() {
     smartRefreshOptions
   )
 
-  // Memoize navigation handlers to prevent unnecessary re-renders
-  const handleBack = useCallback(() => router.back(), [router])
-  const handleEdit = useCallback(
-    () => router.push('/investments/stocks/setup'),
-    [router]
-  )
-  const handleShare = useCallback(() => {
-    // implement share functionality
-  }, [])
+  // Navigation handlers (kept for potential future use)
 
   // Handle stock detail modal
   const handleStockClick = useCallback((holding: HoldingWithMetrics) => {
@@ -132,22 +122,12 @@ export default function StocksPage() {
   }, [])
 
   // Memoize component props to prevent unnecessary re-renders
-  const portfolioHeaderProps = useMemo(
-    () => ({
-      portfolioId: portfolioId!,
-      onBack: handleBack,
-      onEdit: handleEdit,
-      onShare: handleShare,
-    }),
-    [portfolioId, handleBack, handleEdit, handleShare]
-  )
-
   const holdingsSectionProps = useMemo(
     () => ({
-      portfolioId: portfolioId!,
+      portfolioId: safePortfolioId,
       onStockClick: handleStockClick,
     }),
-    [portfolioId, handleStockClick]
+    [safePortfolioId, handleStockClick]
   )
 
   const stockModalProps = useMemo(
@@ -178,7 +158,8 @@ export default function StocksPage() {
       // Check if user has skipped setup
       const urlParams = new URLSearchParams(window.location.search)
       const isSkippedViaUrl = urlParams.get('skip') === 'true'
-      const isSkippedViaSession = typeof window !== 'undefined' && 
+      const isSkippedViaSession =
+        typeof window !== 'undefined' &&
         sessionStorage.getItem('setupSkipped') === 'true'
       const isSetupSkipped = isSkippedViaUrl || isSkippedViaSession
 
@@ -283,7 +264,7 @@ export default function StocksPage() {
     return (
       <ErrorBoundary>
         <MobilePortfolioDashboard
-          portfolioId={portfolioId!}
+          portfolioId={safePortfolioId}
           initialView="overview"
           showNavigation={true}
           showTopBar={true}
@@ -295,36 +276,25 @@ export default function StocksPage() {
   // Desktop view - Main portfolio view with new components
   return (
     <ErrorBoundary>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50"
-      >
-        <ErrorBoundary>
-          <PortfolioHeader {...portfolioHeaderProps} />
-        </ErrorBoundary>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        {/* Top Navigation Menu */}
+        <TopNavigationMenu portfolioId={safePortfolioId} />
 
-        <div className="mx-auto max-w-7xl px-6 py-8">
-          <div className="space-y-8">
+        {/* Main Content */}
+        <main className="mx-auto max-w-7xl px-4 py-6">
+          <div className="space-y-6">
+            {/* Charts Section - Primary focus */}
             <ErrorBoundary>
-              <PortfolioMetrics portfolioId={portfolioId!} />
+              <PortfolioChartSection portfolioId={safePortfolioId} />
             </ErrorBoundary>
-            <ErrorBoundary>
-              <QuickActions portfolioId={portfolioId!} />
-            </ErrorBoundary>
-            <ErrorBoundary>
-              <PortfolioChartSection portfolioId={portfolioId!} />
-            </ErrorBoundary>
+
+            {/* Holdings Section - Stock list */}
             <ErrorBoundary>
               <HoldingsSection {...holdingsSectionProps} />
             </ErrorBoundary>
-            <ErrorBoundary>
-              <RecentActivity portfolioId={portfolioId!} />
-            </ErrorBoundary>
           </div>
-        </div>
-      </motion.div>
+        </main>
+      </div>
 
       {/* Stock Detail Modal */}
       {selectedStock && (

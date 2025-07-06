@@ -62,6 +62,7 @@ const MetricCard = memo(function MetricCard({
   changeValue,
   changePercent,
 }: MetricCardProps) {
+  // ALL HOOKS MUST BE CALLED BEFORE ANY EARLY RETURNS
   const { isMobile } = useResponsiveLayout()
 
   const getTrendColor = useCallback((trend: string) => {
@@ -86,6 +87,7 @@ const MetricCard = memo(function MetricCard({
     }
   }, [])
 
+  // Early return AFTER all hooks
   if (isLoading) {
     return (
       <AnimatedCard className={`${isMobile ? 'p-4' : 'p-6'}`}>
@@ -189,29 +191,12 @@ const MetricCard = memo(function MetricCard({
 const PortfolioMetrics = memo(function PortfolioMetrics({
   portfolioId,
 }: PortfolioMetricsProps) {
+  // ALL HOOKS MUST BE CALLED BEFORE ANY EARLY RETURNS
   const { portfolio, loading, error } = usePortfolioState(portfolioId)
   const { priceUpdates, isConnected } = useRealtimeUpdates(portfolioId)
   const { isMobile, isTablet } = useResponsiveLayout()
 
-  // Early return with skeleton if loading
-  if (loading) {
-    return <PortfolioMetricsSkeleton />
-  }
-
-  if (error) {
-    return (
-      <div className="mb-6">
-        <AnimatedCard className="border-red-200 bg-red-50 p-6">
-          <div className="flex items-center space-x-2 text-red-600">
-            <InformationCircleIcon className="h-5 w-5" />
-            <p>Kunne ikke laste inn porteføljemålinger: {error}</p>
-          </div>
-        </AnimatedCard>
-      </div>
-    )
-  }
-
-  // Cached expensive calculations
+  // Cached expensive calculations - MUST be called before early returns
   const {
     totalValue,
     totalCost,
@@ -316,6 +301,24 @@ const PortfolioMetrics = memo(function PortfolioMetrics({
       totalGainLossPercent,
     ]
   )
+
+  // Early returns AFTER all hooks have been called
+  if (loading) {
+    return <PortfolioMetricsSkeleton />
+  }
+
+  if (error) {
+    return (
+      <div className="mb-6">
+        <AnimatedCard className="border-red-200 bg-red-50 p-6">
+          <div className="flex items-center space-x-2 text-red-600">
+            <InformationCircleIcon className="h-5 w-5" />
+            <p>Kunne ikke laste inn porteføljemålinger: {error}</p>
+          </div>
+        </AnimatedCard>
+      </div>
+    )
+  }
 
   return (
     <MobileResponsiveWrapper
