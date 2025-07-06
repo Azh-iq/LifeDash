@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, memo } from 'react'
 import { motion, AnimatePresence, Variants } from 'framer-motion'
 import {
   ClockIcon,
@@ -119,7 +119,7 @@ const pulseVariants: Variants = {
   },
 }
 
-export default function RecentActivity({
+const RecentActivity = memo(function RecentActivity({
   portfolioId,
   className,
   maxItems = 10,
@@ -736,4 +736,8 @@ export default function RecentActivity({
       </AnimatedCard>
     </div>
   )
-}
+})
+
+RecentActivity.displayName = 'RecentActivity'
+
+export default RecentActivity

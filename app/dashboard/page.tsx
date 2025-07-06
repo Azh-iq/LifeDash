@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 export default function DashboardPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
 
   // Check authentication
   useEffect(() => {

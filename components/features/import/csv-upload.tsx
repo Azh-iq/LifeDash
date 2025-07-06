@@ -103,7 +103,7 @@ export function CSVUploadZone({
         handleFileSelection(files[0])
       }
     },
-    [disabled]
+    [disabled, handleFileSelection]
   )
 
   const handleFileInputChange = useCallback(
@@ -113,7 +113,7 @@ export function CSVUploadZone({
         handleFileSelection(files[0])
       }
     },
-    []
+    [handleFileSelection]
   )
 
   const handleFileSelection = useCallback(
@@ -487,7 +487,8 @@ export function CSVUploadZone({
               <div className="space-y-1 border-t pt-2 text-xs text-gray-500">
                 <div>Encoding: {uploadState.parseResult.detectedEncoding}</div>
                 <div>
-                  Delimiter: "{uploadState.parseResult.detectedDelimiter}"
+                  Delimiter:{' '}
+                  &quot;{uploadState.parseResult.detectedDelimiter}&quot;
                 </div>
                 <div>
                   Norwegian Characters:{' '}

@@ -21,7 +21,6 @@ Main portfolio performance chart with time-series data visualization.
 
 ```tsx
 import { PortfolioPerformanceChart } from '@/components/charts'
-
 ;<PortfolioPerformanceChart
   data={portfolioData}
   title="Portfolio Performance"
@@ -48,7 +47,6 @@ Pie, donut, and bar charts for asset allocation visualization.
 
 ```tsx
 import { AssetAllocationChart } from '@/components/charts'
-
 ;<AssetAllocationChart
   data={allocationData}
   title="Asset Allocation"

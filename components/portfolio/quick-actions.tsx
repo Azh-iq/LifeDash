@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   PlusIcon,
@@ -54,7 +54,7 @@ interface ExportFormat {
   action: () => void
 }
 
-export default function QuickActions({
+const QuickActions = memo(function QuickActions({
   portfolioId,
   className,
   variant = 'full',
@@ -546,4 +546,8 @@ export default function QuickActions({
       </Modal>
     </>
   )
-}
+})
+
+QuickActions.displayName = 'QuickActions'
+
+export default QuickActions

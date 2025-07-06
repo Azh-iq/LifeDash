@@ -1,15 +1,17 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
+import { User } from '@supabase/supabase-js'
 import {
   usePortfolioState,
   HoldingWithMetrics,
 } from '@/lib/hooks/use-portfolio-state'
 import { useRealtimeUpdates } from '@/lib/hooks/use-realtime-updates'
 import { useSmartRefresh } from '@/lib/hooks/use-smart-refresh'
+import { getUserPortfolios } from '@/lib/actions/portfolio/crud'
 import PortfolioHeader from '@/components/portfolio/portfolio-header'
 import PortfolioMetrics from '@/components/portfolio/portfolio-metrics'
 import PortfolioChartSection from '@/components/portfolio/portfolio-chart-section'
@@ -42,8 +44,8 @@ const useResponsive = () => {
 
 export default function StocksPage() {
   const router = useRouter()
-  const [portfolioId] = useState('default')
-  const [user, setUser] = useState<any>(null)
+  const [portfolioId, setPortfolioId] = useState<string | null>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -56,26 +58,106 @@ export default function StocksPage() {
   // All hooks must be called before any early returns
   const { isMobile } = useResponsive()
 
-  // New portfolio state management
-  const portfolioState = usePortfolioState(portfolioId, {
-    enableRealtime: true,
-    includeHoldings: true,
-    autoRefresh: true,
-  })
+  // Memoize hook options to prevent re-initialization
+  const portfolioStateOptions = useMemo(
+    () => ({
+      enableRealtime: true,
+      includeHoldings: true,
+      autoRefresh: true,
+    }),
+    []
+  )
 
-  // Enhanced real-time updates
-  useRealtimeUpdates(portfolioId, {
-    autoConnect: true,
-    batchUpdates: true,
-  })
+  const realtimeUpdatesOptions = useMemo(
+    () => ({
+      autoConnect: !!portfolioId,
+      batchUpdates: true,
+    }),
+    [portfolioId]
+  )
 
-  // Smart refresh for better performance
-  const { refresh: smartRefresh } = useSmartRefresh(
-    `portfolio-${portfolioId}`,
-    () => portfolioState.refresh && portfolioState.refresh(),
-    {
+  const smartRefreshOptions = useMemo(
+    () => ({
       interval: 30000,
+    }),
+    []
+  )
+
+  // Only initialize portfolio state if we have a valid portfolio ID
+  const portfolioState = usePortfolioState(
+    portfolioId || '',
+    portfolioStateOptions
+  )
+
+  // Enhanced real-time updates - only when we have a portfolio ID
+  useRealtimeUpdates(portfolioId || '', realtimeUpdatesOptions)
+
+  // Smart refresh for better performance - only when we have a portfolio ID
+  const smartRefreshKey = useMemo(
+    () => (portfolioId ? `portfolio-${portfolioId}` : 'no-portfolio'),
+    [portfolioId]
+  )
+
+  const smartRefreshFetcher = useCallback(async () => {
+    if (portfolioState.refresh) {
+      return await portfolioState.refresh()
     }
+  }, [portfolioState])
+
+  const { refresh: smartRefresh } = useSmartRefresh(
+    smartRefreshKey,
+    smartRefreshFetcher,
+    smartRefreshOptions
+  )
+
+  // Memoize navigation handlers to prevent unnecessary re-renders
+  const handleBack = useCallback(() => router.back(), [router])
+  const handleEdit = useCallback(
+    () => router.push('/investments/stocks/setup'),
+    [router]
+  )
+  const handleShare = useCallback(() => {
+    // implement share functionality
+  }, [])
+
+  // Handle stock detail modal
+  const handleStockClick = useCallback((holding: HoldingWithMetrics) => {
+    setSelectedStock(holding)
+    setIsStockModalOpen(true)
+  }, [])
+
+  const handleCloseStockModal = useCallback(() => {
+    setIsStockModalOpen(false)
+    setSelectedStock(null)
+  }, [])
+
+  // Memoize component props to prevent unnecessary re-renders
+  const portfolioHeaderProps = useMemo(
+    () => ({
+      portfolioId: portfolioId!,
+      onBack: handleBack,
+      onEdit: handleEdit,
+      onShare: handleShare,
+    }),
+    [portfolioId, handleBack, handleEdit, handleShare]
+  )
+
+  const holdingsSectionProps = useMemo(
+    () => ({
+      portfolioId: portfolioId!,
+      onStockClick: handleStockClick,
+    }),
+    [portfolioId, handleStockClick]
+  )
+
+  const stockModalProps = useMemo(
+    () => ({
+      isOpen: isStockModalOpen,
+      onClose: handleCloseStockModal,
+      stockData: selectedStock,
+      isMobile,
+    }),
+    [isStockModalOpen, handleCloseStockModal, selectedStock, isMobile]
   )
 
   // Authentication and setup check
@@ -100,6 +182,26 @@ export default function StocksPage() {
         return
       }
 
+      // Fetch user's portfolios
+      const portfoliosResult = await getUserPortfolios()
+      if (portfoliosResult.success && portfoliosResult.data) {
+        const portfolios = portfoliosResult.data
+
+        if (portfolios.length === 0) {
+          // No portfolios found - redirect to setup
+          router.replace('/investments/stocks/setup')
+          return
+        }
+
+        // Select the first portfolio (or you could add logic to select a default one)
+        const firstPortfolio = portfolios[0]
+        setPortfolioId(firstPortfolio.id)
+      } else {
+        setError('Kunne ikke hente porteføljer. Prøv igjen.')
+        setIsInitialLoading(false)
+        return
+      }
+
       setIsInitialLoading(false)
     } catch (err) {
       console.error('Initialization error:', err)
@@ -116,19 +218,14 @@ export default function StocksPage() {
     await smartRefresh()
   }, [smartRefresh])
 
-  // Handle stock detail modal
-  const handleStockClick = useCallback((holding: HoldingWithMetrics) => {
-    setSelectedStock(holding)
-    setIsStockModalOpen(true)
-  }, [])
+  // State initialization guards
+  const isValidPortfolioId = portfolioId && portfolioId.trim().length > 0
+  const hasPortfolioData = portfolioState.portfolio && !portfolioState.loading
+  const hasHoldingsData =
+    portfolioState.holdings && portfolioState.holdings.length > 0
 
-  const handleCloseStockModal = useCallback(() => {
-    setIsStockModalOpen(false)
-    setSelectedStock(null)
-  }, [])
-
-  // Error handling
-  if (error || portfolioState.error) {
+  // Error handling with proper state checks
+  if (error || (isValidPortfolioId && portfolioState.error)) {
     return (
       <ErrorPortfolioState
         error={error || portfolioState.error || 'Ukjent feil'}
@@ -142,8 +239,12 @@ export default function StocksPage() {
     )
   }
 
-  // Loading states
-  if (isInitialLoading || portfolioState.loading) {
+  // Loading states - show loading if we don't have a portfolio ID yet or if portfolio is loading
+  if (
+    isInitialLoading ||
+    !isValidPortfolioId ||
+    (isValidPortfolioId && portfolioState.loading)
+  ) {
     return (
       <LoadingPortfolioState
         type="initial"
@@ -153,8 +254,8 @@ export default function StocksPage() {
     )
   }
 
-  // Empty state
-  if (!portfolioState.portfolio || !portfolioState.holdings?.length) {
+  // Empty state - only show if we have valid portfolio but no holdings
+  if (isValidPortfolioId && hasPortfolioData && !hasHoldingsData) {
     return (
       <EmptyPortfolioState
         title="Ingen aksjer funnet"
@@ -173,7 +274,7 @@ export default function StocksPage() {
     return (
       <ErrorBoundary>
         <MobilePortfolioDashboard
-          portfolioId={portfolioId}
+          portfolioId={portfolioId!}
           initialView="overview"
           showNavigation={true}
           showTopBar={true}
@@ -192,35 +293,25 @@ export default function StocksPage() {
         className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50"
       >
         <ErrorBoundary>
-          <PortfolioHeader
-            portfolioId={portfolioId}
-            onBack={() => router.back()}
-            onEdit={() => router.push('/investments/stocks/setup')}
-            onShare={() => {
-              /* implement share */
-            }}
-          />
+          <PortfolioHeader {...portfolioHeaderProps} />
         </ErrorBoundary>
 
         <div className="mx-auto max-w-7xl px-6 py-8">
           <div className="space-y-8">
             <ErrorBoundary>
-              <PortfolioMetrics portfolioId={portfolioId} />
+              <PortfolioMetrics portfolioId={portfolioId!} />
             </ErrorBoundary>
             <ErrorBoundary>
-              <QuickActions portfolioId={portfolioId} />
+              <QuickActions portfolioId={portfolioId!} />
             </ErrorBoundary>
             <ErrorBoundary>
-              <PortfolioChartSection portfolioId={portfolioId} />
+              <PortfolioChartSection portfolioId={portfolioId!} />
             </ErrorBoundary>
             <ErrorBoundary>
-              <HoldingsSection
-                portfolioId={portfolioId}
-                onStockClick={handleStockClick}
-              />
+              <HoldingsSection {...holdingsSectionProps} />
             </ErrorBoundary>
             <ErrorBoundary>
-              <RecentActivity portfolioId={portfolioId} />
+              <RecentActivity portfolioId={portfolioId!} />
             </ErrorBoundary>
           </div>
         </div>
@@ -228,12 +319,9 @@ export default function StocksPage() {
 
       {/* Stock Detail Modal */}
       {selectedStock && (
-        <StockDetailModal
-          isOpen={isStockModalOpen}
-          onClose={handleCloseStockModal}
-          stockData={selectedStock}
-          isMobile={isMobile}
-        />
+        <ErrorBoundary>
+          <StockDetailModal {...stockModalProps} />
+        </ErrorBoundary>
       )}
     </ErrorBoundary>
   )

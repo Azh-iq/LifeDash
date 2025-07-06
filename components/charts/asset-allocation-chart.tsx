@@ -17,7 +17,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 // Types
@@ -74,7 +73,13 @@ const DEFAULT_COLORS = [
 ]
 
 // Custom tooltip for pie/donut charts
-const CustomPieTooltip = ({ active, payload }: any) => {
+const CustomPieTooltip = ({
+  active,
+  payload,
+}: {
+  active?: boolean
+  payload?: any[]
+}) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload
 
@@ -114,7 +119,15 @@ const CustomPieTooltip = ({ active, payload }: any) => {
 }
 
 // Custom tooltip for bar chart
-const CustomBarTooltip = ({ active, payload, label }: any) => {
+const CustomBarTooltip = ({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean
+  payload?: any[]
+  label?: string
+}) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload
 
@@ -148,7 +161,7 @@ const CustomBarTooltip = ({ active, payload, label }: any) => {
 }
 
 // Custom legend component
-const CustomLegend = ({ payload }: any) => {
+const CustomLegend = ({ payload }: { payload?: any[] }) => {
   if (!payload || payload.length === 0) return null
 
   return (
@@ -187,7 +200,6 @@ export const AssetAllocationChart = ({
   showLegend = true,
   chartType = 'donut',
   isLoading = false,
-  currency = 'NOK',
 }: AssetAllocationChartProps) => {
   // Add colors to data if not provided
   const chartData = useMemo(() => {

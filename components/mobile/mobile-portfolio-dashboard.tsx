@@ -42,6 +42,11 @@ import {
 import { AnimatedCard, NumberCounter } from '@/components/animated'
 import { usePortfolioState } from '@/lib/hooks/use-portfolio-state'
 import { useRealtimeUpdates } from '@/lib/hooks/use-realtime-updates'
+import {
+  APIErrorBoundary,
+  RenderErrorBoundary,
+  MobileErrorBoundary,
+} from '@/components/ui/error-boundaries'
 
 interface MobilePortfolioDashboardProps {
   portfolioId: string
@@ -427,38 +432,40 @@ export default function MobilePortfolioDashboard({
     <div className={cn('min-h-screen bg-gray-50', className)}>
       {/* Mobile Top Bar */}
       {showTopBar && (
-        <MobileTopBar
-          title={portfolio.name}
-          showBack={true}
-          onBackClick={() => router.push('/investments')}
-          rightContent={
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setHideValues(!hideValues)}
-                className="p-2"
-              >
-                {hideValues ? (
-                  <EyeIcon className="h-5 w-5" />
-                ) : (
-                  <EyeSlashIcon className="h-5 w-5" />
-                )}
-              </Button>
-              <div className="flex items-center space-x-1">
-                <div
-                  className={cn(
-                    'h-2 w-2 rounded-full',
-                    isPricesConnected ? 'bg-green-500' : 'bg-gray-400'
+        <RenderErrorBoundary>
+          <MobileTopBar
+            title={portfolio.name}
+            showBack={true}
+            onBackClick={() => router.push('/investments')}
+            rightContent={
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setHideValues(!hideValues)}
+                  className="p-2"
+                >
+                  {hideValues ? (
+                    <EyeIcon className="h-5 w-5" />
+                  ) : (
+                    <EyeSlashIcon className="h-5 w-5" />
                   )}
-                />
-                <span className="text-xs text-gray-600">
-                  {isPricesConnected ? 'Live' : 'Offline'}
-                </span>
+                </Button>
+                <div className="flex items-center space-x-1">
+                  <div
+                    className={cn(
+                      'h-2 w-2 rounded-full',
+                      isPricesConnected ? 'bg-green-500' : 'bg-gray-400'
+                    )}
+                  />
+                  <span className="text-xs text-gray-600">
+                    {isPricesConnected ? 'Live' : 'Offline'}
+                  </span>
+                </div>
               </div>
-            </div>
-          }
-        />
+            }
+          />
+        </RenderErrorBoundary>
       )}
 
       {/* Main Content */}
@@ -466,152 +473,172 @@ export default function MobilePortfolioDashboard({
         <PullToRefresh onRefresh={handleRefresh} isRefreshing={isRefreshing}>
           <div className="space-y-6 px-4 py-6">
             {/* Portfolio Overview */}
-            <CollapsibleSection
-              title="Porteføljeoversikt"
-              subtitle={`Oppdatert ${new Date(lastRefresh).toLocaleTimeString(
-                'nb-NO',
-                {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                }
-              )}`}
-              defaultExpanded={expandedSections.overview}
-              icon={<BanknotesIcon className="h-5 w-5 text-blue-600" />}
-              onToggle={expanded => handleSectionToggle('overview', expanded)}
-            >
-              <div className="p-4">
-                <MobileMetricCards
-                  metrics={mobileMetrics}
-                  layout="grid"
-                  compact={true}
-                  showTrends={true}
-                  showTargets={false}
-                />
-              </div>
-            </CollapsibleSection>
+            <APIErrorBoundary>
+              <CollapsibleSection
+                title="Porteføljeoversikt"
+                subtitle={`Oppdatert ${new Date(lastRefresh).toLocaleTimeString(
+                  'nb-NO',
+                  {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  }
+                )}`}
+                defaultExpanded={expandedSections.overview}
+                icon={<BanknotesIcon className="h-5 w-5 text-blue-600" />}
+                onToggle={expanded => handleSectionToggle('overview', expanded)}
+              >
+                <div className="p-4">
+                  <RenderErrorBoundary>
+                    <MobileMetricCards
+                      metrics={mobileMetrics}
+                      layout="grid"
+                      compact={true}
+                      showTrends={true}
+                      showTargets={false}
+                    />
+                  </RenderErrorBoundary>
+                </div>
+              </CollapsibleSection>
+            </APIErrorBoundary>
 
             {/* Performance Chart */}
-            <CollapsibleSection
-              title="Ytelsesutvikling"
-              subtitle="Siste 30 dager"
-              defaultExpanded={expandedSections.performance}
-              icon={<ChartBarIcon className="h-5 w-5 text-blue-600" />}
-              badge={formatPercentage(
-                metrics.performanceMetrics.dailyChangePercent
-              )}
-              onToggle={expanded =>
-                handleSectionToggle('performance', expanded)
-              }
-            >
-              <div className="p-4">
-                <MobileChart
-                  data={chartData}
-                  title="Porteføljeverdi"
-                  height={200}
-                  showControls={false}
-                  enableGestures={true}
-                />
-              </div>
-            </CollapsibleSection>
+            <APIErrorBoundary>
+              <CollapsibleSection
+                title="Ytelsesutvikling"
+                subtitle="Siste 30 dager"
+                defaultExpanded={expandedSections.performance}
+                icon={<ChartBarIcon className="h-5 w-5 text-blue-600" />}
+                badge={formatPercentage(
+                  metrics.performanceMetrics.dailyChangePercent
+                )}
+                onToggle={expanded =>
+                  handleSectionToggle('performance', expanded)
+                }
+              >
+                <div className="p-4">
+                  <RenderErrorBoundary>
+                    <MobileChart
+                      data={chartData}
+                      title="Porteføljeverdi"
+                      height={200}
+                      showControls={false}
+                      enableGestures={true}
+                    />
+                  </RenderErrorBoundary>
+                </div>
+              </CollapsibleSection>
+            </APIErrorBoundary>
 
             {/* Holdings List */}
-            <CollapsibleSection
-              title="Beholdninger"
-              subtitle={`${holdings.length} aktive posisjoner`}
-              defaultExpanded={expandedSections.holdings}
-              icon={<ChartBarIcon className="h-5 w-5 text-blue-600" />}
-              badge={holdings.length}
-              onToggle={expanded => handleSectionToggle('holdings', expanded)}
-            >
-              <div className="p-4">
-                {holdingsLoading ? (
-                  <div className="space-y-4">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="animate-pulse">
-                        <div className="h-20 rounded-lg bg-gray-200" />
-                      </div>
-                    ))}
-                  </div>
-                ) : holdings.length === 0 ? (
-                  <div className="py-8 text-center">
-                    <div className="mb-4">
-                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
-                        <PlusIcon className="h-8 w-8 text-blue-600" />
-                      </div>
+            <APIErrorBoundary>
+              <CollapsibleSection
+                title="Beholdninger"
+                subtitle={`${holdings.length} aktive posisjoner`}
+                defaultExpanded={expandedSections.holdings}
+                icon={<ChartBarIcon className="h-5 w-5 text-blue-600" />}
+                badge={holdings.length}
+                onToggle={expanded => handleSectionToggle('holdings', expanded)}
+              >
+                <div className="p-4">
+                  {holdingsLoading ? (
+                    <div className="space-y-4">
+                      {[1, 2, 3].map(i => (
+                        <div key={i} className="animate-pulse">
+                          <div className="h-20 rounded-lg bg-gray-200" />
+                        </div>
+                      ))}
                     </div>
-                    <h3 className="mb-2 text-lg font-semibold text-gray-900">
-                      Ingen beholdninger
-                    </h3>
-                    <p className="mb-4 text-gray-600">
-                      Legg til dine første aksjer for å komme i gang
-                    </p>
-                    <Button
-                      onClick={() =>
-                        router.push(
-                          `/investments/portfolios/${portfolioId}/add`
-                        )
-                      }
-                      className="bg-blue-600 text-white hover:bg-blue-700"
-                    >
-                      <PlusIcon className="mr-2 h-4 w-4" />
-                      Legg til aksje
-                    </Button>
-                  </div>
-                ) : (
-                  <MobileHoldingsList
-                    holdings={mobileHoldings}
-                    onEdit={holding =>
-                      router.push(`/investments/holdings/${holding.id}/edit`)
-                    }
-                    onDelete={holding =>
-                      console.log('Delete holding:', holding.id)
-                    }
-                    onRefresh={handleRefresh}
-                    isRefreshing={isRefreshing}
-                  />
-                )}
-              </div>
-            </CollapsibleSection>
+                  ) : holdings.length === 0 ? (
+                    <div className="py-8 text-center">
+                      <div className="mb-4">
+                        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
+                          <PlusIcon className="h-8 w-8 text-blue-600" />
+                        </div>
+                      </div>
+                      <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                        Ingen beholdninger
+                      </h3>
+                      <p className="mb-4 text-gray-600">
+                        Legg til dine første aksjer for å komme i gang
+                      </p>
+                      <Button
+                        onClick={() =>
+                          router.push(
+                            `/investments/portfolios/${portfolioId}/add`
+                          )
+                        }
+                        className="bg-blue-600 text-white hover:bg-blue-700"
+                      >
+                        <PlusIcon className="mr-2 h-4 w-4" />
+                        Legg til aksje
+                      </Button>
+                    </div>
+                  ) : (
+                    <RenderErrorBoundary>
+                      <MobileHoldingsList
+                        holdings={mobileHoldings}
+                        onEdit={holding =>
+                          router.push(
+                            `/investments/holdings/${holding.id}/edit`
+                          )
+                        }
+                        onDelete={holding =>
+                          console.log('Delete holding:', holding.id)
+                        }
+                        onRefresh={handleRefresh}
+                        isRefreshing={isRefreshing}
+                      />
+                    </RenderErrorBoundary>
+                  )}
+                </div>
+              </CollapsibleSection>
+            </APIErrorBoundary>
 
             {/* Recent Activity */}
-            <CollapsibleSection
-              title="Nylig aktivitet"
-              subtitle="Transaksjoner og oppdateringer"
-              defaultExpanded={expandedSections.activity}
-              icon={<ClockIcon className="h-5 w-5 text-blue-600" />}
-              onToggle={expanded => handleSectionToggle('activity', expanded)}
-            >
-              <div className="p-4">
-                <div className="py-8 text-center">
-                  <InformationCircleIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-                  <p className="text-gray-600">Ingen nylig aktivitet</p>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Transaksjoner og oppdateringer vises her
-                  </p>
+            <RenderErrorBoundary>
+              <CollapsibleSection
+                title="Nylig aktivitet"
+                subtitle="Transaksjoner og oppdateringer"
+                defaultExpanded={expandedSections.activity}
+                icon={<ClockIcon className="h-5 w-5 text-blue-600" />}
+                onToggle={expanded => handleSectionToggle('activity', expanded)}
+              >
+                <div className="p-4">
+                  <div className="py-8 text-center">
+                    <InformationCircleIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                    <p className="text-gray-600">Ingen nylig aktivitet</p>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Transaksjoner og oppdateringer vises her
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </CollapsibleSection>
+              </CollapsibleSection>
+            </RenderErrorBoundary>
           </div>
         </PullToRefresh>
       </div>
 
       {/* Mobile Navigation */}
       {showNavigation && (
-        <MobileNavigation
-          showFab={true}
-          showNotifications={true}
-          notificationCount={0}
-          onFabClick={() => setShowActionSheet(true)}
-        />
+        <MobileErrorBoundary>
+          <MobileNavigation
+            showFab={true}
+            showNotifications={true}
+            notificationCount={0}
+            onFabClick={() => setShowActionSheet(true)}
+          />
+        </MobileErrorBoundary>
       )}
 
       {/* Action Sheet */}
-      <MobileActionSheet
-        isOpen={showActionSheet}
-        onClose={() => setShowActionSheet(false)}
-        title="Porteføljehandlinger"
-        items={actionSheetItems}
-      />
+      <RenderErrorBoundary>
+        <MobileActionSheet
+          isOpen={showActionSheet}
+          onClose={() => setShowActionSheet(false)}
+          title="Porteføljehandlinger"
+          items={actionSheetItems}
+        />
+      </RenderErrorBoundary>
     </div>
   )
 }

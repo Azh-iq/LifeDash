@@ -51,7 +51,9 @@ export default function StockSearch({
       }
     }, 300)
 
-    return () => clearTimeout(timeoutId)
+    return () => {
+      clearTimeout(timeoutId)
+    }
   }, [query])
 
   // Handle clicks outside
@@ -66,8 +68,12 @@ export default function StockSearch({
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    document.addEventListener('mousedown', handleClickOutside, {
+      passive: true,
+    })
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
   }, [])
 
   const performSearch = async (searchQuery: string) => {

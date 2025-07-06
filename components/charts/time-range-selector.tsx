@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -63,7 +63,7 @@ const DEFAULT_TIME_RANGES: TimeRange[] = [
 ]
 
 // Button variant for time range selector
-export const TimeRangeSelector = ({
+export const TimeRangeSelector = memo(function TimeRangeSelector({
   selectedRange,
   onRangeChange,
   className,
@@ -71,7 +71,7 @@ export const TimeRangeSelector = ({
   variant = 'buttons',
   disabled = false,
   customRanges,
-}: TimeRangeSelectorProps) => {
+}: TimeRangeSelectorProps) {
   const ranges = customRanges || DEFAULT_TIME_RANGES
 
   const getButtonSize = () => {
@@ -139,16 +139,16 @@ export const TimeRangeSelector = ({
       ))}
     </div>
   )
-}
+})
 
 // Compact variant for mobile
-export const CompactTimeRangeSelector = ({
+export const CompactTimeRangeSelector = memo(function CompactTimeRangeSelector({
   selectedRange,
   onRangeChange,
   className,
   disabled = false,
   customRanges,
-}: Omit<TimeRangeSelectorProps, 'size' | 'variant'>) => {
+}: Omit<TimeRangeSelectorProps, 'size' | 'variant'>) {
   const ranges = customRanges || DEFAULT_TIME_RANGES
   const [isOpen, setIsOpen] = useState(false)
 
@@ -210,7 +210,7 @@ export const CompactTimeRangeSelector = ({
       )}
     </div>
   )
-}
+})
 
 // Hook for time range logic
 export const useTimeRange = (initialRange: string = '1M') => {

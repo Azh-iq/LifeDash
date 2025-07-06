@@ -128,17 +128,25 @@ export function useResponsiveLayout(): ResponsiveLayoutHook {
     // Initial state
     updateState()
 
+    // Use refs to store timeout IDs for proper cleanup
+    let resizeTimeoutId: NodeJS.Timeout | null = null
+    let orientationTimeoutId: NodeJS.Timeout | null = null
+
     // Throttled resize handler
-    let timeoutId: NodeJS.Timeout
     const handleResize = () => {
-      clearTimeout(timeoutId)
-      timeoutId = setTimeout(updateState, 100)
+      if (resizeTimeoutId) {
+        clearTimeout(resizeTimeoutId)
+      }
+      resizeTimeoutId = setTimeout(updateState, 100)
     }
 
     // Orientation change handler
     const handleOrientationChange = () => {
       // Delay to allow browser to update dimensions
-      setTimeout(updateState, 200)
+      if (orientationTimeoutId) {
+        clearTimeout(orientationTimeoutId)
+      }
+      orientationTimeoutId = setTimeout(updateState, 200)
     }
 
     window.addEventListener('resize', handleResize, { passive: true })
@@ -149,7 +157,12 @@ export function useResponsiveLayout(): ResponsiveLayoutHook {
     return () => {
       window.removeEventListener('resize', handleResize)
       window.removeEventListener('orientationchange', handleOrientationChange)
-      clearTimeout(timeoutId)
+      if (resizeTimeoutId) {
+        clearTimeout(resizeTimeoutId)
+      }
+      if (orientationTimeoutId) {
+        clearTimeout(orientationTimeoutId)
+      }
     }
   }, [updateState])
 

@@ -322,3 +322,162 @@
 - Modal appearance: Fade + scale from 0.95 to 1.0
 - List items: Stagger with 50ms delay
 - Number changes: Count animation over 1 second
+
+## Performance Optimization Patterns (July 2025)
+
+### React.memo Usage
+
+```tsx
+import { memo, useCallback } from 'react'
+
+const OptimizedComponent = memo(function OptimizedComponent({ data, onUpdate }) {
+  const handleUpdate = useCallback(() => {
+    onUpdate(data.id)
+  }, [data.id, onUpdate])
+
+  return (
+    <div className="card">
+      <h3>{data.title}</h3>
+      <Button onClick={handleUpdate}>Update</Button>
+    </div>
+  )
+})
+```
+
+### Stable Refs Pattern
+
+```tsx
+const useStableHook = (data: any[], callback: Function) => {
+  const dataRef = useRef<any[]>([])
+  const callbackRef = useRef<Function>()
+
+  // Update refs when values change
+  useEffect(() => {
+    dataRef.current = data
+  }, [data])
+
+  useEffect(() => {
+    callbackRef.current = callback
+  }, [callback])
+
+  // Use refs in useEffect to avoid dependency cycles
+  useEffect(() => {
+    const processData = () => {
+      callbackRef.current?.(dataRef.current)
+    }
+
+    processData()
+  }, []) // Empty dependency array - uses refs instead
+}
+```
+
+### Error Boundary Integration
+
+```tsx
+import { ErrorBoundary } from '@/components/ui/error-boundary'
+
+function PortfolioPage() {
+  return (
+    <div className="page-container">
+      <ErrorBoundary>
+        <PortfolioHeader />
+      </ErrorBoundary>
+      
+      <ErrorBoundary>
+        <PortfolioMetrics />
+      </ErrorBoundary>
+      
+      <ErrorBoundary>
+        <HoldingsTable />
+      </ErrorBoundary>
+    </div>
+  )
+}
+```
+
+### Debounced Updates
+
+```tsx
+const useDebouncedUpdate = (callback: Function, delay: number = 1000) => {
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const debouncedCallback = useCallback((...args: any[]) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      callback(...args)
+    }, delay)
+  }, [callback, delay])
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [])
+
+  return debouncedCallback
+}
+```
+
+### Memory Management
+
+```tsx
+const useCleanupEffect = (effect: () => (() => void) | void, deps: any[]) => {
+  const mountedRef = useRef(true)
+
+  useEffect(() => {
+    const cleanup = effect()
+
+    return () => {
+      if (cleanup) {
+        cleanup()
+      }
+    }
+  }, deps)
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
+
+  return mountedRef
+}
+```
+
+### Cache Integration
+
+```tsx
+import { PortfolioCacheManager } from '@/lib/cache/portfolio-cache'
+
+const useCachedPortfolio = (portfolioId: string) => {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadData = async () => {
+      // Try cache first
+      const cached = PortfolioCacheManager.getPortfolio(portfolioId)
+      if (cached) {
+        setData(cached)
+        setLoading(false)
+        return
+      }
+
+      // Fetch and cache
+      const fresh = await fetchPortfolio(portfolioId)
+      PortfolioCacheManager.setPortfolio(portfolioId, fresh)
+      setData(fresh)
+      setLoading(false)
+    }
+
+    loadData()
+  }, [portfolioId])
+
+  return { data, loading }
+}
+```

@@ -49,30 +49,42 @@ const MobileActionSheet = memo(
 
     // Handle open/close animations
     useEffect(() => {
+      let animationTimeout: NodeJS.Timeout
+
       if (isOpen) {
         setIsVisible(true)
         setIsAnimating(true)
-        setTimeout(() => setIsAnimating(false), 300)
+        animationTimeout = setTimeout(() => setIsAnimating(false), 300)
       } else {
         setIsAnimating(true)
-        setTimeout(() => {
+        animationTimeout = setTimeout(() => {
           setIsVisible(false)
           setIsAnimating(false)
           setDragY(0)
         }, 300)
       }
+
+      return () => {
+        if (animationTimeout) {
+          clearTimeout(animationTimeout)
+        }
+      }
     }, [isOpen])
 
     // Handle escape key
     useEffect(() => {
+      if (!isOpen) return
+
       const handleEscape = (e: KeyboardEvent) => {
-        if (e.key === 'Escape' && isOpen) {
+        if (e.key === 'Escape') {
           onClose()
         }
       }
 
-      document.addEventListener('keydown', handleEscape)
-      return () => document.removeEventListener('keydown', handleEscape)
+      document.addEventListener('keydown', handleEscape, { passive: false })
+      return () => {
+        document.removeEventListener('keydown', handleEscape)
+      }
     }, [isOpen, onClose])
 
     // Lock body scroll when open

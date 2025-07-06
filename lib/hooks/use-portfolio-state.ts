@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import {
   getUserPortfolios,
@@ -36,7 +36,7 @@ export interface PortfolioWithMetrics {
 
 export interface HoldingWithMetrics {
   id: string
-  portfolio_id: string
+  account_id: string
   symbol: string
   quantity: number
   cost_basis: number
@@ -55,6 +55,10 @@ export interface HoldingWithMetrics {
     sector?: string
     market_cap?: number
     last_updated?: string
+  }
+  accounts?: {
+    id: string
+    portfolio_id: string
   }
 }
 
@@ -240,6 +244,16 @@ export function usePortfolioState(
     }
   }, [portfolioId])
 
+  // Stable refs for avoiding dependencies
+  const holdingsRef = useRef<HoldingWithMetrics[]>([])
+  const lastUpdateRef = useRef<number>(0)
+  const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Update holdings ref whenever holdings state changes
+  useEffect(() => {
+    holdingsRef.current = holdings
+  }, [holdings])
+
   // Fetch holdings
   const fetchHoldings = useCallback(async () => {
     if (!portfolioId || !includeHoldings) return
@@ -258,16 +272,19 @@ export function usePortfolioState(
             symbol,
             name,
             currency,
-            asset_type,
+            asset_class,
             sector,
             market_cap,
             current_price,
             last_updated
+          ),
+          accounts!inner (
+            id,
+            portfolio_id
           )
         `
         )
-        .eq('portfolio_id', portfolioId)
-        .order('current_value', { ascending: false })
+        .eq('accounts.portfolio_id', portfolioId)
 
       if (holdingsError) {
         throw holdingsError
@@ -286,27 +303,25 @@ export function usePortfolioState(
                 ? (gainLoss / (holding.quantity * holding.cost_basis)) * 100
                 : 0
 
-            // Calculate weight in portfolio
-            const totalPortfolioValue = portfolio?.total_value || 0
-            const weight =
-              totalPortfolioValue > 0
-                ? (currentValue / totalPortfolioValue) * 100
-                : 0
-
             return {
               ...holding,
               current_price: currentPrice,
               current_value: currentValue,
               gain_loss: gainLoss,
               gain_loss_percent: gainLossPercent,
-              weight,
+              weight: 0, // Weight will be calculated separately
               daily_change: currentValue * (Math.random() - 0.5) * 0.03,
               daily_change_percent: (Math.random() - 0.5) * 3,
             }
           }
         )
 
-        setHoldings(enhancedHoldings)
+        // Sort by current value (descending)
+        const sortedHoldings = enhancedHoldings.sort(
+          (a, b) => b.current_value - a.current_value
+        )
+
+        setHoldings(sortedHoldings)
       }
     } catch (err) {
       console.error('Error fetching holdings:', err)
@@ -314,19 +329,20 @@ export function usePortfolioState(
     } finally {
       setHoldingsLoading(false)
     }
-  }, [portfolioId, includeHoldings, portfolio?.total_value])
+  }, [portfolioId, includeHoldings])
 
-  // Update holdings with real-time prices
-  useEffect(() => {
+  // Debounced update function for price changes
+  const updateHoldingsWithPrices = useCallback(() => {
+    const currentHoldings = holdingsRef.current
     if (
-      !holdings.length ||
+      !currentHoldings.length ||
       (!Object.keys(realtimePrices).length &&
         !Object.keys(yahooFinancePrices).length)
     ) {
       return
     }
 
-    const updatedHoldings = holdings.map(holding => {
+    const updatedHoldings = currentHoldings.map(holding => {
       const symbol = holding.symbol
       const realtimePrice = realtimePrices[symbol]
       const yahooPrice = yahooFinancePrices[symbol]
@@ -360,15 +376,53 @@ export function usePortfolioState(
     })
 
     setHoldings(updatedHoldings)
-  }, [realtimePrices, yahooFinancePrices, holdings])
+  }, [realtimePrices, yahooFinancePrices])
 
-  // Computed metrics
-  const metrics = useMemo(() => {
+  // Update holdings with real-time prices (debounced)
+  useEffect(() => {
+    const now = Date.now()
+
+    // Clear existing timeout
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current)
+    }
+
+    // Debounce updates to avoid excessive re-renders
+    const timeSinceLastUpdate = now - lastUpdateRef.current
+    const delay = timeSinceLastUpdate < 1000 ? 1000 - timeSinceLastUpdate : 0
+
+    updateTimeoutRef.current = setTimeout(() => {
+      updateHoldingsWithPrices()
+      lastUpdateRef.current = Date.now()
+    }, delay)
+
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current)
+      }
+    }
+  }, [updateHoldingsWithPrices])
+
+  // Calculate portfolio weights separately
+  const holdingsWithWeights = useMemo(() => {
     const totalValue = holdings.reduce(
       (sum, holding) => sum + holding.current_value,
       0
     )
-    const totalCost = holdings.reduce(
+
+    return holdings.map(holding => ({
+      ...holding,
+      weight: totalValue > 0 ? (holding.current_value / totalValue) * 100 : 0,
+    }))
+  }, [holdings])
+
+  // Computed metrics
+  const metrics = useMemo(() => {
+    const totalValue = holdingsWithWeights.reduce(
+      (sum, holding) => sum + holding.current_value,
+      0
+    )
+    const totalCost = holdingsWithWeights.reduce(
       (sum, holding) => sum + holding.quantity * holding.cost_basis,
       0
     )
@@ -377,13 +431,13 @@ export function usePortfolioState(
       totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0
 
     // Top holdings (top 5)
-    const topHoldings = holdings
+    const topHoldings = holdingsWithWeights
       .sort((a, b) => b.current_value - a.current_value)
       .slice(0, 5)
 
     // Sector allocation
     const sectorAllocation: { [sector: string]: number } = {}
-    holdings.forEach(holding => {
+    holdingsWithWeights.forEach(holding => {
       const sector = holding.stocks?.sector || 'Ukjent'
       sectorAllocation[sector] =
         (sectorAllocation[sector] || 0) + holding.weight
@@ -391,14 +445,14 @@ export function usePortfolioState(
 
     // Currency allocation
     const currencyAllocation: { [currency: string]: number } = {}
-    holdings.forEach(holding => {
+    holdingsWithWeights.forEach(holding => {
       const currency = holding.stocks?.currency || 'NOK'
       currencyAllocation[currency] =
         (currencyAllocation[currency] || 0) + holding.weight
     })
 
     // Performance metrics
-    const dailyChange = holdings.reduce(
+    const dailyChange = holdingsWithWeights.reduce(
       (sum, holding) => sum + (holding.daily_change || 0),
       0
     )
@@ -412,7 +466,7 @@ export function usePortfolioState(
       totalCost,
       totalGainLoss,
       totalGainLossPercent,
-      holdingsCount: holdings.length,
+      holdingsCount: holdingsWithWeights.length,
       topHoldings,
       sectorAllocation,
       currencyAllocation,
@@ -423,11 +477,11 @@ export function usePortfolioState(
         monthlyChange,
       },
     }
-  }, [holdings])
+  }, [holdingsWithWeights])
 
   // Filtered holdings
   const filteredHoldings = useMemo(() => {
-    return holdings.filter(holding => {
+    return holdingsWithWeights.filter(holding => {
       // Search filter
       if (filters.search) {
         const searchTerm = filters.search.toLowerCase()
@@ -465,7 +519,7 @@ export function usePortfolioState(
 
       return true
     })
-  }, [holdings, filters])
+  }, [holdingsWithWeights, filters])
 
   // Sorted holdings
   const sortedHoldings = useMemo(() => {
@@ -542,6 +596,8 @@ export function usePortfolioState(
       .subscribe()
 
     // Subscribe to holdings changes
+    // Note: Since holdings table doesn't have portfolio_id directly, we need to listen to all holdings
+    // and filter in the callback. For better performance, consider creating a database view.
     const holdingsSubscription = supabase
       .channel(`holdings_${portfolioId}`)
       .on(
@@ -550,18 +606,22 @@ export function usePortfolioState(
           event: '*',
           schema: 'public',
           table: 'holdings',
-          filter: `portfolio_id=eq.${portfolioId}`,
         },
         payload => {
           console.log('Holdings change detected:', payload)
+          // Refetch holdings to ensure we get the correct data for this portfolio
           fetchHoldings()
         }
       )
       .subscribe()
 
     return () => {
-      supabase.removeChannel(portfolioSubscription)
-      supabase.removeChannel(holdingsSubscription)
+      try {
+        supabase.removeChannel(portfolioSubscription)
+        supabase.removeChannel(holdingsSubscription)
+      } catch (error) {
+        console.warn('Error removing subscriptions:', error)
+      }
     }
   }, [portfolioId, fetchPortfolio, fetchHoldings])
 
@@ -586,7 +646,9 @@ export function usePortfolioState(
       refresh()
     }, refreshInterval)
 
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(interval)
+    }
   }, [autoRefresh, portfolioId, refresh, refreshInterval])
 
   return {
@@ -596,7 +658,7 @@ export function usePortfolioState(
     refresh,
     updatePortfolio,
     deletePortfolio,
-    holdings,
+    holdings: holdingsWithWeights,
     holdingsLoading,
     holdingsError,
     refreshHoldings,

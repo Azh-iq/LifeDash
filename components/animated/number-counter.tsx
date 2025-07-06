@@ -178,7 +178,6 @@ export const NumberCounter = forwardRef<HTMLSpanElement, NumberCounterProps>(
   ) => {
     // Animation state
     const motionValue = useMotionValue(startFromZero ? 0 : value)
-    const [displayValue, setDisplayValue] = useState(startFromZero ? 0 : value)
     const [isAnimating, setIsAnimating] = useState(false)
     const [flashBg, setFlashBg] = useState<string>('transparent')
 
@@ -215,18 +214,24 @@ export const NumberCounter = forwardRef<HTMLSpanElement, NumberCounterProps>(
       setIsAnimating(true)
 
       // Flash effect for value changes
+      let flashTimeout: NodeJS.Timeout | null = null
       if (enableFlash && hasChanged) {
         setFlashBg(flashColors[changeType])
-        setTimeout(() => setFlashBg('transparent'), 300)
+        flashTimeout = setTimeout(() => setFlashBg('transparent'), 300)
       }
 
       // Animate to new value
       const controls = animate(motionValue, value, {
         duration: animationDuration,
         delay,
-        ease: ease as any,
+        ease: ease as
+          | 'linear'
+          | 'easeIn'
+          | 'easeOut'
+          | 'easeInOut'
+          | 'circOut'
+          | 'backOut',
         onUpdate: latest => {
-          setDisplayValue(latest)
           onUpdate?.(latest)
         },
         onComplete: () => {
@@ -235,7 +240,12 @@ export const NumberCounter = forwardRef<HTMLSpanElement, NumberCounterProps>(
         },
       })
 
-      return controls.stop
+      return () => {
+        controls.stop()
+        if (flashTimeout) {
+          clearTimeout(flashTimeout)
+        }
+      }
     }, [
       value,
       motionValue,

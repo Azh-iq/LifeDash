@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import {
   RealtimeChannel,
@@ -126,7 +126,11 @@ export function useRealtimeUpdates(
   portfolioId?: string,
   options: UseRealtimeUpdatesOptions = {}
 ): UseRealtimeUpdatesReturn {
-  const opts = { ...DEFAULT_OPTIONS, ...options }
+  // Memoize options to prevent recreation on every render
+  const opts = useMemo(() => ({ ...DEFAULT_OPTIONS, ...options }), [options])
+
+  // Add mounted ref to prevent setState after unmount
+  const mountedRef = useRef(true)
 
   // Connection state
   const [connectionState, setConnectionState] =
@@ -175,6 +179,16 @@ export function useRealtimeUpdates(
     lastPingTime: 0,
     pingHistory: [],
     errorCount: 0,
+  })
+
+  // Stable refs for connection state to avoid dependency issues
+  const connectionStateRef = useRef<RealtimeConnectionState>({
+    isConnected: false,
+    isReconnecting: false,
+    lastPing: null,
+    connectionQuality: 'disconnected',
+    subscriptionCount: 0,
+    errors: [],
   })
 
   // Initialize Supabase client
@@ -483,7 +497,7 @@ export function useRealtimeUpdates(
     debugLog('Disconnecting from realtime')
 
     // Clear all subscriptions
-    subscriptionsRef.current.forEach((channel, key) => {
+    subscriptionsRef.current.forEach(channel => {
       const supabase = initializeSupabase()
       supabase.removeChannel(channel)
     })
@@ -553,7 +567,7 @@ export function useRealtimeUpdates(
     attemptReconnect()
   }, [connectionState.isReconnecting, opts, connect, addError, debugLog])
 
-  // Subscribe to stock symbols
+  // Subscribe to stock symbols - use stable refs to avoid dependency issues
   const subscribeToSymbols = useCallback(
     (symbols: string[]) => {
       if (subscriptionsRef.current.size >= opts.maxConcurrentSubscriptions) {
@@ -588,6 +602,7 @@ export function useRealtimeUpdates(
         debugLog(`Subscribed to ${symbol}`)
       })
 
+      if (!mountedRef.current) return
       setConnectionState(prev => ({
         ...prev,
         subscriptionCount: subscriptionsRef.current.size,
@@ -602,7 +617,7 @@ export function useRealtimeUpdates(
     ]
   )
 
-  // Unsubscribe from stock symbols
+  // Unsubscribe from stock symbols - use stable refs to avoid dependency issues
   const unsubscribeFromSymbols = useCallback(
     (symbols: string[]) => {
       const supabase = initializeSupabase()
@@ -618,6 +633,7 @@ export function useRealtimeUpdates(
         }
       })
 
+      if (!mountedRef.current) return
       setConnectionState(prev => ({
         ...prev,
         subscriptionCount: subscriptionsRef.current.size,
@@ -626,7 +642,7 @@ export function useRealtimeUpdates(
     [initializeSupabase, debugLog]
   )
 
-  // Subscribe to portfolio
+  // Subscribe to portfolio - use stable refs to avoid dependency issues
   const subscribeToPortfolio = useCallback(
     (portfolioId: string) => {
       const supabase = initializeSupabase()
@@ -672,6 +688,7 @@ export function useRealtimeUpdates(
         subscriptionsRef.current.set(holdingsKey, holdingsChannel)
       }
 
+      if (!mountedRef.current) return
       setConnectionState(prev => ({
         ...prev,
         subscriptionCount: subscriptionsRef.current.size,
@@ -682,15 +699,14 @@ export function useRealtimeUpdates(
     [initializeSupabase, handlePortfolioChange, handleHoldingsChange, debugLog]
   )
 
-  // Unsubscribe from portfolio
+  // Unsubscribe from portfolio - use stable refs to avoid dependency issues
   const unsubscribeFromPortfolio = useCallback(
     (portfolioId: string) => {
       const supabase = initializeSupabase()
 
       const portfolioKey = `portfolio_${portfolioId}`
-      const holdingsKey = `holdings_${portfolioId}`[
-        (portfolioKey, holdingsKey)
-      ].forEach(key => {
+      const holdingsKey = `holdings_${portfolioId}`
+      ;[portfolioKey, holdingsKey].forEach(key => {
         const channel = subscriptionsRef.current.get(key)
         if (channel) {
           supabase.removeChannel(channel)
@@ -698,6 +714,7 @@ export function useRealtimeUpdates(
         }
       })
 
+      if (!mountedRef.current) return
       setConnectionState(prev => ({
         ...prev,
         subscriptionCount: subscriptionsRef.current.size,
@@ -724,18 +741,19 @@ export function useRealtimeUpdates(
     [portfolioUpdates]
   )
 
-  // Auto-connect on mount
+  // Auto-connect on mount - use stable refs to avoid dependency issues
   useEffect(() => {
     if (opts.autoConnect) {
       connect()
     }
 
     return () => {
+      mountedRef.current = false
       disconnect()
     }
   }, [opts.autoConnect, connect, disconnect])
 
-  // Auto-subscribe to portfolio
+  // Auto-subscribe to portfolio - use stable refs to avoid dependency issues
   useEffect(() => {
     if (portfolioId && connectionState.isConnected) {
       subscribeToPortfolio(portfolioId)
@@ -751,10 +769,10 @@ export function useRealtimeUpdates(
     unsubscribeFromPortfolio,
   ])
 
-  // Connection monitoring
+  // Connection monitoring - use stable refs to avoid dependency issues
   useEffect(() => {
     const handleOnline = () => {
-      if (!connectionState.isConnected) {
+      if (!connectionStateRef.current.isConnected) {
         reconnect()
       }
     }
@@ -770,7 +788,12 @@ export function useRealtimeUpdates(
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
     }
-  }, [connectionState.isConnected, reconnect, addError])
+  }, [reconnect, addError])
+
+  // Sync refs with state
+  useEffect(() => {
+    connectionStateRef.current = connectionState
+  }, [connectionState])
 
   return {
     connectionState,

@@ -1,15 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalTitle,
-  ModalDescription,
-  ModalClose,
-} from '@/components/ui/modal'
+import { Modal, ModalContent, ModalHeader } from '@/components/ui/modal'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -19,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -32,13 +23,14 @@ import {
   ArrowDownRight,
   Activity,
   Building,
-  MapPin,
-  X,
 } from 'lucide-react'
-import { getTransactions } from '@/lib/actions/stocks/crud'
 import { formatCurrency, formatPercentage } from '@/lib/utils/format'
 import { cn } from '@/lib/utils/cn'
 import { HoldingWithMetrics } from '@/lib/hooks/use-portfolio-state'
+import {
+  APIErrorBoundary,
+  RenderErrorBoundary,
+} from '@/components/ui/error-boundaries'
 
 // Types
 interface StockDetailModalProps {
@@ -82,15 +74,12 @@ const StockHeader = ({ stockData }: { stockData: HoldingWithMetrics }) => {
           <h2 className="text-2xl font-bold text-gray-900">
             {stock?.symbol || 'N/A'}
           </h2>
-          <Badge variant="outline" className="text-xs">
-            {stock?.exchange || 'N/A'}
-          </Badge>
           <Badge variant="secondary" className="text-xs">
-            {stock?.currency || stockData.currency}
+            {stock?.currency || 'NOK'}
           </Badge>
         </div>
         <p className="mb-1 text-sm text-gray-600">
-          {stock?.name || stock?.company_name || 'Unknown Company'}
+          {stock?.name || 'Unknown Company'}
         </p>
         {stock?.sector && (
           <p className="flex items-center gap-1 text-xs text-gray-500">
@@ -609,15 +598,21 @@ export default function StockDetailModal({
 
               <div className="mt-6">
                 <TabsContent value="overview" className="space-y-4">
-                  <OverviewTab stockData={stockData} />
+                  <RenderErrorBoundary>
+                    <OverviewTab stockData={stockData} />
+                  </RenderErrorBoundary>
                 </TabsContent>
 
                 <TabsContent value="transactions" className="space-y-4">
-                  <TransactionsTab stockData={stockData} />
+                  <APIErrorBoundary>
+                    <TransactionsTab stockData={stockData} />
+                  </APIErrorBoundary>
                 </TabsContent>
 
                 <TabsContent value="performance" className="space-y-4">
-                  <PerformanceTab stockData={stockData} />
+                  <RenderErrorBoundary>
+                    <PerformanceTab stockData={stockData} />
+                  </RenderErrorBoundary>
                 </TabsContent>
               </div>
             </Tabs>

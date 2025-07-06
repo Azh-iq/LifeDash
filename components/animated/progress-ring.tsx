@@ -191,7 +191,7 @@ export const ProgressRing = forwardRef<SVGSVGElement, ProgressRingProps>(
       const controls = animate(motionProgress, progressPercentage, {
         duration: animationDuration,
         delay,
-        ease: ease as any,
+        ease: ease as 'linear' | 'easeOut' | 'easeInOut' | 'backOut',
         onUpdate: latest => {
           setCurrentValue((latest / 100) * max)
           onUpdate?.(latest)
@@ -337,7 +337,7 @@ export const AllocationRing = forwardRef<
     target?: number
     assetName?: string
   }
->(({ allocation, target, assetName, value, ...props }, ref) => {
+>(({ allocation, target, assetName, ...props }, ref) => {
   const isOnTarget = target ? Math.abs(allocation - target) <= 2 : true
   const color = isOnTarget
     ? 'green'
@@ -378,7 +378,7 @@ export const PerformanceRing = forwardRef<
     performance: number // -100 to +100
     benchmark?: number
   }
->(({ performance, benchmark, value, ...props }, ref) => {
+>(({ performance, benchmark, ...props }, ref) => {
   // Normalize performance to 0-100 scale for display
   const normalizedValue = Math.max(0, Math.min(100, (performance + 100) / 2))
   const color = performance >= 0 ? 'green' : 'red'
@@ -424,7 +424,7 @@ export const GoalProgressRing = forwardRef<
     goal: number
     currency?: string
   }
->(({ current, goal, currency = 'NOK', value, ...props }, ref) => {
+>(({ current, goal, currency = 'NOK', ...props }, ref) => {
   const progress = (current / goal) * 100
   const isComplete = progress >= 100
   const color = isComplete ? 'green' : progress >= 75 ? 'blue' : 'gray'

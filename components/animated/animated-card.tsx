@@ -7,11 +7,7 @@ import { motion, MotionProps } from 'framer-motion'
 import { ReactNode, forwardRef } from 'react'
 import { cn } from '@/lib/utils'
 import { Card, CardProps } from '@/components/ui/card'
-import {
-  entranceVariants,
-  interactionVariants,
-  shouldReduceMotion,
-} from '@/lib/animations'
+import { entranceVariants, shouldReduceMotion } from '@/lib/animations'
 
 // =============================================================================
 // TYPES AND INTERFACES
@@ -205,42 +201,37 @@ export const PortfolioCard = forwardRef<
     value?: number
     change?: number
   }
->(
-  (
-    { trend = 'neutral', value, change, className, children, ...props },
-    ref
-  ) => {
-    const trendColors = {
-      positive: 'ring-green-200/50 dark:ring-green-700/50',
-      negative: 'ring-red-200/50 dark:ring-red-700/50',
-      neutral: 'ring-blue-200/50 dark:ring-blue-700/50',
-    }
-
-    return (
-      <AnimatedCard
-        ref={ref}
-        className={cn('ring-1', trendColors[trend], className)}
-        gradient
-        depth="medium"
-        {...props}
-      >
-        {children}
-
-        {/* Performance indicator overlay */}
-        <motion.div
-          className={cn('absolute right-0 top-0 h-full w-1', {
-            'bg-green-500': trend === 'positive',
-            'bg-red-500': trend === 'negative',
-            'bg-blue-500': trend === 'neutral',
-          })}
-          initial={{ scaleY: 0 }}
-          animate={{ scaleY: 1 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-        />
-      </AnimatedCard>
-    )
+>(({ trend = 'neutral', className, children, ...props }, ref) => {
+  const trendColors = {
+    positive: 'ring-green-200/50 dark:ring-green-700/50',
+    negative: 'ring-red-200/50 dark:ring-red-700/50',
+    neutral: 'ring-blue-200/50 dark:ring-blue-700/50',
   }
-)
+
+  return (
+    <AnimatedCard
+      ref={ref}
+      className={cn('ring-1', trendColors[trend], className)}
+      gradient
+      depth="medium"
+      {...props}
+    >
+      {children}
+
+      {/* Performance indicator overlay */}
+      <motion.div
+        className={cn('absolute right-0 top-0 h-full w-1', {
+          'bg-green-500': trend === 'positive',
+          'bg-red-500': trend === 'negative',
+          'bg-blue-500': trend === 'neutral',
+        })}
+        initial={{ scaleY: 0 }}
+        animate={{ scaleY: 1 }}
+        transition={{ delay: 0.5, duration: 0.8 }}
+      />
+    </AnimatedCard>
+  )
+})
 
 PortfolioCard.displayName = 'PortfolioCard'
 

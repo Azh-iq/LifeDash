@@ -106,7 +106,7 @@ export function FieldMapper({
     (
       index: number,
       field: 'csvField' | 'internalField' | 'required',
-      value: any
+      value: string | boolean
     ) => {
       setState(prev => {
         const newMappings = [...prev.mappings]
@@ -485,7 +485,7 @@ export function FieldMapper({
           <CardHeader>
             <CardTitle className="text-lg">Unmapped Columns</CardTitle>
             <CardDescription>
-              CSV columns that haven't been mapped yet
+              CSV columns that haven&apos;t been mapped yet
             </CardDescription>
           </CardHeader>
           <CardContent>

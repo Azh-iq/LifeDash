@@ -234,7 +234,42 @@ Before implementing any feature or component:
 - **Authentication**: Protected routes with proper session handling
 - **Error Handling**: Comprehensive error boundaries and user feedback
 
+## Performance Optimization Patterns (July 2025)
+
+### Infinite Loop Prevention
+
+- **Stable Refs Pattern**: Use `useRef` to store values that should not trigger useEffect dependencies
+- **Debounced Updates**: Implement timeouts and delays for high-frequency operations
+- **Dependency Isolation**: Separate concerns to avoid circular dependencies in useEffect
+- **Memoized Callbacks**: Use `useCallback` for event handlers to prevent re-render cycles
+- **Proper Cleanup**: Always cleanup timers, subscriptions, and abort controllers
+
+### Error Boundary Guidelines
+
+- **Component Isolation**: Wrap feature components in error boundaries
+- **Graceful Degradation**: Provide meaningful fallback UI for errors
+- **Error Recovery**: Implement retry mechanisms and user-friendly error messages
+- **Norwegian Localization**: Use Norwegian text for all user-facing error messages
+- **Development Details**: Show technical error details only in development mode
+
+### Memory Management Rules
+
+- **Mounted Refs**: Use `mountedRef` to prevent setState on unmounted components
+- **Abort Controllers**: Cancel ongoing requests when components unmount
+- **Cleanup Patterns**: Clear all timers, intervals, and subscriptions in useEffect cleanup
+- **Cache TTL**: Implement proper cache expiration and cleanup intervals
+- **Subscription Management**: Track and properly unsubscribe from real-time channels
+
+### Performance Monitoring
+
+- **Connection Quality**: Monitor real-time connection health with ping history
+- **Cache Statistics**: Track cache hit rates and memory usage
+- **Re-render Tracking**: Use React DevTools Profiler to verify optimization effectiveness
+- **Bundle Analysis**: Regularly check for unused imports and dependencies
+
 ## Anti-Patterns to Avoid
+
+### General Anti-Patterns
 
 - Don't bypass TypeScript strict mode with `any` or `@ts-ignore`
 - Don't use inline styles when Tailwind classes are available
@@ -245,3 +280,14 @@ Before implementing any feature or component:
 - Don't create components that don't follow mobile-first principles
 - Don't skip real-time functionality where live updates are expected
 - Don't implement UI without proper loading states and error handling
+
+### Performance Anti-Patterns (July 2025)
+
+- **Don't create infinite loops**: Always use stable refs for useEffect dependencies
+- **Don't ignore memory leaks**: Always implement proper cleanup in useEffect
+- **Don't skip error boundaries**: Isolate components with error boundaries
+- **Don't use inline functions**: Memoize event handlers with useCallback
+- **Don't forget abort controllers**: Cancel requests on component unmount
+- **Don't skip debouncing**: Debounce high-frequency operations (price updates, API calls)
+- **Don't ignore cache TTL**: Implement proper cache expiration strategies
+- **Don't mix concerns**: Separate data fetching, caching, and UI rendering logic

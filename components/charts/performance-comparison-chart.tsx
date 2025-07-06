@@ -100,31 +100,35 @@ const formatDate = (dateString: string, timeRange?: string): string => {
   }
 }
 
-// Normalize data to percentage or indexed view
-const normalizeData = (
-  data: PerformanceDataPoint[],
-  key: string,
-  baselineValue: number = 100
-): PerformanceDataPoint[] => {
-  if (data.length === 0) return []
+// Normalize data to percentage or indexed view (utility function - kept for potential future use)
+// const normalizeData = (
+//   data: PerformanceDataPoint[],
+//   key: string,
+//   baselineValue: number = 100
+// ): PerformanceDataPoint[] => {
+//   if (data.length === 0) return []
 
-  const firstValue = data[0][key] as number
-  if (firstValue === 0) return data
+//   const firstValue = data[0][key] as number
+//   if (firstValue === 0) return data
 
-  return data.map(point => ({
-    ...point,
-    [key]: ((point[key] as number) / firstValue) * baselineValue,
-  }))
-}
+//   return data.map(point => ({
+//     ...point,
+//     [key]: ((point[key] as number) / firstValue) * baselineValue,
+//   }))
+// }
 
 // Custom tooltip component
 const CustomTooltip = ({
   active,
   payload,
   label,
-  currency,
   baselineValue,
-}: any) => {
+}: {
+  active?: boolean
+  payload?: any[]
+  label?: string
+  baselineValue?: number
+}) => {
   if (active && payload && payload.length) {
     return (
       <div className="rounded-lg border bg-white p-3 shadow-lg dark:border-neutral-800 dark:bg-neutral-950">
@@ -263,10 +267,8 @@ export const PerformanceComparisonChart = ({
   height = 400,
   showGrid = true,
   showLegend = true,
-  showBenchmark = true,
   timeRange = '1M',
   isLoading = false,
-  currency = 'NOK',
   baselineValue = 100,
 }: PerformanceComparisonChartProps) => {
   // Merge all data points by date
@@ -399,12 +401,7 @@ export const PerformanceComparisonChart = ({
               className="fill-neutral-600 dark:fill-neutral-400"
             />
             <Tooltip
-              content={
-                <CustomTooltip
-                  currency={currency}
-                  baselineValue={baselineValue}
-                />
-              }
+              content={<CustomTooltip baselineValue={baselineValue} />}
             />
             {showLegend && <Legend />}
 

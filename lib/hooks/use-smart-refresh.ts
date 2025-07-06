@@ -39,17 +39,51 @@ export function useSmartRefresh<T>(
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
+  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Use refs to avoid circular dependencies
+  const dataRef = useRef<T | null>(null)
+  const lastFetchRef = useRef<number>(0)
+  const retryCountRef = useRef<number>(0)
+
+  // Update refs when state changes
+  useEffect(() => {
+    dataRef.current = data
+  }, [data])
+
+  useEffect(() => {
+    lastFetchRef.current = lastFetch
+  }, [lastFetch])
+
+  useEffect(() => {
+    retryCountRef.current = retryCount
+  }, [retryCount])
+
+  // Stabilize callback dependencies
+  const stableOnError = useCallback(
+    (error: Error) => {
+      onError?.(error)
+    },
+    [onError]
+  )
+
+  const stableOnSuccess = useCallback(
+    (result: T) => {
+      onSuccess?.(result)
+    },
+    [onSuccess]
+  )
 
   const fetchData = useCallback(
     async (force = false) => {
       if (!enabled) return
 
-      // Check if we have fresh cached data
+      // Check if we have fresh cached data using refs
       const now = Date.now()
-      const timeSinceLastFetch = now - lastFetch
+      const timeSinceLastFetch = now - lastFetchRef.current
 
-      if (!force && timeSinceLastFetch < staleTime && data) {
-        return data
+      if (!force && timeSinceLastFetch < staleTime && dataRef.current) {
+        return dataRef.current
       }
 
       // Check cache first
@@ -62,6 +96,12 @@ export function useSmartRefresh<T>(
       // Cancel any ongoing request
       if (abortControllerRef.current) {
         abortControllerRef.current.abort()
+      }
+
+      // Clear any pending retry timeout
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current)
+        retryTimeoutRef.current = null
       }
 
       try {
@@ -80,9 +120,7 @@ export function useSmartRefresh<T>(
         setLastFetch(now)
         setRetryCount(0)
 
-        if (onSuccess) {
-          onSuccess(result)
-        }
+        stableOnSuccess(result)
 
         return result
       } catch (err) {
@@ -95,19 +133,19 @@ export function useSmartRefresh<T>(
 
         setError(error)
 
-        // Retry logic
-        if (retryCount < maxRetries) {
+        // Retry logic using refs to avoid dependency issues
+        if (retryCountRef.current < maxRetries) {
           setRetryCount(prev => prev + 1)
-          setTimeout(
+
+          // Use ref for timeout cleanup
+          retryTimeoutRef.current = setTimeout(
             () => {
               fetchData(force)
             },
-            retryDelay * Math.pow(2, retryCount)
+            retryDelay * Math.pow(2, retryCountRef.current)
           ) // Exponential backoff
         } else {
-          if (onError) {
-            onError(error)
-          }
+          stableOnError(error)
         }
       } finally {
         setLoading(false)
@@ -118,13 +156,10 @@ export function useSmartRefresh<T>(
       key,
       fetcher,
       staleTime,
-      data,
-      lastFetch,
-      retryCount,
       maxRetries,
       retryDelay,
-      onError,
-      onSuccess,
+      stableOnError,
+      stableOnSuccess,
     ]
   )
 
@@ -147,21 +182,37 @@ export function useSmartRefresh<T>(
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
+        intervalRef.current = null
       }
       if (abortControllerRef.current) {
         abortControllerRef.current.abort()
+        abortControllerRef.current = null
+      }
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current)
+        retryTimeoutRef.current = null
       }
     }
   }, [enabled, interval, fetchData])
 
-  // Cleanup on unmount
+  // Cleanup on unmount - ensure all resources are cleaned up
   useEffect(() => {
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
+        intervalRef.current = null
       }
       if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
+        try {
+          abortControllerRef.current.abort()
+        } catch (error) {
+          console.warn('Error aborting request:', error)
+        }
+        abortControllerRef.current = null
+      }
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current)
+        retryTimeoutRef.current = null
       }
     }
   }, [])
@@ -198,6 +249,15 @@ export function useMultipleSmartRefresh<T extends Record<string, any>>(
     {} as Record<keyof T, Error | null>
   )
 
+  // Use refs to track current state values
+  const dataRef = useRef<Partial<T>>({})
+  const loadingRef = useRef<Record<keyof T, boolean>>(
+    {} as Record<keyof T, boolean>
+  )
+  const errorsRef = useRef<Record<keyof T, Error | null>>(
+    {} as Record<keyof T, Error | null>
+  )
+
   const refreshInstances = Object.entries(refreshers).map(([key, config]) => {
     const {
       data: itemData,
@@ -206,17 +266,35 @@ export function useMultipleSmartRefresh<T extends Record<string, any>>(
       refresh,
     } = useSmartRefresh(config.key, config.fetcher, config.options)
 
+    // Use a single useEffect to batch all state updates
     useEffect(() => {
-      setData(prev => ({ ...prev, [key]: itemData }))
-    }, [itemData, key])
+      let shouldUpdate = false
 
-    useEffect(() => {
-      setLoading(prev => ({ ...prev, [key]: itemLoading }))
-    }, [itemLoading, key])
+      // Check if data changed
+      if (dataRef.current[key] !== itemData) {
+        dataRef.current = { ...dataRef.current, [key]: itemData }
+        shouldUpdate = true
+      }
 
-    useEffect(() => {
-      setErrors(prev => ({ ...prev, [key]: itemError }))
-    }, [itemError, key])
+      // Check if loading changed
+      if (loadingRef.current[key] !== itemLoading) {
+        loadingRef.current = { ...loadingRef.current, [key]: itemLoading }
+        shouldUpdate = true
+      }
+
+      // Check if error changed
+      if (errorsRef.current[key] !== itemError) {
+        errorsRef.current = { ...errorsRef.current, [key]: itemError }
+        shouldUpdate = true
+      }
+
+      // Batch all updates in a single setState call
+      if (shouldUpdate) {
+        setData(dataRef.current)
+        setLoading(loadingRef.current)
+        setErrors(errorsRef.current)
+      }
+    }, [itemData, itemLoading, itemError, key])
 
     return { key, refresh }
   })
@@ -300,7 +378,9 @@ export function useBackgroundRefresh<T>(
     // Set up background refresh
     const intervalId = setInterval(backgroundFetch, interval)
 
-    return () => clearInterval(intervalId)
+    return () => {
+      clearInterval(intervalId)
+    }
   }, [enabled, interval, backgroundFetch, key])
 
   return {
