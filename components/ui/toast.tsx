@@ -274,6 +274,12 @@ export function useToast() {
   return context
 }
 
+// Named export for the toast function
+export const toast = (props: ToastProps) => {
+  // This is a fallback implementation - in practice, you should use useToast hook
+  console.warn('toast function called outside of ToastContainer context. Use useToast hook instead.')
+}
+
 export {
   type ToastProps,
   Toast,

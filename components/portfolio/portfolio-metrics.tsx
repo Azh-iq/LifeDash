@@ -1,9 +1,10 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { memo, useCallback, useMemo, Suspense } from 'react'
 import { 
-  TrendingUpIcon, 
-  TrendingDownIcon, 
+  ArrowTrendingUpIcon, 
+  ArrowTrendingDownIcon, 
   ChartBarIcon,
   CurrencyDollarIcon,
   ArrowUpIcon,
@@ -14,9 +15,14 @@ import { AnimatedCard, NumberCounter, CurrencyCounter, PercentageCounter } from 
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
+import { PortfolioMetricsSkeleton } from '@/components/ui/portfolio-skeletons'
 import { usePortfolioState } from '@/lib/hooks/use-portfolio-state'
 import { useRealtimeUpdates } from '@/lib/hooks/use-realtime-updates'
 import { formatCurrency, formatPercentage } from '@/components/charts'
+import { useResponsiveLayout } from '@/lib/hooks/use-responsive-layout'
+import { MobileResponsiveWrapper, ResponsiveGrid, AdaptiveComponent } from '@/components/mobile/mobile-responsive-wrapper'
+import { MobileMetricCards } from '@/components/mobile'
+import { PortfolioCacheManager, CacheKeys } from '@/lib/cache/portfolio-cache'
 
 interface PortfolioMetricsProps {
   portfolioId: string
@@ -35,7 +41,7 @@ interface MetricCardProps {
   changePercent?: number
 }
 
-function MetricCard({ 
+const MetricCard = memo(function MetricCard({ 
   title, 
   value, 
   previousValue, 
@@ -47,7 +53,9 @@ function MetricCard({
   changeValue,
   changePercent
 }: MetricCardProps) {
-  const getTrendColor = (trend: string) => {
+  const { isMobile } = useResponsiveLayout()
+  
+  const getTrendColor = useCallback((trend: string) => {
     switch (trend) {
       case 'up':
         return 'text-green-600'
@@ -56,9 +64,9 @@ function MetricCard({
       default:
         return 'text-gray-600'
     }
-  }
+  }, [])
 
-  const getTrendIcon = (trend: string) => {
+  const getTrendIcon = useCallback((trend: string) => {
     switch (trend) {
       case 'up':
         return <ArrowUpIcon className="h-4 w-4" />
@@ -67,11 +75,11 @@ function MetricCard({
       default:
         return null
     }
-  }
+  }, [])
 
   if (isLoading) {
     return (
-      <AnimatedCard className="p-6">
+      <AnimatedCard className={`${isMobile ? 'p-4' : 'p-6'}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Skeleton className="h-8 w-8 rounded" />
@@ -87,20 +95,20 @@ function MetricCard({
   }
 
   return (
-    <AnimatedCard className="p-6 hover:shadow-lg transition-shadow">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-blue-50 rounded-lg">
+    <AnimatedCard className={`${isMobile ? 'p-4' : 'p-6'} hover:shadow-lg transition-shadow touch-manipulation`}>
+      <div className={`flex items-center ${isMobile ? 'flex-col space-y-3' : 'justify-between'}`}>
+        <div className={`flex items-center ${isMobile ? 'w-full justify-between' : 'space-x-3'}`}>
+          <div className={`${isMobile ? 'p-1.5' : 'p-2'} bg-blue-50 rounded-lg`}>
             {icon}
           </div>
-          <div>
-            <p className="text-sm font-medium text-gray-600">{title}</p>
+          <div className={isMobile ? 'text-center flex-1' : ''}>
+            <p className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-600`}>{title}</p>
             <div className="flex items-center space-x-2">
               {format === 'currency' && (
                 <CurrencyCounter 
                   value={value} 
                   previousValue={previousValue}
-                  className="text-xl font-bold text-gray-900"
+                  className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold text-gray-900`}
                   currency="NOK"
                 />
               )}
@@ -108,34 +116,34 @@ function MetricCard({
                 <PercentageCounter 
                   value={value} 
                   previousValue={previousValue}
-                  className="text-xl font-bold text-gray-900"
+                  className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold text-gray-900`}
                 />
               )}
               {format === 'number' && (
                 <NumberCounter 
                   value={value} 
                   previousValue={previousValue}
-                  className="text-xl font-bold text-gray-900"
+                  className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold text-gray-900`}
                 />
               )}
             </div>
             {subtitle && (
-              <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
+              <p className={`${isMobile ? 'text-xs' : 'text-xs'} text-gray-500 mt-1`}>{subtitle}</p>
             )}
           </div>
         </div>
         
         {(changeValue !== undefined || changePercent !== undefined) && (
-          <div className={`flex items-center space-x-1 ${getTrendColor(trend || 'neutral')}`}>
+          <div className={`flex items-center space-x-1 ${getTrendColor(trend || 'neutral')} ${isMobile ? 'w-full justify-center' : ''}`}>
             {getTrendIcon(trend || 'neutral')}
-            <div className="text-right">
+            <div className={`${isMobile ? 'text-center' : 'text-right'}`}>
               {changeValue !== undefined && (
-                <p className="text-sm font-medium">
+                <p className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>
                   {changeValue > 0 ? '+' : ''}{formatCurrency(changeValue)}
                 </p>
               )}
               {changePercent !== undefined && (
-                <p className="text-xs">
+                <p className={`${isMobile ? 'text-xs' : 'text-xs'}`}>
                   {changePercent > 0 ? '+' : ''}{formatPercentage(changePercent)}
                 </p>
               )}
@@ -145,11 +153,17 @@ function MetricCard({
       </div>
     </AnimatedCard>
   )
-}
+})
 
-export default function PortfolioMetrics({ portfolioId }: PortfolioMetricsProps) {
+const PortfolioMetrics = memo(function PortfolioMetrics({ portfolioId }: PortfolioMetricsProps) {
   const { portfolio, loading, error } = usePortfolioState(portfolioId)
   const { priceUpdates, isConnected } = useRealtimeUpdates(portfolioId)
+  const { isMobile, isTablet } = useResponsiveLayout()
+
+  // Early return with skeleton if loading
+  if (loading) {
+    return <PortfolioMetricsSkeleton />
+  }
 
   if (error) {
     return (
@@ -164,22 +178,59 @@ export default function PortfolioMetrics({ portfolioId }: PortfolioMetricsProps)
     )
   }
 
-  // Calculate metrics
-  const totalValue = portfolio?.total_value || 0
-  const totalCost = portfolio?.total_cost || 0
-  const totalGainLoss = totalValue - totalCost
-  const totalGainLossPercent = totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0
-  const holdingsCount = portfolio?.holdings_count || 0
+  // Cached expensive calculations
+  const { 
+    totalValue, 
+    totalCost, 
+    totalGainLoss, 
+    totalGainLossPercent, 
+    holdingsCount,
+    dailyChange,
+    dailyChangePercent,
+    weeklyChange,
+    monthlyChange
+  } = useMemo(() => {
+    // Check cache first
+    const cacheKey = CacheKeys.metrics(portfolioId)
+    const cached = PortfolioCacheManager.getMetrics(portfolioId)
+    
+    if (cached && !loading) {
+      return cached
+    }
 
-  // Mock daily change (in real app, this would come from historical data)
-  const dailyChange = totalValue * (Math.random() - 0.5) * 0.02 // ±1% daily change
-  const dailyChangePercent = totalValue > 0 ? (dailyChange / totalValue) * 100 : 0
+    // Calculate metrics
+    const totalValue = portfolio?.total_value || 0
+    const totalCost = portfolio?.total_cost || 0
+    const totalGainLoss = totalValue - totalCost
+    const totalGainLossPercent = totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0
+    const holdingsCount = portfolio?.holdings_count || 0
 
-  // Mock weekly/monthly performance
-  const weeklyChange = totalValue * (Math.random() - 0.5) * 0.05 // ±2.5% weekly change
-  const monthlyChange = totalValue * (Math.random() - 0.5) * 0.1 // ±5% monthly change
+    // Mock daily change (in real app, this would come from historical data)
+    const dailyChange = totalValue * (Math.random() - 0.5) * 0.02 // ±1% daily change
+    const dailyChangePercent = totalValue > 0 ? (dailyChange / totalValue) * 100 : 0
 
-  const metrics = [
+    // Mock weekly/monthly performance
+    const weeklyChange = totalValue * (Math.random() - 0.5) * 0.05 // ±2.5% weekly change
+    const monthlyChange = totalValue * (Math.random() - 0.5) * 0.1 // ±5% monthly change
+
+    const result = {
+      totalValue,
+      totalCost,
+      totalGainLoss,
+      totalGainLossPercent,
+      holdingsCount,
+      dailyChange,
+      dailyChangePercent,
+      weeklyChange,
+      monthlyChange
+    }
+
+    // Cache the result
+    PortfolioCacheManager.setMetrics(portfolioId, result, 120000) // 2 minutes TTL
+    return result
+  }, [portfolio, portfolioId, loading])
+
+  const metrics = useMemo(() => [
     {
       title: 'Totalverdi',
       value: totalValue,
@@ -195,8 +246,8 @@ export default function PortfolioMetrics({ portfolioId }: PortfolioMetricsProps)
       value: totalGainLoss,
       format: 'currency' as const,
       icon: totalGainLoss >= 0 
-        ? <TrendingUpIcon className="h-5 w-5 text-green-600" />
-        : <TrendingDownIcon className="h-5 w-5 text-red-600" />,
+        ? <ArrowTrendingUpIcon className="h-5 w-5 text-green-600" />
+        : <ArrowTrendingDownIcon className="h-5 w-5 text-red-600" />,
       subtitle: `${formatPercentage(totalGainLossPercent)} av kostbasis`,
       trend: totalGainLoss >= 0 ? 'up' as const : 'down' as const,
       changePercent: totalGainLossPercent
@@ -215,103 +266,121 @@ export default function PortfolioMetrics({ portfolioId }: PortfolioMetricsProps)
       icon: <ChartBarIcon className="h-5 w-5 text-blue-600" />,
       subtitle: 'Antall aktive posisjoner',
     }
-  ]
+  ], [totalValue, totalGainLoss, totalCost, holdingsCount, dailyChange, dailyChangePercent, totalGainLossPercent])
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
+    <MobileResponsiveWrapper 
       className="mb-6"
+      mobileFirst={true}
+      enableAnimations={true}
     >
-      {/* Connection Status */}
-      {!isConnected && (
-        <div className="mb-4">
-          <div className="flex items-center space-x-2 text-amber-600 bg-amber-50 px-3 py-2 rounded-lg">
-            <InformationCircleIcon className="h-4 w-4" />
-            <p className="text-sm">Sanntidsoppdateringer er utilgjengelige</p>
-          </div>
-        </div>
-      )}
-
-      {/* Main Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-        {metrics.map((metric, index) => (
-          <motion.div
-            key={metric.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 * index }}
-          >
-            <MetricCard
-              {...metric}
-              isLoading={loading}
-            />
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Performance Summary */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.6 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <AnimatedCard className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Ytelsessammendrag
-            </h3>
-            <Badge variant="outline" className={isConnected ? 'text-green-600' : 'text-gray-500'}>
-              {isConnected ? 'Live' : 'Offline'}
-            </Badge>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center">
-              <p className="text-sm text-gray-600">I dag</p>
-              <p className={`text-lg font-bold ${
-                dailyChange >= 0 ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {dailyChange >= 0 ? '+' : ''}{formatCurrency(dailyChange)}
-              </p>
-              <p className={`text-xs ${
-                dailyChangePercent >= 0 ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {dailyChangePercent >= 0 ? '+' : ''}{formatPercentage(dailyChangePercent)}
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <p className="text-sm text-gray-600">Denne uken</p>
-              <p className={`text-lg font-bold ${
-                weeklyChange >= 0 ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {weeklyChange >= 0 ? '+' : ''}{formatCurrency(weeklyChange)}
-              </p>
-              <p className={`text-xs ${
-                weeklyChange >= 0 ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {weeklyChange >= 0 ? '+' : ''}{formatPercentage((weeklyChange / totalValue) * 100)}
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <p className="text-sm text-gray-600">Denne måneden</p>
-              <p className={`text-lg font-bold ${
-                monthlyChange >= 0 ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {monthlyChange >= 0 ? '+' : ''}{formatCurrency(monthlyChange)}
-              </p>
-              <p className={`text-xs ${
-                monthlyChange >= 0 ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {monthlyChange >= 0 ? '+' : ''}{formatPercentage((monthlyChange / totalValue) * 100)}
-              </p>
+        {/* Connection Status */}
+        {!isConnected && (
+          <div className={`mb-4 ${isMobile ? 'px-2' : ''}`}>
+            <div className={`flex items-center space-x-2 text-amber-600 bg-amber-50 px-3 py-2 rounded-lg ${isMobile ? 'text-xs' : 'text-sm'}`}>
+              <InformationCircleIcon className="h-4 w-4" />
+              <p>Sanntidsoppdateringer er utilgjengelige</p>
             </div>
           </div>
-        </AnimatedCard>
+        )}
+
+        {/* Main Metrics Grid - Responsive */}
+        <ResponsiveGrid
+          className="mb-6"
+          mobileColumns={1}
+          tabletColumns={2}
+          desktopColumns={4}
+          gap={isMobile ? 'sm' : 'md'}
+        >
+          {metrics.map((metric, index) => (
+            <motion.div
+              key={metric.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 * index }}
+            >
+              <MetricCard
+                {...metric}
+                isLoading={loading}
+              />
+            </motion.div>
+          ))}
+        </ResponsiveGrid>
+
+        {/* Performance Summary - Responsive */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          <AnimatedCard className={`${isMobile ? 'p-4' : 'p-6'}`}>
+            <div className={`flex items-center justify-between mb-4 ${isMobile ? 'flex-col space-y-2' : ''}`}>
+              <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold text-gray-900`}>
+                Ytelsessammendrag
+              </h3>
+              <Badge variant="outline" className={`${isConnected ? 'text-green-600' : 'text-gray-500'} ${isMobile ? 'text-xs' : ''}`}>
+                {isConnected ? 'Live' : 'Offline'}
+              </Badge>
+            </div>
+            
+            <ResponsiveGrid
+              mobileColumns={1}
+              tabletColumns={3}
+              desktopColumns={3}
+              gap={isMobile ? 'sm' : 'md'}
+            >
+              <div className={`text-center ${isMobile ? 'py-3 border-b border-gray-200' : ''}`}>
+                <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-600`}>I dag</p>
+                <p className={`${isMobile ? 'text-base' : 'text-lg'} font-bold ${
+                  dailyChange >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  {dailyChange >= 0 ? '+' : ''}{formatCurrency(dailyChange)}
+                </p>
+                <p className={`text-xs ${
+                  dailyChangePercent >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  {dailyChangePercent >= 0 ? '+' : ''}{formatPercentage(dailyChangePercent)}
+                </p>
+              </div>
+              
+              <div className={`text-center ${isMobile ? 'py-3 border-b border-gray-200' : ''}`}>
+                <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-600`}>Denne uken</p>
+                <p className={`${isMobile ? 'text-base' : 'text-lg'} font-bold ${
+                  weeklyChange >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  {weeklyChange >= 0 ? '+' : ''}{formatCurrency(weeklyChange)}
+                </p>
+                <p className={`text-xs ${
+                  weeklyChange >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  {weeklyChange >= 0 ? '+' : ''}{formatPercentage((weeklyChange / totalValue) * 100)}
+                </p>
+              </div>
+              
+              <div className={`text-center ${isMobile ? 'py-3' : ''}`}>
+                <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-600`}>Denne måneden</p>
+                <p className={`${isMobile ? 'text-base' : 'text-lg'} font-bold ${
+                  monthlyChange >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  {monthlyChange >= 0 ? '+' : ''}{formatCurrency(monthlyChange)}
+                </p>
+                <p className={`text-xs ${
+                  monthlyChange >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  {monthlyChange >= 0 ? '+' : ''}{formatPercentage((monthlyChange / totalValue) * 100)}
+                </p>
+              </div>
+            </ResponsiveGrid>
+          </AnimatedCard>
+        </motion.div>
       </motion.div>
-    </motion.div>
+    </MobileResponsiveWrapper>
   )
-}
+})
+
+export default PortfolioMetrics

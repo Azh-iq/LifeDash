@@ -4,8 +4,8 @@ import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { 
   ChartPieIcon, 
-  TrendingUpIcon,
-  TrendingDownIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
   ArrowUpIcon,
   ArrowDownIcon,
   InformationCircleIcon,
@@ -20,6 +20,8 @@ import { Separator } from '@/components/ui/separator'
 import { usePortfolioState } from '@/lib/hooks/use-portfolio-state'
 import { useRealtimeUpdates } from '@/lib/hooks/use-realtime-updates'
 import { formatCurrency, formatPercentage } from '@/components/charts'
+import { useResponsiveLayout } from '@/lib/hooks/use-responsive-layout'
+import { MobileResponsiveWrapper, ResponsiveGrid, ResponsiveVisibility } from '@/components/mobile/mobile-responsive-wrapper'
 
 interface PortfolioSidebarProps {
   portfolioId: string
@@ -50,6 +52,7 @@ export default function PortfolioSidebar({ portfolioId }: PortfolioSidebarProps)
   
   const { portfolio, holdings, loading, error } = usePortfolioState(portfolioId)
   const { priceUpdates, isConnected } = useRealtimeUpdates(portfolioId)
+  const { isMobile, isTablet } = useResponsiveLayout()
 
   // Calculate allocation data
   const allocationData = useMemo(() => {
@@ -143,19 +146,21 @@ export default function PortfolioSidebar({ portfolioId }: PortfolioSidebarProps)
 
   if (loading) {
     return (
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, delay: 0.6 }}
-        className="space-y-6"
-      >
-        <AnimatedCard className="p-6">
-          <LoadingSkeleton />
-        </AnimatedCard>
-        <AnimatedCard className="p-6">
-          <LoadingSkeleton />
-        </AnimatedCard>
-      </motion.div>
+      <MobileResponsiveWrapper>
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className={`space-y-6 ${isMobile ? 'space-y-4' : ''}`}
+        >
+          <AnimatedCard className={`${isMobile ? 'p-4' : 'p-6'}`}>
+            <LoadingSkeleton />
+          </AnimatedCard>
+          <AnimatedCard className={`${isMobile ? 'p-4' : 'p-6'}`}>
+            <LoadingSkeleton />
+          </AnimatedCard>
+        </motion.div>
+      </MobileResponsiveWrapper>
     )
   }
 
@@ -178,38 +183,39 @@ export default function PortfolioSidebar({ portfolioId }: PortfolioSidebarProps)
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5, delay: 0.6 }}
-      className="space-y-6"
-    >
-      {/* Asset Allocation */}
-      <AnimatedCard className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-            <ChartPieIcon className="h-5 w-5 mr-2" />
-            Aktivafordeling
-          </h3>
-          <div className="flex bg-gray-100 rounded-lg p-1">
-            <Button
-              variant={allocationView === 'weight' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setAllocationView('weight')}
-              className="text-xs"
-            >
-              Vekt
-            </Button>
-            <Button
-              variant={allocationView === 'value' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setAllocationView('value')}
-              className="text-xs"
-            >
-              Verdi
-            </Button>
+    <MobileResponsiveWrapper>
+      <motion.div
+        initial={{ opacity: 0, x: isMobile ? 0 : 20, y: isMobile ? 20 : 0 }}
+        animate={{ opacity: 1, x: 0, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.6 }}
+        className={`space-y-6 ${isMobile ? 'space-y-4' : ''}`}
+      >
+        {/* Asset Allocation */}
+        <AnimatedCard className={`${isMobile ? 'p-4' : 'p-6'}`}>
+          <div className={`flex items-center justify-between mb-4 ${isMobile ? 'flex-col space-y-3' : ''}`}>
+            <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold text-gray-900 flex items-center`}>
+              <ChartPieIcon className="h-5 w-5 mr-2" />
+              Aktivafordeling
+            </h3>
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              <Button
+                variant={allocationView === 'weight' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setAllocationView('weight')}
+                className={`text-xs touch-manipulation ${isMobile ? 'px-3 py-2' : ''}`}
+              >
+                Vekt
+              </Button>
+              <Button
+                variant={allocationView === 'value' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setAllocationView('value')}
+                className={`text-xs touch-manipulation ${isMobile ? 'px-3 py-2' : ''}`}
+              >
+                Verdi
+              </Button>
+            </div>
           </div>
-        </div>
 
         <div className="space-y-3">
           {allocationData.length === 0 ? (
@@ -220,26 +226,28 @@ export default function PortfolioSidebar({ portfolioId }: PortfolioSidebarProps)
           ) : (
             <>
               {/* Donut Chart */}
-              <div className="flex justify-center mb-4">
-                <div className="relative w-32 h-32">
-                  <ProgressRing
-                    value={100}
-                    size={128}
-                    strokeWidth={12}
-                    className="text-blue-600"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-gray-900">
-                        {allocationData.length}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        beholdninger
+              <ResponsiveVisibility hideOn={['mobile']}>
+                <div className="flex justify-center mb-4">
+                  <div className="relative w-32 h-32">
+                    <ProgressRing
+                      value={100}
+                      size={128}
+                      strokeWidth={12}
+                      className="text-blue-600"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-gray-900">
+                          {allocationData.length}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          beholdninger
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </ResponsiveVisibility>
 
               {/* Allocation List */}
               <div className="space-y-2">
@@ -303,10 +311,10 @@ export default function PortfolioSidebar({ portfolioId }: PortfolioSidebarProps)
       </AnimatedCard>
 
       {/* Top Movers */}
-      <AnimatedCard className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-            <TrendingUpIcon className="h-5 w-5 mr-2" />
+      <AnimatedCard className={`${isMobile ? 'p-4' : 'p-6'}`}>
+        <div className={`flex items-center justify-between mb-4 ${isMobile ? 'flex-col space-y-3' : ''}`}>
+          <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold text-gray-900 flex items-center`}>
+            <ArrowTrendingUpIcon className="h-5 w-5 mr-2" />
             Største bevegelser
           </h3>
           <div className="flex bg-gray-100 rounded-lg p-1">
@@ -314,7 +322,7 @@ export default function PortfolioSidebar({ portfolioId }: PortfolioSidebarProps)
               variant={moversPeriod === 'day' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setMoversPeriod('day')}
-              className="text-xs"
+              className={`text-xs touch-manipulation ${isMobile ? 'px-2' : ''}`}
             >
               Dag
             </Button>
@@ -322,7 +330,7 @@ export default function PortfolioSidebar({ portfolioId }: PortfolioSidebarProps)
               variant={moversPeriod === 'week' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setMoversPeriod('week')}
-              className="text-xs"
+              className={`text-xs touch-manipulation ${isMobile ? 'px-2' : ''}`}
             >
               Uke
             </Button>
@@ -330,7 +338,7 @@ export default function PortfolioSidebar({ portfolioId }: PortfolioSidebarProps)
               variant={moversPeriod === 'month' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setMoversPeriod('month')}
-              className="text-xs"
+              className={`text-xs touch-manipulation ${isMobile ? 'px-2' : ''}`}
             >
               Måned
             </Button>
@@ -342,7 +350,7 @@ export default function PortfolioSidebar({ portfolioId }: PortfolioSidebarProps)
           {moversData.gainers.length > 0 && (
             <div>
               <div className="flex items-center space-x-2 mb-2">
-                <TrendingUpIcon className="h-4 w-4 text-green-600" />
+                <ArrowTrendingUpIcon className="h-4 w-4 text-green-600" />
                 <h4 className="text-sm font-medium text-gray-900">Oppgang</h4>
               </div>
               <div className="space-y-2">
@@ -384,7 +392,7 @@ export default function PortfolioSidebar({ portfolioId }: PortfolioSidebarProps)
           {moversData.losers.length > 0 && (
             <div>
               <div className="flex items-center space-x-2 mb-2">
-                <TrendingDownIcon className="h-4 w-4 text-red-600" />
+                <ArrowTrendingDownIcon className="h-4 w-4 text-red-600" />
                 <h4 className="text-sm font-medium text-gray-900">Nedgang</h4>
               </div>
               <div className="space-y-2">
@@ -420,7 +428,7 @@ export default function PortfolioSidebar({ portfolioId }: PortfolioSidebarProps)
 
           {moversData.gainers.length === 0 && moversData.losers.length === 0 && (
             <div className="text-center py-8 text-gray-500">
-              <TrendingUpIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <ArrowTrendingUpIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
               <p className="text-sm">Ingen bevegelser å vise</p>
             </div>
           )}
@@ -444,5 +452,6 @@ export default function PortfolioSidebar({ portfolioId }: PortfolioSidebarProps)
         </div>
       </AnimatedCard>
     </motion.div>
+    </MobileResponsiveWrapper>
   )
 }

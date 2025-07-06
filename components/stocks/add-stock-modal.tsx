@@ -34,7 +34,8 @@ interface AddStockModalProps {
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void
-  userId: string
+  userId?: string
+  portfolioId?: string
 }
 
 export default function AddStockModal({
@@ -42,6 +43,7 @@ export default function AddStockModal({
   onClose,
   onSuccess,
   userId,
+  portfolioId,
 }: AddStockModalProps) {
   const [step, setStep] = useState<'search' | 'details'>('search')
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null)
