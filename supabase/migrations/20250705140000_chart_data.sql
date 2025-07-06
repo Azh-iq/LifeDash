@@ -456,18 +456,27 @@ CREATE TABLE IF NOT EXISTS public.performance_metrics (
 -- Create partitioned tables for large datasets
 -- Portfolio snapshots partitioned by date
 CREATE TABLE IF NOT EXISTS public.portfolio_snapshots_partitioned (
-  LIKE public.portfolio_snapshots_enhanced INCLUDING ALL
+  LIKE public.portfolio_snapshots_enhanced INCLUDING DEFAULTS
 ) PARTITION BY RANGE (snapshot_date);
+
+-- Add primary key that includes the partition key
+ALTER TABLE public.portfolio_snapshots_partitioned ADD PRIMARY KEY (id, snapshot_date);
 
 -- Account performance partitioned by date
 CREATE TABLE IF NOT EXISTS public.account_performance_partitioned (
-  LIKE public.account_performance_history INCLUDING ALL
+  LIKE public.account_performance_history INCLUDING DEFAULTS
 ) PARTITION BY RANGE (performance_date);
+
+-- Add primary key that includes the partition key
+ALTER TABLE public.account_performance_partitioned ADD PRIMARY KEY (id, performance_date);
 
 -- Benchmark data partitioned by date
 CREATE TABLE IF NOT EXISTS public.benchmark_data_partitioned (
-  LIKE public.benchmark_data INCLUDING ALL
+  LIKE public.benchmark_data INCLUDING DEFAULTS
 ) PARTITION BY RANGE (price_date);
+
+-- Add primary key that includes the partition key
+ALTER TABLE public.benchmark_data_partitioned ADD PRIMARY KEY (id, price_date);
 
 -- Create initial partitions for the current year and next year
 SELECT create_future_partitions('portfolio_snapshots_partitioned', 24);
@@ -933,12 +942,12 @@ BEGIN
             0::DECIMAL(10,4)
         ) as total_return_percent,
         COALESCE(
-            STDDEV(unnest) * SQRT(252) FROM unnest(portfolio_returns),
+            (SELECT STDDEV(unnest) * SQRT(252) FROM unnest(portfolio_returns)),
             0::DECIMAL(10,6)
         ) as volatility,
         COALESCE(
-            (AVG(unnest) - risk_free_rate/252) / NULLIF(STDDEV(unnest), 0) * SQRT(252)
-            FROM unnest(portfolio_returns),
+            (SELECT (AVG(unnest) - risk_free_rate/252) / NULLIF(STDDEV(unnest), 0) * SQRT(252)
+            FROM unnest(portfolio_returns)),
             0::DECIMAL(10,6)
         ) as sharpe_ratio,
         0::DECIMAL(10,4) as max_drawdown, -- Placeholder

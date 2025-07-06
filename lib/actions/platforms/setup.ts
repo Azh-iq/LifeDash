@@ -241,7 +241,7 @@ export async function connectPlatformCSV(
 
     // Create platform connection record
     const { data: connection, error: connectionError } = await supabase
-      .from('platform_connections')
+      .from('platform_integrations')
       .insert({
         user_id: user.id,
         platform_id: validatedData.platformId,
@@ -408,7 +408,7 @@ export async function connectPlatformAPI(
 
     // Create platform connection record
     const { data: connection, error: connectionError } = await supabase
-      .from('platform_connections')
+      .from('platform_integrations')
       .insert({
         user_id: user.id,
         platform_id: validatedData.platformId,
@@ -565,7 +565,7 @@ export async function checkSetupStatus(): Promise<SetupResult> {
 
     // Check if user has any platform connections
     const { data: connections, error: connectionsError } = await supabase
-      .from('platform_connections')
+      .from('platform_integrations')
       .select('id, platform_id')
       .eq('user_id', user.id)
       .eq('status', 'connected')

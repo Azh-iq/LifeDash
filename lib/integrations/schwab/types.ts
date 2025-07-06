@@ -213,8 +213,8 @@ export interface SchwabQuote {
   shortable: boolean
   volatility: number
   digits: number
-  52WkHigh: number
-  52WkLow: number
+  '52WkHigh': number
+  '52WkLow': number
   nAV: number
   peRatio: number
   divAmount: number

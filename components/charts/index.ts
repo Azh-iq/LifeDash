@@ -1,11 +1,9 @@
 // Export all chart components for easy importing
 export { 
-  PortfolioPerformanceChart,
   default as PortfolioPerformanceChart 
 } from './portfolio-performance-chart'
 
 export { 
-  AssetAllocationChart,
   default as AssetAllocationChart 
 } from './asset-allocation-chart'
 
@@ -26,7 +24,6 @@ export {
 } from './chart-controls'
 
 export { 
-  PerformanceComparisonChart,
   createBenchmarkComparison,
   createPortfolioComparison,
   default as PerformanceComparisonChart 

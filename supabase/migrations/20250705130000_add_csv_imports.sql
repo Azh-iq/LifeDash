@@ -1,8 +1,11 @@
 -- CSV Imports Schema for LifeDash
 -- Tracks CSV import operations and batch processing
 
--- Create csv_imports table for tracking import batches
-CREATE TABLE IF NOT EXISTS public.csv_imports (
+-- Drop existing csv_imports table if it exists with wrong structure
+DROP TABLE IF EXISTS public.csv_imports CASCADE;
+
+-- Create csv_imports table for tracking import batches  
+CREATE TABLE public.csv_imports (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.user_profiles(id) ON DELETE CASCADE,
   platform_id UUID NOT NULL REFERENCES public.platforms(id) ON DELETE RESTRICT,
@@ -332,47 +335,7 @@ CREATE POLICY "Users can view own field mappings" ON public.csv_import_field_map
 CREATE POLICY "Users can manage own field mappings" ON public.csv_import_field_mappings
   FOR ALL USING (auth.uid() = user_id);
 
--- Insert default Nordnet field mapping template
-INSERT INTO public.csv_import_field_mappings (
-  user_id,
-  platform_id,
-  name,
-  description,
-  is_template,
-  template_category,
-  mappings,
-  validation_rules
-) 
-SELECT 
-  '00000000-0000-0000-0000-000000000000'::uuid, -- System user ID
-  p.id,
-  'Nordnet Standard',
-  'Standard field mapping for Nordnet CSV exports',
-  true,
-  'nordnet',
-  '[
-    {"csvField": "Id", "internalField": "id", "required": true, "dataType": "string"},
-    {"csvField": "Bokføringsdag", "internalField": "booking_date", "required": true, "dataType": "date"},
-    {"csvField": "Handelsdag", "internalField": "trade_date", "required": false, "dataType": "date"},
-    {"csvField": "Oppgjørsdag", "internalField": "settlement_date", "required": false, "dataType": "date"},
-    {"csvField": "Portefølje", "internalField": "portfolio_name", "required": true, "dataType": "string"},
-    {"csvField": "Transaksjonstype", "internalField": "transaction_type", "required": true, "dataType": "string"},
-    {"csvField": "Verdipapir", "internalField": "security_name", "required": false, "dataType": "string"},
-    {"csvField": "ISIN", "internalField": "isin", "required": false, "dataType": "string"},
-    {"csvField": "Antall", "internalField": "quantity", "required": false, "dataType": "number"},
-    {"csvField": "Kurs", "internalField": "price", "required": false, "dataType": "number"},
-    {"csvField": "Beløp", "internalField": "amount", "required": true, "dataType": "number"},
-    {"csvField": "Valuta", "internalField": "currency", "required": true, "dataType": "string"}
-  ]'::jsonb,
-  '{
-    "required_fields": ["id", "booking_date", "transaction_type", "portfolio_name", "amount", "currency"],
-    "isin_validation": true,
-    "currency_validation": true,
-    "date_formats": ["YYYY-MM-DD", "DD.MM.YYYY"]
-  }'::jsonb
-FROM public.platforms p 
-WHERE p.name = 'nordnet'
-ON CONFLICT (user_id, platform_id, name) DO NOTHING;
+-- Note: Field mapping templates will be created on first use by users
 
 -- Add comments for documentation
 COMMENT ON TABLE public.csv_imports IS 'Tracks CSV import operations and batch processing';

@@ -21,6 +21,10 @@ ADD COLUMN IF NOT EXISTS setup_completed BOOLEAN DEFAULT false;
 CREATE INDEX IF NOT EXISTS idx_platforms_connection_status 
   ON public.platforms(connection_status) WHERE connection_status != 'disconnected';
 
+-- Add unique constraint on name column
+ALTER TABLE public.platforms 
+ADD CONSTRAINT platforms_name_unique UNIQUE (name);
+
 -- =============================================================================
 -- INSERT STANDARD PLATFORMS
 -- =============================================================================
@@ -146,7 +150,7 @@ INSERT INTO public.platforms (
   (
     'demo',
     'Demo Platform',
-    'DEMO',
+    'MANUAL',
     'USD',
     'XX',
     0.00,

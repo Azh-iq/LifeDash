@@ -1,5 +1,11 @@
 // Animated Components Library
 // Export all enhanced animated components with Framer Motion
+import { useState, useEffect } from 'react'
+
+// Import components first
+import AnimatedCard, { PortfolioCard, MetricCard, InteractiveCard } from './animated-card'
+import NumberCounter, { CurrencyCounter, PercentageCounter, StockPriceCounter, PortfolioValueCounter } from './number-counter'
+import ProgressRing, { AllocationRing, PerformanceRing, GoalProgressRing, MultiRingProgress } from './progress-ring'
 
 // Core animated components
 export { default as AnimatedCard, PortfolioCard, MetricCard, InteractiveCard } from './animated-card'
