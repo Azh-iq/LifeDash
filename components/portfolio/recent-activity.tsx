@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, memo } from 'react'
+import { useState, useEffect, useMemo, memo, useCallback, useRef } from 'react'
 import { motion, AnimatePresence, Variants } from 'framer-motion'
 import {
   ClockIcon,
@@ -32,7 +32,9 @@ import { cn } from '@/lib/utils/cn'
 
 interface Transaction {
   id: string
-  portfolio_id: string
+  user_id: string
+  account_id: string
+  stock_id: string
   symbol: string
   type: 'BUY' | 'SELL' | 'DIVIDEND' | 'TRANSFER' | 'FEE'
   quantity: number
@@ -49,6 +51,11 @@ interface Transaction {
     currency: string
     asset_class: string
     sector?: string
+  }
+  account?: {
+    id: string
+    name: string
+    portfolio_id: string
   }
 }
 
@@ -130,6 +137,7 @@ const RecentActivity = memo(function RecentActivity({
   const [error, setError] = useState<string | null>(null)
   const [showAllFilters, setShowAllFilters] = useState(false)
   const [newTransactionId, setNewTransactionId] = useState<string | null>(null)
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const [filters, setFilters] = useState<ActivityFilter>({
     type: '',
@@ -139,86 +147,107 @@ const RecentActivity = memo(function RecentActivity({
     sortOrder: 'desc',
   })
 
-  // Fetch transactions
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      if (!portfolioId) return
+  // Memoized fetch function to prevent recreations
+  const fetchTransactions = useCallback(async () => {
+    if (!portfolioId) return
 
-      try {
-        setLoading(true)
-        setError(null)
+    try {
+      setLoading(true)
+      setError(null)
 
-        const supabase = createClient()
+      const supabase = createClient()
 
-        // Calculate date range
-        const endDate = new Date()
-        const startDate = new Date()
+      // Calculate date range
+      const endDate = new Date()
+      const startDate = new Date()
 
-        if (filters.dateRange !== 'all') {
-          startDate.setDate(endDate.getDate() - parseInt(filters.dateRange))
-        } else {
-          startDate.setFullYear(endDate.getFullYear() - 10) // 10 years ago
-        }
-
-        let query = supabase
-          .from('transactions')
-          .select(
-            `
-            *,
-            stocks (
-              symbol,
-              name,
-              currency,
-              asset_class,
-              sector
-            )
-          `
-          )
-          .eq('portfolio_id', portfolioId)
-          .gte('transaction_date', startDate.toISOString())
-          .lte('transaction_date', endDate.toISOString())
-
-        // Apply filters
-        if (filters.type) {
-          query = query.eq('type', filters.type)
-        }
-
-        if (filters.symbol) {
-          query = query.eq('symbol', filters.symbol)
-        }
-
-        // Apply sorting
-        const sortColumn =
-          filters.sortBy === 'date'
-            ? 'transaction_date'
-            : filters.sortBy === 'amount'
-              ? 'total_amount'
-              : 'symbol'
-
-        query = query.order(sortColumn, {
-          ascending: filters.sortOrder === 'asc',
-        })
-
-        // Limit results
-        query = query.limit(maxItems * 2) // Get more than needed for filtering
-
-        const { data, error: fetchError } = await query
-
-        if (fetchError) {
-          throw fetchError
-        }
-
-        setTransactions(data || [])
-      } catch (err) {
-        console.error('Error fetching transactions:', err)
-        setError('Kunne ikke laste transaksjonshistorikk')
-      } finally {
-        setLoading(false)
+      if (filters.dateRange !== 'all') {
+        startDate.setDate(endDate.getDate() - parseInt(filters.dateRange))
+      } else {
+        startDate.setFullYear(endDate.getFullYear() - 10) // 10 years ago
       }
+
+      let query = supabase
+        .from('transactions')
+        .select(
+          `
+          *,
+          stocks (
+            symbol,
+            name,
+            currency,
+            asset_class,
+            sector
+          ),
+          account:accounts!inner (
+            id,
+            name,
+            portfolio_id
+          )
+        `
+        )
+        .eq('account.portfolio_id', portfolioId)
+        .gte('transaction_date', startDate.toISOString())
+        .lte('transaction_date', endDate.toISOString())
+
+      // Apply filters
+      if (filters.type) {
+        query = query.eq('type', filters.type)
+      }
+
+      if (filters.symbol) {
+        query = query.eq('symbol', filters.symbol)
+      }
+
+      // Apply sorting
+      const sortColumn =
+        filters.sortBy === 'date'
+          ? 'transaction_date'
+          : filters.sortBy === 'amount'
+            ? 'total_amount'
+            : 'symbol'
+
+      query = query.order(sortColumn, {
+        ascending: filters.sortOrder === 'asc',
+      })
+
+      // Limit results
+      query = query.limit(maxItems * 2) // Get more than needed for filtering
+
+      const { data, error: fetchError } = await query
+
+      if (fetchError) {
+        throw fetchError
+      }
+
+      setTransactions(data || [])
+    } catch (err) {
+      console.error('Error fetching transactions:', err)
+      setError('Kunne ikke laste transaksjonshistorikk')
+    } finally {
+      setLoading(false)
+    }
+  }, [portfolioId, filters, maxItems])
+
+  // Debounced effect to prevent excessive API calls
+  useEffect(() => {
+    // Clear existing timeout
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current)
     }
 
-    fetchTransactions()
-  }, [portfolioId, filters, maxItems])
+    // Set new timeout for debounced fetch
+    debounceTimeoutRef.current = setTimeout(() => {
+      fetchTransactions()
+    }, 300) // 300ms debounce
+
+    // Cleanup timeout on unmount or dependency change
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current)
+      }
+    }
+  }, [fetchTransactions])
 
   // Real-time subscription for new transactions
   useEffect(() => {
@@ -234,18 +263,41 @@ const RecentActivity = memo(function RecentActivity({
           event: 'INSERT',
           schema: 'public',
           table: 'transactions',
-          filter: `portfolio_id=eq.${portfolioId}`,
         },
-        payload => {
+        async payload => {
           console.log('New transaction detected:', payload)
 
           if (payload.new) {
-            // Add the new transaction and highlight it
-            setNewTransactionId(payload.new.id)
-            setTransactions(prev => [payload.new as Transaction, ...prev])
+            // Fetch the complete transaction with joined data to check if it belongs to this portfolio
+            const { data: fullTransaction } = await supabase
+              .from('transactions')
+              .select(`
+                *,
+                stocks (
+                  symbol,
+                  name,
+                  currency,
+                  asset_class,
+                  sector
+                ),
+                account:accounts!inner (
+                  id,
+                  name,
+                  portfolio_id
+                )
+              `)
+              .eq('id', payload.new.id)
+              .eq('account.portfolio_id', portfolioId)
+              .single()
 
-            // Remove highlight after animation
-            setTimeout(() => setNewTransactionId(null), 2000)
+            if (fullTransaction) {
+              // Add the new transaction and highlight it
+              setNewTransactionId(fullTransaction.id)
+              setTransactions(prev => [fullTransaction as Transaction, ...prev])
+
+              // Remove highlight after animation
+              setTimeout(() => setNewTransactionId(null), 2000)
+            }
           }
         }
       )
@@ -272,8 +324,8 @@ const RecentActivity = memo(function RecentActivity({
     }
   }, [transactions])
 
-  // Get transaction type info
-  const getTransactionTypeInfo = (type: Transaction['type']) => {
+  // Get transaction type info (memoized)
+  const getTransactionTypeInfo = useCallback((type: Transaction['type']) => {
     switch (type) {
       case 'BUY':
         return {
@@ -324,10 +376,10 @@ const RecentActivity = memo(function RecentActivity({
           borderColor: 'border-gray-200',
         }
     }
-  }
+  }, [])
 
-  // Format date
-  const formatDate = (dateString: string) => {
+  // Format date (memoized)
+  const formatDate = useCallback((dateString: string) => {
     const date = new Date(dateString)
     const now = new Date()
     const diffMs = now.getTime() - date.getTime()
@@ -346,10 +398,10 @@ const RecentActivity = memo(function RecentActivity({
         year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
       })
     }
-  }
+  }, [])
 
-  // Get impact indicator for significant transactions
-  const getImpactIndicator = (transaction: Transaction) => {
+  // Get impact indicator for significant transactions (memoized)
+  const getImpactIndicator = useCallback((transaction: Transaction) => {
     const amount = Math.abs(transaction.total_amount)
 
     if (amount > 100000) {
@@ -366,7 +418,7 @@ const RecentActivity = memo(function RecentActivity({
     }
 
     return null
-  }
+  }, [])
 
   if (error) {
     return (

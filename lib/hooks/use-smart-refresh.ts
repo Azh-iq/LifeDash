@@ -193,7 +193,7 @@ export function useSmartRefresh<T>(
         retryTimeoutRef.current = null
       }
     }
-  }, [enabled, interval, fetchData])
+  }, [enabled, interval]) // Remove fetchData dependency to prevent infinite loops
 
   // Cleanup on unmount - ensure all resources are cleaned up
   useEffect(() => {

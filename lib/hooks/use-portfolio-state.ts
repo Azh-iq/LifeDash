@@ -331,21 +331,37 @@ export function usePortfolioState(
     }
   }, [portfolioId, includeHoldings])
 
-  // Debounced update function for price changes
+  // Stable refs for avoiding dependency cycles
+  const realtimePricesRef = useRef(realtimePrices)
+  const yahooFinancePricesRef = useRef(yahooFinancePrices)
+
+  // Update refs when prices change
+  useEffect(() => {
+    realtimePricesRef.current = realtimePrices
+  }, [realtimePrices])
+
+  useEffect(() => {
+    yahooFinancePricesRef.current = yahooFinancePrices
+  }, [yahooFinancePrices])
+
+  // Debounced update function for price changes (stabilized with refs)
   const updateHoldingsWithPrices = useCallback(() => {
     const currentHoldings = holdingsRef.current
+    const currentRealtimePrices = realtimePricesRef.current
+    const currentYahooPrices = yahooFinancePricesRef.current
+
     if (
       !currentHoldings.length ||
-      (!Object.keys(realtimePrices).length &&
-        !Object.keys(yahooFinancePrices).length)
+      (!Object.keys(currentRealtimePrices).length &&
+        !Object.keys(currentYahooPrices).length)
     ) {
       return
     }
 
     const updatedHoldings = currentHoldings.map(holding => {
       const symbol = holding.symbol
-      const realtimePrice = realtimePrices[symbol]
-      const yahooPrice = yahooFinancePrices[symbol]
+      const realtimePrice = currentRealtimePrices[symbol]
+      const yahooPrice = currentYahooPrices[symbol]
 
       // Use realtime price if available, otherwise use Yahoo Finance price
       const priceData = realtimePrice || yahooPrice
@@ -376,7 +392,7 @@ export function usePortfolioState(
     })
 
     setHoldings(updatedHoldings)
-  }, [realtimePrices, yahooFinancePrices])
+  }, []) // Empty dependency array since we use refs
 
   // Update holdings with real-time prices (debounced)
   useEffect(() => {
@@ -404,7 +420,7 @@ export function usePortfolioState(
         clearTimeout(updateTimeoutRef.current)
       }
     }
-  }, [realtimePrices, yahooFinancePrices]) // Remove updateHoldingsWithPrices from dependencies
+  }, [realtimePrices, yahooFinancePrices]) // Removed updateHoldingsWithPrices since it's now stable
 
   // Calculate portfolio weights separately
   const holdingsWithWeights = useMemo(() => {
@@ -633,13 +649,13 @@ export function usePortfolioState(
     if (portfolioId) {
       fetchPortfolio()
     }
-  }, [portfolioId, fetchPortfolio])
+  }, [portfolioId]) // Remove fetchPortfolio from dependencies to prevent infinite loop
 
   useEffect(() => {
     if (portfolioId && includeHoldings) {
       fetchHoldings()
     }
-  }, [portfolioId, includeHoldings, fetchHoldings])
+  }, [portfolioId, includeHoldings]) // Remove fetchHoldings from dependencies to prevent infinite loop
 
   // Auto-refresh
   useEffect(() => {
@@ -652,7 +668,7 @@ export function usePortfolioState(
     return () => {
       clearInterval(interval)
     }
-  }, [autoRefresh, portfolioId, refresh, refreshInterval])
+  }, [autoRefresh, portfolioId, refreshInterval]) // Remove refresh from dependencies to prevent infinite loop
 
   return {
     portfolio,

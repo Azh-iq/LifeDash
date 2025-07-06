@@ -41,7 +41,9 @@ import { cn } from '@/lib/utils/cn'
 
 interface Transaction {
   id: string
-  portfolio_id: string
+  user_id: string
+  account_id: string
+  stock_id: string
   symbol: string
   type: 'BUY' | 'SELL' | 'DIVIDEND' | 'TRANSFER' | 'FEE'
   quantity: number
@@ -58,6 +60,11 @@ interface Transaction {
     currency: string
     asset_type: string
     sector?: string
+  }
+  account?: {
+    id: string
+    name: string
+    portfolio_id: string
   }
 }
 
@@ -548,10 +555,15 @@ export default function MobileRecentActivity({
             currency,
             asset_type,
             sector
+          ),
+          account:accounts!inner (
+            id,
+            name,
+            portfolio_id
           )
         `
           )
-          .eq('portfolio_id', portfolioId)
+          .eq('account.portfolio_id', portfolioId)
           .gte('transaction_date', startDate.toISOString())
           .lte('transaction_date', endDate.toISOString())
 
@@ -675,19 +687,42 @@ export default function MobileRecentActivity({
           event: 'INSERT',
           schema: 'public',
           table: 'transactions',
-          filter: `portfolio_id=eq.${portfolioId}`,
         },
-        payload => {
+        async payload => {
           if (payload.new) {
-            setNewTransactionId(payload.new.id)
-            setTransactions(prev => [payload.new as Transaction, ...prev])
+            // Fetch the complete transaction with joined data to check if it belongs to this portfolio
+            const { data: fullTransaction } = await supabase
+              .from('transactions')
+              .select(`
+                *,
+                stocks (
+                  symbol,
+                  name,
+                  currency,
+                  asset_type,
+                  sector
+                ),
+                account:accounts!inner (
+                  id,
+                  name,
+                  portfolio_id
+                )
+              `)
+              .eq('id', payload.new.id)
+              .eq('account.portfolio_id', portfolioId)
+              .single()
 
-            // Haptic feedback
-            if ('vibrate' in navigator) {
-              navigator.vibrate([100, 50, 100])
+            if (fullTransaction) {
+              setNewTransactionId(fullTransaction.id)
+              setTransactions(prev => [fullTransaction as Transaction, ...prev])
+
+              // Haptic feedback
+              if ('vibrate' in navigator) {
+                navigator.vibrate([100, 50, 100])
+              }
+
+              setTimeout(() => setNewTransactionId(null), 3000)
             }
-
-            setTimeout(() => setNewTransactionId(null), 3000)
           }
         }
       )

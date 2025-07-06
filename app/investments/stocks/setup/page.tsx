@@ -121,7 +121,7 @@ export default function PlatformSetupPage() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-50 to-indigo-100">
       {/* Background Pattern */}
       <div className="absolute inset-0 overflow-hidden">
         <svg
@@ -202,7 +202,7 @@ export default function PlatformSetupPage() {
           <div className="mx-auto max-w-6xl px-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-purple-600">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700">
                   <svg
                     className="h-6 w-6 text-white"
                     fill="currentColor"

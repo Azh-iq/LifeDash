@@ -751,7 +751,7 @@ export function useRealtimeUpdates(
       mountedRef.current = false
       disconnect()
     }
-  }, [opts.autoConnect, connect, disconnect])
+  }, [opts.autoConnect]) // Remove connect and disconnect to prevent infinite loops
 
   // Auto-subscribe to portfolio - use stable refs to avoid dependency issues
   useEffect(() => {
@@ -765,9 +765,7 @@ export function useRealtimeUpdates(
   }, [
     portfolioId,
     connectionState.isConnected,
-    subscribeToPortfolio,
-    unsubscribeFromPortfolio,
-  ])
+  ]) // Remove function dependencies to prevent infinite loops
 
   // Connection monitoring - use stable refs to avoid dependency issues
   useEffect(() => {
@@ -788,7 +786,7 @@ export function useRealtimeUpdates(
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
     }
-  }, [reconnect, addError])
+  }, []) // Remove function dependencies to prevent infinite loops
 
   // Sync refs with state
   useEffect(() => {
