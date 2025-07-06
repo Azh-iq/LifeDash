@@ -22,14 +22,23 @@ import { Badge } from '@/components/ui/badge'
 import { Select } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Skeleton } from '@/components/ui/skeleton'
-import { AnimatedCard, NumberCounter, CurrencyCounter, PercentageCounter } from '@/components/animated'
+import {
+  AnimatedCard,
+  NumberCounter,
+  CurrencyCounter,
+  PercentageCounter,
+} from '@/components/animated'
 import { formatCurrency, formatPercentage } from '@/components/charts'
-import { usePortfolioState, HoldingWithMetrics } from '@/lib/hooks/use-portfolio-state'
+import {
+  usePortfolioState,
+  HoldingWithMetrics,
+} from '@/lib/hooks/use-portfolio-state'
 import { cn } from '@/lib/utils/cn'
 
 interface HoldingsSectionProps {
   portfolioId: string
   className?: string
+  onStockClick?: (holding: HoldingWithMetrics) => void
 }
 
 interface TableColumn {
@@ -71,7 +80,7 @@ const TABLE_COLUMNS: TableColumn[] = [
             </Badge>
           )}
         </div>
-        <div className="flex items-center space-x-2 mt-1">
+        <div className="mt-1 flex items-center space-x-2">
           <span className="text-sm text-gray-500">{holding.symbol}</span>
           {holding.stocks?.currency && (
             <Badge variant="secondary" className="text-xs">
@@ -88,7 +97,7 @@ const TABLE_COLUMNS: TableColumn[] = [
     sortable: true,
     width: 'w-24',
     align: 'right',
-    formatter: (value) => (
+    formatter: value => (
       <NumberCounter value={value} className="text-sm font-medium" />
     ),
   },
@@ -106,14 +115,18 @@ const TABLE_COLUMNS: TableColumn[] = [
           className="text-sm font-medium"
         />
         {holding.daily_change_percent && (
-          <div className={cn(
-            'text-xs flex items-center justify-end mt-1',
-            holding.daily_change_percent >= 0 ? 'text-green-600' : 'text-red-600'
-          )}>
+          <div
+            className={cn(
+              'mt-1 flex items-center justify-end text-xs',
+              holding.daily_change_percent >= 0
+                ? 'text-green-600'
+                : 'text-red-600'
+            )}
+          >
             {holding.daily_change_percent >= 0 ? (
-              <ArrowTrendingUpIcon className="h-3 w-3 mr-1" />
+              <ArrowTrendingUpIcon className="mr-1 h-3 w-3" />
             ) : (
-              <ArrowTrendingDownIcon className="h-3 w-3 mr-1" />
+              <ArrowTrendingDownIcon className="mr-1 h-3 w-3" />
             )}
             <PercentageCounter value={Math.abs(holding.daily_change_percent)} />
           </div>
@@ -134,7 +147,7 @@ const TABLE_COLUMNS: TableColumn[] = [
           currency="NOK"
           className="text-sm font-medium"
         />
-        <div className="text-xs text-gray-500 mt-1">
+        <div className="mt-1 text-xs text-gray-500">
           {formatPercentage(holding.weight)}
         </div>
       </div>
@@ -146,7 +159,7 @@ const TABLE_COLUMNS: TableColumn[] = [
     sortable: true,
     width: 'w-28',
     align: 'right',
-    formatter: (value) => (
+    formatter: value => (
       <CurrencyCounter
         value={value}
         currency="NOK"
@@ -173,7 +186,7 @@ const TABLE_COLUMNS: TableColumn[] = [
         <PercentageCounter
           value={holding.gain_loss_percent}
           className={cn(
-            'text-xs mt-1',
+            'mt-1 text-xs',
             holding.gain_loss_percent >= 0 ? 'text-green-600' : 'text-red-600'
           )}
         />
@@ -194,9 +207,15 @@ const TABLE_COLUMNS: TableColumn[] = [
   },
 ]
 
-export default function HoldingsSection({ portfolioId, className }: HoldingsSectionProps) {
+export default function HoldingsSection({
+  portfolioId,
+  className,
+  onStockClick,
+}: HoldingsSectionProps) {
   const [showFilters, setShowFilters] = useState(false)
-  const [selectedHoldings, setSelectedHoldings] = useState<Set<string>>(new Set())
+  const [selectedHoldings, setSelectedHoldings] = useState<Set<string>>(
+    new Set()
+  )
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
 
   const {
@@ -277,12 +296,16 @@ export default function HoldingsSection({ portfolioId, className }: HoldingsSect
   }, [setFilters])
 
   // Handle sorting
-  const handleSort = useCallback((key: keyof HoldingWithMetrics) => {
-    setSortConfig(prev => ({
-      key,
-      direction: prev.key === key && prev.direction === 'desc' ? 'asc' : 'desc',
-    }))
-  }, [setSortConfig])
+  const handleSort = useCallback(
+    (key: keyof HoldingWithMetrics) => {
+      setSortConfig(prev => ({
+        key,
+        direction:
+          prev.key === key && prev.direction === 'desc' ? 'asc' : 'desc',
+      }))
+    },
+    [setSortConfig]
+  )
 
   // Filter holdings based on small holdings setting
   const displayedHoldings = useMemo(() => {
@@ -313,6 +336,25 @@ export default function HoldingsSection({ portfolioId, className }: HoldingsSect
     }
   }, [selectedHoldings.size, displayedHoldings])
 
+  // Handle stock detail click
+  const handleStockClick = useCallback(
+    (holding: HoldingWithMetrics, event: React.MouseEvent) => {
+      // Prevent click when clicking on checkbox or if no handler provided
+      if (!onStockClick) return
+
+      const target = event.target as HTMLElement
+      if (
+        target.type === 'checkbox' ||
+        target.closest('input[type="checkbox"]')
+      ) {
+        return
+      }
+
+      onStockClick(holding)
+    },
+    [onStockClick]
+  )
+
   // Get filter stats
   const filterStats = useMemo(() => {
     const total = sortedHoldings.length
@@ -342,15 +384,15 @@ export default function HoldingsSection({ portfolioId, className }: HoldingsSect
       {/* Header with stats and actions */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">
-            Beholdninger
-          </h3>
-          <div className="flex items-center space-x-4 mt-1 text-sm text-gray-600">
+          <h3 className="text-lg font-semibold text-gray-900">Beholdninger</h3>
+          <div className="mt-1 flex items-center space-x-4 text-sm text-gray-600">
             <span>{filterStats.total} totalt</span>
             {filterStats.filtered !== filterStats.total && (
               <span>({filterStats.filtered} vist)</span>
             )}
-            <span className="text-green-600">{filterStats.profitable} lønnsom</span>
+            <span className="text-green-600">
+              {filterStats.profitable} lønnsom
+            </span>
             <span className="text-red-600">{filterStats.losing} tapende</span>
             {isPricesConnected && (
               <div className="flex items-center space-x-1 text-green-600">
@@ -368,7 +410,7 @@ export default function HoldingsSection({ portfolioId, className }: HoldingsSect
             onClick={() => setShowFilters(!showFilters)}
             className={showFilters ? 'bg-blue-50 text-blue-600' : ''}
           >
-            <FunnelIcon className="h-4 w-4 mr-2" />
+            <FunnelIcon className="mr-2 h-4 w-4" />
             Filter
           </Button>
 
@@ -395,22 +437,24 @@ export default function HoldingsSection({ portfolioId, className }: HoldingsSect
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <AnimatedCard className="p-4 bg-gray-50">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <AnimatedCard className="bg-gray-50 p-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {/* Search */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
                     Søk
                   </label>
                   <div className="relative">
-                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                     <Input
                       placeholder="Selskap eller symbol..."
                       value={localFilters.search}
-                      onChange={(e) => setLocalFilters(prev => ({
-                        ...prev,
-                        search: e.target.value
-                      }))}
+                      onChange={e =>
+                        setLocalFilters(prev => ({
+                          ...prev,
+                          search: e.target.value,
+                        }))
+                      }
                       className="pl-10"
                     />
                   </div>
@@ -418,64 +462,76 @@ export default function HoldingsSection({ portfolioId, className }: HoldingsSect
 
                 {/* Sector */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
                     Sektor
                   </label>
                   <Select
                     value={localFilters.sector}
-                    onValueChange={(value) => setLocalFilters(prev => ({
-                      ...prev,
-                      sector: value
-                    }))}
+                    onValueChange={value =>
+                      setLocalFilters(prev => ({
+                        ...prev,
+                        sector: value,
+                      }))
+                    }
                   >
                     <option value="">Alle sektorer</option>
                     {filterOptions.sectors.map(sector => (
-                      <option key={sector} value={sector}>{sector}</option>
+                      <option key={sector} value={sector}>
+                        {sector}
+                      </option>
                     ))}
                   </Select>
                 </div>
 
                 {/* Currency */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
                     Valuta
                   </label>
                   <Select
                     value={localFilters.currency}
-                    onValueChange={(value) => setLocalFilters(prev => ({
-                      ...prev,
-                      currency: value
-                    }))}
+                    onValueChange={value =>
+                      setLocalFilters(prev => ({
+                        ...prev,
+                        currency: value,
+                      }))
+                    }
                   >
                     <option value="">Alle valutaer</option>
                     {filterOptions.currencies.map(currency => (
-                      <option key={currency} value={currency}>{currency}</option>
+                      <option key={currency} value={currency}>
+                        {currency}
+                      </option>
                     ))}
                   </Select>
                 </div>
 
                 {/* Value Range */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
                     Verdiområde (NOK)
                   </label>
                   <div className="flex space-x-2">
                     <Input
                       placeholder="Min"
                       value={localFilters.minValue}
-                      onChange={(e) => setLocalFilters(prev => ({
-                        ...prev,
-                        minValue: e.target.value
-                      }))}
+                      onChange={e =>
+                        setLocalFilters(prev => ({
+                          ...prev,
+                          minValue: e.target.value,
+                        }))
+                      }
                       type="number"
                     />
                     <Input
                       placeholder="Maks"
                       value={localFilters.maxValue}
-                      onChange={(e) => setLocalFilters(prev => ({
-                        ...prev,
-                        maxValue: e.target.value
-                      }))}
+                      onChange={e =>
+                        setLocalFilters(prev => ({
+                          ...prev,
+                          maxValue: e.target.value,
+                        }))
+                      }
                       type="number"
                     />
                   </div>
@@ -483,16 +539,18 @@ export default function HoldingsSection({ portfolioId, className }: HoldingsSect
               </div>
 
               {/* Filter Toggles */}
-              <div className="flex flex-wrap items-center justify-between mt-4 pt-4 border-t border-gray-200">
+              <div className="mt-4 flex flex-wrap items-center justify-between border-t border-gray-200 pt-4">
                 <div className="flex flex-wrap items-center space-x-6">
                   <div className="flex items-center space-x-2">
                     <Switch
                       checked={localFilters.showOnlyProfitable}
-                      onCheckedChange={(checked) => setLocalFilters(prev => ({
-                        ...prev,
-                        showOnlyProfitable: checked,
-                        showOnlyLosers: checked ? false : prev.showOnlyLosers
-                      }))}
+                      onCheckedChange={checked =>
+                        setLocalFilters(prev => ({
+                          ...prev,
+                          showOnlyProfitable: checked,
+                          showOnlyLosers: checked ? false : prev.showOnlyLosers,
+                        }))
+                      }
                     />
                     <label className="text-sm text-gray-700">
                       Kun lønnsomme
@@ -502,24 +560,28 @@ export default function HoldingsSection({ portfolioId, className }: HoldingsSect
                   <div className="flex items-center space-x-2">
                     <Switch
                       checked={localFilters.showOnlyLosers}
-                      onCheckedChange={(checked) => setLocalFilters(prev => ({
-                        ...prev,
-                        showOnlyLosers: checked,
-                        showOnlyProfitable: checked ? false : prev.showOnlyProfitable
-                      }))}
+                      onCheckedChange={checked =>
+                        setLocalFilters(prev => ({
+                          ...prev,
+                          showOnlyLosers: checked,
+                          showOnlyProfitable: checked
+                            ? false
+                            : prev.showOnlyProfitable,
+                        }))
+                      }
                     />
-                    <label className="text-sm text-gray-700">
-                      Kun tapende
-                    </label>
+                    <label className="text-sm text-gray-700">Kun tapende</label>
                   </div>
 
                   <div className="flex items-center space-x-2">
                     <Switch
                       checked={localFilters.showSmallHoldings}
-                      onCheckedChange={(checked) => setLocalFilters(prev => ({
-                        ...prev,
-                        showSmallHoldings: checked
-                      }))}
+                      onCheckedChange={checked =>
+                        setLocalFilters(prev => ({
+                          ...prev,
+                          showSmallHoldings: checked,
+                        }))
+                      }
                     />
                     <label className="text-sm text-gray-700">
                       Vis små beholdninger
@@ -528,17 +590,10 @@ export default function HoldingsSection({ portfolioId, className }: HoldingsSect
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={clearFilters}
-                  >
+                  <Button variant="outline" size="sm" onClick={clearFilters}>
                     Nullstill
                   </Button>
-                  <Button
-                    size="sm"
-                    onClick={applyFilters}
-                  >
+                  <Button size="sm" onClick={applyFilters}>
                     Anvend filter
                   </Button>
                 </div>
@@ -557,7 +612,7 @@ export default function HoldingsSection({ portfolioId, className }: HoldingsSect
                 <div key={i} className="flex items-center space-x-4">
                   <Skeleton className="h-12 w-12 rounded" />
                   <div className="flex-1">
-                    <Skeleton className="h-4 w-32 mb-2" />
+                    <Skeleton className="mb-2 h-4 w-32" />
                     <Skeleton className="h-3 w-20" />
                   </div>
                   <Skeleton className="h-4 w-20" />
@@ -569,31 +624,33 @@ export default function HoldingsSection({ portfolioId, className }: HoldingsSect
           </div>
         ) : displayedHoldings.length === 0 ? (
           <div className="p-12 text-center">
-            <InformationCircleIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <InformationCircleIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+            <h3 className="mb-2 text-lg font-medium text-gray-900">
               Ingen beholdninger funnet
             </h3>
             <p className="text-gray-600">
-              {sortedHoldings.length === 0 
+              {sortedHoldings.length === 0
                 ? 'Denne porteføljen har ingen beholdninger ennå.'
-                : 'Prøv å justere filtrene for å se flere beholdninger.'
-              }
+                : 'Prøv å justere filtrene for å se flere beholdninger.'}
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-left">
                     <input
                       type="checkbox"
-                      checked={selectedHoldings.size === displayedHoldings.length && displayedHoldings.length > 0}
+                      checked={
+                        selectedHoldings.size === displayedHoldings.length &&
+                        displayedHoldings.length > 0
+                      }
                       onChange={handleSelectAllHoldings}
                       className="rounded border-gray-300"
                     />
                   </th>
-                  {TABLE_COLUMNS.map((column) => (
+                  {TABLE_COLUMNS.map(column => (
                     <th
                       key={column.key}
                       className={cn(
@@ -603,20 +660,22 @@ export default function HoldingsSection({ portfolioId, className }: HoldingsSect
                         column.align === 'right' && 'text-right',
                         column.sortable && 'cursor-pointer hover:bg-gray-100'
                       )}
-                      onClick={() => column.sortable && handleSort(column.key as keyof HoldingWithMetrics)}
+                      onClick={() =>
+                        column.sortable &&
+                        handleSort(column.key as keyof HoldingWithMetrics)
+                      }
                     >
                       <div className="flex items-center space-x-1">
                         <span>{column.label}</span>
                         {column.sortable && (
                           <ArrowsUpDownIcon className="h-4 w-4 text-gray-400" />
                         )}
-                        {sortConfig.key === column.key && (
-                          sortConfig.direction === 'desc' ? (
+                        {sortConfig.key === column.key &&
+                          (sortConfig.direction === 'desc' ? (
                             <ChevronDownIcon className="h-4 w-4 text-blue-600" />
                           ) : (
                             <ChevronUpIcon className="h-4 w-4 text-blue-600" />
-                          )
-                        )}
+                          ))}
                       </div>
                     </th>
                   ))}
@@ -631,9 +690,11 @@ export default function HoldingsSection({ portfolioId, className }: HoldingsSect
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -20 }}
                       transition={{ duration: 0.3, delay: index * 0.05 }}
+                      onClick={e => handleStockClick(holding, e)}
                       className={cn(
-                        'hover:bg-gray-50 transition-colors',
-                        selectedHoldings.has(holding.id) && 'bg-blue-50'
+                        'cursor-pointer transition-colors hover:bg-gray-50',
+                        selectedHoldings.has(holding.id) && 'bg-blue-50',
+                        onStockClick && 'hover:bg-blue-50'
                       )}
                     >
                       <td className="px-4 py-3">
@@ -644,7 +705,7 @@ export default function HoldingsSection({ portfolioId, className }: HoldingsSect
                           className="rounded border-gray-300"
                         />
                       </td>
-                      {TABLE_COLUMNS.map((column) => (
+                      {TABLE_COLUMNS.map(column => (
                         <td
                           key={column.key}
                           className={cn(
@@ -654,17 +715,28 @@ export default function HoldingsSection({ portfolioId, className }: HoldingsSect
                             column.align === 'right' && 'text-right'
                           )}
                         >
-                          {column.formatter 
+                          {column.formatter
                             ? column.formatter(
-                                column.key.includes('.') 
-                                  ? column.key.split('.').reduce((obj, key) => obj?.[key], holding as any)
-                                  : holding[column.key as keyof HoldingWithMetrics], 
+                                column.key.includes('.')
+                                  ? column.key
+                                      .split('.')
+                                      .reduce(
+                                        (obj, key) => obj?.[key],
+                                        holding as any
+                                      )
+                                  : holding[
+                                      column.key as keyof HoldingWithMetrics
+                                    ],
                                 holding
                               )
-                            : column.key.includes('.') 
-                              ? column.key.split('.').reduce((obj, key) => obj?.[key], holding as any)
-                              : holding[column.key as keyof HoldingWithMetrics]
-                          }
+                            : column.key.includes('.')
+                              ? column.key
+                                  .split('.')
+                                  .reduce(
+                                    (obj, key) => obj?.[key],
+                                    holding as any
+                                  )
+                              : holding[column.key as keyof HoldingWithMetrics]}
                         </td>
                       ))}
                     </motion.tr>
@@ -686,7 +758,8 @@ export default function HoldingsSection({ portfolioId, className }: HoldingsSect
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm text-gray-600">
-                  {selectedHoldings.size} beholdning{selectedHoldings.size !== 1 ? 'er' : ''} valgt
+                  {selectedHoldings.size} beholdning
+                  {selectedHoldings.size !== 1 ? 'er' : ''} valgt
                 </p>
                 <div className="flex items-center space-x-2">
                   <Button variant="outline" size="sm">
@@ -695,8 +768,8 @@ export default function HoldingsSection({ portfolioId, className }: HoldingsSect
                   <Button variant="outline" size="sm">
                     Rediger valgte
                   </Button>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="sm"
                     onClick={() => setSelectedHoldings(new Set())}
                   >

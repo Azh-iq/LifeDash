@@ -19,16 +19,26 @@ import {
   ListBulletIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
-  SparklesIcon
+  SparklesIcon,
 } from '@heroicons/react/24/outline'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Select } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { AnimatedCard, NumberCounter, CurrencyCounter, PercentageCounter } from '@/components/animated'
-import MobileActionSheet, { useActionSheet } from '@/components/mobile/mobile-action-sheet'
-import { usePortfolioState, HoldingWithMetrics } from '@/lib/hooks/use-portfolio-state'
+import {
+  AnimatedCard,
+  NumberCounter,
+  CurrencyCounter,
+  PercentageCounter,
+} from '@/components/animated'
+import MobileActionSheet, {
+  useActionSheet,
+} from '@/components/mobile/mobile-action-sheet'
+import {
+  usePortfolioState,
+  HoldingWithMetrics,
+} from '@/lib/hooks/use-portfolio-state'
 import { formatCurrency, formatPercentage } from '@/components/charts'
 import { cn } from '@/lib/utils/cn'
 
@@ -38,6 +48,7 @@ interface MobileHoldingsSectionProps {
   onEditHolding?: (holding: HoldingWithMetrics) => void
   onDeleteHolding?: (holding: HoldingWithMetrics) => void
   onBuyMore?: (holding: HoldingWithMetrics) => void
+  onStockClick?: (holding: HoldingWithMetrics) => void
   className?: string
 }
 
@@ -62,26 +73,30 @@ const groupingOptions: GroupingOption[] = [
   {
     key: 'none',
     label: 'Ingen gruppering',
-    getValue: () => 'all'
+    getValue: () => 'all',
   },
   {
     key: 'sector',
     label: 'Etter sektor',
-    getValue: (holding) => holding.stocks?.sector || 'Ukjent sektor'
+    getValue: holding => holding.stocks?.sector || 'Ukjent sektor',
   },
   {
     key: 'currency',
     label: 'Etter valuta',
-    getValue: (holding) => holding.stocks?.currency || 'NOK'
+    getValue: holding => holding.stocks?.currency || 'NOK',
   },
   {
     key: 'performance',
     label: 'Etter ytelse',
-    getValue: (holding) => 
-      holding.gain_loss_percent >= 10 ? 'Høy gevinst (>10%)' :
-      holding.gain_loss_percent >= 0 ? 'Positiv' :
-      holding.gain_loss_percent >= -10 ? 'Negativ' : 'Høyt tap (<-10%)'
-  }
+    getValue: holding =>
+      holding.gain_loss_percent >= 10
+        ? 'Høy gevinst (>10%)'
+        : holding.gain_loss_percent >= 0
+          ? 'Positiv'
+          : holding.gain_loss_percent >= -10
+            ? 'Negativ'
+            : 'Høyt tap (<-10%)',
+  },
 ]
 
 // Virtual scrolling for large lists
@@ -95,12 +110,20 @@ interface VirtualizedListProps {
   itemHeight: number
 }
 
-function VirtualizedList({ items, renderItem, height, itemHeight }: VirtualizedListProps) {
+function VirtualizedList({
+  items,
+  renderItem,
+  height,
+  itemHeight,
+}: VirtualizedListProps) {
   const [scrollTop, setScrollTop] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const visibleStart = Math.floor(scrollTop / itemHeight)
-  const visibleEnd = Math.min(visibleStart + Math.ceil(height / itemHeight) + 2, items.length)
+  const visibleEnd = Math.min(
+    visibleStart + Math.ceil(height / itemHeight) + 2,
+    items.length
+  )
   const visibleItems = items.slice(visibleStart, visibleEnd)
 
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
@@ -124,7 +147,9 @@ function VirtualizedList({ items, renderItem, height, itemHeight }: VirtualizedL
             right: 0,
           }}
         >
-          {visibleItems.map((item, index) => renderItem(item, visibleStart + index))}
+          {visibleItems.map((item, index) =>
+            renderItem(item, visibleStart + index)
+          )}
         </div>
       </div>
     </div>
@@ -137,14 +162,16 @@ interface SwipeableHoldingCardProps {
   viewMode: 'list' | 'grid'
   isSelected: boolean
   onSelect: (holding: HoldingWithMetrics) => void
+  onStockClick?: (holding: HoldingWithMetrics) => void
 }
 
-function SwipeableHoldingCard({ 
-  holding, 
-  onSwipeAction, 
-  viewMode, 
+function SwipeableHoldingCard({
+  holding,
+  onSwipeAction,
+  viewMode,
   isSelected,
-  onSelect 
+  onSelect,
+  onStockClick,
 }: SwipeableHoldingCardProps) {
   const [swipeX, setSwipeX] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
@@ -157,72 +184,87 @@ function SwipeableHoldingCard({
       label: 'Rediger',
       icon: PencilIcon,
       color: 'bg-blue-500',
-      action: (holding) => onSwipeAction('edit', holding)
+      action: holding => onSwipeAction('edit', holding),
     },
     {
       id: 'buy',
       label: 'Kjøp mer',
       icon: ShoppingCartIcon,
       color: 'bg-green-500',
-      action: (holding) => onSwipeAction('buy', holding)
+      action: holding => onSwipeAction('buy', holding),
     },
     {
       id: 'delete',
       label: 'Slett',
       icon: TrashIcon,
       color: 'bg-red-500',
-      action: (holding) => onSwipeAction('delete', holding)
-    }
+      action: holding => onSwipeAction('delete', holding),
+    },
   ]
 
   const handleDragStart = useCallback(() => {
     setIsDragging(true)
   }, [])
 
-  const handleDrag = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    if (info.offset.x < 0) {
-      const newX = Math.max(-SWIPE_ACTIONS_WIDTH, info.offset.x)
-      setSwipeX(newX)
-    }
-  }, [])
-
-  const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    setIsDragging(false)
-    
-    if (Math.abs(info.offset.x) > SWIPE_THRESHOLD) {
-      setSwipeX(-SWIPE_ACTIONS_WIDTH)
-      setShowActions(true)
-      
-      // Haptic feedback
-      if ('vibrate' in navigator) {
-        navigator.vibrate(50)
+  const handleDrag = useCallback(
+    (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      if (info.offset.x < 0) {
+        const newX = Math.max(-SWIPE_ACTIONS_WIDTH, info.offset.x)
+        setSwipeX(newX)
       }
-    } else {
-      setSwipeX(0)
-      setShowActions(false)
-    }
-  }, [])
+    },
+    []
+  )
+
+  const handleDragEnd = useCallback(
+    (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      setIsDragging(false)
+
+      if (Math.abs(info.offset.x) > SWIPE_THRESHOLD) {
+        setSwipeX(-SWIPE_ACTIONS_WIDTH)
+        setShowActions(true)
+
+        // Haptic feedback
+        if ('vibrate' in navigator) {
+          navigator.vibrate(50)
+        }
+      } else {
+        setSwipeX(0)
+        setShowActions(false)
+      }
+    },
+    []
+  )
 
   const handleCardTap = useCallback(() => {
     if (showActions) {
       setShowActions(false)
       setSwipeX(0)
     } else {
-      onSelect(holding)
+      // If onStockClick is provided, use it for opening stock details
+      // Otherwise fall back to selection behavior
+      if (onStockClick) {
+        onStockClick(holding)
+      } else {
+        onSelect(holding)
+      }
     }
-  }, [showActions, holding, onSelect])
+  }, [showActions, holding, onSelect, onStockClick])
 
-  const handleActionClick = useCallback((action: SwipeAction, e: React.MouseEvent) => {
-    e.stopPropagation()
-    action.action(holding)
-    setShowActions(false)
-    setSwipeX(0)
-    
-    // Haptic feedback
-    if ('vibrate' in navigator) {
-      navigator.vibrate(100)
-    }
-  }, [holding])
+  const handleActionClick = useCallback(
+    (action: SwipeAction, e: React.MouseEvent) => {
+      e.stopPropagation()
+      action.action(holding)
+      setShowActions(false)
+      setSwipeX(0)
+
+      // Haptic feedback
+      if ('vibrate' in navigator) {
+        navigator.vibrate(100)
+      }
+    },
+    [holding]
+  )
 
   const isPositive = holding.gain_loss >= 0
 
@@ -231,9 +273,9 @@ function SwipeableHoldingCard({
       <motion.div
         ref={cardRef}
         className={cn(
-          'relative bg-white border border-gray-200 rounded-lg transition-all duration-200',
+          'relative rounded-lg border border-gray-200 bg-white transition-all duration-200',
           viewMode === 'grid' ? 'p-3' : 'p-4',
-          isSelected && 'ring-2 ring-blue-500 bg-blue-50',
+          isSelected && 'bg-blue-50 ring-2 ring-blue-500',
           isDragging ? 'z-10' : ''
         )}
         drag="x"
@@ -249,24 +291,27 @@ function SwipeableHoldingCard({
         {viewMode === 'grid' ? (
           // Grid View (Compact)
           <div className="text-center">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-sm">{holding.symbol}</span>
-              <div className={cn(
-                'text-xs font-medium',
-                isPositive ? 'text-green-600' : 'text-red-600'
-              )}>
-                {isPositive ? '+' : ''}<PercentageCounter value={holding.gain_loss_percent} />
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-sm font-semibold">{holding.symbol}</span>
+              <div
+                className={cn(
+                  'text-xs font-medium',
+                  isPositive ? 'text-green-600' : 'text-red-600'
+                )}
+              >
+                {isPositive ? '+' : ''}
+                <PercentageCounter value={holding.gain_loss_percent} />
               </div>
             </div>
-            
+
             <div className="mb-2">
-              <CurrencyCounter 
-                value={holding.current_value} 
+              <CurrencyCounter
+                value={holding.current_value}
                 currency="NOK"
                 className="text-lg font-bold"
               />
             </div>
-            
+
             <div className="text-xs text-gray-500">
               <NumberCounter value={holding.quantity} /> stk
             </div>
@@ -274,10 +319,12 @@ function SwipeableHoldingCard({
         ) : (
           // List View (Detailed)
           <div>
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center space-x-2 mb-1">
-                  <h3 className="font-semibold text-gray-900">{holding.symbol}</h3>
+            <div className="mb-3 flex items-start justify-between">
+              <div className="min-w-0 flex-1">
+                <div className="mb-1 flex items-center space-x-2">
+                  <h3 className="font-semibold text-gray-900">
+                    {holding.symbol}
+                  </h3>
                   {holding.stocks?.sector && (
                     <Badge variant="secondary" className="text-xs">
                       {holding.stocks.sector}
@@ -289,27 +336,29 @@ function SwipeableHoldingCard({
                     </Badge>
                   )}
                 </div>
-                <p className="text-sm text-gray-600 truncate">
+                <p className="truncate text-sm text-gray-600">
                   {holding.stocks?.name || 'Ukjent selskap'}
                 </p>
               </div>
-              
+
               <div className="text-right">
-                <CurrencyCounter 
-                  value={holding.current_value} 
+                <CurrencyCounter
+                  value={holding.current_value}
                   currency="NOK"
                   className="text-lg font-semibold"
                 />
-                <div className={cn(
-                  'text-sm font-medium flex items-center justify-end mt-1',
-                  isPositive ? 'text-green-600' : 'text-red-600'
-                )}>
-                  {isPositive ? (
-                    <ArrowTrendingUpIcon className="h-3 w-3 mr-1" />
-                  ) : (
-                    <ArrowTrendingDownIcon className="h-3 w-3 mr-1" />
+                <div
+                  className={cn(
+                    'mt-1 flex items-center justify-end text-sm font-medium',
+                    isPositive ? 'text-green-600' : 'text-red-600'
                   )}
-                  <PercentageCounter 
+                >
+                  {isPositive ? (
+                    <ArrowTrendingUpIcon className="mr-1 h-3 w-3" />
+                  ) : (
+                    <ArrowTrendingDownIcon className="mr-1 h-3 w-3" />
+                  )}
+                  <PercentageCounter
                     value={holding.gain_loss_percent}
                     prefix={isPositive ? '+' : ''}
                   />
@@ -319,20 +368,26 @@ function SwipeableHoldingCard({
 
             <div className="grid grid-cols-3 gap-3 text-sm">
               <div>
-                <div className="text-gray-500 text-xs">Antall</div>
-                <NumberCounter value={holding.quantity} className="font-medium" />
+                <div className="text-xs text-gray-500">Antall</div>
+                <NumberCounter
+                  value={holding.quantity}
+                  className="font-medium"
+                />
               </div>
               <div>
-                <div className="text-gray-500 text-xs">Kurs</div>
-                <CurrencyCounter 
-                  value={holding.current_price} 
+                <div className="text-xs text-gray-500">Kurs</div>
+                <CurrencyCounter
+                  value={holding.current_price}
                   currency={holding.stocks?.currency || 'NOK'}
                   className="font-medium"
                 />
               </div>
               <div>
-                <div className="text-gray-500 text-xs">Vekt</div>
-                <PercentageCounter value={holding.weight} className="font-medium" />
+                <div className="text-xs text-gray-500">Vekt</div>
+                <PercentageCounter
+                  value={holding.weight}
+                  className="font-medium"
+                />
               </div>
             </div>
           </div>
@@ -346,7 +401,7 @@ function SwipeableHoldingCard({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute right-0 top-0 h-full flex"
+            className="absolute right-0 top-0 flex h-full"
           >
             {swipeActions.map((action, index) => {
               const Icon = action.icon
@@ -356,14 +411,14 @@ function SwipeableHoldingCard({
                   initial={{ x: 60 }}
                   animate={{ x: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  onClick={(e) => handleActionClick(action, e)}
+                  onClick={e => handleActionClick(action, e)}
                   className={cn(
-                    'flex flex-col items-center justify-center w-14 h-full text-white transition-colors',
+                    'flex h-full w-14 flex-col items-center justify-center text-white transition-colors',
                     action.color,
                     index === swipeActions.length - 1 && 'rounded-r-lg'
                   )}
                 >
-                  <Icon className="h-5 w-5 mb-1" />
+                  <Icon className="mb-1 h-5 w-5" />
                   <span className="text-xs font-medium">{action.label}</span>
                 </motion.button>
               )
@@ -381,14 +436,22 @@ export default function MobileHoldingsSection({
   onEditHolding,
   onDeleteHolding,
   onBuyMore,
-  className
+  onStockClick,
+  className,
 }: MobileHoldingsSectionProps) {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list')
   const [showFilters, setShowFilters] = useState(false)
   const [groupBy, setGroupBy] = useState('none')
-  const [selectedHoldings, setSelectedHoldings] = useState<Set<string>>(new Set())
+  const [selectedHoldings, setSelectedHoldings] = useState<Set<string>>(
+    new Set()
+  )
   const [searchQuery, setSearchQuery] = useState('')
-  const { isOpen: isActionSheetOpen, config, showActionSheet, hideActionSheet } = useActionSheet()
+  const {
+    isOpen: isActionSheetOpen,
+    config,
+    showActionSheet,
+    hideActionSheet,
+  } = useActionSheet()
 
   const {
     sortedHoldings,
@@ -405,12 +468,13 @@ export default function MobileHoldingsSection({
   // Handle search
   const filteredHoldings = useMemo(() => {
     if (!searchQuery) return sortedHoldings
-    
+
     const query = searchQuery.toLowerCase()
-    return sortedHoldings.filter(holding => 
-      holding.symbol.toLowerCase().includes(query) ||
-      holding.stocks?.name?.toLowerCase().includes(query) ||
-      holding.stocks?.sector?.toLowerCase().includes(query)
+    return sortedHoldings.filter(
+      holding =>
+        holding.symbol.toLowerCase().includes(query) ||
+        holding.stocks?.name?.toLowerCase().includes(query) ||
+        holding.stocks?.sector?.toLowerCase().includes(query)
     )
   }, [sortedHoldings, searchQuery])
 
@@ -434,19 +498,22 @@ export default function MobileHoldingsSection({
   }, [filteredHoldings, groupBy])
 
   // Handle swipe actions
-  const handleSwipeAction = useCallback((action: string, holding: HoldingWithMetrics) => {
-    switch (action) {
-      case 'edit':
-        onEditHolding?.(holding)
-        break
-      case 'buy':
-        onBuyMore?.(holding)
-        break
-      case 'delete':
-        onDeleteHolding?.(holding)
-        break
-    }
-  }, [onEditHolding, onBuyMore, onDeleteHolding])
+  const handleSwipeAction = useCallback(
+    (action: string, holding: HoldingWithMetrics) => {
+      switch (action) {
+        case 'edit':
+          onEditHolding?.(holding)
+          break
+        case 'buy':
+          onBuyMore?.(holding)
+          break
+        case 'delete':
+          onDeleteHolding?.(holding)
+          break
+      }
+    },
+    [onEditHolding, onBuyMore, onDeleteHolding]
+  )
 
   // Handle selection
   const handleSelectHolding = useCallback((holding: HoldingWithMetrics) => {
@@ -470,31 +537,45 @@ export default function MobileHoldingsSection({
   }, [selectedHoldings.size, filteredHoldings])
 
   // Handle sorting
-  const handleSort = useCallback((key: keyof HoldingWithMetrics) => {
-    setSortConfig(prev => ({
-      key,
-      direction: prev.key === key && prev.direction === 'desc' ? 'asc' : 'desc',
-    }))
-  }, [setSortConfig])
+  const handleSort = useCallback(
+    (key: keyof HoldingWithMetrics) => {
+      setSortConfig(prev => ({
+        key,
+        direction:
+          prev.key === key && prev.direction === 'desc' ? 'asc' : 'desc',
+      }))
+    },
+    [setSortConfig]
+  )
 
   // Render holding item
-  const renderHoldingItem = useCallback((holding: HoldingWithMetrics, index: number) => (
-    <motion.div
-      key={holding.id}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
-      className={viewMode === 'grid' ? 'w-full' : 'mb-3'}
-    >
-      <SwipeableHoldingCard
-        holding={holding}
-        onSwipeAction={handleSwipeAction}
-        viewMode={viewMode}
-        isSelected={selectedHoldings.has(holding.id)}
-        onSelect={handleSelectHolding}
-      />
-    </motion.div>
-  ), [viewMode, selectedHoldings, handleSwipeAction, handleSelectHolding])
+  const renderHoldingItem = useCallback(
+    (holding: HoldingWithMetrics, index: number) => (
+      <motion.div
+        key={holding.id}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: index * 0.05 }}
+        className={viewMode === 'grid' ? 'w-full' : 'mb-3'}
+      >
+        <SwipeableHoldingCard
+          holding={holding}
+          onSwipeAction={handleSwipeAction}
+          viewMode={viewMode}
+          isSelected={selectedHoldings.has(holding.id)}
+          onSelect={handleSelectHolding}
+          onStockClick={onStockClick}
+        />
+      </motion.div>
+    ),
+    [
+      viewMode,
+      selectedHoldings,
+      handleSwipeAction,
+      handleSelectHolding,
+      onStockClick,
+    ]
+  )
 
   if (holdingsError) {
     return (
@@ -515,11 +596,11 @@ export default function MobileHoldingsSection({
       {/* Header with stats and controls */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">
-            Beholdninger
-          </h3>
-          <div className="flex items-center space-x-3 mt-1 text-sm text-gray-600">
-            <span>{filteredHoldings.length} av {sortedHoldings.length}</span>
+          <h3 className="text-lg font-semibold text-gray-900">Beholdninger</h3>
+          <div className="mt-1 flex items-center space-x-3 text-sm text-gray-600">
+            <span>
+              {filteredHoldings.length} av {sortedHoldings.length}
+            </span>
             {isPricesConnected && (
               <div className="flex items-center space-x-1 text-green-600">
                 <SparklesIcon className="h-4 w-4" />
@@ -558,7 +639,10 @@ export default function MobileHoldingsSection({
             variant="outline"
             size="sm"
             onClick={() => setShowFilters(!showFilters)}
-            className={cn('touch-manipulation', showFilters && 'bg-blue-50 text-blue-600')}
+            className={cn(
+              'touch-manipulation',
+              showFilters && 'bg-blue-50 text-blue-600'
+            )}
           >
             <FunnelIcon className="h-4 w-4" />
           </Button>
@@ -567,12 +651,12 @@ export default function MobileHoldingsSection({
 
       {/* Search Bar */}
       <div className="relative">
-        <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
         <Input
           placeholder="Søk etter symbol, navn eller sektor..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 touch-manipulation"
+          onChange={e => setSearchQuery(e.target.value)}
+          className="touch-manipulation pl-10"
         />
       </div>
 
@@ -585,18 +669,15 @@ export default function MobileHoldingsSection({
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <AnimatedCard className="p-4 bg-gray-50">
+            <AnimatedCard className="bg-gray-50 p-4">
               <div className="space-y-4">
                 {/* Grouping and Sorting */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
                       Grupper etter
                     </label>
-                    <Select
-                      value={groupBy}
-                      onValueChange={setGroupBy}
-                    >
+                    <Select value={groupBy} onValueChange={setGroupBy}>
                       {groupingOptions.map(option => (
                         <option key={option.key} value={option.key}>
                           {option.label}
@@ -604,15 +685,17 @@ export default function MobileHoldingsSection({
                       ))}
                     </Select>
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
                       Sorter etter
                     </label>
                     <div className="flex space-x-2">
                       <Select
                         value={sortConfig.key}
-                        onValueChange={(value) => handleSort(value as keyof HoldingWithMetrics)}
+                        onValueChange={value =>
+                          handleSort(value as keyof HoldingWithMetrics)
+                        }
                       >
                         <option value="current_value">Verdi</option>
                         <option value="gain_loss_percent">Gevinst %</option>
@@ -622,10 +705,13 @@ export default function MobileHoldingsSection({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setSortConfig(prev => ({
-                          ...prev,
-                          direction: prev.direction === 'asc' ? 'desc' : 'asc'
-                        }))}
+                        onClick={() =>
+                          setSortConfig(prev => ({
+                            ...prev,
+                            direction:
+                              prev.direction === 'asc' ? 'desc' : 'asc',
+                          }))
+                        }
                       >
                         {sortConfig.direction === 'asc' ? (
                           <ChevronUpIcon className="h-4 w-4" />
@@ -639,7 +725,7 @@ export default function MobileHoldingsSection({
 
                 {/* Selection Controls */}
                 {selectedHoldings.size > 0 && (
-                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                  <div className="flex items-center justify-between rounded-lg bg-blue-50 p-3">
                     <span className="text-sm text-blue-800">
                       {selectedHoldings.size} valgt
                     </span>
@@ -647,8 +733,8 @@ export default function MobileHoldingsSection({
                       <Button variant="outline" size="sm">
                         Eksporter
                       </Button>
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="sm"
                         onClick={() => setSelectedHoldings(new Set())}
                       >
@@ -666,35 +752,34 @@ export default function MobileHoldingsSection({
       {/* Holdings List */}
       <AnimatedCard className="overflow-hidden">
         {holdingsLoading ? (
-          <div className="p-6 space-y-4">
+          <div className="space-y-4 p-6">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="flex items-center space-x-4">
-                <div className="h-12 w-12 bg-gray-200 rounded animate-pulse" />
+                <div className="h-12 w-12 animate-pulse rounded bg-gray-200" />
                 <div className="flex-1">
-                  <div className="h-4 w-32 bg-gray-200 rounded animate-pulse mb-2" />
-                  <div className="h-3 w-20 bg-gray-200 rounded animate-pulse" />
+                  <div className="mb-2 h-4 w-32 animate-pulse rounded bg-gray-200" />
+                  <div className="h-3 w-20 animate-pulse rounded bg-gray-200" />
                 </div>
                 <div className="text-right">
-                  <div className="h-4 w-20 bg-gray-200 rounded animate-pulse mb-1" />
-                  <div className="h-3 w-16 bg-gray-200 rounded animate-pulse" />
+                  <div className="mb-1 h-4 w-20 animate-pulse rounded bg-gray-200" />
+                  <div className="h-3 w-16 animate-pulse rounded bg-gray-200" />
                 </div>
               </div>
             ))}
           </div>
         ) : filteredHoldings.length === 0 ? (
           <div className="p-12 text-center">
-            <InformationCircleIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <InformationCircleIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+            <h3 className="mb-2 text-lg font-medium text-gray-900">
               Ingen beholdninger funnet
             </h3>
-            <p className="text-gray-600 mb-4">
-              {sortedHoldings.length === 0 
+            <p className="mb-4 text-gray-600">
+              {sortedHoldings.length === 0
                 ? 'Legg til din første aksje for å komme i gang.'
-                : 'Prøv å justere søket eller filtrene.'
-              }
+                : 'Prøv å justere søket eller filtrene.'}
             </p>
             <Button onClick={onAddHolding}>
-              <PlusIcon className="h-4 w-4 mr-2" />
+              <PlusIcon className="mr-2 h-4 w-4" />
               Legg til aksje
             </Button>
           </div>
@@ -703,30 +788,32 @@ export default function MobileHoldingsSection({
             {Object.entries(groupedHoldings).map(([groupName, holdings]) => (
               <div key={groupName} className="mb-6 last:mb-0">
                 {groupBy !== 'none' && (
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="mb-3 flex items-center justify-between">
                     <h4 className="font-medium text-gray-900">{groupName}</h4>
                     <Badge variant="secondary">{holdings.length}</Badge>
                   </div>
                 )}
-                
+
                 {viewMode === 'grid' ? (
                   <div className="grid grid-cols-2 gap-3">
-                    {holdings.map((holding, index) => renderHoldingItem(holding, index))}
+                    {holdings.map((holding, index) =>
+                      renderHoldingItem(holding, index)
+                    )}
                   </div>
+                ) : // Use virtual scrolling for large lists
+                holdings.length > 20 ? (
+                  <VirtualizedList
+                    items={holdings}
+                    renderItem={renderHoldingItem}
+                    height={VIEWPORT_HEIGHT}
+                    itemHeight={ITEM_HEIGHT}
+                  />
                 ) : (
-                  // Use virtual scrolling for large lists
-                  holdings.length > 20 ? (
-                    <VirtualizedList
-                      items={holdings}
-                      renderItem={renderHoldingItem}
-                      height={VIEWPORT_HEIGHT}
-                      itemHeight={ITEM_HEIGHT}
-                    />
-                  ) : (
-                    <div className="space-y-3">
-                      {holdings.map((holding, index) => renderHoldingItem(holding, index))}
-                    </div>
-                  )
+                  <div className="space-y-3">
+                    {holdings.map((holding, index) =>
+                      renderHoldingItem(holding, index)
+                    )}
+                  </div>
                 )}
               </div>
             ))}

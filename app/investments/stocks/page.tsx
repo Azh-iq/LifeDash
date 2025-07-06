@@ -4,7 +4,10 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
-import { usePortfolioState } from '@/lib/hooks/use-portfolio-state'
+import {
+  usePortfolioState,
+  HoldingWithMetrics,
+} from '@/lib/hooks/use-portfolio-state'
 import { useRealtimeUpdates } from '@/lib/hooks/use-realtime-updates'
 import { useSmartRefresh } from '@/lib/hooks/use-smart-refresh'
 import PortfolioHeader from '@/components/portfolio/portfolio-header'
@@ -13,11 +16,12 @@ import PortfolioChartSection from '@/components/portfolio/portfolio-chart-sectio
 import HoldingsSection from '@/components/portfolio/holdings-section'
 import RecentActivity from '@/components/portfolio/recent-activity'
 import QuickActions from '@/components/portfolio/quick-actions'
+import StockDetailModal from '@/components/stocks/stock-detail-modal'
 import { MobilePortfolioDashboard } from '@/components/mobile'
-import { 
-  EmptyPortfolioState, 
-  ErrorPortfolioState, 
-  LoadingPortfolioState 
+import {
+  EmptyPortfolioState,
+  ErrorPortfolioState,
+  LoadingPortfolioState,
 } from '@/components/states'
 import { checkSetupStatus } from '@/lib/actions/platforms/setup'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
@@ -25,14 +29,14 @@ import { ErrorBoundary } from '@/components/ui/error-boundary'
 // Simple responsive hook
 const useResponsive = () => {
   const [isMobile, setIsMobile] = useState(false)
-  
+
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
     checkMobile()
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
-  
+
   return { isMobile }
 }
 
@@ -42,24 +46,30 @@ export default function StocksPage() {
   const [user, setUser] = useState<any>(null)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  
+
+  // Stock detail modal state
+  const [selectedStock, setSelectedStock] = useState<HoldingWithMetrics | null>(
+    null
+  )
+  const [isStockModalOpen, setIsStockModalOpen] = useState(false)
+
   // All hooks must be called before any early returns
   const { isMobile } = useResponsive()
-  
+
   // New portfolio state management
   const portfolioState = usePortfolioState(portfolioId, {
     enableRealtime: true,
     includeHoldings: true,
     autoRefresh: true,
   })
-  
+
   // Enhanced real-time updates
   useRealtimeUpdates(portfolioId, {
     autoConnect: true,
     batchUpdates: true,
   })
-  
-  // Smart refresh for better performance  
+
+  // Smart refresh for better performance
   const { refresh: smartRefresh } = useSmartRefresh(
     `portfolio-${portfolioId}`,
     () => portfolioState.refresh && portfolioState.refresh(),
@@ -67,12 +77,14 @@ export default function StocksPage() {
       interval: 30000,
     }
   )
-  
+
   // Authentication and setup check
   const initializeApp = useCallback(async () => {
     try {
       const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
 
       if (!session) {
         router.replace('/login')
@@ -87,7 +99,7 @@ export default function StocksPage() {
         router.replace('/investments/stocks/setup')
         return
       }
-      
+
       setIsInitialLoading(false)
     } catch (err) {
       console.error('Initialization error:', err)
@@ -99,10 +111,21 @@ export default function StocksPage() {
   useEffect(() => {
     initializeApp()
   }, [initializeApp])
-  
+
   const handleRefresh = useCallback(async () => {
     await smartRefresh()
   }, [smartRefresh])
+
+  // Handle stock detail modal
+  const handleStockClick = useCallback((holding: HoldingWithMetrics) => {
+    setSelectedStock(holding)
+    setIsStockModalOpen(true)
+  }, [])
+
+  const handleCloseStockModal = useCallback(() => {
+    setIsStockModalOpen(false)
+    setSelectedStock(null)
+  }, [])
 
   // Error handling
   if (error || portfolioState.error) {
@@ -149,7 +172,7 @@ export default function StocksPage() {
   if (isMobile) {
     return (
       <ErrorBoundary>
-        <MobilePortfolioDashboard 
+        <MobilePortfolioDashboard
           portfolioId={portfolioId}
           initialView="overview"
           showNavigation={true}
@@ -173,10 +196,12 @@ export default function StocksPage() {
             portfolioId={portfolioId}
             onBack={() => router.back()}
             onEdit={() => router.push('/investments/stocks/setup')}
-            onShare={() => {/* implement share */}}
+            onShare={() => {
+              /* implement share */
+            }}
           />
         </ErrorBoundary>
-        
+
         <div className="mx-auto max-w-7xl px-6 py-8">
           <div className="space-y-8">
             <ErrorBoundary>
@@ -189,7 +214,10 @@ export default function StocksPage() {
               <PortfolioChartSection portfolioId={portfolioId} />
             </ErrorBoundary>
             <ErrorBoundary>
-              <HoldingsSection portfolioId={portfolioId} />
+              <HoldingsSection
+                portfolioId={portfolioId}
+                onStockClick={handleStockClick}
+              />
             </ErrorBoundary>
             <ErrorBoundary>
               <RecentActivity portfolioId={portfolioId} />
@@ -197,6 +225,16 @@ export default function StocksPage() {
           </div>
         </div>
       </motion.div>
+
+      {/* Stock Detail Modal */}
+      {selectedStock && (
+        <StockDetailModal
+          isOpen={isStockModalOpen}
+          onClose={handleCloseStockModal}
+          stockData={selectedStock}
+          isMobile={isMobile}
+        />
+      )}
     </ErrorBoundary>
   )
 }
