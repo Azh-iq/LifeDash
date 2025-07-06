@@ -17,7 +17,7 @@ import HoldingsSection from '@/components/portfolio/holdings-section'
 import RecentActivity from '@/components/portfolio/recent-activity'
 import QuickActions from '@/components/portfolio/quick-actions'
 import StockDetailModal from '@/components/stocks/stock-detail-modal'
-import { MobilePortfolioDashboard } from '@/components/mobile'
+import MobilePortfolioDashboard from '@/components/mobile/mobile-portfolio-dashboard'
 import {
   EmptyPortfolioState,
   ErrorPortfolioState,
