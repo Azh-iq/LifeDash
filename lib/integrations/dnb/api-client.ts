@@ -15,7 +15,7 @@ import {
   DNBConnectionStatus,
   DNB_API_ENDPOINTS,
   DNB_OAUTH_SCOPES,
-  DNB_RATE_LIMITS
+  DNB_RATE_LIMITS,
 } from './types'
 
 export class DNBApiClient {
@@ -32,7 +32,7 @@ export class DNBApiClient {
       refreshToken: null,
       expiresAt: null,
       userId: null,
-      lastRefresh: null
+      lastRefresh: null,
     }
   }
 
@@ -46,23 +46,26 @@ export class DNBApiClient {
       client_id: this.config.clientId,
       redirect_uri: this.config.redirectUri,
       scope: this.config.scope.join(' '),
-      state: state
+      state: state,
     })
 
     const authUrl = `${this.config.baseUrl}/auth/oauth/authorize?${params.toString()}`
-    
+
     // Store state for validation
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('dnb_oauth_state', state)
     }
-    
+
     return authUrl
   }
 
   /**
    * Complete OAuth2 authentication with authorization code
    */
-  public async completeAuth(code: string, state: string): Promise<DNBTokenResponse> {
+  public async completeAuth(
+    code: string,
+    state: string
+  ): Promise<DNBTokenResponse> {
     // Validate state parameter
     if (typeof window !== 'undefined') {
       const storedState = sessionStorage.getItem('dnb_oauth_state')
@@ -77,7 +80,7 @@ export class DNBApiClient {
       code: code,
       client_id: this.config.clientId,
       client_secret: this.config.clientSecret,
-      redirect_uri: this.config.redirectUri
+      redirect_uri: this.config.redirectUri,
     }
 
     const response = await this.makeRequest<DNBTokenResponse>(
@@ -92,9 +95,9 @@ export class DNBApiClient {
       isAuthenticated: true,
       accessToken: response.access_token,
       refreshToken: response.refresh_token,
-      expiresAt: Date.now() + (response.expires_in * 1000),
+      expiresAt: Date.now() + response.expires_in * 1000,
       userId: null, // Will be set after fetching customer info
-      lastRefresh: Date.now()
+      lastRefresh: Date.now(),
     }
 
     return response
@@ -112,7 +115,7 @@ export class DNBApiClient {
       grant_type: 'refresh_token',
       refresh_token: this.authState.refreshToken,
       client_id: this.config.clientId,
-      client_secret: this.config.clientSecret
+      client_secret: this.config.clientSecret,
     }
 
     const response = await this.makeRequest<DNBTokenResponse>(
@@ -127,8 +130,8 @@ export class DNBApiClient {
       ...this.authState,
       accessToken: response.access_token,
       refreshToken: response.refresh_token || this.authState.refreshToken,
-      expiresAt: Date.now() + (response.expires_in * 1000),
-      lastRefresh: Date.now()
+      expiresAt: Date.now() + response.expires_in * 1000,
+      lastRefresh: Date.now(),
     }
 
     return response
@@ -139,7 +142,7 @@ export class DNBApiClient {
    */
   public async getAccounts(): Promise<DNBAccount[]> {
     await this.ensureValidToken()
-    
+
     const response = await this.makeRequest<DNBAccountResponse>(
       'GET',
       DNB_API_ENDPOINTS.ACCOUNTS,
@@ -163,15 +166,21 @@ export class DNBApiClient {
     } = {}
   ): Promise<DNBTransactionResponse> {
     await this.ensureValidToken()
-    
+
     const params = new URLSearchParams()
     if (options.fromDate) params.append('fromDate', options.fromDate)
     if (options.toDate) params.append('toDate', options.toDate)
     if (options.pageSize) params.append('pageSize', options.pageSize.toString())
-    if (options.pageNumber) params.append('pageNumber', options.pageNumber.toString())
+    if (options.pageNumber)
+      params.append('pageNumber', options.pageNumber.toString())
 
-    const endpoint = DNB_API_ENDPOINTS.TRANSACTIONS.replace('{accountId}', accountId)
-    const url = params.toString() ? `${endpoint}?${params.toString()}` : endpoint
+    const endpoint = DNB_API_ENDPOINTS.TRANSACTIONS.replace(
+      '{accountId}',
+      accountId
+    )
+    const url = params.toString()
+      ? `${endpoint}?${params.toString()}`
+      : endpoint
 
     return await this.makeRequest<DNBTransactionResponse>(
       'GET',
@@ -202,7 +211,7 @@ export class DNBApiClient {
         const response = await this.getTransactions(account.accountId, {
           ...options,
           pageNumber,
-          pageSize: options.pageSize || 100
+          pageSize: options.pageSize || 100,
         })
 
         allTransactions.push(...response.transactions)
@@ -231,15 +240,18 @@ export class DNBApiClient {
       errors: [],
       warnings: [],
       lastSyncTime: new Date().toISOString(),
-      nextSyncTime: new Date(Date.now() + config.syncInterval * 60000).toISOString()
+      nextSyncTime: new Date(
+        Date.now() + config.syncInterval * 60000
+      ).toISOString(),
     }
 
     try {
       // Get accounts
       const accounts = await this.getAccounts()
-      const targetAccounts = config.accountIds.length > 0 
-        ? accounts.filter(acc => config.accountIds.includes(acc.accountId))
-        : accounts
+      const targetAccounts =
+        config.accountIds.length > 0
+          ? accounts.filter(acc => config.accountIds.includes(acc.accountId))
+          : accounts
 
       result.accountsSynced = targetAccounts.length
 
@@ -249,20 +261,20 @@ export class DNBApiClient {
           const transactions = await this.getAllTransactions({
             fromDate: config.fromDate,
             toDate: config.toDate,
-            pageSize: config.pageSize
+            pageSize: config.pageSize,
           })
 
           result.transactionsSynced += transactions.length
           // Here you would typically save to database
           // This is a simplified example
-          
         } catch (error) {
-          result.errors.push(`Failed to sync account ${account.accountId}: ${error}`)
+          result.errors.push(
+            `Failed to sync account ${account.accountId}: ${error}`
+          )
         }
       }
 
       result.success = result.errors.length === 0
-      
     } catch (error) {
       result.errors.push(`Sync failed: ${error}`)
     }
@@ -276,11 +288,13 @@ export class DNBApiClient {
   public getConnectionStatus(): DNBConnectionStatus {
     return {
       connected: this.authState.isAuthenticated && this.isTokenValid(),
-      lastSync: this.authState.lastRefresh ? new Date(this.authState.lastRefresh).toISOString() : null,
+      lastSync: this.authState.lastRefresh
+        ? new Date(this.authState.lastRefresh).toISOString()
+        : null,
       nextSync: null, // Would be calculated based on sync schedule
       status: this.getConnectionStatusString(),
       accountCount: 0, // Would be stored/cached
-      transactionCount: 0 // Would be stored/cached
+      transactionCount: 0, // Would be stored/cached
     }
   }
 
@@ -295,7 +309,7 @@ export class DNBApiClient {
       refreshToken: null,
       expiresAt: null,
       userId: null,
-      lastRefresh: null
+      lastRefresh: null,
     }
 
     // Clear any stored tokens
@@ -340,7 +354,7 @@ export class DNBApiClient {
     const url = `${this.config.baseUrl}${endpoint}`
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
-      'Accept': 'application/json'
+      Accept: 'application/json',
     }
 
     if (requiresAuth && this.authState.accessToken) {
@@ -350,17 +364,19 @@ export class DNBApiClient {
     const options: RequestInit = {
       method,
       headers,
-      body: data ? JSON.stringify(data) : undefined
+      body: data ? JSON.stringify(data) : undefined,
     }
 
     const response = await fetch(url, options)
-    
+
     // Update rate limit tracking
     this.updateRateLimit()
 
     if (!response.ok) {
       const error: DNBApiError = await response.json()
-      throw new Error(`DNB API Error: ${error.error_description || error.error}`)
+      throw new Error(
+        `DNB API Error: ${error.error_description || error.error}`
+      )
     }
 
     return await response.json()
@@ -369,9 +385,9 @@ export class DNBApiClient {
   private async checkRateLimit(): Promise<void> {
     const now = Date.now()
     const minute = Math.floor(now / 60000)
-    
+
     const requestsThisMinute = this.requestCount.get(minute.toString()) || 0
-    
+
     if (requestsThisMinute >= DNB_RATE_LIMITS.REQUESTS_PER_MINUTE) {
       const waitTime = 60000 - (now % 60000)
       await new Promise(resolve => setTimeout(resolve, waitTime))
@@ -382,9 +398,9 @@ export class DNBApiClient {
     const now = Date.now()
     const minute = Math.floor(now / 60000)
     const key = minute.toString()
-    
+
     this.requestCount.set(key, (this.requestCount.get(key) || 0) + 1)
-    
+
     // Clean up old entries
     for (const [k, _] of this.requestCount.entries()) {
       if (parseInt(k) < minute - 5) {
@@ -399,7 +415,8 @@ export class DNBApiClient {
   }
 
   private generateRandomString(length: number): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     let result = ''
     for (let i = 0; i < length; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length))

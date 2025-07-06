@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { 
+import {
   PortfolioPerformanceChart,
   AssetAllocationChart,
   TimeRangeSelector,
@@ -15,11 +15,41 @@ import {
 
 // Example data
 const mockPortfolioData = [
-  { date: '2024-01-01', value: 100000, change: 0, changePercent: 0, timestamp: Date.now() },
-  { date: '2024-01-15', value: 102000, change: 2000, changePercent: 2, timestamp: Date.now() },
-  { date: '2024-02-01', value: 98000, change: -2000, changePercent: -2, timestamp: Date.now() },
-  { date: '2024-02-15', value: 105000, change: 5000, changePercent: 5, timestamp: Date.now() },
-  { date: '2024-03-01', value: 107000, change: 7000, changePercent: 7, timestamp: Date.now() },
+  {
+    date: '2024-01-01',
+    value: 100000,
+    change: 0,
+    changePercent: 0,
+    timestamp: Date.now(),
+  },
+  {
+    date: '2024-01-15',
+    value: 102000,
+    change: 2000,
+    changePercent: 2,
+    timestamp: Date.now(),
+  },
+  {
+    date: '2024-02-01',
+    value: 98000,
+    change: -2000,
+    changePercent: -2,
+    timestamp: Date.now(),
+  },
+  {
+    date: '2024-02-15',
+    value: 105000,
+    change: 5000,
+    changePercent: 5,
+    timestamp: Date.now(),
+  },
+  {
+    date: '2024-03-01',
+    value: 107000,
+    change: 7000,
+    changePercent: 7,
+    timestamp: Date.now(),
+  },
 ]
 
 const mockAllocationData = [
@@ -35,10 +65,10 @@ const mockComparisonData = [
     'Min portefølje',
     mockPortfolioData,
     '#1e40af',
-    { 
+    {
       currentValue: 107000,
       totalReturn: 7000,
-      totalReturnPercent: 7
+      totalReturnPercent: 7,
     }
   ),
   createBenchmarkComparison(
@@ -65,7 +95,7 @@ export const ChartExample = () => {
         <h1 className="text-2xl font-bold">Portfolio Charts Example</h1>
         <button
           onClick={() => setShowChartControls(!showChartControls)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
         >
           {showChartControls ? 'Hide' : 'Show'} Controls
         </button>
@@ -100,7 +130,7 @@ export const ChartExample = () => {
       />
 
       {/* Asset Allocation Chart */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <AssetAllocationChart
           data={mockAllocationData}
           title="Asset Allocation (Donut)"

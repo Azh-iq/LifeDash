@@ -25,14 +25,14 @@ interface FormatNumberOptions {
  * Format a number as currency
  */
 export function formatCurrency(
-  amount: number, 
-  currency: string = 'NOK', 
+  amount: number,
+  currency: string = 'NOK',
   options: FormatCurrencyOptions = {}
 ): string {
   const {
     minimumFractionDigits = 2,
     maximumFractionDigits = 2,
-    showCurrencyCode = false
+    showCurrencyCode = false,
   } = options
 
   try {
@@ -47,19 +47,19 @@ export function formatCurrency(
       currency: currency.toUpperCase(),
       minimumFractionDigits,
       maximumFractionDigits,
-      currencyDisplay: showCurrencyCode ? 'code' : 'symbol'
+      currencyDisplay: showCurrencyCode ? 'code' : 'symbol',
     })
 
     return formatter.format(amount)
   } catch (error) {
     // Fallback for unsupported currencies
     console.warn(`Unsupported currency: ${currency}`, error)
-    
+
     const formatter = new Intl.NumberFormat('nb-NO', {
       minimumFractionDigits,
       maximumFractionDigits,
     })
-    
+
     return `${formatter.format(amount)} ${currency.toUpperCase()}`
   }
 }
@@ -68,13 +68,13 @@ export function formatCurrency(
  * Format a number as percentage
  */
 export function formatPercentage(
-  value: number, 
+  value: number,
   options: FormatPercentageOptions = {}
 ): string {
   const {
     minimumFractionDigits = 2,
     maximumFractionDigits = 2,
-    showPositiveSign = false
+    showPositiveSign = false,
   } = options
 
   try {
@@ -87,14 +87,14 @@ export function formatPercentage(
       style: 'percent',
       minimumFractionDigits,
       maximumFractionDigits,
-      signDisplay: showPositiveSign ? 'always' : 'auto'
+      signDisplay: showPositiveSign ? 'always' : 'auto',
     })
 
     // Convert to percentage (divide by 100 since Intl.NumberFormat multiplies by 100)
     return formatter.format(value / 100)
   } catch (error) {
     console.warn('Error formatting percentage:', error)
-    
+
     // Fallback formatting
     const sign = showPositiveSign && value > 0 ? '+' : ''
     return `${sign}${value.toFixed(maximumFractionDigits)}%`
@@ -112,7 +112,7 @@ export function formatCompactNumber(
   const {
     minimumFractionDigits = 0,
     maximumFractionDigits = 1,
-    notation = 'compact'
+    notation = 'compact',
   } = options
 
   try {
@@ -127,14 +127,14 @@ export function formatCompactNumber(
       maximumFractionDigits,
       ...(currency && {
         style: 'currency',
-        currency: currency.toUpperCase()
-      })
+        currency: currency.toUpperCase(),
+      }),
     })
 
     return formatter.format(value)
   } catch (error) {
     console.warn('Error formatting compact number:', error)
-    
+
     // Fallback to regular number formatting
     return formatNumber(value, { minimumFractionDigits, maximumFractionDigits })
   }
@@ -147,10 +147,7 @@ export function formatNumber(
   value: number,
   options: FormatNumberOptions = {}
 ): string {
-  const {
-    minimumFractionDigits = 0,
-    maximumFractionDigits = 2
-  } = options
+  const { minimumFractionDigits = 0, maximumFractionDigits = 2 } = options
 
   try {
     // Handle edge cases
@@ -160,7 +157,7 @@ export function formatNumber(
 
     const formatter = new Intl.NumberFormat('nb-NO', {
       minimumFractionDigits,
-      maximumFractionDigits
+      maximumFractionDigits,
     })
 
     return formatter.format(value)
@@ -179,7 +176,7 @@ export function formatDate(
 ): string {
   try {
     const dateObj = typeof date === 'string' ? new Date(date) : date
-    
+
     if (isNaN(dateObj.getTime())) {
       return '—'
     }
@@ -188,7 +185,7 @@ export function formatDate(
       year: 'numeric',
       month: 'short',
       day: 'numeric',
-      ...options
+      ...options,
     }
 
     return new Intl.DateTimeFormat('nb-NO', defaultOptions).format(dateObj)
@@ -207,14 +204,14 @@ export function formatRelativeTime(
 ): string {
   try {
     const dateObj = typeof date === 'string' ? new Date(date) : date
-    
+
     if (isNaN(dateObj.getTime())) {
       return '—'
     }
 
-    const rtf = new Intl.RelativeTimeFormat('nb-NO', { 
+    const rtf = new Intl.RelativeTimeFormat('nb-NO', {
       numeric: 'auto',
-      style: 'long'
+      style: 'long',
     })
 
     const diffTime = dateObj.getTime() - baseDate.getTime()
@@ -278,13 +275,25 @@ export function formatMarketCap(
 
   // Convert to appropriate unit
   if (marketCap >= 1e12) {
-    return formatCurrency(marketCap / 1e12, currency, { maximumFractionDigits: 1 }) + 'T'
+    return (
+      formatCurrency(marketCap / 1e12, currency, { maximumFractionDigits: 1 }) +
+      'T'
+    )
   } else if (marketCap >= 1e9) {
-    return formatCurrency(marketCap / 1e9, currency, { maximumFractionDigits: 1 }) + 'B'
+    return (
+      formatCurrency(marketCap / 1e9, currency, { maximumFractionDigits: 1 }) +
+      'B'
+    )
   } else if (marketCap >= 1e6) {
-    return formatCurrency(marketCap / 1e6, currency, { maximumFractionDigits: 1 }) + 'M'
+    return (
+      formatCurrency(marketCap / 1e6, currency, { maximumFractionDigits: 1 }) +
+      'M'
+    )
   } else if (marketCap >= 1e3) {
-    return formatCurrency(marketCap / 1e3, currency, { maximumFractionDigits: 1 }) + 'K'
+    return (
+      formatCurrency(marketCap / 1e3, currency, { maximumFractionDigits: 1 }) +
+      'K'
+    )
   } else {
     return formatCurrency(marketCap, currency)
   }
@@ -319,5 +328,5 @@ export const Format = {
   relativeTime: formatRelativeTime,
   marketCap: formatMarketCap,
   volume: formatVolume,
-  safe: formatSafe
+  safe: formatSafe,
 }

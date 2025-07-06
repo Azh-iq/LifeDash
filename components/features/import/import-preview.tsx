@@ -5,30 +5,42 @@
 
 import React, { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  Play, 
-  Pause, 
-  CheckCircle, 
-  AlertTriangle, 
+import {
+  Play,
+  Pause,
+  CheckCircle,
+  AlertTriangle,
   Info,
   Download,
   Filter,
   Search,
   Eye,
   Database,
-  TrendingUp
+  TrendingUp,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
-import { 
+import {
   Table,
   TableBody,
   TableCell,
@@ -40,7 +52,7 @@ import {
   NordnetTransactionData,
   NordnetFieldMapping,
   NordnetParseResult,
-  NordnetImportConfig
+  NordnetImportConfig,
 } from '@/lib/integrations/nordnet/types'
 import { NordnetFieldMapper } from '@/lib/integrations/nordnet/field-mapping'
 import { NordnetTransactionTransformer } from '@/lib/integrations/nordnet/transaction-transformer'
@@ -80,7 +92,7 @@ export function ImportPreview({
   mappings,
   onImport,
   onCancel,
-  className
+  className,
 }: ImportPreviewProps) {
   const [state, setState] = useState<PreviewState>({
     transformedData: [],
@@ -100,8 +112,8 @@ export function ImportPreview({
       portfolios: new Set(),
       transactionTypes: new Set(),
       currencies: new Set(),
-      totalAmount: 0
-    }
+      totalAmount: 0,
+    },
   })
 
   // Transform data when mappings change
@@ -120,20 +132,23 @@ export function ImportPreview({
     try {
       const batchSize = 100
       const transformedData: NordnetTransactionData[] = []
-      
+
       for (let i = 0; i < parseResult.rows.length; i += batchSize) {
         const batch = parseResult.rows.slice(i, i + batchSize)
-        
+
         // Transform each row in the batch
         for (const row of batch) {
           const transformed = NordnetFieldMapper.transformRow(row, mappings)
           transformedData.push(transformed)
         }
-        
+
         // Update progress
-        const progress = Math.min(((i + batchSize) / parseResult.rows.length) * 100, 100)
+        const progress = Math.min(
+          ((i + batchSize) / parseResult.rows.length) * 100,
+          100
+        )
         setState(prev => ({ ...prev, transformProgress: progress }))
-        
+
         // Allow UI to update
         await new Promise(resolve => setTimeout(resolve, 10))
       }
@@ -146,9 +161,8 @@ export function ImportPreview({
         transformedData,
         stats,
         isTransforming: false,
-        transformProgress: 100
+        transformProgress: 100,
       }))
-
     } catch (error) {
       console.error('Error transforming data:', error)
       setState(prev => ({ ...prev, isTransforming: false }))
@@ -171,8 +185,10 @@ export function ImportPreview({
     // Apply type filter
     switch (state.filterType) {
       case 'valid':
-        filtered = filtered.filter(row => 
-          row.validation_errors.length === 0 && row.validation_warnings.length === 0
+        filtered = filtered.filter(
+          row =>
+            row.validation_errors.length === 0 &&
+            row.validation_warnings.length === 0
         )
         break
       case 'warnings':
@@ -197,11 +213,15 @@ export function ImportPreview({
 
     for (const row of data) {
       if (row.portfolio_name) portfolios.add(row.portfolio_name)
-      if (row.internal_transaction_type) transactionTypes.add(row.internal_transaction_type)
+      if (row.internal_transaction_type)
+        transactionTypes.add(row.internal_transaction_type)
       if (row.currency) currencies.add(row.currency)
       if (row.amount) totalAmount += Math.abs(row.amount)
 
-      if (row.validation_errors.length === 0 && row.validation_warnings.length === 0) {
+      if (
+        row.validation_errors.length === 0 &&
+        row.validation_warnings.length === 0
+      ) {
         valid++
       } else if (row.validation_errors.length > 0) {
         errors++
@@ -218,7 +238,7 @@ export function ImportPreview({
       portfolios,
       transactionTypes,
       currencies,
-      totalAmount
+      totalAmount,
     }
   }
 
@@ -228,9 +248,10 @@ export function ImportPreview({
   }
 
   const handleExport = () => {
-    const dataToExport = state.selectedRows.size > 0 
-      ? state.filteredData.filter((_, index) => state.selectedRows.has(index))
-      : state.filteredData
+    const dataToExport =
+      state.selectedRows.size > 0
+        ? state.filteredData.filter((_, index) => state.selectedRows.has(index))
+        : state.filteredData
 
     const csvContent = generateCSV(dataToExport)
     const blob = new Blob([csvContent], { type: 'text/csv' })
@@ -245,18 +266,20 @@ export function ImportPreview({
   const generateCSV = (data: NordnetTransactionData[]) => {
     if (data.length === 0) return ''
 
-    const headers = Object.keys(data[0]).filter(key => 
-      !['validation_errors', 'validation_warnings'].includes(key)
+    const headers = Object.keys(data[0]).filter(
+      key => !['validation_errors', 'validation_warnings'].includes(key)
     )
-    
+
     const csvHeaders = headers.join(',')
-    const csvRows = data.map(row => 
-      headers.map(header => {
-        const value = row[header as keyof NordnetTransactionData]
-        return typeof value === 'string' && value.includes(',') 
-          ? `"${value}"` 
-          : value?.toString() || ''
-      }).join(',')
+    const csvRows = data.map(row =>
+      headers
+        .map(header => {
+          const value = row[header as keyof NordnetTransactionData]
+          return typeof value === 'string' && value.includes(',')
+            ? `"${value}"`
+            : value?.toString() || ''
+        })
+        .join(',')
     )
 
     return [csvHeaders, ...csvRows].join('\n')
@@ -283,18 +306,24 @@ export function ImportPreview({
               </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
-              <Button variant="outline" onClick={handleExport} disabled={state.filteredData.length === 0}>
-                <Download className="w-4 h-4 mr-2" />
+              <Button
+                variant="outline"
+                onClick={handleExport}
+                disabled={state.filteredData.length === 0}
+              >
+                <Download className="mr-2 h-4 w-4" />
                 Export
               </Button>
               <Button variant="outline" onClick={onCancel}>
                 Cancel
               </Button>
-              <Button 
-                onClick={handleImport} 
-                disabled={state.stats.errors > 0 || state.transformedData.length === 0}
+              <Button
+                onClick={handleImport}
+                disabled={
+                  state.stats.errors > 0 || state.transformedData.length === 0
+                }
               >
-                <Database className="w-4 h-4 mr-2" />
+                <Database className="mr-2 h-4 w-4" />
                 Import Data
               </Button>
             </div>
@@ -315,7 +344,10 @@ export function ImportPreview({
               <AlertDescription>
                 <div className="space-y-2">
                   <p>Transforming data...</p>
-                  <Progress value={state.transformProgress} className="w-full" />
+                  <Progress
+                    value={state.transformProgress}
+                    className="w-full"
+                  />
                   <p className="text-xs text-gray-500">
                     {Math.round(state.transformProgress)}% complete
                   </p>
@@ -328,11 +360,11 @@ export function ImportPreview({
 
       {/* Statistics */}
       {!state.isTransforming && state.transformedData.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
-                <TrendingUp className="w-5 h-5 text-blue-500" />
+                <TrendingUp className="h-5 w-5 text-blue-500" />
                 <div>
                   <p className="text-2xl font-bold">{state.stats.total}</p>
                   <p className="text-sm text-gray-500">Total Transactions</p>
@@ -344,9 +376,11 @@ export function ImportPreview({
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
-                <CheckCircle className="w-5 h-5 text-green-500" />
+                <CheckCircle className="h-5 w-5 text-green-500" />
                 <div>
-                  <p className="text-2xl font-bold text-green-600">{state.stats.valid}</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    {state.stats.valid}
+                  </p>
                   <p className="text-sm text-gray-500">Valid</p>
                 </div>
               </div>
@@ -356,9 +390,11 @@ export function ImportPreview({
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
-                <Info className="w-5 h-5 text-yellow-500" />
+                <Info className="h-5 w-5 text-yellow-500" />
                 <div>
-                  <p className="text-2xl font-bold text-yellow-600">{state.stats.warnings}</p>
+                  <p className="text-2xl font-bold text-yellow-600">
+                    {state.stats.warnings}
+                  </p>
                   <p className="text-sm text-gray-500">Warnings</p>
                 </div>
               </div>
@@ -368,9 +404,11 @@ export function ImportPreview({
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
-                <AlertTriangle className="w-5 h-5 text-red-500" />
+                <AlertTriangle className="h-5 w-5 text-red-500" />
                 <div>
-                  <p className="text-2xl font-bold text-red-600">{state.stats.errors}</p>
+                  <p className="text-2xl font-bold text-red-600">
+                    {state.stats.errors}
+                  </p>
                   <p className="text-sm text-gray-500">Errors</p>
                 </div>
               </div>
@@ -386,32 +424,51 @@ export function ImportPreview({
             <div className="flex items-center space-x-4">
               <div className="flex-1">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                   <Input
                     placeholder="Search transactions..."
                     value={state.searchTerm}
-                    onChange={(e) => setState(prev => ({ ...prev, searchTerm: e.target.value }))}
+                    onChange={e =>
+                      setState(prev => ({
+                        ...prev,
+                        searchTerm: e.target.value,
+                      }))
+                    }
                     className="pl-10"
                   />
                 </div>
               </div>
               <Select
                 value={state.filterType}
-                onValueChange={(value: any) => setState(prev => ({ ...prev, filterType: value }))}
+                onValueChange={(value: any) =>
+                  setState(prev => ({ ...prev, filterType: value }))
+                }
               >
                 <SelectTrigger className="w-40">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All ({state.stats.total})</SelectItem>
-                  <SelectItem value="valid">Valid ({state.stats.valid})</SelectItem>
-                  <SelectItem value="warnings">Warnings ({state.stats.warnings})</SelectItem>
-                  <SelectItem value="errors">Errors ({state.stats.errors})</SelectItem>
+                  <SelectItem value="valid">
+                    Valid ({state.stats.valid})
+                  </SelectItem>
+                  <SelectItem value="warnings">
+                    Warnings ({state.stats.warnings})
+                  </SelectItem>
+                  <SelectItem value="errors">
+                    Errors ({state.stats.errors})
+                  </SelectItem>
                 </SelectContent>
               </Select>
               <Select
                 value={state.pageSize.toString()}
-                onValueChange={(value) => setState(prev => ({ ...prev, pageSize: parseInt(value), currentPage: 0 }))}
+                onValueChange={value =>
+                  setState(prev => ({
+                    ...prev,
+                    pageSize: parseInt(value),
+                    currentPage: 0,
+                  }))
+                }
               >
                 <SelectTrigger className="w-20">
                   <SelectValue />
@@ -456,27 +513,32 @@ export function ImportPreview({
                     </TableHeader>
                     <TableBody>
                       {paginatedData.map((row, index) => (
-                        <TableRow key={index} className={
-                          row.validation_errors.length > 0 
-                            ? 'bg-red-50 dark:bg-red-950/20' 
-                            : row.validation_warnings.length > 0 
-                            ? 'bg-yellow-50 dark:bg-yellow-950/20' 
-                            : ''
-                        }>
+                        <TableRow
+                          key={index}
+                          className={
+                            row.validation_errors.length > 0
+                              ? 'bg-red-50 dark:bg-red-950/20'
+                              : row.validation_warnings.length > 0
+                                ? 'bg-yellow-50 dark:bg-yellow-950/20'
+                                : ''
+                          }
+                        >
                           <TableCell>
                             {row.validation_errors.length > 0 ? (
-                              <AlertTriangle className="w-4 h-4 text-red-500" />
+                              <AlertTriangle className="h-4 w-4 text-red-500" />
                             ) : row.validation_warnings.length > 0 ? (
-                              <Info className="w-4 h-4 text-yellow-500" />
+                              <Info className="h-4 w-4 text-yellow-500" />
                             ) : (
-                              <CheckCircle className="w-4 h-4 text-green-500" />
+                              <CheckCircle className="h-4 w-4 text-green-500" />
                             )}
                           </TableCell>
                           <TableCell className="font-mono text-sm">
                             {row.booking_date}
                           </TableCell>
                           <TableCell>
-                            <Badge variant="outline">{row.internal_transaction_type}</Badge>
+                            <Badge variant="outline">
+                              {row.internal_transaction_type}
+                            </Badge>
                           </TableCell>
                           <TableCell className="max-w-32 truncate">
                             {row.security_name || '-'}
@@ -504,17 +566,25 @@ export function ImportPreview({
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-between p-4 border-t">
+                  <div className="flex items-center justify-between border-t p-4">
                     <p className="text-sm text-gray-500">
                       Showing {state.currentPage * state.pageSize + 1} to{' '}
-                      {Math.min((state.currentPage + 1) * state.pageSize, state.filteredData.length)} of{' '}
-                      {state.filteredData.length} transactions
+                      {Math.min(
+                        (state.currentPage + 1) * state.pageSize,
+                        state.filteredData.length
+                      )}{' '}
+                      of {state.filteredData.length} transactions
                     </p>
                     <div className="flex items-center space-x-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setState(prev => ({ ...prev, currentPage: prev.currentPage - 1 }))}
+                        onClick={() =>
+                          setState(prev => ({
+                            ...prev,
+                            currentPage: prev.currentPage - 1,
+                          }))
+                        }
                         disabled={state.currentPage === 0}
                       >
                         Previous
@@ -525,7 +595,12 @@ export function ImportPreview({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setState(prev => ({ ...prev, currentPage: prev.currentPage + 1 }))}
+                        onClick={() =>
+                          setState(prev => ({
+                            ...prev,
+                            currentPage: prev.currentPage + 1,
+                          }))
+                        }
                         disabled={state.currentPage >= totalPages - 1}
                       >
                         Next
@@ -538,18 +613,25 @@ export function ImportPreview({
           </TabsContent>
 
           <TabsContent value="summary">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Portfolios</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {Array.from(state.stats.portfolios).map((portfolio) => (
-                      <div key={portfolio} className="flex items-center justify-between">
-                        <span className="text-sm truncate">{portfolio}</span>
+                    {Array.from(state.stats.portfolios).map(portfolio => (
+                      <div
+                        key={portfolio}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="truncate text-sm">{portfolio}</span>
                         <Badge variant="outline" className="text-xs">
-                          {state.transformedData.filter(t => t.portfolio_name === portfolio).length}
+                          {
+                            state.transformedData.filter(
+                              t => t.portfolio_name === portfolio
+                            ).length
+                          }
                         </Badge>
                       </div>
                     ))}
@@ -563,11 +645,18 @@ export function ImportPreview({
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {Array.from(state.stats.transactionTypes).map((type) => (
-                      <div key={type} className="flex items-center justify-between">
+                    {Array.from(state.stats.transactionTypes).map(type => (
+                      <div
+                        key={type}
+                        className="flex items-center justify-between"
+                      >
                         <span className="text-sm">{type}</span>
                         <Badge variant="secondary" className="text-xs">
-                          {state.transformedData.filter(t => t.internal_transaction_type === type).length}
+                          {
+                            state.transformedData.filter(
+                              t => t.internal_transaction_type === type
+                            ).length
+                          }
                         </Badge>
                       </div>
                     ))}
@@ -581,11 +670,18 @@ export function ImportPreview({
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {Array.from(state.stats.currencies).map((currency) => (
-                      <div key={currency} className="flex items-center justify-between">
+                    {Array.from(state.stats.currencies).map(currency => (
+                      <div
+                        key={currency}
+                        className="flex items-center justify-between"
+                      >
                         <span className="text-sm">{currency}</span>
                         <Badge variant="outline" className="text-xs">
-                          {state.transformedData.filter(t => t.currency === currency).length}
+                          {
+                            state.transformedData.filter(
+                              t => t.currency === currency
+                            ).length
+                          }
                         </Badge>
                       </div>
                     ))}
@@ -598,12 +694,17 @@ export function ImportPreview({
           <TabsContent value="issues">
             <div className="space-y-4">
               {/* Errors */}
-              {state.transformedData.some(t => t.validation_errors.length > 0) && (
+              {state.transformedData.some(
+                t => t.validation_errors.length > 0
+              ) && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg text-red-600">Validation Errors</CardTitle>
+                    <CardTitle className="text-lg text-red-600">
+                      Validation Errors
+                    </CardTitle>
                     <CardDescription>
-                      These transactions have errors and will be skipped during import
+                      These transactions have errors and will be skipped during
+                      import
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -612,19 +713,32 @@ export function ImportPreview({
                         {state.transformedData
                           .filter(t => t.validation_errors.length > 0)
                           .map((transaction, index) => (
-                            <div key={index} className="p-3 border border-red-200 rounded-lg">
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="font-medium">Transaction {transaction.id}</span>
-                                <Badge variant="destructive" className="text-xs">
+                            <div
+                              key={index}
+                              className="rounded-lg border border-red-200 p-3"
+                            >
+                              <div className="mb-2 flex items-center justify-between">
+                                <span className="font-medium">
+                                  Transaction {transaction.id}
+                                </span>
+                                <Badge
+                                  variant="destructive"
+                                  className="text-xs"
+                                >
                                   {transaction.validation_errors.length} errors
                                 </Badge>
                               </div>
-                              <ul className="text-sm text-red-600 space-y-1">
-                                {transaction.validation_errors.map((error, errorIndex) => (
-                                  <li key={errorIndex} className="list-disc list-inside">
-                                    {error}
-                                  </li>
-                                ))}
+                              <ul className="space-y-1 text-sm text-red-600">
+                                {transaction.validation_errors.map(
+                                  (error, errorIndex) => (
+                                    <li
+                                      key={errorIndex}
+                                      className="list-inside list-disc"
+                                    >
+                                      {error}
+                                    </li>
+                                  )
+                                )}
                               </ul>
                             </div>
                           ))}
@@ -635,12 +749,17 @@ export function ImportPreview({
               )}
 
               {/* Warnings */}
-              {state.transformedData.some(t => t.validation_warnings.length > 0) && (
+              {state.transformedData.some(
+                t => t.validation_warnings.length > 0
+              ) && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg text-yellow-600">Validation Warnings</CardTitle>
+                    <CardTitle className="text-lg text-yellow-600">
+                      Validation Warnings
+                    </CardTitle>
                     <CardDescription>
-                      These transactions have warnings but will still be imported
+                      These transactions have warnings but will still be
+                      imported
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -649,19 +768,30 @@ export function ImportPreview({
                         {state.transformedData
                           .filter(t => t.validation_warnings.length > 0)
                           .map((transaction, index) => (
-                            <div key={index} className="p-3 border border-yellow-200 rounded-lg">
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="font-medium">Transaction {transaction.id}</span>
+                            <div
+                              key={index}
+                              className="rounded-lg border border-yellow-200 p-3"
+                            >
+                              <div className="mb-2 flex items-center justify-between">
+                                <span className="font-medium">
+                                  Transaction {transaction.id}
+                                </span>
                                 <Badge variant="secondary" className="text-xs">
-                                  {transaction.validation_warnings.length} warnings
+                                  {transaction.validation_warnings.length}{' '}
+                                  warnings
                                 </Badge>
                               </div>
-                              <ul className="text-sm text-yellow-600 space-y-1">
-                                {transaction.validation_warnings.map((warning, warningIndex) => (
-                                  <li key={warningIndex} className="list-disc list-inside">
-                                    {warning}
-                                  </li>
-                                ))}
+                              <ul className="space-y-1 text-sm text-yellow-600">
+                                {transaction.validation_warnings.map(
+                                  (warning, warningIndex) => (
+                                    <li
+                                      key={warningIndex}
+                                      className="list-inside list-disc"
+                                    >
+                                      {warning}
+                                    </li>
+                                  )
+                                )}
                               </ul>
                             </div>
                           ))}

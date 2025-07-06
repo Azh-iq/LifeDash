@@ -17,7 +17,7 @@ export type {
   NordnetPortfolioMapping,
   NordnetImportConfig,
   NordnetTransactionType,
-  InternalTransactionType
+  InternalTransactionType,
 } from './types'
 
 // Constants and enums
@@ -27,7 +27,7 @@ export {
   NORDNET_CURRENCIES,
   NORWEGIAN_CHARS,
   ISIN_PATTERN,
-  NORDNET_DATE_FORMATS
+  NORDNET_DATE_FORMATS,
 } from './types'
 
 // Test utilities (for development)
@@ -57,8 +57,13 @@ export class NordnetUtils {
     if (lines.length < 2) return false
 
     const headers = lines[0].toLowerCase()
-    const requiredHeaders = ['transaksjonstype', 'portefølje', 'beløp', 'valuta']
-    
+    const requiredHeaders = [
+      'transaksjonstype',
+      'portefølje',
+      'beløp',
+      'valuta',
+    ]
+
     return requiredHeaders.every(header => headers.includes(header))
   }
 
@@ -73,11 +78,14 @@ export class NordnetUtils {
   /**
    * Formats Norwegian currency amounts
    */
-  static formatNorwegianCurrency(amount: number, currency: string = 'NOK'): string {
+  static formatNorwegianCurrency(
+    amount: number,
+    currency: string = 'NOK'
+  ): string {
     return new Intl.NumberFormat('nb-NO', {
       style: 'currency',
       currency,
-      minimumFractionDigits: 2
+      minimumFractionDigits: 2,
     }).format(amount)
   }
 
@@ -105,57 +113,57 @@ export class NordnetUtils {
     description: string
   } {
     const name = portfolioName.toLowerCase()
-    
+
     // IPS (Individual Pension Savings)
     if (name.includes('ips') || name.includes('pensjon')) {
       return {
         type: 'PENSION',
         confidence: 0.9,
-        description: 'Individual Pension Savings (IPS)'
+        description: 'Individual Pension Savings (IPS)',
       }
     }
-    
+
     // BSU (Housing Savings for Youth)
     if (name.includes('bsu') || name.includes('boligsparing')) {
       return {
         type: 'SAVINGS',
         confidence: 0.9,
-        description: 'Housing Savings for Youth (BSU)'
+        description: 'Housing Savings for Youth (BSU)',
       }
     }
-    
+
     // ISK (Investment Savings Account)
     if (name.includes('isk') || name.includes('investeringssparing')) {
       return {
         type: 'TFSA',
         confidence: 0.8,
-        description: 'Investment Savings Account (ISK)'
+        description: 'Investment Savings Account (ISK)',
       }
     }
-    
+
     // Regular savings
     if (name.includes('spare') || name.includes('saving')) {
       return {
         type: 'SAVINGS',
         confidence: 0.7,
-        description: 'Savings Account'
+        description: 'Savings Account',
       }
     }
-    
+
     // Numeric ID - likely regular investment account
     if (/^\d+$/.test(portfolioName)) {
       return {
         type: 'TAXABLE',
         confidence: 0.6,
-        description: 'Regular Investment Account'
+        description: 'Regular Investment Account',
       }
     }
-    
+
     // Default
     return {
       type: 'TAXABLE',
       confidence: 0.5,
-      description: 'Taxable Investment Account'
+      description: 'Taxable Investment Account',
     }
   }
 
@@ -174,22 +182,22 @@ export class NordnetUtils {
     // Validate checksum using Luhn algorithm
     const code = isin.slice(0, 11)
     const checkDigit = parseInt(isin.slice(11))
-    
+
     let sum = 0
     let isEven = false
-    
+
     // Convert letters to numbers and apply Luhn algorithm
     for (let i = code.length - 1; i >= 0; i--) {
       let digit = code.charCodeAt(i)
-      
+
       if (digit >= 65 && digit <= 90) {
         // Letter: A=10, B=11, ..., Z=35
         digit = digit - 55
-        
+
         // Handle two-digit numbers
         const tens = Math.floor(digit / 10)
         const ones = digit % 10
-        
+
         if (isEven) {
           sum += tens + (ones * 2 > 9 ? ones * 2 - 9 : ones * 2)
         } else {
@@ -205,16 +213,16 @@ export class NordnetUtils {
         }
         sum += digit
       }
-      
+
       isEven = !isEven
     }
-    
+
     const calculatedCheckDigit = (10 - (sum % 10)) % 10
-    
+
     if (calculatedCheckDigit !== checkDigit) {
       return { valid: false, error: 'ISIN checksum is invalid' }
     }
-    
+
     return { valid: true }
   }
 
@@ -241,7 +249,7 @@ export class NordnetUtils {
       currencies: {} as Record<string, number>,
       dateRange: null as { start: string; end: string } | null,
       totalAmount: {} as Record<string, number>,
-      validationSummary: { valid: 0, warnings: 0, errors: 0 }
+      validationSummary: { valid: 0, warnings: 0, errors: 0 },
     }
 
     let earliestDate: string | null = null
@@ -250,24 +258,26 @@ export class NordnetUtils {
     for (const transaction of transformedData) {
       // Count transaction types
       if (transaction.internal_transaction_type) {
-        summary.transactionTypes[transaction.internal_transaction_type] = 
-          (summary.transactionTypes[transaction.internal_transaction_type] || 0) + 1
+        summary.transactionTypes[transaction.internal_transaction_type] =
+          (summary.transactionTypes[transaction.internal_transaction_type] ||
+            0) + 1
       }
 
       // Count portfolios
       if (transaction.portfolio_name) {
-        summary.portfolios[transaction.portfolio_name] = 
+        summary.portfolios[transaction.portfolio_name] =
           (summary.portfolios[transaction.portfolio_name] || 0) + 1
       }
 
       // Count currencies and amounts
       if (transaction.currency) {
-        summary.currencies[transaction.currency] = 
+        summary.currencies[transaction.currency] =
           (summary.currencies[transaction.currency] || 0) + 1
-        
+
         if (transaction.amount) {
-          summary.totalAmount[transaction.currency] = 
-            (summary.totalAmount[transaction.currency] || 0) + Math.abs(transaction.amount)
+          summary.totalAmount[transaction.currency] =
+            (summary.totalAmount[transaction.currency] || 0) +
+            Math.abs(transaction.amount)
         }
       }
 

@@ -1,32 +1,28 @@
 // Export all chart components for easy importing
-export { 
-  default as PortfolioPerformanceChart 
-} from './portfolio-performance-chart'
+export { default as PortfolioPerformanceChart } from './portfolio-performance-chart'
 
-export { 
-  default as AssetAllocationChart 
-} from './asset-allocation-chart'
+export { default as AssetAllocationChart } from './asset-allocation-chart'
 
-export { 
+export {
   TimeRangeSelector,
   CompactTimeRangeSelector,
   useTimeRange,
   formatTimeRangeDescription,
   DEFAULT_TIME_RANGES,
-  type TimeRange 
+  type TimeRange,
 } from './time-range-selector'
 
-export { 
+export {
   ChartControls,
   ChartQuickActions,
   useChartConfig,
-  type ChartConfig 
+  type ChartConfig,
 } from './chart-controls'
 
-export { 
+export {
   createBenchmarkComparison,
   createPortfolioComparison,
-  default as PerformanceComparisonChart 
+  default as PerformanceComparisonChart,
 } from './performance-comparison-chart'
 
 // Re-export commonly used types
@@ -42,7 +38,7 @@ export const CHART_COLORS = {
   warning: '#ea580c',
   error: '#ef4444',
   neutral: '#6b7280',
-  
+
   // Investment theme colors
   investments: {
     50: '#dbeafe',
@@ -56,7 +52,7 @@ export const CHART_COLORS = {
     800: '#1e3a8a',
     900: '#1e3a8a',
   },
-  
+
   // Chart color palette
   palette: [
     '#1e40af', // Deep blue
@@ -88,7 +84,7 @@ export const CHART_PRESETS = {
     currency: 'NOK',
     theme: 'auto' as const,
   },
-  
+
   standard: {
     showGrid: true,
     showLegend: true,
@@ -101,7 +97,7 @@ export const CHART_PRESETS = {
     currency: 'NOK',
     theme: 'auto' as const,
   },
-  
+
   detailed: {
     showGrid: true,
     showLegend: true,
@@ -114,7 +110,7 @@ export const CHART_PRESETS = {
     currency: 'NOK',
     theme: 'auto' as const,
   },
-  
+
   comparison: {
     showGrid: true,
     showLegend: true,
@@ -130,7 +126,10 @@ export const CHART_PRESETS = {
 }
 
 // Utility functions for chart formatting
-export const formatCurrency = (value: number, currency: string = 'NOK'): string => {
+export const formatCurrency = (
+  value: number,
+  currency: string = 'NOK'
+): string => {
   return new Intl.NumberFormat('nb-NO', {
     style: 'currency',
     currency,
@@ -157,24 +156,25 @@ export const formatCompactNumber = (value: number): string => {
 }
 
 export const formatDateRange = (startDate: Date, endDate: Date): string => {
-  const start = startDate.toLocaleDateString('nb-NO', { 
-    month: 'short', 
+  const start = startDate.toLocaleDateString('nb-NO', {
+    month: 'short',
     day: 'numeric',
-    year: endDate.getFullYear() !== startDate.getFullYear() ? 'numeric' : undefined
+    year:
+      endDate.getFullYear() !== startDate.getFullYear() ? 'numeric' : undefined,
   })
-  const end = endDate.toLocaleDateString('nb-NO', { 
-    month: 'short', 
+  const end = endDate.toLocaleDateString('nb-NO', {
+    month: 'short',
     day: 'numeric',
-    year: 'numeric'
+    year: 'numeric',
   })
   return `${start} - ${end}`
 }
 
 // Chart responsiveness utilities
 export const getResponsiveHeight = (screenWidth: number): number => {
-  if (screenWidth < 640) return 250      // Mobile
-  if (screenWidth < 1024) return 300     // Tablet
-  return 400                             // Desktop
+  if (screenWidth < 640) return 250 // Mobile
+  if (screenWidth < 1024) return 300 // Tablet
+  return 400 // Desktop
 }
 
 export const getResponsiveMargin = (screenWidth: number) => {

@@ -32,7 +32,7 @@ interface AdaptiveComponentProps<T = any> {
 
 /**
  * Mobile Responsive Wrapper - Progressive Enhancement Container
- * 
+ *
  * Provides responsive wrapper for components with mobile-first approach
  * Handles safe area insets, touch targets, and responsive breakpoints
  */
@@ -41,45 +41,45 @@ export function MobileResponsiveWrapper({
   className,
   mobileFirst = true,
   enableAnimations = true,
-  fallback
+  fallback,
 }: ResponsiveWrapperProps) {
   const { isMobile, isTablet, isDesktop, breakpoint } = useResponsiveLayout()
 
-  const containerClasses = useMemo(() => cn(
-    // Base responsive classes
-    'w-full min-h-0',
-    
-    // Mobile-first approach
-    mobileFirst && [
-      // Mobile base styles
-      'px-4 py-2',
-      // Touch-friendly spacing
-      'touch-pan-y',
-      // Safe area support
-      'safe-area-inset-top safe-area-inset-bottom',
-      
-      // Tablet enhancements
-      'sm:px-6 sm:py-4',
-      
-      // Desktop enhancements
-      'lg:px-8 lg:py-6',
-      
-      // Large screen optimizations
-      'xl:px-10 xl:py-8'
-    ],
-    
-    // Desktop-first fallback
-    !mobileFirst && [
-      'px-8 py-6',
-      'md:px-6 md:py-4',
-      'sm:px-4 sm:py-2'
-    ],
-    
-    // Responsive utilities
-    'transition-all duration-300 ease-in-out',
-    
-    className
-  ), [mobileFirst, className])
+  const containerClasses = useMemo(
+    () =>
+      cn(
+        // Base responsive classes
+        'w-full min-h-0',
+
+        // Mobile-first approach
+        mobileFirst && [
+          // Mobile base styles
+          'px-4 py-2',
+          // Touch-friendly spacing
+          'touch-pan-y',
+          // Safe area support
+          'safe-area-inset-top safe-area-inset-bottom',
+
+          // Tablet enhancements
+          'sm:px-6 sm:py-4',
+
+          // Desktop enhancements
+          'lg:px-8 lg:py-6',
+
+          // Large screen optimizations
+          'xl:px-10 xl:py-8',
+        ],
+
+        // Desktop-first fallback
+        !mobileFirst && ['px-8 py-6', 'md:px-6 md:py-4', 'sm:px-4 sm:py-2'],
+
+        // Responsive utilities
+        'transition-all duration-300 ease-in-out',
+
+        className
+      ),
+    [mobileFirst, className]
+  )
 
   const content = useMemo(() => {
     if (fallback && (isMobile === undefined || isTablet === undefined)) {
@@ -105,16 +105,14 @@ export function MobileResponsiveWrapper({
       transition={{ duration: 0.2 }}
       layout
     >
-      <AnimatePresence mode="wait">
-        {content}
-      </AnimatePresence>
+      <AnimatePresence mode="wait">{content}</AnimatePresence>
     </motion.div>
   )
 }
 
 /**
  * Conditional Render Component
- * 
+ *
  * Renders different content based on screen size
  * Provides clean component switching with animations
  */
@@ -123,7 +121,7 @@ export function ConditionalRender({
   tablet,
   desktop,
   fallback,
-  className
+  className,
 }: ConditionalRenderProps) {
   const { isMobile, isTablet, isDesktop, breakpoint } = useResponsiveLayout()
 
@@ -153,7 +151,7 @@ export function ConditionalRender({
 
 /**
  * Adaptive Component Wrapper
- * 
+ *
  * Automatically switches between mobile and desktop components
  * Maintains prop consistency across components
  */
@@ -163,7 +161,7 @@ export function AdaptiveComponent<T = any>({
   TabletComponent,
   componentProps,
   className,
-  enableTransitions = true
+  enableTransitions = true,
 }: AdaptiveComponentProps<T>) {
   const { isMobile, isTablet, isDesktop, breakpoint } = useResponsiveLayout()
 
@@ -172,7 +170,14 @@ export function AdaptiveComponent<T = any>({
     if (isTablet && TabletComponent) return TabletComponent
     if (isDesktop) return DesktopComponent
     return DesktopComponent // Default fallback
-  }, [isMobile, isTablet, isDesktop, MobileComponent, TabletComponent, DesktopComponent])
+  }, [
+    isMobile,
+    isTablet,
+    isDesktop,
+    MobileComponent,
+    TabletComponent,
+    DesktopComponent,
+  ])
 
   if (!enableTransitions) {
     return (
@@ -201,7 +206,7 @@ export function AdaptiveComponent<T = any>({
 
 /**
  * Responsive Grid Wrapper
- * 
+ *
  * Provides responsive grid layouts with mobile-first approach
  * Automatically adjusts columns based on screen size
  */
@@ -222,7 +227,7 @@ export function ResponsiveGrid({
   tabletColumns = 2,
   desktopColumns = 3,
   gap = 'md',
-  minItemWidth
+  minItemWidth,
 }: ResponsiveGridProps) {
   const { isMobile, isTablet, isDesktop } = useResponsiveLayout()
 
@@ -230,7 +235,7 @@ export function ResponsiveGrid({
     sm: 'gap-2',
     md: 'gap-4',
     lg: 'gap-6',
-    xl: 'gap-8'
+    xl: 'gap-8',
   }
 
   const gridClasses = useMemo(() => {
@@ -251,18 +256,21 @@ export function ResponsiveGrid({
       gapClasses[gap],
       className
     )
-  }, [mobileColumns, tabletColumns, desktopColumns, gap, minItemWidth, className])
+  }, [
+    mobileColumns,
+    tabletColumns,
+    desktopColumns,
+    gap,
+    minItemWidth,
+    className,
+  ])
 
-  return (
-    <div className={gridClasses}>
-      {children}
-    </div>
-  )
+  return <div className={gridClasses}>{children}</div>
 }
 
 /**
  * Mobile-First Container
- * 
+ *
  * Provides mobile-optimized container with safe areas
  * Includes touch-friendly interactions and proper spacing
  */
@@ -279,54 +287,47 @@ export function MobileFirstContainer({
   className,
   enableSafeArea = true,
   enableTouchOptimization = true,
-  maxWidth = 'full'
+  maxWidth = 'full',
 }: MobileFirstContainerProps) {
   const maxWidthClasses = {
     sm: 'max-w-sm',
     md: 'max-w-md',
     lg: 'max-w-lg',
     xl: 'max-w-xl',
-    full: 'max-w-full'
+    full: 'max-w-full',
   }
 
   const containerClasses = cn(
     'w-full mx-auto',
-    
+
     // Max width
     maxWidthClasses[maxWidth],
-    
+
     // Safe area support
     enableSafeArea && [
       'safe-area-inset-top',
       'safe-area-inset-bottom',
       'safe-area-inset-left',
-      'safe-area-inset-right'
+      'safe-area-inset-right',
     ],
-    
+
     // Touch optimization
-    enableTouchOptimization && [
-      'touch-pan-y',
-      'touch-pinch-zoom'
-    ],
-    
+    enableTouchOptimization && ['touch-pan-y', 'touch-pinch-zoom'],
+
     // Responsive padding
     'px-4 py-2',
     'sm:px-6 sm:py-4',
     'lg:px-8 lg:py-6',
-    
+
     className
   )
 
-  return (
-    <div className={containerClasses}>
-      {children}
-    </div>
-  )
+  return <div className={containerClasses}>{children}</div>
 }
 
 /**
  * Responsive Visibility Wrapper
- * 
+ *
  * Shows/hides content based on screen size
  * Provides clean visibility control with animations
  */
@@ -343,7 +344,7 @@ export function ResponsiveVisibility({
   showOn,
   hideOn,
   className,
-  enableAnimations = true
+  enableAnimations = true,
 }: ResponsiveVisibilityProps) {
   const { isMobile, isTablet, isDesktop } = useResponsiveLayout()
 

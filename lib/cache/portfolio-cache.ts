@@ -13,7 +13,8 @@ class PortfolioCache<T = any> {
   private cache = new Map<string, CacheItem<T>>()
   private cleanupInterval: NodeJS.Timeout | null = null
 
-  constructor(private defaultTtl: number = 300000) { // 5 minutes default TTL
+  constructor(private defaultTtl: number = 300000) {
+    // 5 minutes default TTL
     // Start cleanup interval to remove expired items
     this.startCleanup()
   }
@@ -101,72 +102,87 @@ const calculationCache = new PortfolioCache(120000) // 2 minutes
 export const CacheKeys = {
   portfolio: (id: string) => `portfolio:${id}`,
   holdings: (portfolioId: string) => `holdings:${portfolioId}`,
-  holdingsPaginated: (portfolioId: string, page: number, limit: number) => 
+  holdingsPaginated: (portfolioId: string, page: number, limit: number) =>
     `holdings:${portfolioId}:page:${page}:limit:${limit}`,
   price: (symbol: string) => `price:${symbol}`,
   prices: (symbols: string[]) => `prices:${symbols.sort().join(',')}`,
-  calculations: (portfolioId: string, type: string) => `calc:${portfolioId}:${type}`,
+  calculations: (portfolioId: string, type: string) =>
+    `calc:${portfolioId}:${type}`,
   metrics: (portfolioId: string) => `metrics:${portfolioId}`,
-  allocation: (portfolioId: string, type: string) => `allocation:${portfolioId}:${type}`,
-  performance: (portfolioId: string, period: string) => `performance:${portfolioId}:${period}`,
+  allocation: (portfolioId: string, type: string) =>
+    `allocation:${portfolioId}:${type}`,
+  performance: (portfolioId: string, period: string) =>
+    `performance:${portfolioId}:${period}`,
 }
 
 // Cache utility functions
 export const PortfolioCacheManager = {
   // Portfolio data caching
   getPortfolio: (id: string) => portfolioCache.get(CacheKeys.portfolio(id)),
-  setPortfolio: (id: string, data: any, ttl?: number) => 
+  setPortfolio: (id: string, data: any, ttl?: number) =>
     portfolioCache.set(CacheKeys.portfolio(id), data, ttl),
-  
+
   // Holdings data caching
-  getHoldings: (portfolioId: string) => holdingsCache.get(CacheKeys.holdings(portfolioId)),
-  setHoldings: (portfolioId: string, data: any, ttl?: number) => 
+  getHoldings: (portfolioId: string) =>
+    holdingsCache.get(CacheKeys.holdings(portfolioId)),
+  setHoldings: (portfolioId: string, data: any, ttl?: number) =>
     holdingsCache.set(CacheKeys.holdings(portfolioId), data, ttl),
-  
+
   // Price data caching
   getPrice: (symbol: string) => priceCache.get(CacheKeys.price(symbol)),
-  setPrice: (symbol: string, data: any, ttl?: number) => 
+  setPrice: (symbol: string, data: any, ttl?: number) =>
     priceCache.set(CacheKeys.price(symbol), data, ttl),
-  
+
   getPrices: (symbols: string[]) => priceCache.get(CacheKeys.prices(symbols)),
-  setPrices: (symbols: string[], data: any, ttl?: number) => 
+  setPrices: (symbols: string[], data: any, ttl?: number) =>
     priceCache.set(CacheKeys.prices(symbols), data, ttl),
-  
+
   // Calculation caching
-  getCalculation: (portfolioId: string, type: string) => 
+  getCalculation: (portfolioId: string, type: string) =>
     calculationCache.get(CacheKeys.calculations(portfolioId, type)),
-  setCalculation: (portfolioId: string, type: string, data: any, ttl?: number) => 
+  setCalculation: (
+    portfolioId: string,
+    type: string,
+    data: any,
+    ttl?: number
+  ) =>
     calculationCache.set(CacheKeys.calculations(portfolioId, type), data, ttl),
-  
+
   // Metrics caching
-  getMetrics: (portfolioId: string) => calculationCache.get(CacheKeys.metrics(portfolioId)),
-  setMetrics: (portfolioId: string, data: any, ttl?: number) => 
+  getMetrics: (portfolioId: string) =>
+    calculationCache.get(CacheKeys.metrics(portfolioId)),
+  setMetrics: (portfolioId: string, data: any, ttl?: number) =>
     calculationCache.set(CacheKeys.metrics(portfolioId), data, ttl),
-  
+
   // Allocation caching
-  getAllocation: (portfolioId: string, type: string) => 
+  getAllocation: (portfolioId: string, type: string) =>
     calculationCache.get(CacheKeys.allocation(portfolioId, type)),
-  setAllocation: (portfolioId: string, type: string, data: any, ttl?: number) => 
+  setAllocation: (portfolioId: string, type: string, data: any, ttl?: number) =>
     calculationCache.set(CacheKeys.allocation(portfolioId, type), data, ttl),
-  
+
   // Performance caching
-  getPerformance: (portfolioId: string, period: string) => 
+  getPerformance: (portfolioId: string, period: string) =>
     calculationCache.get(CacheKeys.performance(portfolioId, period)),
-  setPerformance: (portfolioId: string, period: string, data: any, ttl?: number) => 
+  setPerformance: (
+    portfolioId: string,
+    period: string,
+    data: any,
+    ttl?: number
+  ) =>
     calculationCache.set(CacheKeys.performance(portfolioId, period), data, ttl),
-  
+
   // Cache invalidation
   invalidatePortfolio: (id: string) => {
     portfolioCache.delete(CacheKeys.portfolio(id))
     holdingsCache.invalidate(id)
     calculationCache.invalidate(id)
   },
-  
+
   invalidateHoldings: (portfolioId: string) => {
     holdingsCache.invalidate(portfolioId)
     calculationCache.invalidate(portfolioId)
   },
-  
+
   invalidatePrices: (symbols?: string[]) => {
     if (symbols) {
       symbols.forEach(symbol => priceCache.delete(CacheKeys.price(symbol)))
@@ -174,11 +190,11 @@ export const PortfolioCacheManager = {
       priceCache.clear()
     }
   },
-  
+
   invalidateCalculations: (portfolioId: string) => {
     calculationCache.invalidate(portfolioId)
   },
-  
+
   // Cache statistics
   getStats: () => ({
     portfolioCache: portfolioCache.size(),
@@ -186,7 +202,7 @@ export const PortfolioCacheManager = {
     priceCache: priceCache.size(),
     calculationCache: calculationCache.size(),
   }),
-  
+
   // Clear all caches
   clearAll: () => {
     portfolioCache.clear()
@@ -194,7 +210,7 @@ export const PortfolioCacheManager = {
     priceCache.clear()
     calculationCache.clear()
   },
-  
+
   // Destroy all caches
   destroy: () => {
     portfolioCache.destroy()
@@ -316,10 +332,10 @@ export const CacheWarmer = {
       CacheKeys.performance(portfolioId, 'weekly'),
       CacheKeys.performance(portfolioId, 'monthly'),
     ]
-    
+
     console.log(`Warming cache for portfolio ${portfolioId}:`, keys)
   },
-  
+
   warmPrices: async (symbols: string[]) => {
     // Warm up price cache for multiple symbols
     console.log(`Warming price cache for symbols:`, symbols)

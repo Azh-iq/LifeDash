@@ -21,13 +21,13 @@ export type {
   DNBTransactionType,
   InternalDNBTransactionType,
   DNBAccountType,
-  DNBCategory
+  DNBCategory,
 } from './types'
 
 export type {
   TransformedDNBAccount,
   TransformedDNBTransaction,
-  DNBSyncStatistics
+  DNBSyncStatistics,
 } from './account-sync'
 
 // Constants and enums
@@ -37,7 +37,7 @@ export {
   DNB_OAUTH_SCOPES,
   DNB_RATE_LIMITS,
   DNB_ACCOUNT_TYPES,
-  DNB_CATEGORIES
+  DNB_CATEGORIES,
 } from './types'
 
 // Utility functions
@@ -51,17 +51,23 @@ export class DNBUtils {
     redirectUri: string,
     environment: 'sandbox' | 'production' = 'sandbox'
   ): DNBAuthConfig {
-    const baseUrl = environment === 'production' 
-      ? 'https://api.dnb.no'
-      : 'https://api-sandbox.dnb.no'
+    const baseUrl =
+      environment === 'production'
+        ? 'https://api.dnb.no'
+        : 'https://api-sandbox.dnb.no'
 
     return {
       clientId,
       clientSecret,
       redirectUri,
-      scope: ['read:accounts', 'read:transactions', 'read:balance', 'read:customer'],
+      scope: [
+        'read:accounts',
+        'read:transactions',
+        'read:balance',
+        'read:customer',
+      ],
       environment,
-      baseUrl
+      baseUrl,
     }
   }
 
@@ -80,21 +86,24 @@ export class DNBUtils {
       includeBalance: true,
       categories: [],
       autoSync: false,
-      syncInterval: 60 // 1 hour
+      syncInterval: 60, // 1 hour
     }
   }
 
   /**
    * Validates DNB API credentials
    */
-  static validateConfig(config: DNBAuthConfig): { valid: boolean; errors: string[] } {
+  static validateConfig(config: DNBAuthConfig): {
+    valid: boolean
+    errors: string[]
+  } {
     const errors: string[] = []
 
     if (!config.clientId) errors.push('Client ID is required')
     if (!config.clientSecret) errors.push('Client Secret is required')
     if (!config.redirectUri) errors.push('Redirect URI is required')
     if (!config.baseUrl) errors.push('Base URL is required')
-    
+
     // Validate redirect URI format
     try {
       new URL(config.redirectUri)
@@ -111,18 +120,21 @@ export class DNBUtils {
 
     return {
       valid: errors.length === 0,
-      errors
+      errors,
     }
   }
 
   /**
    * Formats Norwegian currency amounts
    */
-  static formatNorwegianCurrency(amount: number, currency: string = 'NOK'): string {
+  static formatNorwegianCurrency(
+    amount: number,
+    currency: string = 'NOK'
+  ): string {
     return new Intl.NumberFormat('nb-NO', {
       style: 'currency',
       currency,
-      minimumFractionDigits: 2
+      minimumFractionDigits: 2,
     }).format(amount)
   }
 
@@ -132,41 +144,48 @@ export class DNBUtils {
   static normalizeAccountNumber(accountNumber: string): string {
     // Remove all non-digit characters
     const digits = accountNumber.replace(/\D/g, '')
-    
+
     // Norwegian account numbers are typically 11 digits
     if (digits.length === 11) {
       // Format as XXXX.XX.XXXXX
       return `${digits.slice(0, 4)}.${digits.slice(4, 6)}.${digits.slice(6)}`
     }
-    
+
     return accountNumber // Return original if not standard format
   }
 
   /**
    * Validates Norwegian account number using modulo-11 check
    */
-  static validateNorwegianAccountNumber(accountNumber: string): { valid: boolean; error?: string } {
+  static validateNorwegianAccountNumber(accountNumber: string): {
+    valid: boolean
+    error?: string
+  } {
     const digits = accountNumber.replace(/\D/g, '')
-    
+
     if (digits.length !== 11) {
-      return { valid: false, error: 'Norwegian account numbers must be 11 digits' }
+      return {
+        valid: false,
+        error: 'Norwegian account numbers must be 11 digits',
+      }
     }
 
     // Modulo-11 validation
     const weights = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2]
     let sum = 0
-    
+
     for (let i = 0; i < 10; i++) {
       sum += parseInt(digits[i]) * weights[i]
     }
-    
+
     const remainder = sum % 11
-    const checkDigit = remainder === 0 ? 0 : remainder === 1 ? 11 : 11 - remainder
-    
+    const checkDigit =
+      remainder === 0 ? 0 : remainder === 1 ? 11 : 11 - remainder
+
     if (checkDigit === 11 || parseInt(digits[10]) !== checkDigit) {
       return { valid: false, error: 'Invalid account number checksum' }
     }
-    
+
     return { valid: true }
   }
 
@@ -174,8 +193,8 @@ export class DNBUtils {
    * Categorizes transactions based on description and merchant
    */
   static categorizeTransaction(
-    description: string, 
-    merchantName?: string, 
+    description: string,
+    merchantName?: string,
     merchantCategory?: string
   ): string {
     const desc = description.toLowerCase()
@@ -183,54 +202,99 @@ export class DNBUtils {
     const category = merchantCategory?.toLowerCase() || ''
 
     // Grocery stores
-    if (desc.includes('rema') || desc.includes('ica') || desc.includes('kiwi') || 
-        desc.includes('meny') || desc.includes('coop') || category.includes('grocery')) {
+    if (
+      desc.includes('rema') ||
+      desc.includes('ica') ||
+      desc.includes('kiwi') ||
+      desc.includes('meny') ||
+      desc.includes('coop') ||
+      category.includes('grocery')
+    ) {
       return 'GROCERIES'
     }
 
     // Transportation
-    if (desc.includes('ruter') || desc.includes('nsb') || desc.includes('vy') ||
-        desc.includes('drivstoff') || desc.includes('bensin') || category.includes('transport')) {
+    if (
+      desc.includes('ruter') ||
+      desc.includes('nsb') ||
+      desc.includes('vy') ||
+      desc.includes('drivstoff') ||
+      desc.includes('bensin') ||
+      category.includes('transport')
+    ) {
       return 'TRANSPORT'
     }
 
     // Utilities
-    if (desc.includes('strøm') || desc.includes('vann') || desc.includes('internett') ||
-        desc.includes('telenor') || desc.includes('telia') || category.includes('utilities')) {
+    if (
+      desc.includes('strøm') ||
+      desc.includes('vann') ||
+      desc.includes('internett') ||
+      desc.includes('telenor') ||
+      desc.includes('telia') ||
+      category.includes('utilities')
+    ) {
       return 'UTILITIES'
     }
 
     // Restaurants
-    if (desc.includes('restaurant') || desc.includes('café') || desc.includes('bar') ||
-        category.includes('restaurant') || category.includes('food')) {
+    if (
+      desc.includes('restaurant') ||
+      desc.includes('café') ||
+      desc.includes('bar') ||
+      category.includes('restaurant') ||
+      category.includes('food')
+    ) {
       return 'RESTAURANTS'
     }
 
     // Shopping
-    if (desc.includes('elkjøp') || desc.includes('expert') || desc.includes('amazon') ||
-        category.includes('retail') || category.includes('shopping')) {
+    if (
+      desc.includes('elkjøp') ||
+      desc.includes('expert') ||
+      desc.includes('amazon') ||
+      category.includes('retail') ||
+      category.includes('shopping')
+    ) {
       return 'SHOPPING'
     }
 
     // Healthcare
-    if (desc.includes('apotek') || desc.includes('legevakt') || desc.includes('tannlege') ||
-        category.includes('healthcare') || category.includes('medical')) {
+    if (
+      desc.includes('apotek') ||
+      desc.includes('legevakt') ||
+      desc.includes('tannlege') ||
+      category.includes('healthcare') ||
+      category.includes('medical')
+    ) {
       return 'HEALTHCARE'
     }
 
     // Entertainment
-    if (desc.includes('kino') || desc.includes('netflix') || desc.includes('spotify') ||
-        category.includes('entertainment')) {
+    if (
+      desc.includes('kino') ||
+      desc.includes('netflix') ||
+      desc.includes('spotify') ||
+      category.includes('entertainment')
+    ) {
       return 'ENTERTAINMENT'
     }
 
     // Income
-    if (desc.includes('lønn') || desc.includes('salary') || desc.includes('inntekt')) {
+    if (
+      desc.includes('lønn') ||
+      desc.includes('salary') ||
+      desc.includes('inntekt')
+    ) {
       return 'INCOME'
     }
 
     // Housing
-    if (desc.includes('husleie') || desc.includes('boliglån') || desc.includes('rent')) {
+    if (
+      desc.includes('husleie') ||
+      desc.includes('boliglån') ||
+      desc.includes('rent')
+    ) {
       return 'HOUSING'
     }
 
@@ -254,7 +318,7 @@ export class DNBUtils {
       netCashFlow: 0,
       avgTransactionAmount: 0,
       transactionCount: transactions.length,
-      categoryBreakdown: {} as Record<string, number>
+      categoryBreakdown: {} as Record<string, number>,
     }
 
     for (const transaction of transactions) {
@@ -276,9 +340,10 @@ export class DNBUtils {
       metrics.categoryBreakdown[category] += Math.abs(amount)
     }
 
-    metrics.avgTransactionAmount = metrics.transactionCount > 0 
-      ? metrics.netCashFlow / metrics.transactionCount 
-      : 0
+    metrics.avgTransactionAmount =
+      metrics.transactionCount > 0
+        ? metrics.netCashFlow / metrics.transactionCount
+        : 0
 
     return metrics
   }
@@ -286,7 +351,10 @@ export class DNBUtils {
   /**
    * Estimates data sync time based on account and transaction count
    */
-  static estimateSyncTime(accountCount: number, estimatedTransactions: number): {
+  static estimateSyncTime(
+    accountCount: number,
+    estimatedTransactions: number
+  ): {
     estimatedMinutes: number
     description: string
   } {
@@ -310,7 +378,7 @@ export class DNBUtils {
 
     return {
       estimatedMinutes: totalMinutes,
-      description
+      description,
     }
   }
 
@@ -325,7 +393,7 @@ export class DNBUtils {
       `Transactions synced: ${result.transactionsSynced}`,
       `New transactions: ${result.newTransactions}`,
       `Updated transactions: ${result.updatedTransactions}`,
-      ''
+      '',
     ]
 
     if (result.errors.length > 0) {
@@ -355,9 +423,11 @@ export class DNBUtils {
 export function createDNBClient(config: DNBAuthConfig): DNBApiClient {
   const validation = DNBUtils.validateConfig(config)
   if (!validation.valid) {
-    throw new Error(`Invalid DNB configuration: ${validation.errors.join(', ')}`)
+    throw new Error(
+      `Invalid DNB configuration: ${validation.errors.join(', ')}`
+    )
   }
-  
+
   return new DNBApiClient(config)
 }
 
@@ -374,13 +444,18 @@ export function setupDNBIntegration(
   config: DNBAuthConfig
   defaultSyncConfig: DNBSyncConfig
 } {
-  const config = DNBUtils.createDefaultConfig(clientId, clientSecret, redirectUri, environment)
+  const config = DNBUtils.createDefaultConfig(
+    clientId,
+    clientSecret,
+    redirectUri,
+    environment
+  )
   const client = createDNBClient(config)
   const defaultSyncConfig = DNBUtils.createDefaultSyncConfig()
 
   return {
     client,
     config,
-    defaultSyncConfig
+    defaultSyncConfig,
   }
 }

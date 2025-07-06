@@ -24,7 +24,7 @@ export interface ResponsiveLayoutHook extends ResponsiveLayoutState {
     desktop?: T
     fallback?: T
   }) => T | undefined
-  
+
   // Responsive value helpers
   responsiveValue: <T>(values: {
     mobile?: T
@@ -32,10 +32,10 @@ export interface ResponsiveLayoutHook extends ResponsiveLayoutState {
     desktop?: T
     fallback?: T
   }) => T | undefined
-  
+
   // Breakpoint matchers
   matches: (breakpoints: Breakpoint | Breakpoint[]) => boolean
-  
+
   // Media query helpers
   mediaQuery: (query: string) => boolean
 }
@@ -43,8 +43,8 @@ export interface ResponsiveLayoutHook extends ResponsiveLayoutState {
 // Breakpoint definitions (mobile-first)
 const BREAKPOINTS = {
   mobile: 0,
-  tablet: 640,    // sm: 640px
-  desktop: 1024   // lg: 1024px
+  tablet: 640, // sm: 640px
+  desktop: 1024, // lg: 1024px
 } as const
 
 // Media query strings
@@ -55,12 +55,12 @@ const MEDIA_QUERIES = {
   touch: '(pointer: coarse)',
   hover: '(hover: hover)',
   portrait: '(orientation: portrait)',
-  landscape: '(orientation: landscape)'
+  landscape: '(orientation: landscape)',
 } as const
 
 /**
  * Custom hook for responsive layout detection and component selection
- * 
+ *
  * Provides comprehensive responsive state management with:
  * - Breakpoint detection (mobile, tablet, desktop)
  * - Device capabilities (touch, hover, pixel ratio)
@@ -78,7 +78,7 @@ export function useResponsiveLayout(): ResponsiveLayoutHook {
     height: typeof window !== 'undefined' ? window.innerHeight : 768,
     orientation: 'landscape' as const,
     isTouch: false,
-    pixelRatio: typeof window !== 'undefined' ? window.devicePixelRatio : 1
+    pixelRatio: typeof window !== 'undefined' ? window.devicePixelRatio : 1,
   }))
 
   // Update responsive state
@@ -117,7 +117,7 @@ export function useResponsiveLayout(): ResponsiveLayoutHook {
       height,
       orientation,
       isTouch,
-      pixelRatio
+      pixelRatio,
     })
   }, [])
 
@@ -142,7 +142,9 @@ export function useResponsiveLayout(): ResponsiveLayoutHook {
     }
 
     window.addEventListener('resize', handleResize, { passive: true })
-    window.addEventListener('orientationchange', handleOrientationChange, { passive: true })
+    window.addEventListener('orientationchange', handleOrientationChange, {
+      passive: true,
+    })
 
     return () => {
       window.removeEventListener('resize', handleResize)
@@ -152,36 +154,37 @@ export function useResponsiveLayout(): ResponsiveLayoutHook {
   }, [updateState])
 
   // Component selection helper
-  const selectComponent = useCallback(<T>(components: {
-    mobile?: T
-    tablet?: T
-    desktop?: T
-    fallback?: T
-  }) => {
-    if (state.isMobile && components.mobile) return components.mobile
-    if (state.isTablet && components.tablet) return components.tablet
-    if (state.isDesktop && components.desktop) return components.desktop
-    return components.fallback
-  }, [state.isMobile, state.isTablet, state.isDesktop])
+  const selectComponent = useCallback(
+    <T>(components: { mobile?: T; tablet?: T; desktop?: T; fallback?: T }) => {
+      if (state.isMobile && components.mobile) return components.mobile
+      if (state.isTablet && components.tablet) return components.tablet
+      if (state.isDesktop && components.desktop) return components.desktop
+      return components.fallback
+    },
+    [state.isMobile, state.isTablet, state.isDesktop]
+  )
 
   // Responsive value helper
-  const responsiveValue = useCallback(<T>(values: {
-    mobile?: T
-    tablet?: T
-    desktop?: T
-    fallback?: T
-  }) => {
-    if (state.isMobile && values.mobile !== undefined) return values.mobile
-    if (state.isTablet && values.tablet !== undefined) return values.tablet
-    if (state.isDesktop && values.desktop !== undefined) return values.desktop
-    return values.fallback
-  }, [state.isMobile, state.isTablet, state.isDesktop])
+  const responsiveValue = useCallback(
+    <T>(values: { mobile?: T; tablet?: T; desktop?: T; fallback?: T }) => {
+      if (state.isMobile && values.mobile !== undefined) return values.mobile
+      if (state.isTablet && values.tablet !== undefined) return values.tablet
+      if (state.isDesktop && values.desktop !== undefined) return values.desktop
+      return values.fallback
+    },
+    [state.isMobile, state.isTablet, state.isDesktop]
+  )
 
   // Breakpoint matcher
-  const matches = useCallback((breakpoints: Breakpoint | Breakpoint[]) => {
-    const targetBreakpoints = Array.isArray(breakpoints) ? breakpoints : [breakpoints]
-    return targetBreakpoints.includes(state.breakpoint)
-  }, [state.breakpoint])
+  const matches = useCallback(
+    (breakpoints: Breakpoint | Breakpoint[]) => {
+      const targetBreakpoints = Array.isArray(breakpoints)
+        ? breakpoints
+        : [breakpoints]
+      return targetBreakpoints.includes(state.breakpoint)
+    },
+    [state.breakpoint]
+  )
 
   // Media query helper
   const mediaQuery = useCallback((query: string) => {
@@ -194,7 +197,7 @@ export function useResponsiveLayout(): ResponsiveLayoutHook {
     selectComponent,
     responsiveValue,
     matches,
-    mediaQuery
+    mediaQuery,
   }
 }
 
@@ -204,15 +207,18 @@ export function useResponsiveLayout(): ResponsiveLayoutHook {
 export function useDeviceCapabilities() {
   const { isTouch, pixelRatio, mediaQuery } = useResponsiveLayout()
 
-  return useMemo(() => ({
-    isTouch,
-    hasHover: mediaQuery(MEDIA_QUERIES.hover),
-    isHighDPI: pixelRatio >= 2,
-    supportsTouch: isTouch,
-    prefersDark: mediaQuery('(prefers-color-scheme: dark)'),
-    prefersReducedMotion: mediaQuery('(prefers-reduced-motion: reduce)'),
-    isRetina: pixelRatio >= 2
-  }), [isTouch, pixelRatio, mediaQuery])
+  return useMemo(
+    () => ({
+      isTouch,
+      hasHover: mediaQuery(MEDIA_QUERIES.hover),
+      isHighDPI: pixelRatio >= 2,
+      supportsTouch: isTouch,
+      prefersDark: mediaQuery('(prefers-color-scheme: dark)'),
+      prefersReducedMotion: mediaQuery('(prefers-reduced-motion: reduce)'),
+      isRetina: pixelRatio >= 2,
+    }),
+    [isTouch, pixelRatio, mediaQuery]
+  )
 }
 
 /**
@@ -259,7 +265,7 @@ export function getResponsiveStyles(styles: {
   fallback?: React.CSSProperties
 }) {
   const { isMobile, isTablet, isDesktop } = useResponsiveLayout()
-  
+
   if (isMobile && styles.mobile) return styles.mobile
   if (isTablet && styles.tablet) return styles.tablet
   if (isDesktop && styles.desktop) return styles.desktop
@@ -276,7 +282,7 @@ export function getResponsiveClasses(classes: {
   fallback?: string
 }) {
   const { isMobile, isTablet, isDesktop } = useResponsiveLayout()
-  
+
   if (isMobile && classes.mobile) return classes.mobile
   if (isTablet && classes.tablet) return classes.tablet
   if (isDesktop && classes.desktop) return classes.desktop

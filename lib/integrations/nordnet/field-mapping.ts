@@ -7,7 +7,7 @@ import {
   NordnetTransactionData,
   NORDNET_TRANSACTION_TYPES,
   ISIN_PATTERN,
-  NORDNET_DATE_FORMATS
+  NORDNET_DATE_FORMATS,
 } from './types'
 
 export class NordnetFieldMapper {
@@ -20,35 +20,35 @@ export class NordnetFieldMapper {
       internalField: 'id',
       required: true,
       dataType: 'string',
-      validator: (value: string) => value.length > 0 && /^\d+$/.test(value)
+      validator: (value: string) => value.length > 0 && /^\d+$/.test(value),
     },
     {
       csvField: 'Bokføringsdag',
       internalField: 'booking_date',
       required: true,
       dataType: 'date',
-      transformer: (value: string) => this.parseNordnetDate(value)
+      transformer: (value: string) => this.parseNordnetDate(value),
     },
     {
       csvField: 'Handelsdag',
       internalField: 'trade_date',
       required: false,
       dataType: 'date',
-      transformer: (value: string) => this.parseNordnetDate(value)
+      transformer: (value: string) => this.parseNordnetDate(value),
     },
     {
       csvField: 'Oppgjørsdag',
       internalField: 'settlement_date',
       required: false,
       dataType: 'date',
-      transformer: (value: string) => this.parseNordnetDate(value)
+      transformer: (value: string) => this.parseNordnetDate(value),
     },
     {
       csvField: 'Portefølje',
       internalField: 'portfolio_name',
       required: true,
       dataType: 'string',
-      validator: (value: string) => value.length > 0
+      validator: (value: string) => value.length > 0,
     },
     {
       csvField: 'Transaksjonstype',
@@ -56,144 +56,147 @@ export class NordnetFieldMapper {
       required: true,
       dataType: 'string',
       validator: (value: string) => value.length > 0,
-      transformer: (value: string) => NORDNET_TRANSACTION_TYPES[value as keyof typeof NORDNET_TRANSACTION_TYPES] || value
+      transformer: (value: string) =>
+        NORDNET_TRANSACTION_TYPES[
+          value as keyof typeof NORDNET_TRANSACTION_TYPES
+        ] || value,
     },
     {
       csvField: 'Verdipapir',
       internalField: 'security_name',
       required: false,
-      dataType: 'string'
+      dataType: 'string',
     },
     {
       csvField: 'ISIN',
       internalField: 'isin',
       required: false,
       dataType: 'string',
-      validator: (value: string) => !value || ISIN_PATTERN.test(value)
+      validator: (value: string) => !value || ISIN_PATTERN.test(value),
     },
     {
       csvField: 'Antall',
       internalField: 'quantity',
       required: false,
       dataType: 'number',
-      transformer: (value: string) => this.parseNordnetNumber(value)
+      transformer: (value: string) => this.parseNordnetNumber(value),
     },
     {
       csvField: 'Kurs',
       internalField: 'price',
       required: false,
       dataType: 'number',
-      transformer: (value: string) => this.parseNordnetNumber(value)
+      transformer: (value: string) => this.parseNordnetNumber(value),
     },
     {
       csvField: 'Rente',
       internalField: 'interest',
       required: false,
       dataType: 'number',
-      transformer: (value: string) => this.parseNordnetNumber(value)
+      transformer: (value: string) => this.parseNordnetNumber(value),
     },
     {
       csvField: 'Totale Avgifter',
       internalField: 'total_fees',
       required: false,
       dataType: 'number',
-      transformer: (value: string) => this.parseNordnetNumber(value)
+      transformer: (value: string) => this.parseNordnetNumber(value),
     },
     {
       csvField: 'Valuta',
       internalField: 'currency',
       required: true,
       dataType: 'string',
-      validator: (value: string) => /^[A-Z]{3}$/.test(value)
+      validator: (value: string) => /^[A-Z]{3}$/.test(value),
     },
     {
       csvField: 'Beløp',
       internalField: 'amount',
       required: true,
       dataType: 'number',
-      transformer: (value: string) => this.parseNordnetNumber(value)
+      transformer: (value: string) => this.parseNordnetNumber(value),
     },
     {
       csvField: 'Kjøpsverdi',
       internalField: 'cost_basis',
       required: false,
       dataType: 'number',
-      transformer: (value: string) => this.parseNordnetNumber(value)
+      transformer: (value: string) => this.parseNordnetNumber(value),
     },
     {
       csvField: 'Resultat',
       internalField: 'realized_pnl',
       required: false,
       dataType: 'number',
-      transformer: (value: string) => this.parseNordnetNumber(value)
+      transformer: (value: string) => this.parseNordnetNumber(value),
     },
     {
       csvField: 'Totalt antall',
       internalField: 'total_quantity',
       required: false,
       dataType: 'number',
-      transformer: (value: string) => this.parseNordnetNumber(value)
+      transformer: (value: string) => this.parseNordnetNumber(value),
     },
     {
       csvField: 'Saldo',
       internalField: 'balance',
       required: false,
       dataType: 'number',
-      transformer: (value: string) => this.parseNordnetNumber(value)
+      transformer: (value: string) => this.parseNordnetNumber(value),
     },
     {
       csvField: 'Vekslingskurs',
       internalField: 'exchange_rate',
       required: false,
       dataType: 'number',
-      transformer: (value: string) => this.parseNordnetNumber(value)
+      transformer: (value: string) => this.parseNordnetNumber(value),
     },
     {
       csvField: 'Transaksjonstekst',
       internalField: 'transaction_text',
       required: false,
-      dataType: 'string'
+      dataType: 'string',
     },
     {
       csvField: 'Makuleringsddato',
       internalField: 'cancellation_date',
       required: false,
       dataType: 'date',
-      transformer: (value: string) => this.parseNordnetDate(value)
+      transformer: (value: string) => this.parseNordnetDate(value),
     },
     {
       csvField: 'Sluttseddelnummer',
       internalField: 'settlement_number',
       required: false,
-      dataType: 'string'
+      dataType: 'string',
     },
     {
       csvField: 'Verifikasjonsnummer',
       internalField: 'verification_number',
       required: false,
-      dataType: 'string'
+      dataType: 'string',
     },
     {
       csvField: 'Kurtasje',
       internalField: 'commission',
       required: false,
       dataType: 'number',
-      transformer: (value: string) => this.parseNordnetNumber(value)
+      transformer: (value: string) => this.parseNordnetNumber(value),
     },
     {
       csvField: 'Valutakurs',
       internalField: 'currency_rate',
       required: false,
       dataType: 'number',
-      transformer: (value: string) => this.parseNordnetNumber(value)
+      transformer: (value: string) => this.parseNordnetNumber(value),
     },
     {
       csvField: 'Innledende rente',
       internalField: 'initial_interest',
       required: false,
       dataType: 'number',
-      transformer: (value: string) => this.parseNordnetNumber(value)
-    }
+      transformer: (value: string) => this.parseNordnetNumber(value),
+    },
   ]
 
   /**
@@ -213,7 +216,7 @@ export class NordnetFieldMapper {
       // European format: DD/MM/YYYY
       /^(\d{2})\/(\d{2})\/(\d{4})$/,
       // European format: DD-MM-YYYY
-      /^(\d{2})-(\d{2})-(\d{4})$/
+      /^(\d{2})-(\d{2})-(\d{4})$/,
     ]
 
     for (const format of formats) {
@@ -223,20 +226,31 @@ export class NordnetFieldMapper {
 
         if (format === formats[0]) {
           // ISO format
-          [, year, month, day] = match.map(Number)
+          ;[, year, month, day] = match.map(Number)
         } else {
           // European formats
-          [, day, month, year] = match.map(Number)
+          ;[, day, month, year] = match.map(Number)
         }
 
         // Validate date components
-        if (year < 1900 || year > 2100 || month < 1 || month > 12 || day < 1 || day > 31) {
+        if (
+          year < 1900 ||
+          year > 2100 ||
+          month < 1 ||
+          month > 12 ||
+          day < 1 ||
+          day > 31
+        ) {
           continue
         }
 
         try {
           const date = new Date(year, month - 1, day)
-          if (date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day) {
+          if (
+            date.getFullYear() === year &&
+            date.getMonth() === month - 1 &&
+            date.getDate() === day
+          ) {
             return date.toISOString().split('T')[0]
           }
         } catch {
@@ -284,7 +298,10 @@ export class NordnetFieldMapper {
   /**
    * Transforms a Nordnet CSV row to internal transaction data
    */
-  static transformRow(row: NordnetCSVRow, mappings: NordnetFieldMapping[] = this.DEFAULT_MAPPINGS): NordnetTransactionData {
+  static transformRow(
+    row: NordnetCSVRow,
+    mappings: NordnetFieldMapping[] = this.DEFAULT_MAPPINGS
+  ): NordnetTransactionData {
     const result: Partial<NordnetTransactionData> = {}
     const validationErrors: string[] = []
     const validationWarnings: string[] = []
@@ -292,16 +309,20 @@ export class NordnetFieldMapper {
     // Apply field mappings
     for (const mapping of mappings) {
       const value = row[mapping.csvField]
-      
+
       if (mapping.required && (!value || value.trim() === '')) {
-        validationErrors.push(`Required field '${mapping.csvField}' is missing or empty`)
+        validationErrors.push(
+          `Required field '${mapping.csvField}' is missing or empty`
+        )
         continue
       }
 
       if (value && value.trim() !== '') {
         // Apply validator if present
         if (mapping.validator && !mapping.validator(value)) {
-          validationErrors.push(`Invalid value for '${mapping.csvField}': ${value}`)
+          validationErrors.push(
+            `Invalid value for '${mapping.csvField}': ${value}`
+          )
           continue
         }
 
@@ -311,7 +332,9 @@ export class NordnetFieldMapper {
           try {
             transformedValue = mapping.transformer(value)
           } catch (error) {
-            validationErrors.push(`Error transforming '${mapping.csvField}': ${error instanceof Error ? error.message : 'Unknown error'}`)
+            validationErrors.push(
+              `Error transforming '${mapping.csvField}': ${error instanceof Error ? error.message : 'Unknown error'}`
+            )
             continue
           }
         }
@@ -322,12 +345,16 @@ export class NordnetFieldMapper {
             if (typeof transformedValue === 'string') {
               const numValue = this.parseNordnetNumber(transformedValue)
               if (numValue === null && mapping.required) {
-                validationErrors.push(`Cannot convert '${mapping.csvField}' to number: ${transformedValue}`)
+                validationErrors.push(
+                  `Cannot convert '${mapping.csvField}' to number: ${transformedValue}`
+                )
               } else {
-                result[mapping.internalField as keyof NordnetTransactionData] = numValue
+                result[mapping.internalField as keyof NordnetTransactionData] =
+                  numValue
               }
             } else {
-              result[mapping.internalField as keyof NordnetTransactionData] = transformedValue
+              result[mapping.internalField as keyof NordnetTransactionData] =
+                transformedValue
             }
             break
 
@@ -335,35 +362,51 @@ export class NordnetFieldMapper {
             if (typeof transformedValue === 'string') {
               const dateValue = this.parseNordnetDate(transformedValue)
               if (dateValue === null && mapping.required) {
-                validationErrors.push(`Cannot convert '${mapping.csvField}' to date: ${transformedValue}`)
+                validationErrors.push(
+                  `Cannot convert '${mapping.csvField}' to date: ${transformedValue}`
+                )
               } else {
-                result[mapping.internalField as keyof NordnetTransactionData] = dateValue
+                result[mapping.internalField as keyof NordnetTransactionData] =
+                  dateValue
               }
             } else {
-              result[mapping.internalField as keyof NordnetTransactionData] = transformedValue
+              result[mapping.internalField as keyof NordnetTransactionData] =
+                transformedValue
             }
             break
 
           case 'boolean':
             const boolValue = this.parseBoolean(transformedValue)
-            result[mapping.internalField as keyof NordnetTransactionData] = boolValue
+            result[mapping.internalField as keyof NordnetTransactionData] =
+              boolValue
             break
 
           default:
-            result[mapping.internalField as keyof NordnetTransactionData] = transformedValue
+            result[mapping.internalField as keyof NordnetTransactionData] =
+              transformedValue
         }
       }
     }
 
     // Add computed fields
-    result.internal_transaction_type = this.determineInternalTransactionType(result.transaction_type as string)
-    result.account_name = this.generateAccountName(result.portfolio_name as string)
-    result.needs_stock_lookup = this.needsStockLookup(result.transaction_type as string)
+    result.internal_transaction_type = this.determineInternalTransactionType(
+      result.transaction_type as string
+    )
+    result.account_name = this.generateAccountName(
+      result.portfolio_name as string
+    )
+    result.needs_stock_lookup = this.needsStockLookup(
+      result.transaction_type as string
+    )
     result.validation_errors = validationErrors
     result.validation_warnings = validationWarnings
 
     // Add additional validations
-    this.addBusinessLogicValidations(result, validationErrors, validationWarnings)
+    this.addBusinessLogicValidations(
+      result,
+      validationErrors,
+      validationWarnings
+    )
 
     return result as NordnetTransactionData
   }
@@ -384,7 +427,11 @@ export class NordnetFieldMapper {
    * Determines the internal transaction type from Nordnet transaction type
    */
   private static determineInternalTransactionType(nordnetType: string): string {
-    return NORDNET_TRANSACTION_TYPES[nordnetType as keyof typeof NORDNET_TRANSACTION_TYPES] || 'UNKNOWN'
+    return (
+      NORDNET_TRANSACTION_TYPES[
+        nordnetType as keyof typeof NORDNET_TRANSACTION_TYPES
+      ] || 'UNKNOWN'
+    )
   }
 
   /**
@@ -392,12 +439,12 @@ export class NordnetFieldMapper {
    */
   private static generateAccountName(portfolioName: string): string {
     if (!portfolioName) return 'Unknown Account'
-    
+
     // Check if it's a numeric portfolio ID
     if (/^\d+$/.test(portfolioName)) {
       return `Nordnet Account ${portfolioName}`
     }
-    
+
     // Return as-is if it's already a descriptive name
     return portfolioName
   }
@@ -406,7 +453,14 @@ export class NordnetFieldMapper {
    * Determines if a transaction needs stock lookup
    */
   private static needsStockLookup(transactionType: string): boolean {
-    const stockTransactionTypes = ['BUY', 'SELL', 'DIVIDEND', 'SPLIT', 'MERGER', 'SPINOFF']
+    const stockTransactionTypes = [
+      'BUY',
+      'SELL',
+      'DIVIDEND',
+      'SPLIT',
+      'MERGER',
+      'SPINOFF',
+    ]
     return stockTransactionTypes.includes(transactionType)
   }
 
@@ -419,11 +473,13 @@ export class NordnetFieldMapper {
     warnings: string[]
   ): void {
     // Validate quantity for buy/sell transactions
-    if (['BUY', 'SELL'].includes(transaction.internal_transaction_type as string)) {
+    if (
+      ['BUY', 'SELL'].includes(transaction.internal_transaction_type as string)
+    ) {
       if (!transaction.quantity || transaction.quantity <= 0) {
         errors.push('Buy/Sell transactions must have positive quantity')
       }
-      
+
       if (!transaction.price || transaction.price <= 0) {
         errors.push('Buy/Sell transactions must have positive price')
       }
@@ -434,9 +490,11 @@ export class NordnetFieldMapper {
       const expectedAmount = Math.abs(transaction.quantity * transaction.price)
       const actualAmount = Math.abs(transaction.amount || 0)
       const tolerance = expectedAmount * 0.01 // 1% tolerance
-      
+
       if (Math.abs(expectedAmount - actualAmount) > tolerance) {
-        warnings.push(`Amount (${actualAmount}) doesn't match quantity × price (${expectedAmount})`)
+        warnings.push(
+          `Amount (${actualAmount}) doesn't match quantity × price (${expectedAmount})`
+        )
       }
     }
 
@@ -456,7 +514,7 @@ export class NordnetFieldMapper {
     if (transaction.booking_date && transaction.trade_date) {
       const bookingDate = new Date(transaction.booking_date)
       const tradeDate = new Date(transaction.trade_date)
-      
+
       if (bookingDate < tradeDate) {
         warnings.push('Booking date is before trade date')
       }
@@ -468,7 +526,7 @@ export class NordnetFieldMapper {
    */
   static autoDetectMappings(headers: string[]): NordnetFieldMapping[] {
     const detectedMappings: NordnetFieldMapping[] = []
-    
+
     // Create a mapping of lowercase headers to original headers
     const headerMap = new Map<string, string>()
     headers.forEach(header => {
@@ -478,22 +536,25 @@ export class NordnetFieldMapper {
     // Try to match each default mapping
     for (const defaultMapping of this.DEFAULT_MAPPINGS) {
       const csvFieldLower = defaultMapping.csvField.toLowerCase()
-      
+
       // Direct match
       if (headerMap.has(csvFieldLower)) {
         detectedMappings.push({
           ...defaultMapping,
-          csvField: headerMap.get(csvFieldLower)! as keyof NordnetCSVRow
+          csvField: headerMap.get(csvFieldLower)! as keyof NordnetCSVRow,
         })
         continue
       }
 
       // Fuzzy match
       for (const [headerLower, originalHeader] of headerMap) {
-        if (headerLower.includes(csvFieldLower) || csvFieldLower.includes(headerLower)) {
+        if (
+          headerLower.includes(csvFieldLower) ||
+          csvFieldLower.includes(headerLower)
+        ) {
           detectedMappings.push({
             ...defaultMapping,
-            csvField: originalHeader as keyof NordnetCSVRow
+            csvField: originalHeader as keyof NordnetCSVRow,
           })
           break
         }
@@ -506,7 +567,10 @@ export class NordnetFieldMapper {
   /**
    * Validates field mappings
    */
-  static validateMappings(mappings: NordnetFieldMapping[], headers: string[]): {
+  static validateMappings(
+    mappings: NordnetFieldMapping[],
+    headers: string[]
+  ): {
     valid: boolean
     errors: string[]
     warnings: string[]
@@ -517,16 +581,22 @@ export class NordnetFieldMapper {
     // Check that all mapped fields exist in headers
     for (const mapping of mappings) {
       if (!headers.includes(mapping.csvField as string)) {
-        errors.push(`Mapped field '${mapping.csvField}' not found in CSV headers`)
+        errors.push(
+          `Mapped field '${mapping.csvField}' not found in CSV headers`
+        )
       }
     }
 
     // Check that all required mappings are present
     const requiredMappings = this.DEFAULT_MAPPINGS.filter(m => m.required)
     for (const requiredMapping of requiredMappings) {
-      const hasMapping = mappings.some(m => m.internalField === requiredMapping.internalField)
+      const hasMapping = mappings.some(
+        m => m.internalField === requiredMapping.internalField
+      )
       if (!hasMapping) {
-        errors.push(`Required mapping for '${requiredMapping.internalField}' is missing`)
+        errors.push(
+          `Required mapping for '${requiredMapping.internalField}' is missing`
+        )
       }
     }
 
@@ -534,7 +604,9 @@ export class NordnetFieldMapper {
     const usedFields = new Set<string>()
     for (const mapping of mappings) {
       if (usedFields.has(mapping.internalField)) {
-        errors.push(`Duplicate mapping for internal field '${mapping.internalField}'`)
+        errors.push(
+          `Duplicate mapping for internal field '${mapping.internalField}'`
+        )
       }
       usedFields.add(mapping.internalField)
     }
@@ -542,7 +614,7 @@ export class NordnetFieldMapper {
     return {
       valid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     }
   }
 
@@ -562,21 +634,21 @@ export class NordnetFieldMapper {
 
     // Keywords for field matching
     const fieldKeywords = {
-      'id': ['id', 'identifier', 'number'],
-      'date': ['date', 'dato', 'dag'],
-      'type': ['type', 'typ', 'art'],
-      'security': ['security', 'verdipapir', 'instrument'],
-      'isin': ['isin', 'code', 'symbol'],
-      'quantity': ['quantity', 'antall', 'antal', 'amount'],
-      'price': ['price', 'kurs', 'rate'],
-      'currency': ['currency', 'valuta', 'curr'],
-      'fee': ['fee', 'avgift', 'cost', 'gebyr'],
-      'portfolio': ['portfolio', 'portefølje', 'account', 'konto']
+      id: ['id', 'identifier', 'number'],
+      date: ['date', 'dato', 'dag'],
+      type: ['type', 'typ', 'art'],
+      security: ['security', 'verdipapir', 'instrument'],
+      isin: ['isin', 'code', 'symbol'],
+      quantity: ['quantity', 'antall', 'antal', 'amount'],
+      price: ['price', 'kurs', 'rate'],
+      currency: ['currency', 'valuta', 'curr'],
+      fee: ['fee', 'avgift', 'cost', 'gebyr'],
+      portfolio: ['portfolio', 'portefølje', 'account', 'konto'],
     }
 
     for (const header of headers) {
       const headerLower = header.toLowerCase()
-      
+
       for (const [fieldType, keywords] of Object.entries(fieldKeywords)) {
         for (const keyword of keywords) {
           if (headerLower.includes(keyword)) {
@@ -584,7 +656,7 @@ export class NordnetFieldMapper {
             suggestions.push({
               csvField: header,
               suggestedInternalField: fieldType,
-              confidence
+              confidence,
             })
             break
           }

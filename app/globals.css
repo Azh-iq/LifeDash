@@ -80,7 +80,8 @@
     overscroll-behavior-y: none;
     -webkit-overflow-scrolling: touch;
     /* Support for safe area insets */
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+      env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
 
   /* Mobile viewport height fix */
@@ -135,7 +136,7 @@
     ::-webkit-scrollbar {
       display: none;
     }
-    
+
     * {
       -ms-overflow-style: none;
       scrollbar-width: none;
@@ -329,7 +330,7 @@
   }
 
   /* Mobile-First Responsive Design */
-  
+
   /* Touch-optimized buttons */
   .btn-touch {
     @apply min-h-[44px] min-w-[44px] touch-manipulation;
@@ -342,7 +343,7 @@
   }
 
   .mobile-nav-item {
-    @apply flex flex-col items-center justify-center p-2 text-xs font-medium touch-manipulation;
+    @apply flex touch-manipulation flex-col items-center justify-center p-2 text-xs font-medium;
     min-height: 60px;
   }
 
@@ -357,7 +358,7 @@
 
   /* Swipe gesture styles */
   .swipe-container {
-    @apply relative overflow-hidden touch-pan-x;
+    @apply relative touch-pan-x overflow-hidden;
   }
 
   .swipe-actions {
@@ -439,7 +440,7 @@
 
   /* Haptic feedback styles */
   .haptic-light {
-    @apply transition-transform duration-75 active:scale-98;
+    @apply active:scale-98 transition-transform duration-75;
   }
 
   .haptic-medium {

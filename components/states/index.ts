@@ -84,7 +84,11 @@ export interface MobilePortfolioViewProps extends StateComponentProps {
 }
 
 // Utility functions for state components
-export const formatCurrency = (amount: number, currency: string = 'NOK', locale: string = 'no-NO') => {
+export const formatCurrency = (
+  amount: number,
+  currency: string = 'NOK',
+  locale: string = 'no-NO'
+) => {
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,
@@ -142,11 +146,14 @@ export const sortHoldings = (
 }
 
 export const groupHoldingsByPlatform = (holdings: HoldingWithStock[]) => {
-  return holdings.reduce((acc, holding) => {
-    if (!acc[holding.platform]) {
-      acc[holding.platform] = []
-    }
-    acc[holding.platform].push(holding)
-    return acc
-  }, {} as Record<string, HoldingWithStock[]>)
+  return holdings.reduce(
+    (acc, holding) => {
+      if (!acc[holding.platform]) {
+        acc[holding.platform] = []
+      }
+      acc[holding.platform].push(holding)
+      return acc
+    },
+    {} as Record<string, HoldingWithStock[]>
+  )
 }

@@ -1,5 +1,9 @@
 import { renderHook, act, waitFor } from '@testing-library/react'
-import { usePortfolios, usePortfolio, useOptimisticPortfolios } from '../use-portfolio'
+import {
+  usePortfolios,
+  usePortfolio,
+  useOptimisticPortfolios,
+} from '../use-portfolio'
 import * as portfolioActions from '@/lib/actions/portfolio/crud'
 import * as supabaseClient from '@/lib/supabase/client'
 

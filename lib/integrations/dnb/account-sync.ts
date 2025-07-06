@@ -9,7 +9,7 @@ import {
   DNBSyncResult,
   DNB_TRANSACTION_TYPES,
   DNB_ACCOUNT_TYPES,
-  InternalDNBTransactionType
+  InternalDNBTransactionType,
 } from './types'
 
 export interface TransformedDNBAccount {
@@ -96,13 +96,13 @@ export class DNBAccountSync {
       sync_duration_ms: 0,
       last_sync_date: new Date().toISOString(),
       errors: [],
-      warnings: []
+      warnings: [],
     }
 
     try {
       // Step 1: Sync accounts
       const accounts = await this.syncAccounts(stats)
-      
+
       // Step 2: Sync transactions for each account
       for (const account of accounts) {
         await this.syncAccountTransactions(account, stats)
@@ -112,7 +112,6 @@ export class DNBAccountSync {
       stats.sync_duration_ms = Date.now() - startTime
 
       return this.createSyncResult(stats, true)
-
     } catch (error) {
       stats.errors.push(`Full sync failed: ${error}`)
       stats.sync_duration_ms = Date.now() - startTime
@@ -123,7 +122,9 @@ export class DNBAccountSync {
   /**
    * Sync account information from DNB API
    */
-  private async syncAccounts(stats: DNBSyncStatistics): Promise<TransformedDNBAccount[]> {
+  private async syncAccounts(
+    stats: DNBSyncStatistics
+  ): Promise<TransformedDNBAccount[]> {
     try {
       const dnbAccounts = await this.apiClient.getAccounts()
       stats.accounts_found = dnbAccounts.length
@@ -133,11 +134,13 @@ export class DNBAccountSync {
       for (const dnbAccount of dnbAccounts) {
         try {
           const transformedAccount = this.transformAccount(dnbAccount)
-          
+
           // Here you would typically save to database
           // For now, we'll just track statistics
-          const existingAccount = await this.findExistingAccount(transformedAccount.platform_account_id)
-          
+          const existingAccount = await this.findExistingAccount(
+            transformedAccount.platform_account_id
+          )
+
           if (existingAccount) {
             stats.accounts_updated++
           } else {
@@ -145,14 +148,14 @@ export class DNBAccountSync {
           }
 
           transformedAccounts.push(transformedAccount)
-
         } catch (error) {
-          stats.errors.push(`Failed to sync account ${dnbAccount.accountId}: ${error}`)
+          stats.errors.push(
+            `Failed to sync account ${dnbAccount.accountId}: ${error}`
+          )
         }
       }
 
       return transformedAccounts
-
     } catch (error) {
       stats.errors.push(`Failed to fetch accounts from DNB API: ${error}`)
       return []
@@ -163,7 +166,7 @@ export class DNBAccountSync {
    * Sync transactions for a specific account
    */
   private async syncAccountTransactions(
-    account: TransformedDNBAccount, 
+    account: TransformedDNBAccount,
     stats: DNBSyncStatistics
   ): Promise<void> {
     try {
@@ -172,7 +175,7 @@ export class DNBAccountSync {
         {
           fromDate: this.syncConfig.fromDate,
           toDate: this.syncConfig.toDate,
-          pageSize: this.syncConfig.pageSize
+          pageSize: this.syncConfig.pageSize,
         }
       )
 
@@ -180,8 +183,11 @@ export class DNBAccountSync {
 
       for (const dnbTransaction of transactions.transactions) {
         try {
-          const transformedTransaction = this.transformTransaction(dnbTransaction, account.id)
-          
+          const transformedTransaction = this.transformTransaction(
+            dnbTransaction,
+            account.id
+          )
+
           // Check if transaction already exists
           const existingTransaction = await this.findExistingTransaction(
             transformedTransaction.external_transaction_id
@@ -189,7 +195,12 @@ export class DNBAccountSync {
 
           if (existingTransaction) {
             // Update if different
-            if (this.shouldUpdateTransaction(existingTransaction, transformedTransaction)) {
+            if (
+              this.shouldUpdateTransaction(
+                existingTransaction,
+                transformedTransaction
+              )
+            ) {
               stats.transactions_updated++
             } else {
               stats.transactions_skipped++
@@ -198,14 +209,16 @@ export class DNBAccountSync {
             // Create new transaction
             stats.transactions_created++
           }
-
         } catch (error) {
-          stats.errors.push(`Failed to sync transaction ${dnbTransaction.transactionId}: ${error}`)
+          stats.errors.push(
+            `Failed to sync transaction ${dnbTransaction.transactionId}: ${error}`
+          )
         }
       }
-
     } catch (error) {
-      stats.errors.push(`Failed to sync transactions for account ${account.id}: ${error}`)
+      stats.errors.push(
+        `Failed to sync transactions for account ${account.id}: ${error}`
+      )
     }
   }
 
@@ -215,7 +228,7 @@ export class DNBAccountSync {
   private transformAccount(dnbAccount: DNBAccount): TransformedDNBAccount {
     // Map DNB account type to internal type
     const accountType = this.mapAccountType(dnbAccount.accountType)
-    
+
     return {
       id: `dnb_${dnbAccount.accountId}`,
       name: dnbAccount.accountName || `DNB ${accountType} Account`,
@@ -232,8 +245,8 @@ export class DNBAccountSync {
       metadata: {
         product_name: dnbAccount.productName,
         original_type: dnbAccount.accountType,
-        dnb_account_id: dnbAccount.accountId
-      }
+        dnb_account_id: dnbAccount.accountId,
+      },
     }
   }
 
@@ -241,7 +254,7 @@ export class DNBAccountSync {
    * Transform DNB transaction to internal format
    */
   private transformTransaction(
-    dnbTransaction: DNBTransaction, 
+    dnbTransaction: DNBTransaction,
     accountId: string
   ): TransformedDNBTransaction {
     const internalType = this.mapTransactionType(dnbTransaction.transactionType)
@@ -265,10 +278,10 @@ export class DNBAccountSync {
       balance_after: dnbTransaction.balance,
       metadata: {
         original_type: dnbTransaction.transactionType,
-        dnb_transaction_id: dnbTransaction.transactionId
+        dnb_transaction_id: dnbTransaction.transactionId,
       },
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     }
   }
 
@@ -277,7 +290,7 @@ export class DNBAccountSync {
    */
   private mapAccountType(dnbAccountType: string): string {
     const upperType = dnbAccountType.toUpperCase()
-    
+
     if (upperType.includes('CHECKING') || upperType.includes('BRUKSKONTO')) {
       return 'CHECKING'
     }
@@ -296,18 +309,22 @@ export class DNBAccountSync {
     if (upperType.includes('PENSION') || upperType.includes('PENSJON')) {
       return 'PENSION'
     }
-    
+
     return 'CHECKING' // Default
   }
 
   /**
    * Map DNB transaction type to internal transaction type
    */
-  private mapTransactionType(dnbTransactionType: string): InternalDNBTransactionType {
+  private mapTransactionType(
+    dnbTransactionType: string
+  ): InternalDNBTransactionType {
     const upperType = dnbTransactionType.toUpperCase()
-    
+
     // Check for exact matches first
-    for (const [dnbType, internalType] of Object.entries(DNB_TRANSACTION_TYPES)) {
+    for (const [dnbType, internalType] of Object.entries(
+      DNB_TRANSACTION_TYPES
+    )) {
       if (upperType.includes(dnbType)) {
         return internalType
       }
@@ -342,7 +359,9 @@ export class DNBAccountSync {
   /**
    * Find existing account by platform account ID
    */
-  private async findExistingAccount(platformAccountId: string): Promise<any | null> {
+  private async findExistingAccount(
+    platformAccountId: string
+  ): Promise<any | null> {
     // This would typically query your database
     // For now, return null to indicate no existing account
     return null
@@ -351,7 +370,9 @@ export class DNBAccountSync {
   /**
    * Find existing transaction by external transaction ID
    */
-  private async findExistingTransaction(externalTransactionId: string): Promise<any | null> {
+  private async findExistingTransaction(
+    externalTransactionId: string
+  ): Promise<any | null> {
     // This would typically query your database
     // For now, return null to indicate no existing transaction
     return null
@@ -360,7 +381,10 @@ export class DNBAccountSync {
   /**
    * Determine if transaction should be updated
    */
-  private shouldUpdateTransaction(existing: any, updated: TransformedDNBTransaction): boolean {
+  private shouldUpdateTransaction(
+    existing: any,
+    updated: TransformedDNBTransaction
+  ): boolean {
     // Compare key fields to determine if update is needed
     return (
       existing.amount !== updated.amount ||
@@ -372,7 +396,10 @@ export class DNBAccountSync {
   /**
    * Create sync result from statistics
    */
-  private createSyncResult(stats: DNBSyncStatistics, success: boolean): DNBSyncResult {
+  private createSyncResult(
+    stats: DNBSyncStatistics,
+    success: boolean
+  ): DNBSyncResult {
     return {
       success,
       accountsSynced: stats.accounts_found,
@@ -382,7 +409,9 @@ export class DNBAccountSync {
       errors: stats.errors,
       warnings: stats.warnings,
       lastSyncTime: stats.last_sync_date,
-      nextSyncTime: new Date(Date.now() + this.syncConfig.syncInterval * 60000).toISOString()
+      nextSyncTime: new Date(
+        Date.now() + this.syncConfig.syncInterval * 60000
+      ).toISOString(),
     }
   }
 

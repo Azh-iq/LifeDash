@@ -22,12 +22,14 @@ import {
   BoltIcon,
   LightBulbIcon,
   FireIcon,
-  StarIcon
+  StarIcon,
 } from '@heroicons/react/24/outline'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { AnimatedCard } from '@/components/animated'
-import MobileActionSheet, { useActionSheet } from '@/components/mobile/mobile-action-sheet'
+import MobileActionSheet, {
+  useActionSheet,
+} from '@/components/mobile/mobile-action-sheet'
 import { usePortfolioState } from '@/lib/hooks/use-portfolio-state'
 import { cn } from '@/lib/utils/cn'
 
@@ -81,12 +83,19 @@ export default function MobileQuickActions({
   onRefresh,
   className,
   fabPosition = 'bottom-right',
-  showSuggestions = true
+  showSuggestions = true,
 }: MobileQuickActionsProps) {
   const [isFabExpanded, setIsFabExpanded] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [actionFeedback, setActionFeedback] = useState<{ [key: string]: boolean }>({})
-  const { isOpen: isActionSheetOpen, config, showActionSheet, hideActionSheet } = useActionSheet()
+  const [actionFeedback, setActionFeedback] = useState<{
+    [key: string]: boolean
+  }>({})
+  const {
+    isOpen: isActionSheetOpen,
+    config,
+    showActionSheet,
+    hideActionSheet,
+  } = useActionSheet()
 
   const {
     portfolio,
@@ -95,155 +104,170 @@ export default function MobileQuickActions({
     loading,
     error,
     isPricesConnected,
-    refresh
+    refresh,
   } = usePortfolioState(portfolioId)
 
   // Define quick actions
-  const quickActions = useMemo<QuickAction[]>(() => [
-    {
-      id: 'add-stock',
-      label: 'Legg til aksje',
-      icon: PlusIcon,
-      color: 'text-white',
-      bgColor: 'bg-blue-600 hover:bg-blue-700',
-      action: () => onAddStock?.(),
-      priority: 'high',
-      category: 'trading',
-      description: 'Legg til en ny aksje i porteføljen'
-    },
-    {
-      id: 'import-csv',
-      label: 'Importer CSV',
-      icon: DocumentArrowUpIcon,
-      color: 'text-white',
-      bgColor: 'bg-green-600 hover:bg-green-700',
-      action: () => onImportCSV?.(),
-      priority: 'high',
-      category: 'data',
-      description: 'Last opp CSV-fil med beholdninger'
-    },
-    {
-      id: 'refresh',
-      label: 'Oppdater',
-      icon: ArrowPathIcon,
-      color: 'text-white',
-      bgColor: 'bg-orange-600 hover:bg-orange-700',
-      action: handleRefresh,
-      disabled: isRefreshing,
-      priority: 'medium',
-      category: 'data',
-      description: 'Hent de nyeste aksjekursene',
-      badge: !isPricesConnected ? 'Offline' : undefined
-    },
-    {
-      id: 'analytics',
-      label: 'Analyse',
-      icon: ChartBarIcon,
-      color: 'text-white',
-      bgColor: 'bg-purple-600 hover:bg-purple-700',
-      action: () => onViewAnalytics?.(),
-      priority: 'medium',
-      category: 'analysis',
-      description: 'Se detaljert porteføljeanalyse'
-    },
-    {
-      id: 'export',
-      label: 'Eksporter',
-      icon: ArrowDownTrayIcon,
-      color: 'text-white',
-      bgColor: 'bg-indigo-600 hover:bg-indigo-700',
-      action: () => onExportData?.(),
-      disabled: holdings.length === 0,
-      priority: 'low',
-      category: 'data',
-      description: 'Eksporter porteføljedata'
-    },
-    {
-      id: 'share',
-      label: 'Del',
-      icon: ShareIcon,
-      color: 'text-white',
-      bgColor: 'bg-pink-600 hover:bg-pink-700',
-      action: () => onSharePortfolio?.(),
-      priority: 'low',
-      category: 'sharing',
-      description: 'Del porteføljen med andre'
-    }
-  ], [onAddStock, onImportCSV, onExportData, onSharePortfolio, onViewAnalytics, holdings.length, isRefreshing, isPricesConnected])
+  const quickActions = useMemo<QuickAction[]>(
+    () => [
+      {
+        id: 'add-stock',
+        label: 'Legg til aksje',
+        icon: PlusIcon,
+        color: 'text-white',
+        bgColor: 'bg-blue-600 hover:bg-blue-700',
+        action: () => onAddStock?.(),
+        priority: 'high',
+        category: 'trading',
+        description: 'Legg til en ny aksje i porteføljen',
+      },
+      {
+        id: 'import-csv',
+        label: 'Importer CSV',
+        icon: DocumentArrowUpIcon,
+        color: 'text-white',
+        bgColor: 'bg-green-600 hover:bg-green-700',
+        action: () => onImportCSV?.(),
+        priority: 'high',
+        category: 'data',
+        description: 'Last opp CSV-fil med beholdninger',
+      },
+      {
+        id: 'refresh',
+        label: 'Oppdater',
+        icon: ArrowPathIcon,
+        color: 'text-white',
+        bgColor: 'bg-orange-600 hover:bg-orange-700',
+        action: handleRefresh,
+        disabled: isRefreshing,
+        priority: 'medium',
+        category: 'data',
+        description: 'Hent de nyeste aksjekursene',
+        badge: !isPricesConnected ? 'Offline' : undefined,
+      },
+      {
+        id: 'analytics',
+        label: 'Analyse',
+        icon: ChartBarIcon,
+        color: 'text-white',
+        bgColor: 'bg-purple-600 hover:bg-purple-700',
+        action: () => onViewAnalytics?.(),
+        priority: 'medium',
+        category: 'analysis',
+        description: 'Se detaljert porteføljeanalyse',
+      },
+      {
+        id: 'export',
+        label: 'Eksporter',
+        icon: ArrowDownTrayIcon,
+        color: 'text-white',
+        bgColor: 'bg-indigo-600 hover:bg-indigo-700',
+        action: () => onExportData?.(),
+        disabled: holdings.length === 0,
+        priority: 'low',
+        category: 'data',
+        description: 'Eksporter porteføljedata',
+      },
+      {
+        id: 'share',
+        label: 'Del',
+        icon: ShareIcon,
+        color: 'text-white',
+        bgColor: 'bg-pink-600 hover:bg-pink-700',
+        action: () => onSharePortfolio?.(),
+        priority: 'low',
+        category: 'sharing',
+        description: 'Del porteføljen med andre',
+      },
+    ],
+    [
+      onAddStock,
+      onImportCSV,
+      onExportData,
+      onSharePortfolio,
+      onViewAnalytics,
+      holdings.length,
+      isRefreshing,
+      isPricesConnected,
+    ]
+  )
 
   // Context-aware action suggestions
-  const actionSuggestions = useMemo<ActionSuggestion[]>(() => [
-    {
-      id: 'diversify',
-      title: 'Diversifiser porteføljen',
-      description: 'Du har høy konsentrasjon i få aksjer',
-      icon: Squares2X2Icon,
-      color: 'text-yellow-600',
-      action: () => onAddStock?.(),
-      conditions: (portfolio, metrics) => {
-        const topHolding = metrics.topHoldings[0]
-        return topHolding && topHolding.weight > 30
-      }
-    },
-    {
-      id: 'rebalance',
-      title: 'Rebalansering anbefalt',
-      description: 'Noen posisjoner har vokst mye',
-      icon: AdjustmentsHorizontalIcon,
-      color: 'text-blue-600',
-      action: () => onViewAnalytics?.(),
-      conditions: (portfolio, metrics) => {
-        return metrics.topHoldings.some((h: any) => h.weight > 25)
-      }
-    },
-    {
-      id: 'take-profit',
-      title: 'Vurder gevinstrealisering',
-      description: 'Du har aksjer med høy gevinst',
-      icon: ArrowTrendingUpIcon,
-      color: 'text-green-600',
-      action: () => onViewAnalytics?.(),
-      conditions: (portfolio, metrics) => {
-        return holdings.some(h => h.gain_loss_percent > 50)
-      }
-    },
-    {
-      id: 'update-prices',
-      title: 'Oppdater kurser',
-      description: 'Prisene er ikke oppdatert',
-      icon: ArrowPathIcon,
-      color: 'text-red-600',
-      action: handleRefresh,
-      conditions: () => !isPricesConnected
-    },
-    {
-      id: 'first-stock',
-      title: 'Legg til din første aksje',
-      description: 'Kom i gang med investering',
-      icon: SparklesIcon,
-      color: 'text-purple-600',
-      action: () => onAddStock?.(),
-      conditions: (portfolio, metrics) => holdings.length === 0
-    }
-  ], [holdings, isPricesConnected, onAddStock, onViewAnalytics])
+  const actionSuggestions = useMemo<ActionSuggestion[]>(
+    () => [
+      {
+        id: 'diversify',
+        title: 'Diversifiser porteføljen',
+        description: 'Du har høy konsentrasjon i få aksjer',
+        icon: Squares2X2Icon,
+        color: 'text-yellow-600',
+        action: () => onAddStock?.(),
+        conditions: (portfolio, metrics) => {
+          const topHolding = metrics.topHoldings[0]
+          return topHolding && topHolding.weight > 30
+        },
+      },
+      {
+        id: 'rebalance',
+        title: 'Rebalansering anbefalt',
+        description: 'Noen posisjoner har vokst mye',
+        icon: AdjustmentsHorizontalIcon,
+        color: 'text-blue-600',
+        action: () => onViewAnalytics?.(),
+        conditions: (portfolio, metrics) => {
+          return metrics.topHoldings.some((h: any) => h.weight > 25)
+        },
+      },
+      {
+        id: 'take-profit',
+        title: 'Vurder gevinstrealisering',
+        description: 'Du har aksjer med høy gevinst',
+        icon: ArrowTrendingUpIcon,
+        color: 'text-green-600',
+        action: () => onViewAnalytics?.(),
+        conditions: (portfolio, metrics) => {
+          return holdings.some(h => h.gain_loss_percent > 50)
+        },
+      },
+      {
+        id: 'update-prices',
+        title: 'Oppdater kurser',
+        description: 'Prisene er ikke oppdatert',
+        icon: ArrowPathIcon,
+        color: 'text-red-600',
+        action: handleRefresh,
+        conditions: () => !isPricesConnected,
+      },
+      {
+        id: 'first-stock',
+        title: 'Legg til din første aksje',
+        description: 'Kom i gang med investering',
+        icon: SparklesIcon,
+        color: 'text-purple-600',
+        action: () => onAddStock?.(),
+        conditions: (portfolio, metrics) => holdings.length === 0,
+      },
+    ],
+    [holdings, isPricesConnected, onAddStock, onViewAnalytics]
+  )
 
   // Filter active suggestions
   const activeSuggestions = useMemo(() => {
     if (!showSuggestions || !portfolio || !metrics) return []
-    
-    return actionSuggestions.filter(suggestion => 
-      suggestion.conditions(portfolio, metrics)
-    ).slice(0, 2) // Show max 2 suggestions
+
+    return actionSuggestions
+      .filter(suggestion => suggestion.conditions(portfolio, metrics))
+      .slice(0, 2) // Show max 2 suggestions
   }, [actionSuggestions, portfolio, metrics, showSuggestions])
 
   // Handle refresh with loading state
   async function handleRefresh() {
     setIsRefreshing(true)
-    
+
     try {
       await refresh()
       showActionFeedback('refresh')
-      
+
       // Haptic feedback
       if ('vibrate' in navigator) {
         navigator.vibrate([50, 50, 50])
@@ -262,25 +286,28 @@ export default function MobileQuickActions({
     }, 1500)
   }, [])
 
-  const handleActionClick = useCallback((action: QuickAction) => {
-    if (action.disabled) return
+  const handleActionClick = useCallback(
+    (action: QuickAction) => {
+      if (action.disabled) return
 
-    // Haptic feedback
-    if ('vibrate' in navigator) {
-      navigator.vibrate(100)
-    }
+      // Haptic feedback
+      if ('vibrate' in navigator) {
+        navigator.vibrate(100)
+      }
 
-    action.action()
-    showActionFeedback(action.id)
-    
-    if (isFabExpanded) {
-      setIsFabExpanded(false)
-    }
-  }, [isFabExpanded, showActionFeedback])
+      action.action()
+      showActionFeedback(action.id)
+
+      if (isFabExpanded) {
+        setIsFabExpanded(false)
+      }
+    },
+    [isFabExpanded, showActionFeedback]
+  )
 
   const toggleFab = useCallback(() => {
     setIsFabExpanded(!isFabExpanded)
-    
+
     // Haptic feedback
     if ('vibrate' in navigator) {
       navigator.vibrate(isFabExpanded ? 50 : 100)
@@ -294,13 +321,13 @@ export default function MobileQuickActions({
       icon: action.icon,
       onClick: action.action,
       disabled: action.disabled,
-      badge: action.badge
+      badge: action.badge,
     }))
 
     showActionSheet({
       title: 'Hurtighandlinger',
       subtitle: 'Velg en handling å utføre',
-      items: actionItems
+      items: actionItems,
     })
   }, [quickActions, showActionSheet])
 
@@ -321,11 +348,13 @@ export default function MobileQuickActions({
     const angle = (index / (total - 1)) * (Math.PI / 2) // 90 degrees spread
     const x = Math.cos(angle + Math.PI) * FAB_ACTIONS_RADIUS
     const y = Math.sin(angle + Math.PI) * FAB_ACTIONS_RADIUS
-    
+
     return { x, y }
   }
 
-  const primaryActions = quickActions.filter(a => a.priority === 'high').slice(0, 4)
+  const primaryActions = quickActions
+    .filter(a => a.priority === 'high')
+    .slice(0, 4)
 
   return (
     <>
@@ -333,7 +362,7 @@ export default function MobileQuickActions({
         {/* Context-aware suggestions */}
         {activeSuggestions.length > 0 && (
           <div className="mb-4 space-y-2">
-            {activeSuggestions.map((suggestion) => {
+            {activeSuggestions.map(suggestion => {
               const Icon = suggestion.icon
               return (
                 <motion.div
@@ -342,20 +371,22 @@ export default function MobileQuickActions({
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                 >
-                  <AnimatedCard 
-                    className="p-3 border-l-4 border-blue-500 bg-blue-50 cursor-pointer"
+                  <AnimatedCard
+                    className="cursor-pointer border-l-4 border-blue-500 bg-blue-50 p-3"
                     onClick={suggestion.action}
                   >
                     <div className="flex items-start space-x-3">
-                      <Icon className={cn('h-5 w-5 mt-0.5', suggestion.color)} />
-                      <div className="flex-1 min-w-0">
+                      <Icon
+                        className={cn('mt-0.5 h-5 w-5', suggestion.color)}
+                      />
+                      <div className="min-w-0 flex-1">
                         <div className="flex items-center space-x-2">
-                          <p className="font-medium text-gray-900 text-sm">
+                          <p className="text-sm font-medium text-gray-900">
                             {suggestion.title}
                           </p>
                           <LightBulbIcon className="h-4 w-4 text-yellow-500" />
                         </div>
-                        <p className="text-xs text-gray-600 mt-1">
+                        <p className="mt-1 text-xs text-gray-600">
                           {suggestion.description}
                         </p>
                       </div>
@@ -369,7 +400,7 @@ export default function MobileQuickActions({
 
         {/* Quick Actions Grid */}
         <AnimatedCard className="p-4">
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4 flex items-center justify-between">
             <h3 className="font-semibold text-gray-900">Hurtighandlinger</h3>
             <Button
               variant="ghost"
@@ -382,20 +413,20 @@ export default function MobileQuickActions({
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            {primaryActions.map((action) => {
+            {primaryActions.map(action => {
               const Icon = action.icon
               const hasFeedback = actionFeedback[action.id]
-              
+
               return (
                 <motion.button
                   key={action.id}
                   onClick={() => handleActionClick(action)}
                   disabled={action.disabled}
                   className={cn(
-                    'relative flex flex-col items-center justify-center p-4 rounded-lg transition-all duration-200',
+                    'relative flex flex-col items-center justify-center rounded-lg p-4 transition-all duration-200',
                     'touch-manipulation active:scale-95',
                     action.bgColor,
-                    action.disabled && 'opacity-50 cursor-not-allowed',
+                    action.disabled && 'cursor-not-allowed opacity-50',
                     'min-h-[80px]'
                   )}
                   whileHover={{ scale: action.disabled ? 1 : 1.02 }}
@@ -408,28 +439,30 @@ export default function MobileQuickActions({
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0, opacity: 0 }}
-                        className="absolute inset-0 bg-green-500 rounded-lg flex items-center justify-center"
+                        className="absolute inset-0 flex items-center justify-center rounded-lg bg-green-500"
                       >
                         <CheckIcon className="h-6 w-6 text-white" />
                       </motion.div>
                     )}
                   </AnimatePresence>
 
-                  <Icon className={cn(
-                    'h-6 w-6 mb-2',
-                    action.color,
-                    action.id === 'refresh' && isRefreshing && 'animate-spin'
-                  )} />
-                  
+                  <Icon
+                    className={cn(
+                      'mb-2 h-6 w-6',
+                      action.color,
+                      action.id === 'refresh' && isRefreshing && 'animate-spin'
+                    )}
+                  />
+
                   <span className={cn('text-xs font-medium', action.color)}>
                     {action.label}
                   </span>
 
                   {/* Badge */}
                   {action.badge && (
-                    <Badge 
-                      variant="secondary" 
-                      className="absolute -top-1 -right-1 text-xs"
+                    <Badge
+                      variant="secondary"
+                      className="absolute -right-1 -top-1 text-xs"
                     >
                       {action.badge}
                     </Badge>
@@ -437,7 +470,7 @@ export default function MobileQuickActions({
 
                   {/* Priority indicator */}
                   {action.priority === 'high' && (
-                    <div className="absolute top-2 left-2">
+                    <div className="absolute left-2 top-2">
                       <StarIcon className="h-3 w-3 text-yellow-300" />
                     </div>
                   )}
@@ -447,25 +480,33 @@ export default function MobileQuickActions({
           </div>
 
           {/* Status indicators */}
-          <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-200">
+          <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-3">
             <div className="flex items-center space-x-4 text-xs text-gray-500">
               <div className="flex items-center space-x-1">
-                <div className={cn(
-                  'w-2 h-2 rounded-full',
-                  isPricesConnected ? 'bg-green-500' : 'bg-yellow-500'
-                )} />
-                <span>{isPricesConnected ? 'Live kurser' : 'Offline modus'}</span>
+                <div
+                  className={cn(
+                    'h-2 w-2 rounded-full',
+                    isPricesConnected ? 'bg-green-500' : 'bg-yellow-500'
+                  )}
+                />
+                <span>
+                  {isPricesConnected ? 'Live kurser' : 'Offline modus'}
+                </span>
               </div>
-              
+
               <div className="flex items-center space-x-1">
                 <ClockIcon className="h-3 w-3" />
                 <span>
-                  Oppdatert: {portfolio?.last_updated ? 
-                    new Date(portfolio.last_updated).toLocaleTimeString('nb-NO', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    }) : 'Aldri'
-                  }
+                  Oppdatert:{' '}
+                  {portfolio?.last_updated
+                    ? new Date(portfolio.last_updated).toLocaleTimeString(
+                        'nb-NO',
+                        {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        }
+                      )
+                    : 'Aldri'}
                 </span>
               </div>
             </div>
@@ -482,7 +523,7 @@ export default function MobileQuickActions({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/20 -z-10"
+              className="fixed inset-0 -z-10 bg-black/20"
               onClick={toggleFab}
             />
           )}
@@ -495,28 +536,28 @@ export default function MobileQuickActions({
               {primaryActions.map((action, index) => {
                 const position = getActionPosition(index, primaryActions.length)
                 const Icon = action.icon
-                
+
                 return (
                   <motion.button
                     key={action.id}
                     initial={{ scale: 0, opacity: 0 }}
-                    animate={{ 
-                      scale: 1, 
+                    animate={{
+                      scale: 1,
                       opacity: 1,
                       x: position.x,
-                      y: position.y
+                      y: position.y,
                     }}
                     exit={{ scale: 0, opacity: 0 }}
-                    transition={{ 
+                    transition={{
                       delay: index * 0.05,
                       type: 'spring',
                       stiffness: 200,
-                      damping: 20
+                      damping: 20,
                     }}
                     onClick={() => handleActionClick(action)}
                     disabled={action.disabled}
                     className={cn(
-                      'absolute bottom-0 right-0 w-12 h-12 rounded-full shadow-lg',
+                      'absolute bottom-0 right-0 h-12 w-12 rounded-full shadow-lg',
                       'flex items-center justify-center transition-colors',
                       'touch-manipulation',
                       action.bgColor,
@@ -539,9 +580,9 @@ export default function MobileQuickActions({
         <motion.button
           onClick={toggleFab}
           className={cn(
-            'w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full',
-            'shadow-lg flex items-center justify-center transition-colors',
-            'touch-manipulation relative z-10'
+            'h-14 w-14 rounded-full bg-blue-600 text-white hover:bg-blue-700',
+            'flex items-center justify-center shadow-lg transition-colors',
+            'relative z-10 touch-manipulation'
           )}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}

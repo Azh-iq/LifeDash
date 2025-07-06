@@ -18,7 +18,7 @@ export function PortfolioPage() {
 
   if (!portfolioId) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
         <p className="text-gray-500">Portfolio ID ikke funnet</p>
       </div>
     )
@@ -26,7 +26,7 @@ export function PortfolioPage() {
 
   return (
     <Suspense fallback={<LoadingPortfolioState type="initial" />}>
-      <MobilePortfolioDashboard 
+      <MobilePortfolioDashboard
         portfolioId={portfolioId}
         initialView="overview"
         showNavigation={true}
@@ -38,25 +38,33 @@ export function PortfolioPage() {
 }
 
 // Example: Embedded dashboard component
-export function EmbeddedPortfolioDashboard({ portfolioId }: { portfolioId: string }) {
+export function EmbeddedPortfolioDashboard({
+  portfolioId,
+}: {
+  portfolioId: string
+}) {
   return (
-    <div className="max-w-md mx-auto">
-      <MobilePortfolioDashboard 
+    <div className="mx-auto max-w-md">
+      <MobilePortfolioDashboard
         portfolioId={portfolioId}
         initialView="overview"
         showNavigation={false}
         showTopBar={false}
-        className="bg-white rounded-lg shadow-lg"
+        className="rounded-lg bg-white shadow-lg"
       />
     </div>
   )
 }
 
 // Example: With custom handlers
-export function CustomPortfolioDashboard({ portfolioId }: { portfolioId: string }) {
+export function CustomPortfolioDashboard({
+  portfolioId,
+}: {
+  portfolioId: string
+}) {
   return (
     <div className="mobile-container">
-      <MobilePortfolioDashboard 
+      <MobilePortfolioDashboard
         portfolioId={portfolioId}
         initialView="holdings"
         showNavigation={true}

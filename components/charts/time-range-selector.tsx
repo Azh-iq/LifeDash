@@ -87,20 +87,25 @@ export const TimeRangeSelector = ({
 
   if (variant === 'tabs') {
     return (
-      <div className={cn("inline-flex items-center gap-1 p-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg", className)}>
-        {ranges.map((range) => (
+      <div
+        className={cn(
+          'inline-flex items-center gap-1 rounded-lg bg-neutral-100 p-1 dark:bg-neutral-800',
+          className
+        )}
+      >
+        {ranges.map(range => (
           <button
             key={range.value}
             onClick={() => onRangeChange(range.value)}
             disabled={disabled}
             className={cn(
-              "relative px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200",
-              "hover:bg-white hover:shadow-sm dark:hover:bg-neutral-700",
-              "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
+              'relative rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-200',
+              'hover:bg-white hover:shadow-sm dark:hover:bg-neutral-700',
+              'focus:ring-primary-500 focus:outline-none focus:ring-2 focus:ring-offset-2',
+              'disabled:cursor-not-allowed disabled:opacity-50',
               selectedRange === range.value
-                ? "bg-white shadow-sm text-primary-600 dark:bg-neutral-700 dark:text-primary-400"
-                : "text-neutral-600 dark:text-neutral-400"
+                ? 'text-primary-600 dark:text-primary-400 bg-white shadow-sm dark:bg-neutral-700'
+                : 'text-neutral-600 dark:text-neutral-400'
             )}
             title={range.description}
           >
@@ -112,8 +117,8 @@ export const TimeRangeSelector = ({
   }
 
   return (
-    <div className={cn("flex items-center gap-1", className)}>
-      {ranges.map((range) => (
+    <div className={cn('flex items-center gap-1', className)}>
+      {ranges.map(range => (
         <Button
           key={range.value}
           variant={selectedRange === range.value ? 'primary' : 'ghost'}
@@ -122,10 +127,10 @@ export const TimeRangeSelector = ({
           disabled={disabled}
           className={cn(
             getButtonSize(),
-            "font-medium transition-all duration-200",
+            'font-medium transition-all duration-200',
             selectedRange === range.value
-              ? "bg-primary-600 text-white shadow-sm hover:bg-primary-700"
-              : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              ? 'bg-primary-600 hover:bg-primary-700 text-white shadow-sm'
+              : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800'
           )}
           title={range.description}
         >
@@ -146,11 +151,11 @@ export const CompactTimeRangeSelector = ({
 }: Omit<TimeRangeSelectorProps, 'size' | 'variant'>) => {
   const ranges = customRanges || DEFAULT_TIME_RANGES
   const [isOpen, setIsOpen] = useState(false)
-  
+
   const selectedRangeData = ranges.find(r => r.value === selectedRange)
-  
+
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn('relative', className)}>
       <Button
         variant="outline"
         size="sm"
@@ -159,19 +164,27 @@ export const CompactTimeRangeSelector = ({
         className="h-8 px-3 text-xs"
       >
         {selectedRangeData?.label || 'Velg periode'}
-        <svg 
-          className={cn("ml-2 h-4 w-4 transition-transform", isOpen && "rotate-180")}
-          fill="none" 
-          stroke="currentColor" 
+        <svg
+          className={cn(
+            'ml-2 h-4 w-4 transition-transform',
+            isOpen && 'rotate-180'
+          )}
+          fill="none"
+          stroke="currentColor"
           viewBox="0 0 24 24"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </Button>
-      
+
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg shadow-lg z-50">
-          {ranges.map((range) => (
+        <div className="absolute left-0 top-full z-50 mt-1 w-full rounded-lg border border-neutral-200 bg-white shadow-lg dark:border-neutral-800 dark:bg-neutral-900">
+          {ranges.map(range => (
             <button
               key={range.value}
               onClick={() => {
@@ -179,9 +192,10 @@ export const CompactTimeRangeSelector = ({
                 setIsOpen(false)
               }}
               className={cn(
-                "w-full px-3 py-2 text-left text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors",
-                "first:rounded-t-lg last:rounded-b-lg",
-                selectedRange === range.value && "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400"
+                'w-full px-3 py-2 text-left text-sm transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800',
+                'first:rounded-t-lg last:rounded-b-lg',
+                selectedRange === range.value &&
+                  'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400'
               )}
             >
               <div className="flex items-center justify-between">
@@ -201,30 +215,32 @@ export const CompactTimeRangeSelector = ({
 // Hook for time range logic
 export const useTimeRange = (initialRange: string = '1M') => {
   const [selectedRange, setSelectedRange] = useState(initialRange)
-  
+
   const getRangeData = (range: string): TimeRange | undefined => {
     return DEFAULT_TIME_RANGES.find(r => r.value === range)
   }
-  
+
   const getDateRange = (range: string): { startDate: Date; endDate: Date } => {
     const endDate = new Date()
     let startDate = new Date()
-    
+
     const rangeData = getRangeData(range)
     if (rangeData && rangeData.days > 0) {
-      startDate = new Date(endDate.getTime() - rangeData.days * 24 * 60 * 60 * 1000)
+      startDate = new Date(
+        endDate.getTime() - rangeData.days * 24 * 60 * 60 * 1000
+      )
     } else if (range === 'ALL') {
       // Set to a very early date for "ALL"
       startDate = new Date('2000-01-01')
     }
-    
+
     return { startDate, endDate }
   }
-  
+
   const handleRangeChange = (range: string) => {
     setSelectedRange(range)
   }
-  
+
   return {
     selectedRange,
     setSelectedRange: handleRangeChange,

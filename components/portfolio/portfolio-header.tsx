@@ -2,13 +2,13 @@
 
 import { useState, useCallback, memo } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  ArrowLeftIcon, 
-  ShareIcon, 
-  Cog6ToothIcon, 
+import {
+  ArrowLeftIcon,
+  ShareIcon,
+  Cog6ToothIcon,
   EllipsisVerticalIcon,
   PencilIcon,
-  TrashIcon 
+  TrashIcon,
 } from '@heroicons/react/24/outline'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -18,7 +18,10 @@ import { AnimatedCard } from '@/components/animated'
 import { usePortfolioState } from '@/lib/hooks/use-portfolio-state'
 import { formatCurrency } from '@/components/charts'
 import { useResponsiveLayout } from '@/lib/hooks/use-responsive-layout'
-import { MobileResponsiveWrapper, ResponsiveVisibility } from '@/components/mobile/mobile-responsive-wrapper'
+import {
+  MobileResponsiveWrapper,
+  ResponsiveVisibility,
+} from '@/components/mobile/mobile-responsive-wrapper'
 
 interface PortfolioHeaderProps {
   portfolioId: string
@@ -33,7 +36,7 @@ const PortfolioHeader = memo(function PortfolioHeader({
   onBack,
   onEdit,
   onDelete,
-  onShare
+  onShare,
 }: PortfolioHeaderProps) {
   const [showMenu, setShowMenu] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
@@ -44,22 +47,22 @@ const PortfolioHeader = memo(function PortfolioHeader({
   const handleToggleMenu = useCallback(() => setShowMenu(!showMenu), [showMenu])
   const handleCloseShareModal = useCallback(() => setShowShareModal(false), [])
   const handleOpenShareModal = useCallback(() => setShowShareModal(true), [])
-  
+
   const handleEditClick = useCallback(() => {
     handleCloseMenu()
     onEdit?.()
   }, [onEdit, handleCloseMenu])
-  
+
   const handleDeleteClick = useCallback(() => {
     handleCloseMenu()
     onDelete?.()
   }, [onDelete, handleCloseMenu])
-  
+
   const handleShareClick = useCallback(() => {
     handleCloseMenu()
     handleOpenShareModal()
   }, [handleCloseMenu, handleOpenShareModal])
-  
+
   const handleCopyLink = useCallback(() => {
     if (typeof window !== 'undefined') {
       navigator.clipboard.writeText(
@@ -72,17 +75,31 @@ const PortfolioHeader = memo(function PortfolioHeader({
   if (loading) {
     return (
       <MobileResponsiveWrapper className="mb-6">
-        <div className={`flex items-center justify-between ${isMobile ? 'flex-col space-y-4' : ''}`}>
-          <div className={`flex items-center space-x-4 ${isMobile ? 'w-full' : ''}`}>
-            <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
+        <div
+          className={`flex items-center justify-between ${isMobile ? 'flex-col space-y-4' : ''}`}
+        >
+          <div
+            className={`flex items-center space-x-4 ${isMobile ? 'w-full' : ''}`}
+          >
+            <div className="h-8 w-8 animate-pulse rounded bg-gray-200" />
             <div className="flex-1">
-              <div className={`${isMobile ? 'h-6 w-32' : 'h-8 w-48'} bg-gray-200 rounded animate-pulse mb-2`} />
-              <div className={`${isMobile ? 'h-3 w-24' : 'h-4 w-32'} bg-gray-200 rounded animate-pulse`} />
+              <div
+                className={`${isMobile ? 'h-6 w-32' : 'h-8 w-48'} mb-2 animate-pulse rounded bg-gray-200`}
+              />
+              <div
+                className={`${isMobile ? 'h-3 w-24' : 'h-4 w-32'} animate-pulse rounded bg-gray-200`}
+              />
             </div>
           </div>
-          <div className={`flex space-x-2 ${isMobile ? 'w-full justify-end' : ''}`}>
-            <div className={`${isMobile ? 'h-8 w-16' : 'h-9 w-20'} bg-gray-200 rounded animate-pulse`} />
-            <div className={`${isMobile ? 'h-8 w-8' : 'h-9 w-9'} bg-gray-200 rounded animate-pulse`} />
+          <div
+            className={`flex space-x-2 ${isMobile ? 'w-full justify-end' : ''}`}
+          >
+            <div
+              className={`${isMobile ? 'h-8 w-16' : 'h-9 w-20'} animate-pulse rounded bg-gray-200`}
+            />
+            <div
+              className={`${isMobile ? 'h-8 w-8' : 'h-9 w-9'} animate-pulse rounded bg-gray-200`}
+            />
           </div>
         </div>
       </MobileResponsiveWrapper>
@@ -102,9 +119,7 @@ const PortfolioHeader = memo(function PortfolioHeader({
             <ArrowLeftIcon className="h-4 w-4" />
             Tilbake
           </Button>
-          <div className="text-red-600">
-            {error || 'Fant ikke porteføljen'}
-          </div>
+          <div className="text-red-600">{error || 'Fant ikke porteføljen'}</div>
         </div>
       </div>
     )
@@ -148,55 +163,69 @@ const PortfolioHeader = memo(function PortfolioHeader({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className={`flex items-center justify-between ${isMobile ? 'flex-col space-y-4' : ''}`}>
+          <div
+            className={`flex items-center justify-between ${isMobile ? 'flex-col space-y-4' : ''}`}
+          >
             {/* Left side - Portfolio info */}
-            <div className={`flex items-center space-x-4 ${isMobile ? 'w-full' : ''}`}>
+            <div
+              className={`flex items-center space-x-4 ${isMobile ? 'w-full' : ''}`}
+            >
               {onBack && (
                 <Button
                   variant="ghost"
-                  size={isMobile ? "sm" : "sm"}
+                  size={isMobile ? 'sm' : 'sm'}
                   onClick={onBack}
-                  className="hover:bg-gray-100 touch-manipulation"
+                  className="touch-manipulation hover:bg-gray-100"
                 >
                   <ArrowLeftIcon className="h-4 w-4" />
-                  {!isMobile && "Tilbake"}
+                  {!isMobile && 'Tilbake'}
                 </Button>
               )}
-              
+
               <div className={`${isMobile ? 'flex-1' : ''}`}>
-                <div className={`flex items-center space-x-3 ${isMobile ? 'flex-wrap' : ''}`}>
-                  <h1 className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-gray-900`}>
+                <div
+                  className={`flex items-center space-x-3 ${isMobile ? 'flex-wrap' : ''}`}
+                >
+                  <h1
+                    className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-gray-900`}
+                  >
                     {portfolio.name}
                   </h1>
-                  <Badge 
-                    variant="secondary" 
+                  <Badge
+                    variant="secondary"
                     className={`${getPortfolioTypeColor(portfolio.type)} ${isMobile ? 'text-xs' : ''}`}
                   >
                     {getPortfolioTypeLabel(portfolio.type)}
                   </Badge>
                   {portfolio.is_public && (
-                    <Badge variant="outline" className={isMobile ? 'text-xs' : ''}>
+                    <Badge
+                      variant="outline"
+                      className={isMobile ? 'text-xs' : ''}
+                    >
                       Offentlig
                     </Badge>
                   )}
                 </div>
-                
+
                 {portfolio.description && (
-                  <p className={`text-gray-600 mt-1 ${isMobile ? 'text-sm' : ''}`}>
+                  <p
+                    className={`mt-1 text-gray-600 ${isMobile ? 'text-sm' : ''}`}
+                  >
                     {portfolio.description}
                   </p>
                 )}
-                
-                <div className={`flex items-center space-x-4 mt-2 text-sm text-gray-500 ${isMobile ? 'flex-wrap text-xs' : ''}`}>
+
+                <div
+                  className={`mt-2 flex items-center space-x-4 text-sm text-gray-500 ${isMobile ? 'flex-wrap text-xs' : ''}`}
+                >
                   <span>
-                    Opprettet: {new Date(portfolio.created_at).toLocaleDateString('nb-NO')}
+                    Opprettet:{' '}
+                    {new Date(portfolio.created_at).toLocaleDateString('nb-NO')}
                   </span>
                   <ResponsiveVisibility hideOn={['mobile']}>
                     <Separator orientation="vertical" className="h-4" />
                   </ResponsiveVisibility>
-                  <span>
-                    {portfolio.holdings_count || 0} beholdninger
-                  </span>
+                  <span>{portfolio.holdings_count || 0} beholdninger</span>
                   {portfolio.total_value && (
                     <>
                       <ResponsiveVisibility hideOn={['mobile']}>
@@ -212,7 +241,9 @@ const PortfolioHeader = memo(function PortfolioHeader({
             </div>
 
             {/* Right side - Actions */}
-            <div className={`flex items-center space-x-2 ${isMobile ? 'w-full justify-end' : ''}`}>
+            <div
+              className={`flex items-center space-x-2 ${isMobile ? 'w-full justify-end' : ''}`}
+            >
               <ResponsiveVisibility hideOn={['mobile']}>
                 <Button
                   variant="outline"
@@ -220,17 +251,17 @@ const PortfolioHeader = memo(function PortfolioHeader({
                   onClick={handleOpenShareModal}
                   className="hover:bg-gray-50"
                 >
-                  <ShareIcon className="h-4 w-4 mr-2" />
+                  <ShareIcon className="mr-2 h-4 w-4" />
                   Del
                 </Button>
-                
+
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={onEdit}
                   className="hover:bg-gray-50"
                 >
-                  <PencilIcon className="h-4 w-4 mr-2" />
+                  <PencilIcon className="mr-2 h-4 w-4" />
                   Rediger
                 </Button>
               </ResponsiveVisibility>
@@ -240,32 +271,32 @@ const PortfolioHeader = memo(function PortfolioHeader({
                   variant="ghost"
                   size="sm"
                   onClick={handleToggleMenu}
-                  className="hover:bg-gray-50 touch-manipulation"
+                  className="touch-manipulation hover:bg-gray-50"
                 >
                   <EllipsisVerticalIcon className="h-4 w-4" />
                 </Button>
-                
+
                 {showMenu && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
-                    className={`absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-10 ${isMobile ? 'w-56' : ''}`}
+                    className={`absolute right-0 z-10 mt-2 w-48 rounded-md border border-gray-200 bg-white shadow-lg ${isMobile ? 'w-56' : ''}`}
                   >
                     <div className="py-1">
                       <button
                         onClick={handleEditClick}
-                        className={`flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 touch-manipulation ${isMobile ? 'py-3' : ''}`}
+                        className={`flex w-full touch-manipulation items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isMobile ? 'py-3' : ''}`}
                       >
-                        <PencilIcon className="h-4 w-4 mr-3" />
+                        <PencilIcon className="mr-3 h-4 w-4" />
                         Rediger portefølje
                       </button>
                       <button
                         onClick={handleShareClick}
-                        className={`flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 touch-manipulation ${isMobile ? 'py-3' : ''}`}
+                        className={`flex w-full touch-manipulation items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isMobile ? 'py-3' : ''}`}
                       >
-                        <ShareIcon className="h-4 w-4 mr-3" />
+                        <ShareIcon className="mr-3 h-4 w-4" />
                         Del portefølje
                       </button>
                       <button
@@ -273,17 +304,17 @@ const PortfolioHeader = memo(function PortfolioHeader({
                           setShowMenu(false)
                           // Add export functionality
                         }}
-                        className={`flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 touch-manipulation ${isMobile ? 'py-3' : ''}`}
+                        className={`flex w-full touch-manipulation items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isMobile ? 'py-3' : ''}`}
                       >
-                        <Cog6ToothIcon className="h-4 w-4 mr-3" />
+                        <Cog6ToothIcon className="mr-3 h-4 w-4" />
                         Eksporter data
                       </button>
                       <Separator />
                       <button
                         onClick={handleDeleteClick}
-                        className={`flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 touch-manipulation ${isMobile ? 'py-3' : ''}`}
+                        className={`flex w-full touch-manipulation items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 ${isMobile ? 'py-3' : ''}`}
                       >
-                        <TrashIcon className="h-4 w-4 mr-3" />
+                        <TrashIcon className="mr-3 h-4 w-4" />
                         Slett portefølje
                       </button>
                     </div>
@@ -305,28 +336,20 @@ const PortfolioHeader = memo(function PortfolioHeader({
           <p className="text-gray-600">
             Del din portefølje med andre ved å sende dem lenken nedenfor.
           </p>
-          
-          <div className="bg-gray-50 p-3 rounded-lg">
+
+          <div className="rounded-lg bg-gray-50 p-3">
             <code className="text-sm">
-              {typeof window !== 'undefined' 
+              {typeof window !== 'undefined'
                 ? `${window.location.origin}/portfolios/${portfolioId}/share`
-                : '#'
-              }
+                : '#'}
             </code>
           </div>
-          
+
           <div className="flex justify-end space-x-2">
-            <Button
-              variant="outline"
-              onClick={handleCloseShareModal}
-            >
+            <Button variant="outline" onClick={handleCloseShareModal}>
               Avbryt
             </Button>
-            <Button
-              onClick={handleCopyLink}
-            >
-              Kopier lenke
-            </Button>
+            <Button onClick={handleCopyLink}>Kopier lenke</Button>
           </div>
         </div>
       </Modal>

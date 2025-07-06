@@ -59,7 +59,13 @@ export interface SchwabPosition {
   unrealizedPnL: number
   unrealizedPnLPercent: number
   instrument: {
-    assetType: 'EQUITY' | 'OPTION' | 'MUTUAL_FUND' | 'CASH_EQUIVALENT' | 'FIXED_INCOME' | 'CURRENCY'
+    assetType:
+      | 'EQUITY'
+      | 'OPTION'
+      | 'MUTUAL_FUND'
+      | 'CASH_EQUIVALENT'
+      | 'FIXED_INCOME'
+      | 'CURRENCY'
     cusip: string
     symbol: string
     description: string
@@ -130,9 +136,24 @@ export interface SchwabTransaction {
     amount: number
     price: number
     cost: number
-    instruction: 'BUY' | 'SELL' | 'DEPOSIT' | 'WITHDRAWAL' | 'TRANSFER' | 'DIVIDEND' | 'INTEREST' | 'FEE' | 'ADJUSTMENT'
+    instruction:
+      | 'BUY'
+      | 'SELL'
+      | 'DEPOSIT'
+      | 'WITHDRAWAL'
+      | 'TRANSFER'
+      | 'DIVIDEND'
+      | 'INTEREST'
+      | 'FEE'
+      | 'ADJUSTMENT'
     instrument: {
-      assetType: 'EQUITY' | 'OPTION' | 'MUTUAL_FUND' | 'CASH_EQUIVALENT' | 'FIXED_INCOME' | 'CURRENCY'
+      assetType:
+        | 'EQUITY'
+        | 'OPTION'
+        | 'MUTUAL_FUND'
+        | 'CASH_EQUIVALENT'
+        | 'FIXED_INCOME'
+        | 'CURRENCY'
       cusip: string
       symbol: string
       description: string
@@ -188,7 +209,13 @@ export interface SchwabPositionResponse {
 
 export interface SchwabQuote {
   symbol: string
-  assetType: 'EQUITY' | 'OPTION' | 'MUTUAL_FUND' | 'CASH_EQUIVALENT' | 'FIXED_INCOME' | 'CURRENCY'
+  assetType:
+    | 'EQUITY'
+    | 'OPTION'
+    | 'MUTUAL_FUND'
+    | 'CASH_EQUIVALENT'
+    | 'FIXED_INCOME'
+    | 'CURRENCY'
   assetMainType: string
   cusip: string
   description: string
@@ -338,47 +365,47 @@ export interface SchwabRateLimitInfo {
 // Transaction type mappings from Schwab to internal types
 export const SCHWAB_TRANSACTION_TYPES = {
   // Equity transactions
-  "BUY": "BUY",
-  "SELL": "SELL",
-  "SELL_SHORT": "SELL_SHORT",
-  "BUY_TO_COVER": "BUY_TO_COVER",
-  
+  BUY: 'BUY',
+  SELL: 'SELL',
+  SELL_SHORT: 'SELL_SHORT',
+  BUY_TO_COVER: 'BUY_TO_COVER',
+
   // Options transactions
-  "BUY_TO_OPEN": "BUY_TO_OPEN",
-  "SELL_TO_OPEN": "SELL_TO_OPEN",
-  "BUY_TO_CLOSE": "BUY_TO_CLOSE",
-  "SELL_TO_CLOSE": "SELL_TO_CLOSE",
-  
+  BUY_TO_OPEN: 'BUY_TO_OPEN',
+  SELL_TO_OPEN: 'SELL_TO_OPEN',
+  BUY_TO_CLOSE: 'BUY_TO_CLOSE',
+  SELL_TO_CLOSE: 'SELL_TO_CLOSE',
+
   // Cash transactions
-  "DEPOSIT": "DEPOSIT",
-  "WITHDRAWAL": "WITHDRAWAL",
-  "TRANSFER_IN": "TRANSFER_IN",
-  "TRANSFER_OUT": "TRANSFER_OUT",
-  "INTERNAL_TRANSFER": "TRANSFER",
-  
+  DEPOSIT: 'DEPOSIT',
+  WITHDRAWAL: 'WITHDRAWAL',
+  TRANSFER_IN: 'TRANSFER_IN',
+  TRANSFER_OUT: 'TRANSFER_OUT',
+  INTERNAL_TRANSFER: 'TRANSFER',
+
   // Income transactions
-  "DIVIDEND": "DIVIDEND",
-  "INTEREST": "INTEREST",
-  "BOND_INTEREST": "BOND_INTEREST",
-  "CAPITAL_GAINS": "CAPITAL_GAINS",
-  
+  DIVIDEND: 'DIVIDEND',
+  INTEREST: 'INTEREST',
+  BOND_INTEREST: 'BOND_INTEREST',
+  CAPITAL_GAINS: 'CAPITAL_GAINS',
+
   // Corporate actions
-  "STOCK_SPLIT": "STOCK_SPLIT",
-  "STOCK_DIVIDEND": "STOCK_DIVIDEND",
-  "SPIN_OFF": "SPIN_OFF",
-  "MERGER": "MERGER",
-  "RIGHTS": "RIGHTS",
-  "TENDER": "TENDER",
-  
+  STOCK_SPLIT: 'STOCK_SPLIT',
+  STOCK_DIVIDEND: 'STOCK_DIVIDEND',
+  SPIN_OFF: 'SPIN_OFF',
+  MERGER: 'MERGER',
+  RIGHTS: 'RIGHTS',
+  TENDER: 'TENDER',
+
   // Fees and adjustments
-  "FEE": "FEE",
-  "COMMISSION": "COMMISSION",
-  "ADJUSTMENT": "ADJUSTMENT",
-  "CORRECTION": "CORRECTION",
-  "TAX_WITHHOLDING": "TAX_WITHHOLDING",
-  
+  FEE: 'FEE',
+  COMMISSION: 'COMMISSION',
+  ADJUSTMENT: 'ADJUSTMENT',
+  CORRECTION: 'CORRECTION',
+  TAX_WITHHOLDING: 'TAX_WITHHOLDING',
+
   // Other
-  "UNKNOWN": "OTHER"
+  UNKNOWN: 'OTHER',
 } as const
 
 // Schwab API endpoints
@@ -387,35 +414,36 @@ export const SCHWAB_API_ENDPOINTS = {
   AUTH: '/v1/oauth/token',
   REFRESH: '/v1/oauth/token',
   REVOKE: '/v1/oauth/revoke',
-  
+
   // Accounts
   ACCOUNTS: '/trader/v1/accounts',
   ACCOUNT_NUMBERS: '/trader/v1/accounts/accountNumbers',
   ACCOUNT_DETAILS: '/trader/v1/accounts/{accountId}',
-  
+
   // Positions
   POSITIONS: '/trader/v1/accounts/{accountId}/positions',
-  
+
   // Transactions
   TRANSACTIONS: '/trader/v1/accounts/{accountId}/transactions',
-  TRANSACTION_DETAILS: '/trader/v1/accounts/{accountId}/transactions/{transactionId}',
-  
+  TRANSACTION_DETAILS:
+    '/trader/v1/accounts/{accountId}/transactions/{transactionId}',
+
   // Market Data
   QUOTES: '/marketdata/v1/quotes',
   QUOTE_SINGLE: '/marketdata/v1/{symbol}/quotes',
   PRICE_HISTORY: '/marketdata/v1/pricehistory',
   MARKET_HOURS: '/marketdata/v1/markets/{market}/hours',
   INSTRUMENTS: '/marketdata/v1/instruments',
-  
+
   // Options
   OPTIONS_CHAINS: '/marketdata/v1/chains',
   OPTIONS_EXPIRATION: '/marketdata/v1/expirationchain',
-  
+
   // Movers
   MOVERS: '/marketdata/v1/movers/{index}',
-  
+
   // User preferences
-  USER_PREFERENCES: '/trader/v1/userpreference'
+  USER_PREFERENCES: '/trader/v1/userpreference',
 } as const
 
 // Schwab OAuth scopes
@@ -424,7 +452,7 @@ export const SCHWAB_OAUTH_SCOPES = [
   'trade',
   'MarketData.read',
   'AccountAccess.read',
-  'AccountAccess.write'
+  'AccountAccess.write',
 ] as const
 
 // Schwab API rate limits (requests per minute)
@@ -433,65 +461,65 @@ export const SCHWAB_RATE_LIMITS = {
   ACCOUNT_REQUESTS_PER_MINUTE: 60,
   TRANSACTION_REQUESTS_PER_MINUTE: 60,
   POSITION_REQUESTS_PER_MINUTE: 60,
-  
+
   // Market Data API limits (much stricter)
   MARKET_DATA_REQUESTS_PER_MINUTE: 120,
   QUOTE_REQUESTS_PER_MINUTE: 300,
   PRICE_HISTORY_REQUESTS_PER_MINUTE: 60,
-  
+
   // Daily limits
   TOTAL_REQUESTS_PER_DAY: 10000,
   MARKET_DATA_REQUESTS_PER_DAY: 50000,
-  
+
   // Burst limits
   BURST_REQUESTS_PER_SECOND: 10,
-  
+
   // Back-off periods (in seconds)
   RATE_LIMIT_BACKOFF: 60,
   ERROR_BACKOFF: 30,
-  RETRY_BACKOFF: 5
+  RETRY_BACKOFF: 5,
 } as const
 
 // Schwab account types
 export const SCHWAB_ACCOUNT_TYPES = {
-  'INDIVIDUAL': 'INDIVIDUAL',
-  'JOINT': 'JOINT',
-  'CORPORATE': 'CORPORATE',
-  'TRUST': 'TRUST',
-  'IRA': 'IRA',
-  'ROTH_IRA': 'ROTH_IRA',
-  'ROLLOVER_IRA': 'ROLLOVER_IRA',
-  'SEP_IRA': 'SEP_IRA',
-  'SIMPLE_IRA': 'SIMPLE_IRA',
-  'TRADITIONAL_401K': 'TRADITIONAL_401K',
-  'ROTH_401K': 'ROTH_401K',
-  'CUSTODIAL': 'CUSTODIAL',
-  'EDUCATION': 'EDUCATION',
-  'HSA': 'HSA'
+  INDIVIDUAL: 'INDIVIDUAL',
+  JOINT: 'JOINT',
+  CORPORATE: 'CORPORATE',
+  TRUST: 'TRUST',
+  IRA: 'IRA',
+  ROTH_IRA: 'ROTH_IRA',
+  ROLLOVER_IRA: 'ROLLOVER_IRA',
+  SEP_IRA: 'SEP_IRA',
+  SIMPLE_IRA: 'SIMPLE_IRA',
+  TRADITIONAL_401K: 'TRADITIONAL_401K',
+  ROTH_401K: 'ROTH_401K',
+  CUSTODIAL: 'CUSTODIAL',
+  EDUCATION: 'EDUCATION',
+  HSA: 'HSA',
 } as const
 
 // Schwab asset types
 export const SCHWAB_ASSET_TYPES = {
-  'EQUITY': 'EQUITY',
-  'OPTION': 'OPTION',
-  'MUTUAL_FUND': 'MUTUAL_FUND',
-  'CASH_EQUIVALENT': 'CASH_EQUIVALENT',
-  'FIXED_INCOME': 'FIXED_INCOME',
-  'CURRENCY': 'CURRENCY',
-  'FUTURES': 'FUTURES',
-  'FOREX': 'FOREX',
-  'INDEX': 'INDEX',
-  'ETF': 'ETF',
-  'CRYPTOCURRENCY': 'CRYPTOCURRENCY'
+  EQUITY: 'EQUITY',
+  OPTION: 'OPTION',
+  MUTUAL_FUND: 'MUTUAL_FUND',
+  CASH_EQUIVALENT: 'CASH_EQUIVALENT',
+  FIXED_INCOME: 'FIXED_INCOME',
+  CURRENCY: 'CURRENCY',
+  FUTURES: 'FUTURES',
+  FOREX: 'FOREX',
+  INDEX: 'INDEX',
+  ETF: 'ETF',
+  CRYPTOCURRENCY: 'CRYPTOCURRENCY',
 } as const
 
 // Schwab market categories
 export const SCHWAB_MARKETS = {
-  'EQUITY': 'equity',
-  'OPTION': 'option',
-  'FUTURE': 'future',
-  'BOND': 'bond',
-  'FOREX': 'forex'
+  EQUITY: 'equity',
+  OPTION: 'option',
+  FUTURE: 'future',
+  BOND: 'bond',
+  FOREX: 'forex',
 } as const
 
 // Common Schwab transaction categories for portfolio management
@@ -512,32 +540,33 @@ export const SCHWAB_CATEGORIES = [
   'WITHDRAWALS',
   'CORPORATE_ACTIONS',
   'TAX_TRANSACTIONS',
-  'OTHER'
+  'OTHER',
 ] as const
 
 // US market exchanges supported by Schwab
 export const SCHWAB_EXCHANGES = {
-  'NYSE': 'New York Stock Exchange',
-  'NASDAQ': 'NASDAQ',
-  'AMEX': 'American Stock Exchange',
-  'CBOE': 'Chicago Board Options Exchange',
-  'CME': 'Chicago Mercantile Exchange',
-  'NYMEX': 'New York Mercantile Exchange',
-  'CBOT': 'Chicago Board of Trade',
-  'OTC': 'Over-the-Counter',
-  'PINK': 'Pink Sheets',
-  'OTCBB': 'OTCBB'
+  NYSE: 'New York Stock Exchange',
+  NASDAQ: 'NASDAQ',
+  AMEX: 'American Stock Exchange',
+  CBOE: 'Chicago Board Options Exchange',
+  CME: 'Chicago Mercantile Exchange',
+  NYMEX: 'New York Mercantile Exchange',
+  CBOT: 'Chicago Board of Trade',
+  OTC: 'Over-the-Counter',
+  PINK: 'Pink Sheets',
+  OTCBB: 'OTCBB',
 } as const
 
 // Export all transaction types for type safety
 export type SchwabTransactionType = keyof typeof SCHWAB_TRANSACTION_TYPES
-export type InternalSchwabTransactionType = typeof SCHWAB_TRANSACTION_TYPES[SchwabTransactionType]
+export type InternalSchwabTransactionType =
+  (typeof SCHWAB_TRANSACTION_TYPES)[SchwabTransactionType]
 export type SchwabAccountType = keyof typeof SCHWAB_ACCOUNT_TYPES
 export type SchwabAssetType = keyof typeof SCHWAB_ASSET_TYPES
-export type SchwabCategory = typeof SCHWAB_CATEGORIES[number]
+export type SchwabCategory = (typeof SCHWAB_CATEGORIES)[number]
 export type SchwabMarket = keyof typeof SCHWAB_MARKETS
 export type SchwabExchange = keyof typeof SCHWAB_EXCHANGES
-export type SchwabScope = typeof SCHWAB_OAUTH_SCOPES[number]
+export type SchwabScope = (typeof SCHWAB_OAUTH_SCOPES)[number]
 
 // Price history parameters
 export interface SchwabPriceHistoryParams {
@@ -570,7 +599,19 @@ export interface SchwabOptionsChainParams {
   contractType?: 'CALL' | 'PUT' | 'ALL'
   strikeCount?: number
   includeQuotes?: boolean
-  strategy?: 'SINGLE' | 'ANALYTICAL' | 'COVERED' | 'VERTICAL' | 'CALENDAR' | 'STRANGLE' | 'STRADDLE' | 'BUTTERFLY' | 'CONDOR' | 'DIAGONAL' | 'COLLAR' | 'ROLL'
+  strategy?:
+    | 'SINGLE'
+    | 'ANALYTICAL'
+    | 'COVERED'
+    | 'VERTICAL'
+    | 'CALENDAR'
+    | 'STRANGLE'
+    | 'STRADDLE'
+    | 'BUTTERFLY'
+    | 'CONDOR'
+    | 'DIAGONAL'
+    | 'COLLAR'
+    | 'ROLL'
   interval?: number
   strike?: number
   range?: 'ITM' | 'NTM' | 'OTM' | 'SAK' | 'SBK' | 'SNK' | 'ALL'
@@ -580,7 +621,20 @@ export interface SchwabOptionsChainParams {
   underlyingPrice?: number
   interestRate?: number
   daysToExpiration?: number
-  expMonth?: 'JAN' | 'FEB' | 'MAR' | 'APR' | 'MAY' | 'JUN' | 'JUL' | 'AUG' | 'SEP' | 'OCT' | 'NOV' | 'DEC' | 'ALL'
+  expMonth?:
+    | 'JAN'
+    | 'FEB'
+    | 'MAR'
+    | 'APR'
+    | 'MAY'
+    | 'JUN'
+    | 'JUL'
+    | 'AUG'
+    | 'SEP'
+    | 'OCT'
+    | 'NOV'
+    | 'DEC'
+    | 'ALL'
   optionType?: 'S' | 'NS' | 'ALL'
 }
 

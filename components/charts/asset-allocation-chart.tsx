@@ -77,12 +77,12 @@ const DEFAULT_COLORS = [
 const CustomPieTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload
-    
+
     return (
-      <div className="rounded-lg border bg-white p-3 shadow-lg dark:bg-neutral-950 dark:border-neutral-800">
-        <div className="flex items-center gap-2 mb-2">
-          <div 
-            className="w-3 h-3 rounded-full"
+      <div className="rounded-lg border bg-white p-3 shadow-lg dark:border-neutral-800 dark:bg-neutral-950">
+        <div className="mb-2 flex items-center gap-2">
+          <div
+            className="h-3 w-3 rounded-full"
             style={{ backgroundColor: data.color }}
           />
           <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
@@ -117,10 +117,10 @@ const CustomPieTooltip = ({ active, payload }: any) => {
 const CustomBarTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload
-    
+
     return (
-      <div className="rounded-lg border bg-white p-3 shadow-lg dark:bg-neutral-950 dark:border-neutral-800">
-        <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-2">
+      <div className="rounded-lg border bg-white p-3 shadow-lg dark:border-neutral-800 dark:bg-neutral-950">
+        <p className="mb-2 text-sm font-medium text-neutral-900 dark:text-neutral-100">
           {label}
         </p>
         <div className="space-y-1">
@@ -150,13 +150,13 @@ const CustomBarTooltip = ({ active, payload, label }: any) => {
 // Custom legend component
 const CustomLegend = ({ payload }: any) => {
   if (!payload || payload.length === 0) return null
-  
+
   return (
-    <div className="flex flex-wrap gap-2 mt-4">
+    <div className="mt-4 flex flex-wrap gap-2">
       {payload.map((entry: any, index: number) => (
         <div key={index} className="flex items-center gap-2 text-sm">
-          <div 
-            className="w-3 h-3 rounded-full"
+          <div
+            className="h-3 w-3 rounded-full"
             style={{ backgroundColor: entry.color }}
           />
           <span className="text-neutral-700 dark:text-neutral-300">
@@ -181,7 +181,7 @@ const ChartSkeleton = ({ height = 300 }: { height?: number }) => (
 // Main component
 export const AssetAllocationChart = ({
   data,
-  title = "Aktivafordeling",
+  title = 'Aktivafordeling',
   className,
   height = 300,
   showLegend = true,
@@ -192,7 +192,7 @@ export const AssetAllocationChart = ({
   // Add colors to data if not provided
   const chartData = useMemo(() => {
     if (!data) return []
-    
+
     return data.map((item, index) => ({
       ...item,
       color: item.color || DEFAULT_COLORS[index % DEFAULT_COLORS.length],
@@ -206,7 +206,7 @@ export const AssetAllocationChart = ({
 
   if (isLoading) {
     return (
-      <Card className={cn("w-full", className)}>
+      <Card className={cn('w-full', className)}>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">{title}</CardTitle>
         </CardHeader>
@@ -219,12 +219,12 @@ export const AssetAllocationChart = ({
 
   if (!data || data.length === 0) {
     return (
-      <Card className={cn("w-full", className)}>
+      <Card className={cn('w-full', className)}>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">{title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div 
+          <div
             className="flex items-center justify-center text-neutral-500 dark:text-neutral-400"
             style={{ height }}
           >
@@ -258,7 +258,7 @@ export const AssetAllocationChart = ({
             {showLegend && <Legend content={<CustomLegend />} />}
           </PieChart>
         )
-      
+
       case 'donut':
         return (
           <PieChart>
@@ -280,19 +280,25 @@ export const AssetAllocationChart = ({
             {showLegend && <Legend content={<CustomLegend />} />}
           </PieChart>
         )
-      
+
       case 'bar':
         return (
-          <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200 dark:stroke-neutral-800" />
-            <XAxis 
+          <BarChart
+            data={chartData}
+            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              className="stroke-neutral-200 dark:stroke-neutral-800"
+            />
+            <XAxis
               dataKey="name"
               axisLine={false}
               tickLine={false}
               tick={{ fontSize: 12 }}
               className="fill-neutral-600 dark:fill-neutral-400"
             />
-            <YAxis 
+            <YAxis
               axisLine={false}
               tickLine={false}
               tick={{ fontSize: 12 }}
@@ -307,14 +313,14 @@ export const AssetAllocationChart = ({
             </Bar>
           </BarChart>
         )
-      
+
       default:
         return null
     }
   }
 
   return (
-    <Card className={cn("w-full", className)}>
+    <Card className={cn('w-full', className)}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold">{title}</CardTitle>
@@ -327,17 +333,17 @@ export const AssetAllocationChart = ({
         <ResponsiveContainer width="100%" height={height}>
           {renderChart()}
         </ResponsiveContainer>
-        
+
         {/* Asset breakdown list */}
         <div className="mt-4 space-y-2">
           {chartData.map((item, index) => (
-            <div 
+            <div
               key={index}
-              className="flex items-center justify-between p-2 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors"
+              className="flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/50"
             >
               <div className="flex items-center gap-3">
-                <div 
-                  className="w-4 h-4 rounded-full"
+                <div
+                  className="h-4 w-4 rounded-full"
                   style={{ backgroundColor: item.color }}
                 />
                 <div>

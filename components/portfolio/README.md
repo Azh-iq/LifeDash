@@ -5,9 +5,11 @@ This directory contains the main portfolio management components for the LifeDas
 ## Components
 
 ### PortfolioHeader
+
 Main header component for portfolio pages. Displays portfolio name, type, and action buttons.
 
 **Props:**
+
 - `portfolioId: string` - Portfolio identifier
 - `onBack?: () => void` - Back navigation callback
 - `onEdit?: () => void` - Edit portfolio callback
@@ -15,18 +17,22 @@ Main header component for portfolio pages. Displays portfolio name, type, and ac
 - `onShare?: () => void` - Share portfolio callback
 
 **Features:**
+
 - Responsive design with mobile-first approach
 - Real-time portfolio data display
 - Action menu with share and edit options
 - Loading and error states
 
 ### PortfolioMetrics
+
 Displays key portfolio metrics with animated counters and performance indicators.
 
 **Props:**
+
 - `portfolioId: string` - Portfolio identifier
 
 **Features:**
+
 - Animated metric cards
 - Real-time price updates
 - Performance comparison (daily, weekly, monthly)
@@ -34,12 +40,15 @@ Displays key portfolio metrics with animated counters and performance indicators
 - Error boundaries for isolated failures
 
 ### PortfolioChartSection
+
 Interactive chart component showing portfolio performance and allocation.
 
 **Props:**
+
 - `portfolioId: string` - Portfolio identifier
 
 **Features:**
+
 - Multiple chart types (performance, allocation, comparison)
 - Configurable time ranges
 - Fullscreen mode
@@ -47,12 +56,15 @@ Interactive chart component showing portfolio performance and allocation.
 - Chart customization controls
 
 ### PortfolioSidebar
+
 Side panel showing asset allocation and top movers.
 
 **Props:**
+
 - `portfolioId: string` - Portfolio identifier
 
 **Features:**
+
 - Asset allocation visualization
 - Top gainers/losers display
 - Responsive design
@@ -61,17 +73,20 @@ Side panel showing asset allocation and top movers.
 ## Optimization Features
 
 ### Performance Optimizations
+
 - **React.memo**: Components are memoized to prevent unnecessary re-renders
 - **useCallback**: Event handlers are optimized with useCallback
 - **Error Boundaries**: Each component is wrapped in error boundaries for isolated error handling
 - **Code Splitting**: Components use dynamic imports where appropriate
 
 ### Bundle Optimization
+
 - **Tree Shaking**: Imports are optimized to include only used functions
 - **Icon Consolidation**: Both Heroicons and Lucide React are used strategically
 - **Responsive Loading**: Mobile components are loaded conditionally
 
 ### Responsive Design
+
 - **Mobile-First**: All components implement mobile-first responsive design
 - **Touch Optimization**: Mobile interactions are optimized for touch
 - **Adaptive Layout**: Components automatically adjust layout based on screen size
@@ -87,12 +102,12 @@ function PortfolioPage({ portfolioId }: { portfolioId: string }) {
   return (
     <div>
       <ErrorBoundary>
-        <PortfolioHeader 
+        <PortfolioHeader
           portfolioId={portfolioId}
           onEdit={() => router.push('/edit')}
         />
       </ErrorBoundary>
-      
+
       <ErrorBoundary>
         <PortfolioMetrics portfolioId={portfolioId} />
       </ErrorBoundary>
@@ -112,6 +127,7 @@ function PortfolioPage({ portfolioId }: { portfolioId: string }) {
 ## Testing
 
 Components include:
+
 - Unit tests for core functionality
 - Integration tests for data flow
 - Responsive design tests

@@ -18,7 +18,7 @@ interface State {
 
 export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
-    hasError: false
+    hasError: false,
   }
 
   public static getDerivedStateFromError(error: Error): State {
@@ -41,22 +41,22 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <Card className="p-6 border-red-200 bg-red-50">
+        <Card className="border-red-200 bg-red-50 p-6">
           <div className="flex items-start space-x-3">
-            <AlertCircle className="h-5 w-5 text-red-600 mt-1 flex-shrink-0" />
+            <AlertCircle className="mt-1 h-5 w-5 flex-shrink-0 text-red-600" />
             <div className="flex-1">
               <h3 className="text-sm font-medium text-red-800">
                 Noe gikk galt
               </h3>
-              <p className="text-sm text-red-700 mt-1">
+              <p className="mt-1 text-sm text-red-700">
                 En uventet feil oppstod. Prøv å laste siden på nytt.
               </p>
               {this.state.error && process.env.NODE_ENV === 'development' && (
                 <details className="mt-3">
-                  <summary className="text-xs text-red-600 cursor-pointer">
+                  <summary className="cursor-pointer text-xs text-red-600">
                     Tekniske detaljer
                   </summary>
-                  <pre className="text-xs bg-red-100 p-2 rounded mt-2 overflow-auto">
+                  <pre className="mt-2 overflow-auto rounded bg-red-100 p-2 text-xs">
                     {this.state.error.stack}
                   </pre>
                 </details>
@@ -66,9 +66,9 @@ export class ErrorBoundary extends Component<Props, State> {
                   variant="outline"
                   size="sm"
                   onClick={this.handleRetry}
-                  className="bg-white border-red-300 text-red-700 hover:bg-red-50"
+                  className="border-red-300 bg-white text-red-700 hover:bg-red-50"
                 >
-                  <RefreshCw className="h-4 w-4 mr-2" />
+                  <RefreshCw className="mr-2 h-4 w-4" />
                   Prøv igjen
                 </Button>
               </div>
@@ -92,9 +92,9 @@ export function withErrorBoundary<P extends object>(
       <Component {...props} />
     </ErrorBoundary>
   )
-  
+
   WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`
-  
+
   return WrappedComponent
 }
 
@@ -102,7 +102,7 @@ export function withErrorBoundary<P extends object>(
 export function useErrorHandler() {
   return (error: Error, errorInfo?: ErrorInfo) => {
     console.error('Component error:', error, errorInfo)
-    
+
     // In production, you might want to send to error reporting service
     if (process.env.NODE_ENV === 'production') {
       // Example: send to Sentry, LogRocket, etc.

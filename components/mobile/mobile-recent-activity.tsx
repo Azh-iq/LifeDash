@@ -21,14 +21,20 @@ import {
   EyeIcon,
   PlusIcon,
   PencilIcon,
-  XMarkIcon
+  XMarkIcon,
 } from '@heroicons/react/24/outline'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Select } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
-import { AnimatedCard, CurrencyCounter, NumberCounter } from '@/components/animated'
-import MobileActionSheet, { useActionSheet } from '@/components/mobile/mobile-action-sheet'
+import {
+  AnimatedCard,
+  CurrencyCounter,
+  NumberCounter,
+} from '@/components/animated'
+import MobileActionSheet, {
+  useActionSheet,
+} from '@/components/mobile/mobile-action-sheet'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/components/charts'
 import { cn } from '@/lib/utils/cn'
@@ -135,11 +141,11 @@ interface SwipeableTransactionCardProps {
   showCompact?: boolean
 }
 
-function SwipeableTransactionCard({ 
-  transaction, 
-  onSwipeAction, 
+function SwipeableTransactionCard({
+  transaction,
+  onSwipeAction,
   isNew = false,
-  showCompact = false 
+  showCompact = false,
 }: SwipeableTransactionCardProps) {
   const [swipeX, setSwipeX] = useState(0)
   const [showActions, setShowActions] = useState(false)
@@ -151,22 +157,22 @@ function SwipeableTransactionCard({
       label: 'Vis',
       icon: EyeIcon,
       color: 'bg-blue-500',
-      action: (transaction) => onSwipeAction('view', transaction)
+      action: transaction => onSwipeAction('view', transaction),
     },
     {
       id: 'edit',
       label: 'Rediger',
       icon: PencilIcon,
       color: 'bg-green-500',
-      action: (transaction) => onSwipeAction('edit', transaction)
-    }
+      action: transaction => onSwipeAction('edit', transaction),
+    },
   ]
 
   const handleSwipe = useCallback((offset: number) => {
     if (offset < -80) {
       setSwipeX(-120)
       setShowActions(true)
-      
+
       // Haptic feedback
       if ('vibrate' in navigator) {
         navigator.vibrate(50)
@@ -259,10 +265,10 @@ function SwipeableTransactionCard({
       <motion.div
         ref={cardRef}
         className={cn(
-          'relative bg-white border border-gray-200 rounded-lg transition-all duration-200',
+          'relative rounded-lg border border-gray-200 bg-white transition-all duration-200',
           'touch-none select-none',
           showCompact ? 'p-3' : 'p-4',
-          isNew && 'bg-blue-50 border-blue-200 shadow-md',
+          isNew && 'border-blue-200 bg-blue-50 shadow-md',
           showActions && 'shadow-lg'
         )}
         drag="x"
@@ -274,11 +280,11 @@ function SwipeableTransactionCard({
         onClick={() => showActions && setShowActions(false)}
       >
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3 flex-1 min-w-0">
+          <div className="flex min-w-0 flex-1 items-center space-x-3">
             {/* Transaction type icon */}
             <motion.div
               className={cn(
-                'p-2 rounded-full border flex-shrink-0',
+                'flex-shrink-0 rounded-full border p-2',
                 typeInfo.bgColor,
                 typeInfo.borderColor
               )}
@@ -289,19 +295,21 @@ function SwipeableTransactionCard({
             </motion.div>
 
             {/* Transaction details */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center space-x-2 mb-1">
-                <span className="font-medium text-gray-900 text-sm">
-                  {typeInfo.label} {transaction.stocks?.name || transaction.symbol}
+            <div className="min-w-0 flex-1">
+              <div className="mb-1 flex items-center space-x-2">
+                <span className="text-sm font-medium text-gray-900">
+                  {typeInfo.label}{' '}
+                  {transaction.stocks?.name || transaction.symbol}
                 </span>
-                
-                {transaction.type !== 'DIVIDEND' && transaction.type !== 'FEE' && (
-                  <Badge variant="outline" className="text-xs">
-                    <NumberCounter value={transaction.quantity} />
-                    {transaction.quantity === 1 ? ' stk' : ' stk'}
-                  </Badge>
-                )}
-                
+
+                {transaction.type !== 'DIVIDEND' &&
+                  transaction.type !== 'FEE' && (
+                    <Badge variant="outline" className="text-xs">
+                      <NumberCounter value={transaction.quantity} />
+                      {transaction.quantity === 1 ? ' stk' : ' stk'}
+                    </Badge>
+                  )}
+
                 {isLargeTransaction && (
                   <motion.div
                     variants={pulseVariants}
@@ -314,14 +322,17 @@ function SwipeableTransactionCard({
                     )}
                   </motion.div>
                 )}
-                
+
                 {isNew && (
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     className="text-blue-600"
                   >
-                    <Badge variant="outline" className="text-blue-600 border-blue-200">
+                    <Badge
+                      variant="outline"
+                      className="border-blue-200 text-blue-600"
+                    >
                       Ny
                     </Badge>
                   </motion.div>
@@ -334,20 +345,23 @@ function SwipeableTransactionCard({
                     <CalendarDaysIcon className="h-3 w-3" />
                     <span>{formatDate(transaction.transaction_date)}</span>
                   </div>
-                  
-                  {transaction.type !== 'DIVIDEND' && transaction.type !== 'FEE' && (
-                    <span>
-                      @ <CurrencyCounter
-                        value={transaction.price}
-                        currency={transaction.currency}
-                        className="font-medium"
-                      />
-                    </span>
-                  )}
-                  
+
+                  {transaction.type !== 'DIVIDEND' &&
+                    transaction.type !== 'FEE' && (
+                      <span>
+                        @{' '}
+                        <CurrencyCounter
+                          value={transaction.price}
+                          currency={transaction.currency}
+                          className="font-medium"
+                        />
+                      </span>
+                    )}
+
                   {transaction.fee > 0 && (
                     <span className="text-gray-500">
-                      Gebyr: <CurrencyCounter
+                      Gebyr:{' '}
+                      <CurrencyCounter
                         value={transaction.fee}
                         currency={transaction.currency}
                       />
@@ -365,7 +379,7 @@ function SwipeableTransactionCard({
           </div>
 
           {/* Amount */}
-          <div className="text-right flex-shrink-0">
+          <div className="flex-shrink-0 text-right">
             <CurrencyCounter
               value={Math.abs(transaction.total_amount)}
               currency={transaction.currency}
@@ -375,24 +389,27 @@ function SwipeableTransactionCard({
                 transaction.type === 'SELL' || transaction.type === 'DIVIDEND'
                   ? 'text-green-600'
                   : transaction.type === 'FEE'
-                  ? 'text-red-600'
-                  : 'text-gray-900'
+                    ? 'text-red-600'
+                    : 'text-gray-900'
               )}
               prefix={
                 transaction.type === 'SELL' || transaction.type === 'DIVIDEND'
                   ? '+'
                   : transaction.type === 'FEE'
-                  ? '-'
-                  : '-'
+                    ? '-'
+                    : '-'
               }
             />
-            
+
             {!showCompact && (
-              <div className="text-xs text-gray-500 mt-1">
-                {new Date(transaction.transaction_date).toLocaleTimeString('nb-NO', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
+              <div className="mt-1 text-xs text-gray-500">
+                {new Date(transaction.transaction_date).toLocaleTimeString(
+                  'nb-NO',
+                  {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  }
+                )}
               </div>
             )}
           </div>
@@ -400,7 +417,7 @@ function SwipeableTransactionCard({
 
         {/* Notes */}
         {!showCompact && transaction.notes && (
-          <p className="text-sm text-gray-600 mt-2 italic border-t border-gray-100 pt-2">
+          <p className="mt-2 border-t border-gray-100 pt-2 text-sm italic text-gray-600">
             {transaction.notes}
           </p>
         )}
@@ -413,7 +430,7 @@ function SwipeableTransactionCard({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute right-0 top-0 h-full flex"
+            className="absolute right-0 top-0 flex h-full"
           >
             {swipeActions.map((action, index) => {
               const Icon = action.icon
@@ -423,19 +440,19 @@ function SwipeableTransactionCard({
                   initial={{ x: 40 }}
                   animate={{ x: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation()
                     action.action(transaction)
                     setShowActions(false)
                     setSwipeX(0)
                   }}
                   className={cn(
-                    'flex flex-col items-center justify-center w-12 h-full text-white transition-colors',
+                    'flex h-full w-12 flex-col items-center justify-center text-white transition-colors',
                     action.color,
                     index === swipeActions.length - 1 && 'rounded-r-lg'
                   )}
                 >
-                  <Icon className="h-4 w-4 mb-1" />
+                  <Icon className="mb-1 h-4 w-4" />
                   <span className="text-xs font-medium">{action.label}</span>
                 </motion.button>
               )
@@ -456,7 +473,7 @@ export default function MobileRecentActivity({
   showAddTransaction = false,
   onAddTransaction,
   onEditTransaction,
-  className
+  className,
 }: MobileRecentActivityProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
@@ -465,7 +482,12 @@ export default function MobileRecentActivity({
   const [newTransactionId, setNewTransactionId] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
-  const { isOpen: isActionSheetOpen, config, showActionSheet, hideActionSheet } = useActionSheet()
+  const {
+    isOpen: isActionSheetOpen,
+    config,
+    showActionSheet,
+    hideActionSheet,
+  } = useActionSheet()
 
   const [filters, setFilters] = useState<ActivityFilter>({
     type: '',
@@ -473,7 +495,7 @@ export default function MobileRecentActivity({
     dateRange: '30',
     sortBy: 'date',
     sortOrder: 'desc',
-    searchQuery: ''
+    searchQuery: '',
   })
 
   // Available filter options
@@ -493,30 +515,32 @@ export default function MobileRecentActivity({
   }, [transactions])
 
   // Fetch transactions
-  const fetchTransactions = useCallback(async (pageNum = 1, append = false) => {
-    if (!portfolioId) return
+  const fetchTransactions = useCallback(
+    async (pageNum = 1, append = false) => {
+      if (!portfolioId) return
 
-    try {
-      if (!append) {
-        setLoading(true)
-        setError(null)
-      }
+      try {
+        if (!append) {
+          setLoading(true)
+          setError(null)
+        }
 
-      const supabase = createClient()
-      
-      // Calculate date range
-      const endDate = new Date()
-      const startDate = new Date()
-      
-      if (filters.dateRange !== 'all') {
-        startDate.setDate(endDate.getDate() - parseInt(filters.dateRange))
-      } else {
-        startDate.setFullYear(endDate.getFullYear() - 10)
-      }
+        const supabase = createClient()
 
-      let query = supabase
-        .from('transactions')
-        .select(`
+        // Calculate date range
+        const endDate = new Date()
+        const startDate = new Date()
+
+        if (filters.dateRange !== 'all') {
+          startDate.setDate(endDate.getDate() - parseInt(filters.dateRange))
+        } else {
+          startDate.setFullYear(endDate.getFullYear() - 10)
+        }
+
+        let query = supabase
+          .from('transactions')
+          .select(
+            `
           *,
           stocks (
             symbol,
@@ -525,59 +549,68 @@ export default function MobileRecentActivity({
             asset_type,
             sector
           )
-        `)
-        .eq('portfolio_id', portfolioId)
-        .gte('transaction_date', startDate.toISOString())
-        .lte('transaction_date', endDate.toISOString())
+        `
+          )
+          .eq('portfolio_id', portfolioId)
+          .gte('transaction_date', startDate.toISOString())
+          .lte('transaction_date', endDate.toISOString())
 
-      // Apply filters
-      if (filters.type) {
-        query = query.eq('type', filters.type)
-      }
-
-      if (filters.symbol) {
-        query = query.eq('symbol', filters.symbol)
-      }
-
-      if (filters.searchQuery) {
-        query = query.or(
-          `symbol.ilike.%${filters.searchQuery}%,stocks.name.ilike.%${filters.searchQuery}%`
-        )
-      }
-
-      // Apply sorting
-      const sortColumn = filters.sortBy === 'date' ? 'transaction_date' : 
-                        filters.sortBy === 'amount' ? 'total_amount' : 'symbol'
-      
-      query = query.order(sortColumn, { ascending: filters.sortOrder === 'asc' })
-
-      // Pagination
-      const itemsPerPage = maxItems
-      const start = (pageNum - 1) * itemsPerPage
-      query = query.range(start, start + itemsPerPage - 1)
-
-      const { data, error: fetchError } = await query
-
-      if (fetchError) {
-        throw fetchError
-      }
-
-      if (data) {
-        if (append) {
-          setTransactions(prev => [...prev, ...data])
-        } else {
-          setTransactions(data)
+        // Apply filters
+        if (filters.type) {
+          query = query.eq('type', filters.type)
         }
-        
-        setHasMore(data.length === itemsPerPage)
+
+        if (filters.symbol) {
+          query = query.eq('symbol', filters.symbol)
+        }
+
+        if (filters.searchQuery) {
+          query = query.or(
+            `symbol.ilike.%${filters.searchQuery}%,stocks.name.ilike.%${filters.searchQuery}%`
+          )
+        }
+
+        // Apply sorting
+        const sortColumn =
+          filters.sortBy === 'date'
+            ? 'transaction_date'
+            : filters.sortBy === 'amount'
+              ? 'total_amount'
+              : 'symbol'
+
+        query = query.order(sortColumn, {
+          ascending: filters.sortOrder === 'asc',
+        })
+
+        // Pagination
+        const itemsPerPage = maxItems
+        const start = (pageNum - 1) * itemsPerPage
+        query = query.range(start, start + itemsPerPage - 1)
+
+        const { data, error: fetchError } = await query
+
+        if (fetchError) {
+          throw fetchError
+        }
+
+        if (data) {
+          if (append) {
+            setTransactions(prev => [...prev, ...data])
+          } else {
+            setTransactions(data)
+          }
+
+          setHasMore(data.length === itemsPerPage)
+        }
+      } catch (err) {
+        console.error('Error fetching transactions:', err)
+        setError('Kunne ikke laste transaksjonshistorikk')
+      } finally {
+        setLoading(false)
       }
-    } catch (err) {
-      console.error('Error fetching transactions:', err)
-      setError('Kunne ikke laste transaksjonshistorikk')
-    } finally {
-      setLoading(false)
-    }
-  }, [portfolioId, filters, maxItems])
+    },
+    [portfolioId, filters, maxItems]
+  )
 
   // Load more for infinite scroll
   const loadMore = useCallback(() => {
@@ -589,38 +622,42 @@ export default function MobileRecentActivity({
   }, [hasMore, loading, page, fetchTransactions])
 
   // Handle swipe actions
-  const handleSwipeAction = useCallback((action: string, transaction: Transaction) => {
-    switch (action) {
-      case 'view':
-        // Show transaction details in action sheet
-        showActionSheet({
-          title: 'Transaksjonsdetaljer',
-          subtitle: `${transaction.symbol} - ${transaction.type}`,
-          items: [
-            {
-              id: 'edit',
-              label: 'Rediger transaksjon',
-              icon: PencilIcon,
-              onClick: () => onEditTransaction?.(transaction)
-            }
-          ]
-        })
-        break
-      case 'edit':
-        onEditTransaction?.(transaction)
-        break
-    }
-  }, [showActionSheet, onEditTransaction])
+  const handleSwipeAction = useCallback(
+    (action: string, transaction: Transaction) => {
+      switch (action) {
+        case 'view':
+          // Show transaction details in action sheet
+          showActionSheet({
+            title: 'Transaksjonsdetaljer',
+            subtitle: `${transaction.symbol} - ${transaction.type}`,
+            items: [
+              {
+                id: 'edit',
+                label: 'Rediger transaksjon',
+                icon: PencilIcon,
+                onClick: () => onEditTransaction?.(transaction),
+              },
+            ],
+          })
+          break
+        case 'edit':
+          onEditTransaction?.(transaction)
+          break
+      }
+    },
+    [showActionSheet, onEditTransaction]
+  )
 
   // Filter transactions based on search
   const filteredTransactions = useMemo(() => {
     if (!filters.searchQuery) return transactions
-    
+
     const query = filters.searchQuery.toLowerCase()
-    return transactions.filter(transaction => 
-      transaction.symbol.toLowerCase().includes(query) ||
-      transaction.stocks?.name?.toLowerCase().includes(query) ||
-      transaction.type.toLowerCase().includes(query)
+    return transactions.filter(
+      transaction =>
+        transaction.symbol.toLowerCase().includes(query) ||
+        transaction.stocks?.name?.toLowerCase().includes(query) ||
+        transaction.type.toLowerCase().includes(query)
     )
   }, [transactions, filters.searchQuery])
 
@@ -640,16 +677,16 @@ export default function MobileRecentActivity({
           table: 'transactions',
           filter: `portfolio_id=eq.${portfolioId}`,
         },
-        (payload) => {
+        payload => {
           if (payload.new) {
             setNewTransactionId(payload.new.id)
             setTransactions(prev => [payload.new as Transaction, ...prev])
-            
+
             // Haptic feedback
             if ('vibrate' in navigator) {
               navigator.vibrate([100, 50, 100])
             }
-            
+
             setTimeout(() => setNewTransactionId(null), 3000)
           }
         }
@@ -691,9 +728,7 @@ export default function MobileRecentActivity({
               Siste aktivitet
             </h3>
             {filteredTransactions.length > 0 && (
-              <Badge variant="secondary">
-                {filteredTransactions.length}
-              </Badge>
+              <Badge variant="secondary">{filteredTransactions.length}</Badge>
             )}
           </div>
 
@@ -707,13 +742,16 @@ export default function MobileRecentActivity({
                 <PlusIcon className="h-4 w-4" />
               </Button>
             )}
-            
+
             {showFilters && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowAllFilters(!showAllFilters)}
-                className={cn('touch-manipulation', showAllFilters && 'bg-blue-50 text-blue-600')}
+                className={cn(
+                  'touch-manipulation',
+                  showAllFilters && 'bg-blue-50 text-blue-600'
+                )}
               >
                 <FunnelIcon className="h-4 w-4" />
               </Button>
@@ -724,19 +762,23 @@ export default function MobileRecentActivity({
         {/* Search */}
         {showSearch && (
           <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
             <Input
               placeholder="Søk etter transaksjoner..."
               value={filters.searchQuery}
-              onChange={(e) => setFilters(prev => ({ ...prev, searchQuery: e.target.value }))}
-              className="pl-10 touch-manipulation"
+              onChange={e =>
+                setFilters(prev => ({ ...prev, searchQuery: e.target.value }))
+              }
+              className="touch-manipulation pl-10"
             />
             {filters.searchQuery && (
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setFilters(prev => ({ ...prev, searchQuery: '' }))}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1"
+                onClick={() =>
+                  setFilters(prev => ({ ...prev, searchQuery: '' }))
+                }
+                className="absolute right-2 top-1/2 -translate-y-1/2 transform p-1"
               >
                 <XMarkIcon className="h-4 w-4" />
               </Button>
@@ -753,15 +795,17 @@ export default function MobileRecentActivity({
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <AnimatedCard className="p-4 bg-gray-50">
+              <AnimatedCard className="bg-gray-50 p-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
                       Type
                     </label>
                     <Select
                       value={filters.type}
-                      onValueChange={(value) => setFilters(prev => ({ ...prev, type: value }))}
+                      onValueChange={value =>
+                        setFilters(prev => ({ ...prev, type: value }))
+                      }
                     >
                       <option value="">Alle typer</option>
                       <option value="BUY">Kjøp</option>
@@ -773,12 +817,14 @@ export default function MobileRecentActivity({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
                       Periode
                     </label>
                     <Select
                       value={filters.dateRange}
-                      onValueChange={(value) => setFilters(prev => ({ ...prev, dateRange: value }))}
+                      onValueChange={value =>
+                        setFilters(prev => ({ ...prev, dateRange: value }))
+                      }
                     >
                       <option value="7">Siste 7 dager</option>
                       <option value="30">Siste 30 dager</option>
@@ -796,36 +842,35 @@ export default function MobileRecentActivity({
         {/* Activity List */}
         <AnimatedCard className="overflow-hidden">
           {loading && filteredTransactions.length === 0 ? (
-            <div className="p-6 space-y-4">
+            <div className="space-y-4 p-6">
               {[...Array(3)].map((_, i) => (
                 <div key={i} className="flex items-center space-x-4">
-                  <div className="h-10 w-10 bg-gray-200 rounded-full animate-pulse" />
+                  <div className="h-10 w-10 animate-pulse rounded-full bg-gray-200" />
                   <div className="flex-1">
-                    <div className="h-4 w-32 bg-gray-200 rounded animate-pulse mb-2" />
-                    <div className="h-3 w-20 bg-gray-200 rounded animate-pulse" />
+                    <div className="mb-2 h-4 w-32 animate-pulse rounded bg-gray-200" />
+                    <div className="h-3 w-20 animate-pulse rounded bg-gray-200" />
                   </div>
                   <div className="text-right">
-                    <div className="h-4 w-20 bg-gray-200 rounded animate-pulse mb-1" />
-                    <div className="h-3 w-16 bg-gray-200 rounded animate-pulse" />
+                    <div className="mb-1 h-4 w-20 animate-pulse rounded bg-gray-200" />
+                    <div className="h-3 w-16 animate-pulse rounded bg-gray-200" />
                   </div>
                 </div>
               ))}
             </div>
           ) : filteredTransactions.length === 0 ? (
             <div className="p-12 text-center">
-              <ClockIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <ClockIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+              <h3 className="mb-2 text-lg font-medium text-gray-900">
                 Ingen aktivitet
               </h3>
-              <p className="text-gray-600 mb-4">
-                {transactions.length === 0 
+              <p className="mb-4 text-gray-600">
+                {transactions.length === 0
                   ? 'Det er ingen transaksjoner å vise ennå.'
-                  : 'Ingen transaksjoner matcher søket eller filtrene.'
-                }
+                  : 'Ingen transaksjoner matcher søket eller filtrene.'}
               </p>
               {showAddTransaction && (
                 <Button onClick={onAddTransaction}>
-                  <PlusIcon className="h-4 w-4 mr-2" />
+                  <PlusIcon className="mr-2 h-4 w-4" />
                   Legg til transaksjon
                 </Button>
               )}
@@ -837,9 +882,9 @@ export default function MobileRecentActivity({
               animate="visible"
               className="divide-y divide-gray-200"
             >
-              <div className="p-4 space-y-3">
+              <div className="space-y-3 p-4">
                 <AnimatePresence>
-                  {filteredTransactions.slice(0, maxItems).map((transaction) => (
+                  {filteredTransactions.slice(0, maxItems).map(transaction => (
                     <motion.div
                       key={transaction.id}
                       variants={itemVariants}
@@ -861,14 +906,16 @@ export default function MobileRecentActivity({
 
               {/* Load More / Infinite Scroll */}
               {allowInfiniteScroll && hasMore && (
-                <div className="p-4 bg-gray-50 border-t border-gray-200">
+                <div className="border-t border-gray-200 bg-gray-50 p-4">
                   <Button
                     variant="outline"
                     className="w-full touch-manipulation"
                     onClick={loadMore}
                     disabled={loading}
                   >
-                    {loading ? 'Laster...' : `Last flere (${transactions.length - filteredTransactions.slice(0, maxItems).length} til)`}
+                    {loading
+                      ? 'Laster...'
+                      : `Last flere (${transactions.length - filteredTransactions.slice(0, maxItems).length} til)`}
                   </Button>
                 </div>
               )}

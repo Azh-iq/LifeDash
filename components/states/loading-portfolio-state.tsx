@@ -3,7 +3,11 @@
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { AnimatedCard, NumberCounter, ProgressRing } from '@/components/animated'
+import {
+  AnimatedCard,
+  NumberCounter,
+  ProgressRing,
+} from '@/components/animated'
 
 interface LoadingPortfolioStateProps {
   type?: 'initial' | 'data' | 'prices' | 'full'
@@ -18,11 +22,11 @@ export function LoadingPortfolioState({
   message,
   showProgress = false,
   progress = 0,
-  className = ""
+  className = '',
 }: LoadingPortfolioStateProps) {
   const getLoadingMessage = () => {
     if (message) return message
-    
+
     switch (type) {
       case 'initial':
         return 'Laster aksjer...'
@@ -41,26 +45,66 @@ export function LoadingPortfolioState({
     switch (type) {
       case 'initial':
         return (
-          <svg className="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          <svg
+            className="h-8 w-8 text-blue-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+            />
           </svg>
         )
       case 'data':
         return (
-          <svg className="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          <svg
+            className="h-8 w-8 text-blue-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+            />
           </svg>
         )
       case 'prices':
         return (
-          <svg className="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+          <svg
+            className="h-8 w-8 text-blue-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+            />
           </svg>
         )
       default:
         return (
-          <svg className="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          <svg
+            className="h-8 w-8 text-blue-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
           </svg>
         )
     }
@@ -68,7 +112,9 @@ export function LoadingPortfolioState({
 
   if (type === 'initial' || type === 'full') {
     return (
-      <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 ${className}`}>
+      <div
+        className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 ${className}`}
+      >
         <div className="flex min-h-screen items-center justify-center">
           <div className="text-center">
             {/* Animated Loading Icon */}
@@ -90,7 +136,11 @@ export function LoadingPortfolioState({
                   <div className="absolute inset-0 flex items-center justify-center">
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: 'linear',
+                      }}
                     >
                       {getLoadingIcon()}
                     </motion.div>
@@ -100,7 +150,11 @@ export function LoadingPortfolioState({
                 <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 shadow-lg">
                   <motion.div
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: 'linear',
+                    }}
                   >
                     {getLoadingIcon()}
                   </motion.div>
@@ -114,7 +168,9 @@ export function LoadingPortfolioState({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <h1 className="mb-2 text-3xl font-bold text-blue-900">LifeDash</h1>
+              <h1 className="mb-2 text-3xl font-bold text-blue-900">
+                LifeDash
+              </h1>
               <p className="text-lg text-blue-600">{getLoadingMessage()}</p>
               {showProgress && (
                 <div className="mt-4">
@@ -134,7 +190,7 @@ export function LoadingPortfolioState({
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
-              {[0, 1, 2].map((i) => (
+              {[0, 1, 2].map(i => (
                 <motion.div
                   key={i}
                   className="h-2 w-2 rounded-full bg-blue-400"
@@ -159,15 +215,17 @@ export function LoadingPortfolioState({
   // Inline loading states for data/prices
   if (type === 'data' || type === 'prices') {
     return (
-      <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 ${className}`}>
+      <div
+        className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 ${className}`}
+      >
         {/* Header Skeleton */}
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 border-b border-blue-200/50">
+        <div className="border-b border-blue-200/50 bg-gradient-to-r from-blue-500 to-blue-600">
           <div className="mx-auto max-w-7xl px-6 py-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <Skeleton className="h-12 w-12 rounded-xl" />
                 <div>
-                  <Skeleton className="h-8 w-32 mb-2" />
+                  <Skeleton className="mb-2 h-8 w-32" />
                   <Skeleton className="h-4 w-48" />
                 </div>
               </div>
@@ -185,8 +243,8 @@ export function LoadingPortfolioState({
           <Card className="mb-8 border-0 bg-gradient-to-r from-blue-500 to-blue-600 shadow-2xl">
             <CardContent className="p-10">
               <div className="text-center">
-                <Skeleton className="h-6 w-32 mx-auto mb-4 bg-white/20" />
-                <Skeleton className="h-16 w-64 mx-auto mb-6 bg-white/20" />
+                <Skeleton className="mx-auto mb-4 h-6 w-32 bg-white/20" />
+                <Skeleton className="mx-auto mb-6 h-16 w-64 bg-white/20" />
                 <div className="flex items-center justify-center space-x-3">
                   <Skeleton className="h-8 w-24 rounded-full bg-white/20" />
                   <Skeleton className="h-2 w-2 rounded-full bg-white/20" />
@@ -199,14 +257,14 @@ export function LoadingPortfolioState({
 
           {/* Quick Stats Skeleton */}
           <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3].map(i => (
               <AnimatedCard key={i} className="border-0 bg-blue-50 shadow-lg">
                 <CardContent className="p-6 text-center">
                   <div className="mb-3 flex justify-center">
                     <Skeleton className="h-12 w-12 rounded-xl" />
                   </div>
-                  <Skeleton className="h-4 w-24 mx-auto mb-2" />
-                  <Skeleton className="h-8 w-16 mx-auto" />
+                  <Skeleton className="mx-auto mb-2 h-4 w-24" />
+                  <Skeleton className="mx-auto h-8 w-16" />
                 </CardContent>
               </AnimatedCard>
             ))}
@@ -219,12 +277,12 @@ export function LoadingPortfolioState({
                 <div className="flex items-center space-x-3">
                   <Skeleton className="h-10 w-10 rounded-xl" />
                   <div>
-                    <Skeleton className="h-6 w-24 mb-1" />
+                    <Skeleton className="mb-1 h-6 w-24" />
                     <Skeleton className="h-4 w-32" />
                   </div>
                 </div>
                 <div className="text-right">
-                  <Skeleton className="h-4 w-20 mb-1" />
+                  <Skeleton className="mb-1 h-4 w-20" />
                   <Skeleton className="h-6 w-32" />
                 </div>
               </div>
@@ -234,7 +292,14 @@ export function LoadingPortfolioState({
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      {['Aksje', 'Antall', 'Gj.snitt', 'Kurs', 'Verdi', 'P&L'].map((header) => (
+                      {[
+                        'Aksje',
+                        'Antall',
+                        'Gj.snitt',
+                        'Kurs',
+                        'Verdi',
+                        'P&L',
+                      ].map(header => (
                         <th key={header} className="px-6 py-4 text-left">
                           <Skeleton className="h-4 w-16" />
                         </th>
@@ -242,21 +307,21 @@ export function LoadingPortfolioState({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
-                    {[1, 2, 3, 4, 5].map((i) => (
+                    {[1, 2, 3, 4, 5].map(i => (
                       <tr key={i} className="animate-pulse">
                         <td className="px-6 py-4">
                           <div className="flex items-center space-x-3">
                             <Skeleton className="h-10 w-10 rounded-xl" />
                             <div>
-                              <Skeleton className="h-4 w-16 mb-1" />
-                              <Skeleton className="h-3 w-24 mb-1" />
+                              <Skeleton className="mb-1 h-4 w-16" />
+                              <Skeleton className="mb-1 h-3 w-24" />
                               <Skeleton className="h-3 w-20" />
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="text-right">
-                            <Skeleton className="h-4 w-12 mb-1" />
+                            <Skeleton className="mb-1 h-4 w-12" />
                             <Skeleton className="h-3 w-8" />
                           </div>
                         </td>
@@ -265,7 +330,7 @@ export function LoadingPortfolioState({
                         </td>
                         <td className="px-6 py-4">
                           <div className="text-right">
-                            <Skeleton className="h-4 w-16 mb-1" />
+                            <Skeleton className="mb-1 h-4 w-16" />
                             <Skeleton className="h-3 w-12" />
                           </div>
                         </td>
@@ -274,7 +339,7 @@ export function LoadingPortfolioState({
                         </td>
                         <td className="px-6 py-4">
                           <div className="text-right">
-                            <Skeleton className="h-6 w-16 rounded-full mb-1" />
+                            <Skeleton className="mb-1 h-6 w-16 rounded-full" />
                             <Skeleton className="h-4 w-12" />
                           </div>
                         </td>
@@ -292,19 +357,23 @@ export function LoadingPortfolioState({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/10 backdrop-blur-sm z-50 flex items-center justify-center"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-sm"
           >
-            <AnimatedCard className="bg-white p-6 rounded-xl shadow-2xl">
+            <AnimatedCard className="rounded-xl bg-white p-6 shadow-2xl">
               <div className="flex items-center space-x-3">
                 <motion.div
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                 >
                   {getLoadingIcon()}
                 </motion.div>
                 <div>
-                  <p className="font-semibold text-gray-900">{getLoadingMessage()}</p>
-                  <p className="text-sm text-gray-600">Oppdaterer aksjekurser...</p>
+                  <p className="font-semibold text-gray-900">
+                    {getLoadingMessage()}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Oppdaterer aksjekurser...
+                  </p>
                 </div>
               </div>
             </AnimatedCard>

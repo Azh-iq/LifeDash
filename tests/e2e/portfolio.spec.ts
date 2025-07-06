@@ -9,8 +9,8 @@ test.describe('Portfolio Management', () => {
         contentType: 'application/json',
         body: JSON.stringify({
           id: 'test-user-id',
-          email: 'test@example.com'
-        })
+          email: 'test@example.com',
+        }),
       })
     })
 
@@ -26,9 +26,9 @@ test.describe('Portfolio Management', () => {
             description: 'My test portfolio',
             user_id: 'test-user-id',
             created_at: '2024-01-01T00:00:00Z',
-            updated_at: '2024-01-01T00:00:00Z'
-          }
-        ])
+            updated_at: '2024-01-01T00:00:00Z',
+          },
+        ]),
       })
     })
 
@@ -49,10 +49,10 @@ test.describe('Portfolio Management', () => {
             stock: {
               symbol: 'AAPL',
               name: 'Apple Inc.',
-              current_price: 150.0
-            }
-          }
-        ])
+              current_price: 150.0,
+            },
+          },
+        ]),
       })
     })
 
@@ -60,7 +60,9 @@ test.describe('Portfolio Management', () => {
   })
 
   test('should display portfolio dashboard', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: /portfolio/i })).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: /portfolio/i })
+    ).toBeVisible()
     await expect(page.getByText(/test portfolio/i)).toBeVisible()
   })
 
@@ -73,7 +75,7 @@ test.describe('Portfolio Management', () => {
 
   test('should allow adding new stock', async ({ page }) => {
     await page.getByRole('button', { name: /add stock/i }).click()
-    
+
     await expect(page.getByRole('dialog')).toBeVisible()
     await expect(page.getByLabelText(/symbol/i)).toBeVisible()
     await expect(page.getByLabelText(/quantity/i)).toBeVisible()
@@ -87,15 +89,17 @@ test.describe('Portfolio Management', () => {
   })
 
   test('should display performance chart', async ({ page }) => {
-    await expect(page.locator('[data-testid="performance-chart"]')).toBeVisible()
+    await expect(
+      page.locator('[data-testid="performance-chart"]')
+    ).toBeVisible()
   })
 
   test('should filter holdings by search', async ({ page }) => {
     const searchInput = page.getByPlaceholder(/search holdings/i)
     await searchInput.fill('AAPL')
-    
+
     await expect(page.getByText(/apple inc/i)).toBeVisible()
-    
+
     await searchInput.fill('GOOGL')
     await expect(page.getByText(/apple inc/i)).not.toBeVisible()
   })
@@ -103,10 +107,10 @@ test.describe('Portfolio Management', () => {
   test('should work on mobile devices', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 })
-    
+
     // Should show mobile-optimized layout
     await expect(page.getByTestId('mobile-portfolio-view')).toBeVisible()
-    
+
     // Should have mobile-friendly navigation
     await expect(page.getByRole('button', { name: /menu/i })).toBeVisible()
   })

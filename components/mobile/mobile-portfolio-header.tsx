@@ -2,9 +2,9 @@
 
 import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  ArrowLeftIcon, 
-  ShareIcon, 
+import {
+  ArrowLeftIcon,
+  ShareIcon,
   EllipsisVerticalIcon,
   PencilIcon,
   TrashIcon,
@@ -15,12 +15,19 @@ import {
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
   EyeIcon,
-  EyeSlashIcon
+  EyeSlashIcon,
 } from '@heroicons/react/24/outline'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { AnimatedCard, NumberCounter, CurrencyCounter, PercentageCounter } from '@/components/animated'
-import MobileActionSheet, { useActionSheet } from '@/components/mobile/mobile-action-sheet'
+import {
+  AnimatedCard,
+  NumberCounter,
+  CurrencyCounter,
+  PercentageCounter,
+} from '@/components/animated'
+import MobileActionSheet, {
+  useActionSheet,
+} from '@/components/mobile/mobile-action-sheet'
 import { usePortfolioState } from '@/lib/hooks/use-portfolio-state'
 import { formatCurrency, formatPercentage } from '@/components/charts'
 import { cn } from '@/lib/utils/cn'
@@ -50,26 +57,36 @@ export default function MobilePortfolioHeader({
   onShare,
   onExport,
   showCompactView = false,
-  className
+  className,
 }: MobilePortfolioHeaderProps) {
   const [isCollapsed, setIsCollapsed] = useState(showCompactView)
   const [shareSuccess, setShareSuccess] = useState(false)
-  const { isOpen: isActionSheetOpen, config, showActionSheet, hideActionSheet } = useActionSheet()
-  
-  const { portfolio, loading, error, metrics, isPricesConnected } = usePortfolioState(portfolioId)
+  const {
+    isOpen: isActionSheetOpen,
+    config,
+    showActionSheet,
+    hideActionSheet,
+  } = useActionSheet()
+
+  const { portfolio, loading, error, metrics, isPricesConnected } =
+    usePortfolioState(portfolioId)
 
   // Handle native share API
   const handleNativeShare = useCallback(async () => {
     const shareData = {
       title: `${portfolio?.name} - LifeDash`,
       text: `Se min investeringsportefølje: ${formatCurrency(metrics.totalValue)} (${formatPercentage(metrics.totalGainLossPercent)})`,
-      url: `${window.location.origin}/portfolios/${portfolioId}/share`
+      url: `${window.location.origin}/portfolios/${portfolioId}/share`,
     }
 
-    if (navigator.share && 'canShare' in navigator && navigator.canShare(shareData)) {
+    if (
+      navigator.share &&
+      'canShare' in navigator &&
+      navigator.canShare(shareData)
+    ) {
       try {
         await navigator.share(shareData)
-        
+
         // Haptic feedback
         if ('vibrate' in navigator) {
           navigator.vibrate(50)
@@ -83,22 +100,27 @@ export default function MobilePortfolioHeader({
     } else {
       handleFallbackShare()
     }
-  }, [portfolio?.name, portfolioId, metrics.totalValue, metrics.totalGainLossPercent])
+  }, [
+    portfolio?.name,
+    portfolioId,
+    metrics.totalValue,
+    metrics.totalGainLossPercent,
+  ])
 
   // Fallback share method
   const handleFallbackShare = useCallback(async () => {
     try {
       const shareUrl = `${window.location.origin}/portfolios/${portfolioId}/share`
       await navigator.clipboard.writeText(shareUrl)
-      
+
       setShareSuccess(true)
       setTimeout(() => setShareSuccess(false), 2000)
-      
+
       // Haptic feedback
       if ('vibrate' in navigator) {
         navigator.vibrate(50)
       }
-      
+
       onShare?.()
     } catch (error) {
       console.error('Failed to copy to clipboard:', error)
@@ -110,7 +132,7 @@ export default function MobilePortfolioHeader({
     if ('vibrate' in navigator) {
       navigator.vibrate(50)
     }
-    
+
     if (onBack) {
       onBack()
     } else {
@@ -129,39 +151,46 @@ export default function MobilePortfolioHeader({
         id: 'edit',
         label: 'Rediger portefølje',
         icon: PencilIcon,
-        onClick: () => onEdit?.()
+        onClick: () => onEdit?.(),
       },
       {
         id: 'share',
         label: 'Del portefølje',
         icon: ShareIcon,
-        onClick: handleNativeShare
+        onClick: handleNativeShare,
       },
       {
         id: 'export',
         label: 'Eksporter data',
         icon: ArrowDownTrayIcon,
-        onClick: () => onExport?.()
+        onClick: () => onExport?.(),
       },
       {
         id: 'delete',
         label: 'Slett portefølje',
         icon: TrashIcon,
         onClick: () => onDelete?.(),
-        destructive: true
-      }
+        destructive: true,
+      },
     ]
 
     showActionSheet({
       title: 'Porteføljehandlinger',
       subtitle: portfolio?.name,
-      items: actionItems
+      items: actionItems,
     })
-  }, [portfolio?.name, onEdit, onDelete, onExport, handleNativeShare, showActionSheet])
+  }, [
+    portfolio?.name,
+    onEdit,
+    onDelete,
+    onExport,
+    handleNativeShare,
+    showActionSheet,
+  ])
 
   const toggleCollapsed = useCallback(() => {
     setIsCollapsed(!isCollapsed)
-    
+
     // Haptic feedback
     if ('vibrate' in navigator) {
       navigator.vibrate(50)
@@ -186,22 +215,22 @@ export default function MobilePortfolioHeader({
   // Breadcrumb for navigation context
   const breadcrumbs: BreadcrumbItem[] = [
     { label: 'Mine porteføljer', href: '/investments' },
-    { label: portfolio?.name || 'Laster...', isActive: true }
+    { label: portfolio?.name || 'Laster...', isActive: true },
   ]
 
   if (loading) {
     return (
-      <div className={cn('bg-white border-b border-gray-200', className)}>
+      <div className={cn('border-b border-gray-200 bg-white', className)}>
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
+              <div className="h-8 w-8 animate-pulse rounded bg-gray-200" />
               <div>
-                <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mb-1" />
-                <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+                <div className="mb-1 h-6 w-32 animate-pulse rounded bg-gray-200" />
+                <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
               </div>
             </div>
-            <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
+            <div className="h-8 w-8 animate-pulse rounded bg-gray-200" />
           </div>
         </div>
       </div>
@@ -210,18 +239,18 @@ export default function MobilePortfolioHeader({
 
   if (error || !portfolio) {
     return (
-      <div className={cn('bg-white border-b border-gray-200', className)}>
+      <div className={cn('border-b border-gray-200 bg-white', className)}>
         <div className="px-4 py-3">
           <div className="flex items-center space-x-3">
             <Button
               variant="ghost"
               size="sm"
               onClick={handleBackClick}
-              className="p-2 -ml-2"
+              className="-ml-2 p-2"
             >
               <ArrowLeftIcon className="h-5 w-5" />
             </Button>
-            <div className="text-red-600 text-sm">
+            <div className="text-sm text-red-600">
               {error || 'Fant ikke porteføljen'}
             </div>
           </div>
@@ -235,8 +264,11 @@ export default function MobilePortfolioHeader({
 
   return (
     <>
-      <motion.div 
-        className={cn('bg-white border-b border-gray-200 sticky top-0 z-30', className)}
+      <motion.div
+        className={cn(
+          'sticky top-0 z-30 border-b border-gray-200 bg-white',
+          className
+        )}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -244,24 +276,27 @@ export default function MobilePortfolioHeader({
         {/* Main Header */}
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3 flex-1 min-w-0">
+            <div className="flex min-w-0 flex-1 items-center space-x-3">
               {/* Back Button */}
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleBackClick}
-                className="p-2 -ml-2 touch-manipulation"
+                className="-ml-2 touch-manipulation p-2"
               >
                 <ChevronLeftIcon className="h-5 w-5" />
               </Button>
 
               {/* Portfolio Info */}
-              <div className="flex-1 min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="flex items-center space-x-2">
-                  <h1 className="text-lg font-semibold text-gray-900 truncate">
+                  <h1 className="truncate text-lg font-semibold text-gray-900">
                     {portfolio.name}
                   </h1>
-                  <Badge variant="secondary" className={cn('text-xs', typeInfo.color)}>
+                  <Badge
+                    variant="secondary"
+                    className={cn('text-xs', typeInfo.color)}
+                  >
                     {typeInfo.label}
                   </Badge>
                   {portfolio.is_public && (
@@ -272,10 +307,10 @@ export default function MobilePortfolioHeader({
                 </div>
 
                 {/* Optimized Breadcrumb for Mobile */}
-                <div className="flex items-center space-x-1 text-xs text-gray-500 mt-1">
+                <div className="mt-1 flex items-center space-x-1 text-xs text-gray-500">
                   <span>Mine porteføljer</span>
                   <span>/</span>
-                  <span className="text-gray-900 font-medium truncate">
+                  <span className="truncate font-medium text-gray-900">
                     {portfolio.name}
                   </span>
                 </div>
@@ -289,7 +324,7 @@ export default function MobilePortfolioHeader({
                 variant="ghost"
                 size="sm"
                 onClick={handleNativeShare}
-                className="p-2 touch-manipulation"
+                className="touch-manipulation p-2"
               >
                 {shareSuccess ? (
                   <CheckIcon className="h-5 w-5 text-green-600" />
@@ -303,7 +338,7 @@ export default function MobilePortfolioHeader({
                 variant="ghost"
                 size="sm"
                 onClick={handleMenuClick}
-                className="p-2 touch-manipulation"
+                className="touch-manipulation p-2"
               >
                 <EllipsisVerticalIcon className="h-5 w-5" />
               </Button>
@@ -321,17 +356,20 @@ export default function MobilePortfolioHeader({
               transition={{ duration: 0.3 }}
               className="overflow-hidden"
             >
-              <div className="px-4 pb-4 border-t border-gray-100">
-                <div className="grid grid-cols-2 gap-4 mt-3">
+              <div className="border-t border-gray-100 px-4 pb-4">
+                <div className="mt-3 grid grid-cols-2 gap-4">
                   {/* Total Value */}
                   <div>
-                    <div className="text-xs text-gray-500 mb-1">Totalverdi</div>
+                    <div className="mb-1 text-xs text-gray-500">Totalverdi</div>
                     <div className="text-xl font-bold text-gray-900">
-                      <CurrencyCounter value={metrics.totalValue} currency="NOK" />
+                      <CurrencyCounter
+                        value={metrics.totalValue}
+                        currency="NOK"
+                      />
                     </div>
                     {isPricesConnected && (
-                      <div className="flex items-center mt-1">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mr-1" />
+                      <div className="mt-1 flex items-center">
+                        <div className="mr-1 h-2 w-2 rounded-full bg-green-500" />
                         <span className="text-xs text-green-600">Live</span>
                       </div>
                     )}
@@ -339,27 +377,33 @@ export default function MobilePortfolioHeader({
 
                   {/* Gain/Loss */}
                   <div>
-                    <div className="text-xs text-gray-500 mb-1">Gevinst/Tap</div>
-                    <div className={cn(
-                      'text-xl font-bold flex items-center',
-                      isPositive ? 'text-green-600' : 'text-red-600'
-                    )}>
-                      {isPositive ? (
-                        <ArrowTrendingUpIcon className="h-4 w-4 mr-1" />
-                      ) : (
-                        <ArrowTrendingDownIcon className="h-4 w-4 mr-1" />
+                    <div className="mb-1 text-xs text-gray-500">
+                      Gevinst/Tap
+                    </div>
+                    <div
+                      className={cn(
+                        'flex items-center text-xl font-bold',
+                        isPositive ? 'text-green-600' : 'text-red-600'
                       )}
-                      <CurrencyCounter 
-                        value={Math.abs(metrics.totalGainLoss)} 
+                    >
+                      {isPositive ? (
+                        <ArrowTrendingUpIcon className="mr-1 h-4 w-4" />
+                      ) : (
+                        <ArrowTrendingDownIcon className="mr-1 h-4 w-4" />
+                      )}
+                      <CurrencyCounter
+                        value={Math.abs(metrics.totalGainLoss)}
                         currency="NOK"
                         prefix={isPositive ? '+' : '-'}
                       />
                     </div>
-                    <div className={cn(
-                      'text-xs mt-1',
-                      isPositive ? 'text-green-600' : 'text-red-600'
-                    )}>
-                      <PercentageCounter 
+                    <div
+                      className={cn(
+                        'mt-1 text-xs',
+                        isPositive ? 'text-green-600' : 'text-red-600'
+                      )}
+                    >
+                      <PercentageCounter
                         value={Math.abs(metrics.totalGainLossPercent)}
                         prefix={isPositive ? '+' : '-'}
                       />
@@ -368,16 +412,21 @@ export default function MobilePortfolioHeader({
                 </div>
 
                 {/* Additional Info */}
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3">
                   <div className="text-xs text-gray-500">
-                    {metrics.holdingsCount} beholdning{metrics.holdingsCount !== 1 ? 'er' : ''}
+                    {metrics.holdingsCount} beholdning
+                    {metrics.holdingsCount !== 1 ? 'er' : ''}
                   </div>
-                  
+
                   <div className="text-xs text-gray-500">
-                    Oppdatert: {new Date(portfolio.last_updated).toLocaleTimeString('nb-NO', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+                    Oppdatert:{' '}
+                    {new Date(portfolio.last_updated).toLocaleTimeString(
+                      'nb-NO',
+                      {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      }
+                    )}
                   </div>
                 </div>
               </div>
@@ -391,7 +440,7 @@ export default function MobilePortfolioHeader({
             variant="ghost"
             size="sm"
             onClick={toggleCollapsed}
-            className="p-1 touch-manipulation"
+            className="touch-manipulation p-1"
           >
             {isCollapsed ? (
               <EyeIcon className="h-4 w-4" />

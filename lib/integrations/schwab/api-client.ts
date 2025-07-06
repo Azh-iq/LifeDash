@@ -24,7 +24,7 @@ import {
   SchwabRateLimitInfo,
   SCHWAB_API_ENDPOINTS,
   SCHWAB_OAUTH_SCOPES,
-  SCHWAB_RATE_LIMITS
+  SCHWAB_RATE_LIMITS,
 } from './types'
 
 export class SchwabApiClient {
@@ -44,7 +44,7 @@ export class SchwabApiClient {
       expiresAt: null,
       userId: null,
       lastRefresh: null,
-      scope: []
+      scope: [],
     }
   }
 
@@ -55,7 +55,7 @@ export class SchwabApiClient {
     const state = this.generateRandomString(32)
     const codeVerifier = this.generateCodeVerifier()
     const codeChallenge = this.generateCodeChallenge(codeVerifier)
-    
+
     const params = new URLSearchParams({
       response_type: 'code',
       client_id: this.config.clientId,
@@ -63,31 +63,34 @@ export class SchwabApiClient {
       scope: this.config.scope.join(' '),
       state: state,
       code_challenge: codeChallenge,
-      code_challenge_method: 'S256'
+      code_challenge_method: 'S256',
     })
 
     const authUrl = `${this.config.baseUrl}/v1/oauth/authorize?${params.toString()}`
-    
+
     // Store state and code verifier for validation
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('schwab_oauth_state', state)
       sessionStorage.setItem('schwab_code_verifier', codeVerifier)
     }
-    
+
     return authUrl
   }
 
   /**
    * Complete OAuth2 authentication with authorization code
    */
-  public async completeAuth(code: string, state: string): Promise<SchwabTokenResponse> {
+  public async completeAuth(
+    code: string,
+    state: string
+  ): Promise<SchwabTokenResponse> {
     // Validate state parameter
     if (typeof window !== 'undefined') {
       const storedState = sessionStorage.getItem('schwab_oauth_state')
       if (storedState !== state) {
         throw new Error('Invalid OAuth state parameter')
       }
-      
+
       const codeVerifier = sessionStorage.getItem('schwab_code_verifier')
       if (!codeVerifier) {
         throw new Error('Missing code verifier for PKCE')
@@ -98,7 +101,7 @@ export class SchwabApiClient {
         code: code,
         client_id: this.config.clientId,
         redirect_uri: this.config.redirectUri,
-        code_verifier: codeVerifier
+        code_verifier: codeVerifier,
       }
 
       const response = await this.makeRequest<SchwabTokenResponse>(
@@ -114,10 +117,10 @@ export class SchwabApiClient {
         isAuthenticated: true,
         accessToken: response.access_token,
         refreshToken: response.refresh_token,
-        expiresAt: Date.now() + (response.expires_in * 1000),
+        expiresAt: Date.now() + response.expires_in * 1000,
         userId: null, // Will be set after fetching user info
         lastRefresh: Date.now(),
-        scope: response.scope.split(' ')
+        scope: response.scope.split(' '),
       }
 
       // Clean up temporary storage
@@ -126,7 +129,7 @@ export class SchwabApiClient {
 
       return response
     }
-    
+
     throw new Error('OAuth completion requires browser environment')
   }
 
@@ -141,7 +144,7 @@ export class SchwabApiClient {
     const tokenData = {
       grant_type: 'refresh_token',
       refresh_token: this.authState.refreshToken,
-      client_id: this.config.clientId
+      client_id: this.config.clientId,
     }
 
     const response = await this.makeRequest<SchwabTokenResponse>(
@@ -157,9 +160,9 @@ export class SchwabApiClient {
       ...this.authState,
       accessToken: response.access_token,
       refreshToken: response.refresh_token || this.authState.refreshToken,
-      expiresAt: Date.now() + (response.expires_in * 1000),
+      expiresAt: Date.now() + response.expires_in * 1000,
       lastRefresh: Date.now(),
-      scope: response.scope ? response.scope.split(' ') : this.authState.scope
+      scope: response.scope ? response.scope.split(' ') : this.authState.scope,
     }
 
     return response
@@ -170,7 +173,7 @@ export class SchwabApiClient {
    */
   public async getAccounts(): Promise<SchwabAccount[]> {
     await this.ensureValidToken()
-    
+
     const response = await this.makeRequest<SchwabAccount[]>(
       'GET',
       SCHWAB_API_ENDPOINTS.ACCOUNTS,
@@ -184,15 +187,14 @@ export class SchwabApiClient {
   /**
    * Get account numbers (encrypted)
    */
-  public async getAccountNumbers(): Promise<Array<{ accountNumber: string; hashValue: string }>> {
+  public async getAccountNumbers(): Promise<
+    Array<{ accountNumber: string; hashValue: string }>
+  > {
     await this.ensureValidToken()
-    
-    const response = await this.makeRequest<Array<{ accountNumber: string; hashValue: string }>>(
-      'GET',
-      SCHWAB_API_ENDPOINTS.ACCOUNT_NUMBERS,
-      null,
-      true
-    )
+
+    const response = await this.makeRequest<
+      Array<{ accountNumber: string; hashValue: string }>
+    >('GET', SCHWAB_API_ENDPOINTS.ACCOUNT_NUMBERS, null, true)
 
     return response
   }
@@ -200,11 +202,16 @@ export class SchwabApiClient {
   /**
    * Get specific account details
    */
-  public async getAccountDetails(accountId: string, fields?: string[]): Promise<SchwabAccount> {
+  public async getAccountDetails(
+    accountId: string,
+    fields?: string[]
+  ): Promise<SchwabAccount> {
     await this.ensureValidToken()
-    
+
     const params = fields ? `?fields=${fields.join(',')}` : ''
-    const endpoint = SCHWAB_API_ENDPOINTS.ACCOUNT_DETAILS.replace('{accountId}', accountId) + params
+    const endpoint =
+      SCHWAB_API_ENDPOINTS.ACCOUNT_DETAILS.replace('{accountId}', accountId) +
+      params
 
     const response = await this.makeRequest<SchwabAccount>(
       'GET',
@@ -219,11 +226,15 @@ export class SchwabApiClient {
   /**
    * Get positions for a specific account
    */
-  public async getPositions(accountId: string, fields?: string[]): Promise<SchwabPosition[]> {
+  public async getPositions(
+    accountId: string,
+    fields?: string[]
+  ): Promise<SchwabPosition[]> {
     await this.ensureValidToken()
-    
+
     const params = fields ? `?fields=${fields.join(',')}` : ''
-    const endpoint = SCHWAB_API_ENDPOINTS.POSITIONS.replace('{accountId}', accountId) + params
+    const endpoint =
+      SCHWAB_API_ENDPOINTS.POSITIONS.replace('{accountId}', accountId) + params
 
     const response = await this.makeRequest<SchwabPosition[]>(
       'GET',
@@ -241,22 +252,42 @@ export class SchwabApiClient {
   public async getTransactions(
     accountId: string,
     options: {
-      type?: 'TRADE' | 'RECEIVE_AND_DELIVER' | 'DIVIDEND_OR_INTEREST' | 'ACH_RECEIPT' | 'ACH_DISBURSEMENT' | 'CASH_RECEIPT' | 'CASH_DISBURSEMENT' | 'ELECTRONIC_FUND' | 'WIRE_OUT' | 'WIRE_IN' | 'JOURNAL' | 'MEMORANDUM' | 'MARGIN_CALL' | 'MONEY_MARKET' | 'SMA_ADJUSTMENT'
+      type?:
+        | 'TRADE'
+        | 'RECEIVE_AND_DELIVER'
+        | 'DIVIDEND_OR_INTEREST'
+        | 'ACH_RECEIPT'
+        | 'ACH_DISBURSEMENT'
+        | 'CASH_RECEIPT'
+        | 'CASH_DISBURSEMENT'
+        | 'ELECTRONIC_FUND'
+        | 'WIRE_OUT'
+        | 'WIRE_IN'
+        | 'JOURNAL'
+        | 'MEMORANDUM'
+        | 'MARGIN_CALL'
+        | 'MONEY_MARKET'
+        | 'SMA_ADJUSTMENT'
       startDate?: string
       endDate?: string
       symbol?: string
     } = {}
   ): Promise<SchwabTransaction[]> {
     await this.ensureValidToken()
-    
+
     const params = new URLSearchParams()
     if (options.type) params.append('type', options.type)
     if (options.startDate) params.append('startDate', options.startDate)
     if (options.endDate) params.append('endDate', options.endDate)
     if (options.symbol) params.append('symbol', options.symbol)
 
-    const endpoint = SCHWAB_API_ENDPOINTS.TRANSACTIONS.replace('{accountId}', accountId)
-    const url = params.toString() ? `${endpoint}?${params.toString()}` : endpoint
+    const endpoint = SCHWAB_API_ENDPOINTS.TRANSACTIONS.replace(
+      '{accountId}',
+      accountId
+    )
+    const url = params.toString()
+      ? `${endpoint}?${params.toString()}`
+      : endpoint
 
     const response = await this.makeRequest<SchwabTransaction[]>(
       'GET',
@@ -271,12 +302,16 @@ export class SchwabApiClient {
   /**
    * Get specific transaction details
    */
-  public async getTransactionDetails(accountId: string, transactionId: string): Promise<SchwabTransaction> {
+  public async getTransactionDetails(
+    accountId: string,
+    transactionId: string
+  ): Promise<SchwabTransaction> {
     await this.ensureValidToken()
-    
-    const endpoint = SCHWAB_API_ENDPOINTS.TRANSACTION_DETAILS
-      .replace('{accountId}', accountId)
-      .replace('{transactionId}', transactionId)
+
+    const endpoint = SCHWAB_API_ENDPOINTS.TRANSACTION_DETAILS.replace(
+      '{accountId}',
+      accountId
+    ).replace('{transactionId}', transactionId)
 
     const response = await this.makeRequest<SchwabTransaction>(
       'GET',
@@ -291,11 +326,13 @@ export class SchwabApiClient {
   /**
    * Get quotes for multiple symbols
    */
-  public async getQuotes(symbols: string[]): Promise<Record<string, SchwabQuote>> {
+  public async getQuotes(
+    symbols: string[]
+  ): Promise<Record<string, SchwabQuote>> {
     await this.ensureValidToken()
-    
+
     const params = new URLSearchParams({
-      symbols: symbols.join(',')
+      symbols: symbols.join(','),
     })
 
     const url = `${SCHWAB_API_ENDPOINTS.QUOTES}?${params.toString()}`
@@ -315,8 +352,11 @@ export class SchwabApiClient {
    */
   public async getQuote(symbol: string): Promise<SchwabQuote> {
     await this.ensureValidToken()
-    
-    const endpoint = SCHWAB_API_ENDPOINTS.QUOTE_SINGLE.replace('{symbol}', symbol)
+
+    const endpoint = SCHWAB_API_ENDPOINTS.QUOTE_SINGLE.replace(
+      '{symbol}',
+      symbol
+    )
 
     const response = await this.makeRequest<SchwabQuote>(
       'GET',
@@ -331,20 +371,26 @@ export class SchwabApiClient {
   /**
    * Get price history for a symbol
    */
-  public async getPriceHistory(params: SchwabPriceHistoryParams): Promise<SchwabPriceHistory> {
+  public async getPriceHistory(
+    params: SchwabPriceHistoryParams
+  ): Promise<SchwabPriceHistory> {
     await this.ensureValidToken()
-    
+
     const searchParams = new URLSearchParams({
       symbol: params.symbol,
       periodType: params.periodType,
-      frequencyType: params.frequencyType
+      frequencyType: params.frequencyType,
     })
 
     if (params.period) searchParams.append('period', params.period.toString())
-    if (params.frequency) searchParams.append('frequency', params.frequency.toString())
-    if (params.startDate) searchParams.append('startDate', params.startDate.toString())
-    if (params.endDate) searchParams.append('endDate', params.endDate.toString())
-    if (params.needExtendedHoursData) searchParams.append('needExtendedHoursData', 'true')
+    if (params.frequency)
+      searchParams.append('frequency', params.frequency.toString())
+    if (params.startDate)
+      searchParams.append('startDate', params.startDate.toString())
+    if (params.endDate)
+      searchParams.append('endDate', params.endDate.toString())
+    if (params.needExtendedHoursData)
+      searchParams.append('needExtendedHoursData', 'true')
 
     const url = `${SCHWAB_API_ENDPOINTS.PRICE_HISTORY}?${searchParams.toString()}`
 
@@ -361,11 +407,14 @@ export class SchwabApiClient {
   /**
    * Get market hours
    */
-  public async getMarketHours(markets: string[], date?: string): Promise<Record<string, SchwabMarketHours>> {
+  public async getMarketHours(
+    markets: string[],
+    date?: string
+  ): Promise<Record<string, SchwabMarketHours>> {
     await this.ensureValidToken()
-    
+
     const params = new URLSearchParams({
-      markets: markets.join(',')
+      markets: markets.join(','),
     })
 
     if (date) params.append('date', date)
@@ -385,26 +434,38 @@ export class SchwabApiClient {
   /**
    * Get options chain
    */
-  public async getOptionsChain(params: SchwabOptionsChainParams): Promise<SchwabOptionsChain> {
+  public async getOptionsChain(
+    params: SchwabOptionsChainParams
+  ): Promise<SchwabOptionsChain> {
     await this.ensureValidToken()
-    
+
     const searchParams = new URLSearchParams({
-      symbol: params.symbol
+      symbol: params.symbol,
     })
 
-    if (params.contractType) searchParams.append('contractType', params.contractType)
-    if (params.strikeCount) searchParams.append('strikeCount', params.strikeCount.toString())
+    if (params.contractType)
+      searchParams.append('contractType', params.contractType)
+    if (params.strikeCount)
+      searchParams.append('strikeCount', params.strikeCount.toString())
     if (params.includeQuotes) searchParams.append('includeQuotes', 'true')
     if (params.strategy) searchParams.append('strategy', params.strategy)
-    if (params.interval) searchParams.append('interval', params.interval.toString())
+    if (params.interval)
+      searchParams.append('interval', params.interval.toString())
     if (params.strike) searchParams.append('strike', params.strike.toString())
     if (params.range) searchParams.append('range', params.range)
     if (params.fromDate) searchParams.append('fromDate', params.fromDate)
     if (params.toDate) searchParams.append('toDate', params.toDate)
-    if (params.volatility) searchParams.append('volatility', params.volatility.toString())
-    if (params.underlyingPrice) searchParams.append('underlyingPrice', params.underlyingPrice.toString())
-    if (params.interestRate) searchParams.append('interestRate', params.interestRate.toString())
-    if (params.daysToExpiration) searchParams.append('daysToExpiration', params.daysToExpiration.toString())
+    if (params.volatility)
+      searchParams.append('volatility', params.volatility.toString())
+    if (params.underlyingPrice)
+      searchParams.append('underlyingPrice', params.underlyingPrice.toString())
+    if (params.interestRate)
+      searchParams.append('interestRate', params.interestRate.toString())
+    if (params.daysToExpiration)
+      searchParams.append(
+        'daysToExpiration',
+        params.daysToExpiration.toString()
+      )
     if (params.expMonth) searchParams.append('expMonth', params.expMonth)
     if (params.optionType) searchParams.append('optionType', params.optionType)
 
@@ -423,7 +484,9 @@ export class SchwabApiClient {
   /**
    * Synchronize all account data
    */
-  public async syncAllData(config: SchwabSyncConfig): Promise<SchwabSyncResult> {
+  public async syncAllData(
+    config: SchwabSyncConfig
+  ): Promise<SchwabSyncResult> {
     const startTime = Date.now()
     const result: SchwabSyncResult = {
       success: false,
@@ -437,22 +500,25 @@ export class SchwabApiClient {
       errors: [],
       warnings: [],
       lastSyncTime: new Date().toISOString(),
-      nextSyncTime: new Date(Date.now() + config.syncInterval * 60000).toISOString(),
+      nextSyncTime: new Date(
+        Date.now() + config.syncInterval * 60000
+      ).toISOString(),
       dataStats: {
         totalValue: 0,
         totalCash: 0,
         totalSecurities: 0,
         positionCount: 0,
-        transactionCount: 0
-      }
+        transactionCount: 0,
+      },
     }
 
     try {
       // Get accounts
       const accounts = await this.getAccounts()
-      const targetAccounts = config.accountIds.length > 0 
-        ? accounts.filter(acc => config.accountIds.includes(acc.accountId))
-        : accounts
+      const targetAccounts =
+        config.accountIds.length > 0
+          ? accounts.filter(acc => config.accountIds.includes(acc.accountId))
+          : accounts
 
       result.accountsSynced = targetAccounts.length
 
@@ -462,14 +528,15 @@ export class SchwabApiClient {
           // Update account stats
           result.dataStats.totalValue += account.closingBalances.totalValue
           result.dataStats.totalCash += account.closingBalances.totalCash
-          result.dataStats.totalSecurities += account.closingBalances.totalSecurities
+          result.dataStats.totalSecurities +=
+            account.closingBalances.totalSecurities
 
           // Sync positions if requested
           if (config.includePositions) {
             const positions = await this.getPositions(account.accountId)
             result.positionsSynced += positions.length
             result.dataStats.positionCount += positions.length
-            
+
             // Here you would typically save positions to database
             // This is a simplified example
           }
@@ -478,26 +545,26 @@ export class SchwabApiClient {
           if (config.includeTransactions) {
             const transactions = await this.getTransactions(account.accountId, {
               startDate: config.fromDate,
-              endDate: config.toDate
+              endDate: config.toDate,
             })
-            
+
             result.transactionsSynced += transactions.length
             result.dataStats.transactionCount += transactions.length
-            
+
             // Here you would typically save transactions to database
             // This is a simplified example
           }
 
           // Add delay to respect rate limits
           await this.rateLimitDelay('trading')
-          
         } catch (error) {
-          result.errors.push(`Failed to sync account ${account.accountId}: ${error}`)
+          result.errors.push(
+            `Failed to sync account ${account.accountId}: ${error}`
+          )
         }
       }
 
       result.success = result.errors.length === 0
-      
     } catch (error) {
       result.errors.push(`Sync failed: ${error}`)
     }
@@ -511,10 +578,12 @@ export class SchwabApiClient {
   public getConnectionStatus(): SchwabConnectionStatus {
     const now = Date.now()
     const rateLimitInfo = this.getRateLimitStatus()
-    
+
     return {
       connected: this.authState.isAuthenticated && this.isTokenValid(),
-      lastSync: this.authState.lastRefresh ? new Date(this.authState.lastRefresh).toISOString() : null,
+      lastSync: this.authState.lastRefresh
+        ? new Date(this.authState.lastRefresh).toISOString()
+        : null,
       nextSync: null, // Would be calculated based on sync schedule
       status: this.getConnectionStatusString(),
       accountCount: 0, // Would be stored/cached
@@ -524,7 +593,7 @@ export class SchwabApiClient {
         remainingRequests: rateLimitInfo.remaining,
         resetTime: new Date(rateLimitInfo.reset).toISOString(),
         currentUsage: rateLimitInfo.used,
-      }
+      },
     }
   }
 
@@ -555,7 +624,7 @@ export class SchwabApiClient {
       expiresAt: null,
       userId: null,
       lastRefresh: null,
-      scope: []
+      scope: [],
     }
 
     // Clear any stored tokens
@@ -585,10 +654,10 @@ export class SchwabApiClient {
   private getConnectionStatusString(): SchwabConnectionStatus['status'] {
     if (!this.authState.isAuthenticated) return 'disconnected'
     if (!this.isTokenValid()) return 'expired'
-    
+
     const rateLimitInfo = this.getRateLimitStatus()
     if (rateLimitInfo.remaining <= 0) return 'rate_limited'
-    
+
     return 'connected'
   }
 
@@ -604,7 +673,7 @@ export class SchwabApiClient {
 
     const url = `${this.config.baseUrl}${endpoint}`
     const headers: HeadersInit = {
-      'Accept': 'application/json'
+      Accept: 'application/json',
     }
 
     if (contentType) {
@@ -627,13 +696,15 @@ export class SchwabApiClient {
     const options: RequestInit = {
       method,
       headers,
-      body
+      body,
     }
 
     // Add minimum delay between requests
     const timeSinceLastRequest = Date.now() - this.lastRequestTime
     if (timeSinceLastRequest < 100) {
-      await new Promise(resolve => setTimeout(resolve, 100 - timeSinceLastRequest))
+      await new Promise(resolve =>
+        setTimeout(resolve, 100 - timeSinceLastRequest)
+      )
     }
 
     this.lastRequestTime = Date.now()
@@ -646,7 +717,13 @@ export class SchwabApiClient {
       if (this.retryCount < 3) {
         this.retryCount++
         await this.exponentialBackoff(this.retryCount)
-        return this.makeRequest(method, endpoint, data, requiresAuth, contentType)
+        return this.makeRequest(
+          method,
+          endpoint,
+          data,
+          requiresAuth,
+          contentType
+        )
       }
       throw new Error(`Network error: ${error}`)
     }
@@ -657,10 +734,12 @@ export class SchwabApiClient {
     // Handle rate limiting
     if (response.status === 429) {
       const retryAfter = response.headers.get('Retry-After')
-      const delay = retryAfter ? parseInt(retryAfter) * 1000 : SCHWAB_RATE_LIMITS.RATE_LIMIT_BACKOFF * 1000
-      
+      const delay = retryAfter
+        ? parseInt(retryAfter) * 1000
+        : SCHWAB_RATE_LIMITS.RATE_LIMIT_BACKOFF * 1000
+
       await new Promise(resolve => setTimeout(resolve, delay))
-      
+
       // Retry the request
       return this.makeRequest(method, endpoint, data, requiresAuth, contentType)
     }
@@ -669,7 +748,7 @@ export class SchwabApiClient {
     if (!response.ok) {
       const errorText = await response.text()
       let error: SchwabApiError
-      
+
       try {
         error = JSON.parse(errorText)
       } catch {
@@ -678,7 +757,7 @@ export class SchwabApiClient {
           error_description: `HTTP ${response.status}: ${response.statusText}`,
           statusCode: response.status,
           timestamp: new Date().toISOString(),
-          message: errorText
+          message: errorText,
         }
       }
 
@@ -688,7 +767,9 @@ export class SchwabApiClient {
         throw new Error('Authentication failed. Please re-authenticate.')
       }
 
-      throw new Error(`Schwab API Error: ${error.error_description || error.error}`)
+      throw new Error(
+        `Schwab API Error: ${error.error_description || error.error}`
+      )
     }
 
     // Reset retry count on success
@@ -706,16 +787,16 @@ export class SchwabApiClient {
     const category = this.getRateLimitCategory(endpoint)
     const now = Date.now()
     const minute = Math.floor(now / 60000)
-    
+
     if (!this.requestCounts.has(category)) {
       this.requestCounts.set(category, new Map())
     }
-    
+
     const categoryRequests = this.requestCounts.get(category)!
     const requestsThisMinute = categoryRequests.get(minute.toString()) || 0
-    
+
     const limit = this.getRateLimitForCategory(category)
-    
+
     if (requestsThisMinute >= limit) {
       const waitTime = 60000 - (now % 60000)
       await new Promise(resolve => setTimeout(resolve, waitTime))
@@ -726,16 +807,16 @@ export class SchwabApiClient {
     const category = this.getRateLimitCategory(endpoint)
     const now = Date.now()
     const minute = Math.floor(now / 60000)
-    
+
     if (!this.requestCounts.has(category)) {
       this.requestCounts.set(category, new Map())
     }
-    
+
     const categoryRequests = this.requestCounts.get(category)!
     const key = minute.toString()
-    
+
     categoryRequests.set(key, (categoryRequests.get(key) || 0) + 1)
-    
+
     // Clean up old entries
     for (const [k, _] of categoryRequests.entries()) {
       if (parseInt(k) < minute - 5) {
@@ -747,14 +828,14 @@ export class SchwabApiClient {
     const remaining = response.headers.get('X-RateLimit-Remaining')
     const reset = response.headers.get('X-RateLimit-Reset')
     const limit = response.headers.get('X-RateLimit-Limit')
-    
+
     if (remaining && reset && limit) {
       this.rateLimitInfo.set(category, {
         limit: parseInt(limit),
         remaining: parseInt(remaining),
         reset: parseInt(reset) * 1000,
         used: parseInt(limit) - parseInt(remaining),
-        window: 60000
+        window: 60000,
       })
     }
   }
@@ -793,10 +874,12 @@ export class SchwabApiClient {
   private getRateLimitStatus(): SchwabRateLimitInfo {
     const tradingLimit = this.rateLimitInfo.get('trading')
     const marketDataLimit = this.rateLimitInfo.get('marketdata')
-    
+
     // Return the most restrictive limit
     if (tradingLimit && marketDataLimit) {
-      return tradingLimit.remaining < marketDataLimit.remaining ? tradingLimit : marketDataLimit
+      return tradingLimit.remaining < marketDataLimit.remaining
+        ? tradingLimit
+        : marketDataLimit
     } else if (tradingLimit) {
       return tradingLimit
     } else if (marketDataLimit) {
@@ -807,12 +890,14 @@ export class SchwabApiClient {
         remaining: 60,
         reset: Date.now() + 60000,
         used: 0,
-        window: 60000
+        window: 60000,
       }
     }
   }
 
-  private async rateLimitDelay(category: 'trading' | 'marketdata' = 'trading'): Promise<void> {
+  private async rateLimitDelay(
+    category: 'trading' | 'marketdata' = 'trading'
+  ): Promise<void> {
     const delay = category === 'marketdata' ? 500 : 200
     await new Promise(resolve => setTimeout(resolve, delay))
   }
@@ -823,7 +908,8 @@ export class SchwabApiClient {
   }
 
   private generateRandomString(length: number): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     let result = ''
     for (let i = 0; i < length; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length))

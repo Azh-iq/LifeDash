@@ -2,16 +2,21 @@
 
 import { motion } from 'framer-motion'
 import { memo, useCallback, useMemo, Suspense } from 'react'
-import { 
-  ArrowTrendingUpIcon, 
-  ArrowTrendingDownIcon, 
+import {
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
   ChartBarIcon,
   CurrencyDollarIcon,
   ArrowUpIcon,
   ArrowDownIcon,
-  InformationCircleIcon
+  InformationCircleIcon,
 } from '@heroicons/react/24/outline'
-import { AnimatedCard, NumberCounter, CurrencyCounter, PercentageCounter } from '@/components/animated'
+import {
+  AnimatedCard,
+  NumberCounter,
+  CurrencyCounter,
+  PercentageCounter,
+} from '@/components/animated'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -20,7 +25,11 @@ import { usePortfolioState } from '@/lib/hooks/use-portfolio-state'
 import { useRealtimeUpdates } from '@/lib/hooks/use-realtime-updates'
 import { formatCurrency, formatPercentage } from '@/components/charts'
 import { useResponsiveLayout } from '@/lib/hooks/use-responsive-layout'
-import { MobileResponsiveWrapper, ResponsiveGrid, AdaptiveComponent } from '@/components/mobile/mobile-responsive-wrapper'
+import {
+  MobileResponsiveWrapper,
+  ResponsiveGrid,
+  AdaptiveComponent,
+} from '@/components/mobile/mobile-responsive-wrapper'
 import { MobileMetricCards } from '@/components/mobile'
 import { PortfolioCacheManager, CacheKeys } from '@/lib/cache/portfolio-cache'
 
@@ -41,20 +50,20 @@ interface MetricCardProps {
   changePercent?: number
 }
 
-const MetricCard = memo(function MetricCard({ 
-  title, 
-  value, 
-  previousValue, 
-  format, 
-  icon, 
-  subtitle, 
+const MetricCard = memo(function MetricCard({
+  title,
+  value,
+  previousValue,
+  format,
+  icon,
+  subtitle,
   isLoading,
   trend,
   changeValue,
-  changePercent
+  changePercent,
 }: MetricCardProps) {
   const { isMobile } = useResponsiveLayout()
-  
+
   const getTrendColor = useCallback((trend: string) => {
     switch (trend) {
       case 'up':
@@ -84,7 +93,7 @@ const MetricCard = memo(function MetricCard({
           <div className="flex items-center space-x-3">
             <Skeleton className="h-8 w-8 rounded" />
             <div>
-              <Skeleton className="h-4 w-20 mb-2" />
+              <Skeleton className="mb-2 h-4 w-20" />
               <Skeleton className="h-6 w-24" />
             </div>
           </div>
@@ -95,56 +104,78 @@ const MetricCard = memo(function MetricCard({
   }
 
   return (
-    <AnimatedCard className={`${isMobile ? 'p-4' : 'p-6'} hover:shadow-lg transition-shadow touch-manipulation`}>
-      <div className={`flex items-center ${isMobile ? 'flex-col space-y-3' : 'justify-between'}`}>
-        <div className={`flex items-center ${isMobile ? 'w-full justify-between' : 'space-x-3'}`}>
-          <div className={`${isMobile ? 'p-1.5' : 'p-2'} bg-blue-50 rounded-lg`}>
+    <AnimatedCard
+      className={`${isMobile ? 'p-4' : 'p-6'} touch-manipulation transition-shadow hover:shadow-lg`}
+    >
+      <div
+        className={`flex items-center ${isMobile ? 'flex-col space-y-3' : 'justify-between'}`}
+      >
+        <div
+          className={`flex items-center ${isMobile ? 'w-full justify-between' : 'space-x-3'}`}
+        >
+          <div
+            className={`${isMobile ? 'p-1.5' : 'p-2'} rounded-lg bg-blue-50`}
+          >
             {icon}
           </div>
-          <div className={isMobile ? 'text-center flex-1' : ''}>
-            <p className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-600`}>{title}</p>
+          <div className={isMobile ? 'flex-1 text-center' : ''}>
+            <p
+              className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-600`}
+            >
+              {title}
+            </p>
             <div className="flex items-center space-x-2">
               {format === 'currency' && (
-                <CurrencyCounter 
-                  value={value} 
+                <CurrencyCounter
+                  value={value}
                   previousValue={previousValue}
                   className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold text-gray-900`}
                   currency="NOK"
                 />
               )}
               {format === 'percentage' && (
-                <PercentageCounter 
-                  value={value} 
+                <PercentageCounter
+                  value={value}
                   previousValue={previousValue}
                   className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold text-gray-900`}
                 />
               )}
               {format === 'number' && (
-                <NumberCounter 
-                  value={value} 
+                <NumberCounter
+                  value={value}
                   previousValue={previousValue}
                   className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold text-gray-900`}
                 />
               )}
             </div>
             {subtitle && (
-              <p className={`${isMobile ? 'text-xs' : 'text-xs'} text-gray-500 mt-1`}>{subtitle}</p>
+              <p
+                className={`${isMobile ? 'text-xs' : 'text-xs'} mt-1 text-gray-500`}
+              >
+                {subtitle}
+              </p>
             )}
           </div>
         </div>
-        
+
         {(changeValue !== undefined || changePercent !== undefined) && (
-          <div className={`flex items-center space-x-1 ${getTrendColor(trend || 'neutral')} ${isMobile ? 'w-full justify-center' : ''}`}>
+          <div
+            className={`flex items-center space-x-1 ${getTrendColor(trend || 'neutral')} ${isMobile ? 'w-full justify-center' : ''}`}
+          >
             {getTrendIcon(trend || 'neutral')}
             <div className={`${isMobile ? 'text-center' : 'text-right'}`}>
               {changeValue !== undefined && (
-                <p className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>
-                  {changeValue > 0 ? '+' : ''}{formatCurrency(changeValue)}
+                <p
+                  className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}
+                >
+                  {changeValue > 0 ? '+' : ''}
+                  {formatCurrency(changeValue)}
                 </p>
               )}
               {changePercent !== undefined && (
                 <p className={`${isMobile ? 'text-xs' : 'text-xs'}`}>
-                  {changePercent > 0 ? '+' : ''}{formatPercentage(changePercent)}
+                  {changePercent > 0 ? '+' : ''}
+                  {formatPercentage(changePercent)}
                 </p>
               )}
             </div>
@@ -155,7 +186,9 @@ const MetricCard = memo(function MetricCard({
   )
 })
 
-const PortfolioMetrics = memo(function PortfolioMetrics({ portfolioId }: PortfolioMetricsProps) {
+const PortfolioMetrics = memo(function PortfolioMetrics({
+  portfolioId,
+}: PortfolioMetricsProps) {
   const { portfolio, loading, error } = usePortfolioState(portfolioId)
   const { priceUpdates, isConnected } = useRealtimeUpdates(portfolioId)
   const { isMobile, isTablet } = useResponsiveLayout()
@@ -168,7 +201,7 @@ const PortfolioMetrics = memo(function PortfolioMetrics({ portfolioId }: Portfol
   if (error) {
     return (
       <div className="mb-6">
-        <AnimatedCard className="p-6 border-red-200 bg-red-50">
+        <AnimatedCard className="border-red-200 bg-red-50 p-6">
           <div className="flex items-center space-x-2 text-red-600">
             <InformationCircleIcon className="h-5 w-5" />
             <p>Kunne ikke laste inn porteføljemålinger: {error}</p>
@@ -179,21 +212,21 @@ const PortfolioMetrics = memo(function PortfolioMetrics({ portfolioId }: Portfol
   }
 
   // Cached expensive calculations
-  const { 
-    totalValue, 
-    totalCost, 
-    totalGainLoss, 
-    totalGainLossPercent, 
+  const {
+    totalValue,
+    totalCost,
+    totalGainLoss,
+    totalGainLossPercent,
     holdingsCount,
     dailyChange,
     dailyChangePercent,
     weeklyChange,
-    monthlyChange
+    monthlyChange,
   } = useMemo(() => {
     // Check cache first
     const cacheKey = CacheKeys.metrics(portfolioId)
     const cached = PortfolioCacheManager.getMetrics(portfolioId)
-    
+
     if (cached && !loading) {
       return cached
     }
@@ -202,12 +235,14 @@ const PortfolioMetrics = memo(function PortfolioMetrics({ portfolioId }: Portfol
     const totalValue = portfolio?.total_value || 0
     const totalCost = portfolio?.total_cost || 0
     const totalGainLoss = totalValue - totalCost
-    const totalGainLossPercent = totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0
+    const totalGainLossPercent =
+      totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0
     const holdingsCount = portfolio?.holdings_count || 0
 
     // Mock daily change (in real app, this would come from historical data)
     const dailyChange = totalValue * (Math.random() - 0.5) * 0.02 // ±1% daily change
-    const dailyChangePercent = totalValue > 0 ? (dailyChange / totalValue) * 100 : 0
+    const dailyChangePercent =
+      totalValue > 0 ? (dailyChange / totalValue) * 100 : 0
 
     // Mock weekly/monthly performance
     const weeklyChange = totalValue * (Math.random() - 0.5) * 0.05 // ±2.5% weekly change
@@ -222,7 +257,7 @@ const PortfolioMetrics = memo(function PortfolioMetrics({ portfolioId }: Portfol
       dailyChange,
       dailyChangePercent,
       weeklyChange,
-      monthlyChange
+      monthlyChange,
     }
 
     // Cache the result
@@ -230,46 +265,60 @@ const PortfolioMetrics = memo(function PortfolioMetrics({ portfolioId }: Portfol
     return result
   }, [portfolio, portfolioId, loading])
 
-  const metrics = useMemo(() => [
-    {
-      title: 'Totalverdi',
-      value: totalValue,
-      format: 'currency' as const,
-      icon: <CurrencyDollarIcon className="h-5 w-5 text-blue-600" />,
-      subtitle: 'Nåværende markedsverdi',
-      trend: dailyChange >= 0 ? 'up' as const : 'down' as const,
-      changeValue: dailyChange,
-      changePercent: dailyChangePercent
-    },
-    {
-      title: 'Total gevinst/tap',
-      value: totalGainLoss,
-      format: 'currency' as const,
-      icon: totalGainLoss >= 0 
-        ? <ArrowTrendingUpIcon className="h-5 w-5 text-green-600" />
-        : <ArrowTrendingDownIcon className="h-5 w-5 text-red-600" />,
-      subtitle: `${formatPercentage(totalGainLossPercent)} av kostbasis`,
-      trend: totalGainLoss >= 0 ? 'up' as const : 'down' as const,
-      changePercent: totalGainLossPercent
-    },
-    {
-      title: 'Kostbasis',
-      value: totalCost,
-      format: 'currency' as const,
-      icon: <ChartBarIcon className="h-5 w-5 text-blue-600" />,
-      subtitle: 'Opprinnelig investering',
-    },
-    {
-      title: 'Beholdninger',
-      value: holdingsCount,
-      format: 'number' as const,
-      icon: <ChartBarIcon className="h-5 w-5 text-blue-600" />,
-      subtitle: 'Antall aktive posisjoner',
-    }
-  ], [totalValue, totalGainLoss, totalCost, holdingsCount, dailyChange, dailyChangePercent, totalGainLossPercent])
+  const metrics = useMemo(
+    () => [
+      {
+        title: 'Totalverdi',
+        value: totalValue,
+        format: 'currency' as const,
+        icon: <CurrencyDollarIcon className="h-5 w-5 text-blue-600" />,
+        subtitle: 'Nåværende markedsverdi',
+        trend: dailyChange >= 0 ? ('up' as const) : ('down' as const),
+        changeValue: dailyChange,
+        changePercent: dailyChangePercent,
+      },
+      {
+        title: 'Total gevinst/tap',
+        value: totalGainLoss,
+        format: 'currency' as const,
+        icon:
+          totalGainLoss >= 0 ? (
+            <ArrowTrendingUpIcon className="h-5 w-5 text-green-600" />
+          ) : (
+            <ArrowTrendingDownIcon className="h-5 w-5 text-red-600" />
+          ),
+        subtitle: `${formatPercentage(totalGainLossPercent)} av kostbasis`,
+        trend: totalGainLoss >= 0 ? ('up' as const) : ('down' as const),
+        changePercent: totalGainLossPercent,
+      },
+      {
+        title: 'Kostbasis',
+        value: totalCost,
+        format: 'currency' as const,
+        icon: <ChartBarIcon className="h-5 w-5 text-blue-600" />,
+        subtitle: 'Opprinnelig investering',
+      },
+      {
+        title: 'Beholdninger',
+        value: holdingsCount,
+        format: 'number' as const,
+        icon: <ChartBarIcon className="h-5 w-5 text-blue-600" />,
+        subtitle: 'Antall aktive posisjoner',
+      },
+    ],
+    [
+      totalValue,
+      totalGainLoss,
+      totalCost,
+      holdingsCount,
+      dailyChange,
+      dailyChangePercent,
+      totalGainLossPercent,
+    ]
+  )
 
   return (
-    <MobileResponsiveWrapper 
+    <MobileResponsiveWrapper
       className="mb-6"
       mobileFirst={true}
       enableAnimations={true}
@@ -282,7 +331,9 @@ const PortfolioMetrics = memo(function PortfolioMetrics({ portfolioId }: Portfol
         {/* Connection Status */}
         {!isConnected && (
           <div className={`mb-4 ${isMobile ? 'px-2' : ''}`}>
-            <div className={`flex items-center space-x-2 text-amber-600 bg-amber-50 px-3 py-2 rounded-lg ${isMobile ? 'text-xs' : 'text-sm'}`}>
+            <div
+              className={`flex items-center space-x-2 rounded-lg bg-amber-50 px-3 py-2 text-amber-600 ${isMobile ? 'text-xs' : 'text-sm'}`}
+            >
               <InformationCircleIcon className="h-4 w-4" />
               <p>Sanntidsoppdateringer er utilgjengelige</p>
             </div>
@@ -304,10 +355,7 @@ const PortfolioMetrics = memo(function PortfolioMetrics({ portfolioId }: Portfol
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 * index }}
             >
-              <MetricCard
-                {...metric}
-                isLoading={loading}
-              />
+              <MetricCard {...metric} isLoading={loading} />
             </motion.div>
           ))}
         </ResponsiveGrid>
@@ -319,60 +367,101 @@ const PortfolioMetrics = memo(function PortfolioMetrics({ portfolioId }: Portfol
           transition={{ duration: 0.5, delay: 0.6 }}
         >
           <AnimatedCard className={`${isMobile ? 'p-4' : 'p-6'}`}>
-            <div className={`flex items-center justify-between mb-4 ${isMobile ? 'flex-col space-y-2' : ''}`}>
-              <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold text-gray-900`}>
+            <div
+              className={`mb-4 flex items-center justify-between ${isMobile ? 'flex-col space-y-2' : ''}`}
+            >
+              <h3
+                className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold text-gray-900`}
+              >
                 Ytelsessammendrag
               </h3>
-              <Badge variant="outline" className={`${isConnected ? 'text-green-600' : 'text-gray-500'} ${isMobile ? 'text-xs' : ''}`}>
+              <Badge
+                variant="outline"
+                className={`${isConnected ? 'text-green-600' : 'text-gray-500'} ${isMobile ? 'text-xs' : ''}`}
+              >
                 {isConnected ? 'Live' : 'Offline'}
               </Badge>
             </div>
-            
+
             <ResponsiveGrid
               mobileColumns={1}
               tabletColumns={3}
               desktopColumns={3}
               gap={isMobile ? 'sm' : 'md'}
             >
-              <div className={`text-center ${isMobile ? 'py-3 border-b border-gray-200' : ''}`}>
-                <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-600`}>I dag</p>
-                <p className={`${isMobile ? 'text-base' : 'text-lg'} font-bold ${
-                  dailyChange >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {dailyChange >= 0 ? '+' : ''}{formatCurrency(dailyChange)}
+              <div
+                className={`text-center ${isMobile ? 'border-b border-gray-200 py-3' : ''}`}
+              >
+                <p
+                  className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-600`}
+                >
+                  I dag
                 </p>
-                <p className={`text-xs ${
-                  dailyChangePercent >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {dailyChangePercent >= 0 ? '+' : ''}{formatPercentage(dailyChangePercent)}
+                <p
+                  className={`${isMobile ? 'text-base' : 'text-lg'} font-bold ${
+                    dailyChange >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}
+                >
+                  {dailyChange >= 0 ? '+' : ''}
+                  {formatCurrency(dailyChange)}
                 </p>
-              </div>
-              
-              <div className={`text-center ${isMobile ? 'py-3 border-b border-gray-200' : ''}`}>
-                <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-600`}>Denne uken</p>
-                <p className={`${isMobile ? 'text-base' : 'text-lg'} font-bold ${
-                  weeklyChange >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {weeklyChange >= 0 ? '+' : ''}{formatCurrency(weeklyChange)}
-                </p>
-                <p className={`text-xs ${
-                  weeklyChange >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {weeklyChange >= 0 ? '+' : ''}{formatPercentage((weeklyChange / totalValue) * 100)}
+                <p
+                  className={`text-xs ${
+                    dailyChangePercent >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}
+                >
+                  {dailyChangePercent >= 0 ? '+' : ''}
+                  {formatPercentage(dailyChangePercent)}
                 </p>
               </div>
-              
+
+              <div
+                className={`text-center ${isMobile ? 'border-b border-gray-200 py-3' : ''}`}
+              >
+                <p
+                  className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-600`}
+                >
+                  Denne uken
+                </p>
+                <p
+                  className={`${isMobile ? 'text-base' : 'text-lg'} font-bold ${
+                    weeklyChange >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}
+                >
+                  {weeklyChange >= 0 ? '+' : ''}
+                  {formatCurrency(weeklyChange)}
+                </p>
+                <p
+                  className={`text-xs ${
+                    weeklyChange >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}
+                >
+                  {weeklyChange >= 0 ? '+' : ''}
+                  {formatPercentage((weeklyChange / totalValue) * 100)}
+                </p>
+              </div>
+
               <div className={`text-center ${isMobile ? 'py-3' : ''}`}>
-                <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-600`}>Denne måneden</p>
-                <p className={`${isMobile ? 'text-base' : 'text-lg'} font-bold ${
-                  monthlyChange >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {monthlyChange >= 0 ? '+' : ''}{formatCurrency(monthlyChange)}
+                <p
+                  className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-600`}
+                >
+                  Denne måneden
                 </p>
-                <p className={`text-xs ${
-                  monthlyChange >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {monthlyChange >= 0 ? '+' : ''}{formatPercentage((monthlyChange / totalValue) * 100)}
+                <p
+                  className={`${isMobile ? 'text-base' : 'text-lg'} font-bold ${
+                    monthlyChange >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}
+                >
+                  {monthlyChange >= 0 ? '+' : ''}
+                  {formatCurrency(monthlyChange)}
+                </p>
+                <p
+                  className={`text-xs ${
+                    monthlyChange >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}
+                >
+                  {monthlyChange >= 0 ? '+' : ''}
+                  {formatPercentage((monthlyChange / totalValue) * 100)}
                 </p>
               </div>
             </ResponsiveGrid>

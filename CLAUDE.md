@@ -1,11 +1,13 @@
 # LifeDash - Claude Development Documentation
 
 ## Project Overview
+
 LifeDash is a Norwegian investment portfolio management application built with Next.js, TypeScript, and Supabase. The application provides comprehensive portfolio tracking with real-time updates, charts, and transaction management.
 
 ## Architecture
 
 ### Frontend
+
 - **Framework**: Next.js 14 with App Router
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS with custom components
@@ -14,12 +16,14 @@ LifeDash is a Norwegian investment portfolio management application built with N
 - **State Management**: React hooks with custom portfolio state management
 
 ### Backend
+
 - **Database**: Supabase (PostgreSQL)
 - **Authentication**: Supabase Auth
 - **Real-time**: Supabase Realtime subscriptions
 - **File Storage**: Supabase Storage
 
 ### Key Features
+
 - Portfolio management across multiple accounts and platforms
 - Real-time stock price updates
 - Interactive charts and analytics
@@ -30,6 +34,7 @@ LifeDash is a Norwegian investment portfolio management application built with N
 ## Recent Development
 
 ### Stock Detail Modal Feature (Jan 2025)
+
 Implemented comprehensive stock detail cards that open when clicking on stocks in the holdings table.
 
 #### Components Added/Modified:
@@ -58,11 +63,13 @@ Implemented comprehensive stock detail cards that open when clicking on stocks i
    - Error handling and fallbacks
 
 #### Data Flow:
+
 ```
 HoldingsSection row click → handleStockClick → setSelectedStock → StockDetailModal
 ```
 
 #### Type Definitions:
+
 - Uses existing `HoldingWithMetrics` interface from portfolio state
 - Compatible with real-time data updates
 - Properly typed for Norwegian currency (NOK)
@@ -70,6 +77,7 @@ HoldingsSection row click → handleStockClick → setSelectedStock → StockDet
 ## Development Commands
 
 ### Testing
+
 ```bash
 npm run build          # Build and check for errors
 npm run lint           # Lint code
@@ -78,6 +86,7 @@ npm test               # Run tests
 ```
 
 ### Development
+
 ```bash
 npm run dev            # Start development server
 npm run format         # Format code with Prettier
@@ -112,17 +121,20 @@ npm run format         # Format code with Prettier
 ## Code Patterns
 
 ### Component Structure
+
 - Use TypeScript interfaces for all props
 - Implement loading states and error handling
 - Follow responsive design patterns
 - Use Norwegian text for user-facing content
 
 ### State Management
+
 - Custom hooks for complex state logic
 - Real-time updates via Supabase subscriptions
 - Optimistic updates for better UX
 
 ### Styling
+
 - Tailwind CSS for all styling
 - Custom component variants using `cva`
 - Mobile-first responsive design
@@ -131,12 +143,14 @@ npm run format         # Format code with Prettier
 ## Integration Points
 
 ### Database Schema
+
 - `holdings` table links portfolios to stocks
 - `stocks` table contains stock metadata
 - `transactions` table tracks all trading activity
 - Real-time subscriptions for live data
 
 ### External APIs
+
 - Yahoo Finance for stock prices (planned)
 - TradingView for charts (planned)
 - Platform APIs for data import
@@ -144,6 +158,7 @@ npm run format         # Format code with Prettier
 ## Future Enhancements
 
 ### Planned Features
+
 1. **TradingView Integration**: Interactive charts in stock detail modal
 2. **Patreon News Feed**: Curated news from subscribed channels
 3. **StockTwits Integration**: Social sentiment data
@@ -151,23 +166,27 @@ npm run format         # Format code with Prettier
 5. **Transaction History**: Complete transaction display with user context
 
 ### Technical Debt
+
 - Transaction fetching needs user context implementation
 - Holding period calculations need proper date handling
 - Mobile layout optimizations for tablet sizes
 
 ## Performance Considerations
+
 - Virtual scrolling for large holding lists
 - Lazy loading of chart components
 - Optimized re-renders with React.memo
 - Smart caching of portfolio data
 
 ## Accessibility
+
 - Proper ARIA labels on interactive elements
 - Keyboard navigation support
 - Screen reader friendly components
 - Touch-friendly mobile interactions
 
 ## Localization
+
 - Norwegian text throughout the application
 - Proper currency formatting (NOK)
 - Date formatting in Norwegian locale

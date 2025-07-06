@@ -1,12 +1,12 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { 
-  Skeleton, 
-  SkeletonCard, 
-  SkeletonChart, 
-  SkeletonList, 
-  SkeletonText 
+import {
+  Skeleton,
+  SkeletonCard,
+  SkeletonChart,
+  SkeletonList,
+  SkeletonText,
 } from '@/components/ui/skeleton'
 import { AnimatedCard } from '@/components/animated'
 
@@ -77,10 +77,10 @@ export function PortfolioMetricsSkeleton({ className }: SkeletonProps) {
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="text-center space-y-2">
-                <Skeleton className="h-4 w-20 mx-auto" />
-                <Skeleton className="h-6 w-24 mx-auto" />
-                <Skeleton className="h-3 w-16 mx-auto" />
+              <div key={i} className="space-y-2 text-center">
+                <Skeleton className="mx-auto h-4 w-20" />
+                <Skeleton className="mx-auto h-6 w-24" />
+                <Skeleton className="mx-auto h-3 w-16" />
               </div>
             ))}
           </div>
@@ -122,7 +122,7 @@ export function HoldingsSectionSkeleton({ className }: SkeletonProps) {
             <Skeleton className="h-10 w-24" />
           </div>
         </div>
-        
+
         {/* Holdings Table Skeleton */}
         <div className="space-y-3">
           {/* Table Header */}
@@ -131,7 +131,7 @@ export function HoldingsSectionSkeleton({ className }: SkeletonProps) {
               <Skeleton key={i} className="h-4 w-full" />
             ))}
           </div>
-          
+
           {/* Table Rows */}
           {[...Array(8)].map((_, i) => (
             <motion.div
@@ -174,11 +174,11 @@ export function PortfolioChartSectionSkeleton({ className }: SkeletonProps) {
             ))}
           </div>
         </div>
-        
+
         {/* Chart Skeleton */}
         <div className="space-y-4">
           <SkeletonChart type="line" height="h-64" />
-          
+
           {/* Chart Controls */}
           <div className="flex items-center justify-between">
             <div className="flex space-x-2">
@@ -200,7 +200,7 @@ export function PortfolioSidebarSkeleton({ className }: SkeletonProps) {
     <div className={`space-y-4 ${className || ''}`}>
       {/* Quick Actions */}
       <AnimatedCard className="p-4">
-        <Skeleton className="h-5 w-32 mb-3" />
+        <Skeleton className="mb-3 h-5 w-32" />
         <div className="space-y-2">
           {[...Array(3)].map((_, i) => (
             <Skeleton key={i} className="h-9 w-full" />
@@ -210,13 +210,13 @@ export function PortfolioSidebarSkeleton({ className }: SkeletonProps) {
 
       {/* Recent Activity */}
       <AnimatedCard className="p-4">
-        <Skeleton className="h-5 w-32 mb-3" />
+        <Skeleton className="mb-3 h-5 w-32" />
         <SkeletonList items={5} showIcon={true} />
       </AnimatedCard>
 
       {/* Portfolio Summary */}
       <AnimatedCard className="p-4">
-        <Skeleton className="h-5 w-32 mb-3" />
+        <Skeleton className="mb-3 h-5 w-32" />
         <div className="space-y-3">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="flex items-center justify-between">
@@ -236,9 +236,9 @@ export function PortfolioDashboardSkeleton({ className }: SkeletonProps) {
     <div className={`space-y-6 ${className || ''}`}>
       <PortfolioHeaderSkeleton />
       <PortfolioMetricsSkeleton />
-      
+
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-        <div className="lg:col-span-3 space-y-6">
+        <div className="space-y-6 lg:col-span-3">
           <PortfolioChartSectionSkeleton />
           <HoldingsSectionSkeleton />
         </div>
@@ -286,15 +286,16 @@ export function RecentActivitySkeleton({ className }: SkeletonProps) {
 }
 
 // Enhanced shimmer skeleton with better animation
-export function ShimmerSkeleton({ 
-  className, 
-  variant = 'default' 
-}: { 
+export function ShimmerSkeleton({
+  className,
+  variant = 'default',
+}: {
   className?: string
   variant?: 'default' | 'card' | 'text' | 'chart'
 }) {
-  const baseClasses = 'relative overflow-hidden bg-neutral-100 dark:bg-neutral-800'
-  
+  const baseClasses =
+    'relative overflow-hidden bg-neutral-100 dark:bg-neutral-800'
+
   const variantClasses = {
     default: 'rounded-md',
     card: 'rounded-lg',
@@ -303,7 +304,9 @@ export function ShimmerSkeleton({
   }
 
   return (
-    <div className={`${baseClasses} ${variantClasses[variant]} ${className || ''}`}>
+    <div
+      className={`${baseClasses} ${variantClasses[variant]} ${className || ''}`}
+    >
       <motion.div
         className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent dark:via-white/5"
         {...shimmerAnimation}

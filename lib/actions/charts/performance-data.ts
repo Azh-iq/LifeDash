@@ -6,13 +6,17 @@ import { unstable_cache } from 'next/cache'
 import { Database } from '@/lib/types/database.types'
 
 // Types for performance data
-type PortfolioSnapshot = Database['public']['Tables']['portfolio_snapshots_enhanced']['Row']
-type PerformanceMetrics = Database['public']['Tables']['performance_metrics']['Row']
+type PortfolioSnapshot =
+  Database['public']['Tables']['portfolio_snapshots_enhanced']['Row']
+type PerformanceMetrics =
+  Database['public']['Tables']['performance_metrics']['Row']
 
 // Validation schemas
 const portfolioPerformanceSchema = z.object({
   portfolioId: z.string().uuid('Invalid portfolio ID'),
-  period: z.enum(['1D', '1W', '1M', '3M', '6M', '1Y', 'YTD', 'ITD', 'ALL']).default('1M'),
+  period: z
+    .enum(['1D', '1W', '1M', '3M', '6M', '1Y', 'YTD', 'ITD', 'ALL'])
+    .default('1M'),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
   granularity: z.enum(['daily', 'weekly', 'monthly']).default('daily'),
@@ -21,7 +25,9 @@ const portfolioPerformanceSchema = z.object({
 
 const multiPortfolioComparisonSchema = z.object({
   portfolioIds: z.array(z.string().uuid()).min(1).max(10),
-  period: z.enum(['1D', '1W', '1M', '3M', '6M', '1Y', 'YTD', 'ITD', 'ALL']).default('1M'),
+  period: z
+    .enum(['1D', '1W', '1M', '3M', '6M', '1Y', 'YTD', 'ITD', 'ALL'])
+    .default('1M'),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
   normalizeToBase: z.boolean().default(true),
@@ -75,7 +81,8 @@ export async function getPortfolioPerformanceData(
 ): Promise<ActionResult<PortfolioPerformanceData>> {
   try {
     const validatedInput = portfolioPerformanceSchema.parse(input)
-    const { portfolioId, period, startDate, endDate, granularity, currency } = validatedInput
+    const { portfolioId, period, startDate, endDate, granularity, currency } =
+      validatedInput
 
     const supabase = createClient()
 
@@ -84,7 +91,7 @@ export async function getPortfolioPerformanceData(
       data: { user },
       error: userError,
     } = await supabase.auth.getUser()
-    
+
     if (userError || !user) {
       return {
         success: false,
@@ -123,19 +130,29 @@ export async function getPortfolioPerformanceData(
         startDateTime = new Date(endDateTime.getTime() - 24 * 60 * 60 * 1000)
         break
       case '1W':
-        startDateTime = new Date(endDateTime.getTime() - 7 * 24 * 60 * 60 * 1000)
+        startDateTime = new Date(
+          endDateTime.getTime() - 7 * 24 * 60 * 60 * 1000
+        )
         break
       case '1M':
-        startDateTime = new Date(endDateTime.getTime() - 30 * 24 * 60 * 60 * 1000)
+        startDateTime = new Date(
+          endDateTime.getTime() - 30 * 24 * 60 * 60 * 1000
+        )
         break
       case '3M':
-        startDateTime = new Date(endDateTime.getTime() - 90 * 24 * 60 * 60 * 1000)
+        startDateTime = new Date(
+          endDateTime.getTime() - 90 * 24 * 60 * 60 * 1000
+        )
         break
       case '6M':
-        startDateTime = new Date(endDateTime.getTime() - 180 * 24 * 60 * 60 * 1000)
+        startDateTime = new Date(
+          endDateTime.getTime() - 180 * 24 * 60 * 60 * 1000
+        )
         break
       case '1Y':
-        startDateTime = new Date(endDateTime.getTime() - 365 * 24 * 60 * 60 * 1000)
+        startDateTime = new Date(
+          endDateTime.getTime() - 365 * 24 * 60 * 60 * 1000
+        )
         break
       case 'YTD':
         startDateTime = new Date(endDateTime.getFullYear(), 0, 1)
@@ -149,8 +166,8 @@ export async function getPortfolioPerformanceData(
           .order('snapshot_date', { ascending: true })
           .limit(1)
           .single()
-        
-        startDateTime = firstSnapshot 
+
+        startDateTime = firstSnapshot
           ? new Date(firstSnapshot.snapshot_date)
           : new Date(endDateTime.getTime() - 365 * 24 * 60 * 60 * 1000)
         break
@@ -158,13 +175,16 @@ export async function getPortfolioPerformanceData(
         startDateTime = new Date('2020-01-01') // Default far back date
         break
       default:
-        startDateTime = startDate ? new Date(startDate) : new Date(endDateTime.getTime() - 30 * 24 * 60 * 60 * 1000)
+        startDateTime = startDate
+          ? new Date(startDate)
+          : new Date(endDateTime.getTime() - 30 * 24 * 60 * 60 * 1000)
     }
 
     // Build query for portfolio snapshots with proper date filtering
     let query = supabase
       .from('portfolio_snapshots_enhanced')
-      .select(`
+      .select(
+        `
         snapshot_date,
         snapshot_time,
         total_value,
@@ -178,7 +198,8 @@ export async function getPortfolioPerformanceData(
         sharpe_ratio,
         max_drawdown_percent,
         currency
-      `)
+      `
+      )
       .eq('portfolio_id', portfolioId)
       .gte('snapshot_date', startDateTime.toISOString().split('T')[0])
       .lte('snapshot_date', endDateTime.toISOString().split('T')[0])
@@ -187,10 +208,14 @@ export async function getPortfolioPerformanceData(
     // Apply granularity filtering for performance
     if (granularity === 'weekly') {
       // For weekly data, we'll take one snapshot per week (e.g., last trading day of each week)
-      query = query.or('date_part(\'dow\', snapshot_date) = 5,snapshot_date = (SELECT MAX(s2.snapshot_date) FROM portfolio_snapshots_enhanced s2 WHERE s2.portfolio_id = portfolio_snapshots_enhanced.portfolio_id AND date_trunc(\'week\', s2.snapshot_date) = date_trunc(\'week\', portfolio_snapshots_enhanced.snapshot_date))')
+      query = query.or(
+        "date_part('dow', snapshot_date) = 5,snapshot_date = (SELECT MAX(s2.snapshot_date) FROM portfolio_snapshots_enhanced s2 WHERE s2.portfolio_id = portfolio_snapshots_enhanced.portfolio_id AND date_trunc('week', s2.snapshot_date) = date_trunc('week', portfolio_snapshots_enhanced.snapshot_date))"
+      )
     } else if (granularity === 'monthly') {
       // For monthly data, take last day of each month
-      query = query.or('snapshot_date = (SELECT MAX(s2.snapshot_date) FROM portfolio_snapshots_enhanced s2 WHERE s2.portfolio_id = portfolio_snapshots_enhanced.portfolio_id AND date_trunc(\'month\', s2.snapshot_date) = date_trunc(\'month\', portfolio_snapshots_enhanced.snapshot_date))')
+      query = query.or(
+        "snapshot_date = (SELECT MAX(s2.snapshot_date) FROM portfolio_snapshots_enhanced s2 WHERE s2.portfolio_id = portfolio_snapshots_enhanced.portfolio_id AND date_trunc('month', s2.snapshot_date) = date_trunc('month', portfolio_snapshots_enhanced.snapshot_date))"
+      )
     }
 
     const { data: snapshots, error: snapshotsError } = await query
@@ -213,7 +238,7 @@ export async function getPortfolioPerformanceData(
     // Transform snapshots into chart data points
     const chartData: ChartDataPoint[] = snapshots.map((snapshot, index) => {
       const previousSnapshot = index > 0 ? snapshots[index - 1] : null
-      
+
       return {
         date: snapshot.snapshot_date,
         value: snapshot.total_value,
@@ -228,18 +253,19 @@ export async function getPortfolioPerformanceData(
           volatility: snapshot.volatility_30d,
           sharpeRatio: snapshot.sharpe_ratio,
           maxDrawdown: snapshot.max_drawdown_percent,
-        }
+        },
       }
     })
 
     // Calculate summary statistics
     const latestSnapshot = snapshots[snapshots.length - 1]
     const firstSnapshot = snapshots[0]
-    
+
     const totalReturn = latestSnapshot.total_value - firstSnapshot.total_value
-    const totalReturnPercent = firstSnapshot.total_value > 0 
-      ? (totalReturn / firstSnapshot.total_value) * 100 
-      : 0
+    const totalReturnPercent =
+      firstSnapshot.total_value > 0
+        ? (totalReturn / firstSnapshot.total_value) * 100
+        : 0
 
     // Find best and worst days
     const dailyReturns = snapshots
@@ -265,7 +291,7 @@ export async function getPortfolioPerformanceData(
         maxDrawdown: latestSnapshot.max_drawdown_percent,
         bestDay,
         worstDay,
-      }
+      },
     }
 
     return {
@@ -274,9 +300,8 @@ export async function getPortfolioPerformanceData(
       metadata: {
         calculatedAt: new Date().toISOString(),
         dataPoints: chartData.length,
-      }
+      },
     }
-
   } catch (error) {
     console.error('Portfolio performance data error:', error)
 
@@ -306,7 +331,7 @@ export const getCachedPortfolioPerformanceData = unstable_cache(
       metadata: {
         ...result.metadata,
         cached: true,
-      }
+      },
     }
   },
   ['portfolio-performance'],
@@ -325,7 +350,8 @@ export async function getMultiPortfolioPerformanceComparison(
 ): Promise<ActionResult<PortfolioPerformanceData[]>> {
   try {
     const validatedInput = multiPortfolioComparisonSchema.parse(input)
-    const { portfolioIds, period, startDate, endDate, normalizeToBase } = validatedInput
+    const { portfolioIds, period, startDate, endDate, normalizeToBase } =
+      validatedInput
 
     const supabase = createClient()
 
@@ -334,7 +360,7 @@ export async function getMultiPortfolioPerformanceComparison(
       data: { user },
       error: userError,
     } = await supabase.auth.getUser()
-    
+
     if (userError || !user) {
       return {
         success: false,
@@ -375,9 +401,10 @@ export async function getMultiPortfolioPerformanceComparison(
         portfolio.data = portfolio.data.map(point => ({
           ...point,
           value: baseValue > 0 ? (point.value / baseValue) * 100 : 100,
-          previousValue: point.previousValue && baseValue > 0 
-            ? (point.previousValue / baseValue) * 100 
-            : undefined,
+          previousValue:
+            point.previousValue && baseValue > 0
+              ? (point.previousValue / baseValue) * 100
+              : undefined,
         }))
       })
     }
@@ -388,9 +415,8 @@ export async function getMultiPortfolioPerformanceComparison(
       metadata: {
         calculatedAt: new Date().toISOString(),
         dataPoints: portfolioData.reduce((sum, p) => sum + p.data.length, 0),
-      }
+      },
     }
-
   } catch (error) {
     console.error('Multi-portfolio comparison error:', error)
 
@@ -424,7 +450,7 @@ export async function getPortfolioMetrics(
       data: { user },
       error: userError,
     } = await supabase.auth.getUser()
-    
+
     if (userError || !user) {
       return {
         success: false,
@@ -464,9 +490,8 @@ export async function getPortfolioMetrics(
       data: metrics,
       metadata: {
         calculatedAt: new Date().toISOString(),
-      }
+      },
     }
-
   } catch (error) {
     console.error('Portfolio metrics error:', error)
     return {
@@ -498,7 +523,7 @@ export async function getPortfolioValueHistory(
       data: { user },
       error: userError,
     } = await supabase.auth.getUser()
-    
+
     if (userError || !user) {
       return {
         success: false,
@@ -513,13 +538,15 @@ export async function getPortfolioValueHistory(
     // Fetch value history with optimized query
     const { data: history, error: historyError } = await supabase
       .from('portfolio_snapshots_enhanced')
-      .select(`
+      .select(
+        `
         snapshot_date,
         total_value,
         day_change,
         day_change_percent,
         currency
-      `)
+      `
+      )
       .eq('portfolio_id', portfolioId)
       .gte('snapshot_date', startDate.toISOString().split('T')[0])
       .order('snapshot_date', { ascending: true })
@@ -547,7 +574,7 @@ export async function getPortfolioValueHistory(
       changePercent: point.day_change_percent,
       metadata: {
         currency: point.currency,
-      }
+      },
     }))
 
     // TODO: Add currency conversion logic here if needed
@@ -560,9 +587,8 @@ export async function getPortfolioValueHistory(
         calculatedAt: new Date().toISOString(),
         dataPoints: chartData.length,
         currency: currency || history[0]?.currency || 'USD',
-      }
+      },
     }
-
   } catch (error) {
     console.error('Portfolio value history error:', error)
     return {

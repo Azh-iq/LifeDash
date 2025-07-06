@@ -34,14 +34,14 @@ export type {
   SchwabCategory,
   SchwabMarket,
   SchwabExchange,
-  SchwabScope
+  SchwabScope,
 } from './types'
 
 // Account sync specific types
 export type {
   SchwabAccountSyncOptions,
   SchwabDataTransformation,
-  SchwabSyncStats
+  SchwabSyncStats,
 } from './account-sync'
 
 // Constants and enums
@@ -54,7 +54,7 @@ export {
   SCHWAB_ASSET_TYPES,
   SCHWAB_MARKETS,
   SCHWAB_CATEGORIES,
-  SCHWAB_EXCHANGES
+  SCHWAB_EXCHANGES,
 } from './types'
 
 // Utility functions and helper classes
@@ -66,10 +66,14 @@ export class SchwabUtils {
     return {
       clientId: process.env.SCHWAB_CLIENT_ID || '',
       clientSecret: process.env.SCHWAB_CLIENT_SECRET || '',
-      redirectUri: process.env.SCHWAB_REDIRECT_URI || 'http://localhost:3000/api/auth/schwab/callback',
+      redirectUri:
+        process.env.SCHWAB_REDIRECT_URI ||
+        'http://localhost:3000/api/auth/schwab/callback',
       scope: ['read', 'AccountAccess.read', 'MarketData.read'],
-      environment: (process.env.SCHWAB_ENVIRONMENT as 'sandbox' | 'production') || 'sandbox',
-      baseUrl: process.env.SCHWAB_BASE_URL || 'https://api.schwabapi.com'
+      environment:
+        (process.env.SCHWAB_ENVIRONMENT as 'sandbox' | 'production') ||
+        'sandbox',
+      baseUrl: process.env.SCHWAB_BASE_URL || 'https://api.schwabapi.com',
     }
   }
 
@@ -79,7 +83,7 @@ export class SchwabUtils {
   static createDefaultSyncConfig(): SchwabSyncConfig {
     const now = new Date()
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-    
+
     return {
       accountIds: [],
       fromDate: thirtyDaysAgo.toISOString().split('T')[0],
@@ -91,7 +95,7 @@ export class SchwabUtils {
       transactionTypes: [],
       autoSync: false,
       syncInterval: 60, // minutes
-      priceUpdateInterval: 15 // minutes
+      priceUpdateInterval: 15, // minutes
     }
   }
 
@@ -106,14 +110,17 @@ export class SchwabUtils {
       updatePrices: true,
       calculatePerformance: true,
       batchSize: 100,
-      maxRetries: 3
+      maxRetries: 3,
     }
   }
 
   /**
    * Validates Schwab API configuration
    */
-  static validateConfig(config: SchwabAuthConfig): { valid: boolean; errors: string[] } {
+  static validateConfig(config: SchwabAuthConfig): {
+    valid: boolean
+    errors: string[]
+  } {
     const errors: string[] = []
 
     if (!config.clientId) {
@@ -154,7 +161,7 @@ export class SchwabUtils {
 
     return {
       valid: errors.length === 0,
-      errors
+      errors,
     }
   }
 
@@ -166,7 +173,7 @@ export class SchwabUtils {
       style: 'currency',
       currency,
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     }).format(amount)
   }
 
@@ -177,7 +184,7 @@ export class SchwabUtils {
     return new Intl.NumberFormat('en-US', {
       style: 'percent',
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     }).format(value / 100)
   }
 
@@ -204,11 +211,17 @@ export class SchwabUtils {
     }
 
     if (symbol.length > 10) {
-      return { valid: false, error: 'Symbol cannot be longer than 10 characters' }
+      return {
+        valid: false,
+        error: 'Symbol cannot be longer than 10 characters',
+      }
     }
 
     if (!/^[A-Z]+$/.test(symbol)) {
-      return { valid: false, error: 'Symbol must contain only uppercase letters' }
+      return {
+        valid: false,
+        error: 'Symbol must contain only uppercase letters',
+      }
     }
 
     return { valid: true }
@@ -266,7 +279,7 @@ export class SchwabUtils {
     for (const session of marketHours.sessionHours.regularMarket) {
       const start = new Date(session.start).getTime()
       const end = new Date(session.end).getTime()
-      
+
       if (currentTime >= start && currentTime <= end) {
         return true
       }
@@ -288,7 +301,7 @@ export class SchwabUtils {
     // Check regular market hours
     for (const session of marketHours.sessionHours.regularMarket) {
       const start = new Date(session.start)
-      
+
       if (start.getTime() > currentTime) {
         if (!nextOpen || start < nextOpen) {
           nextOpen = start
@@ -316,15 +329,16 @@ export class SchwabUtils {
 
     for (const position of positions) {
       const percentage = (position.marketValue / totalValue) * 100
-      
+
       // Asset allocation
       const assetType = position.instrument.assetType
-      assetAllocation[assetType] = (assetAllocation[assetType] || 0) + percentage
+      assetAllocation[assetType] =
+        (assetAllocation[assetType] || 0) + percentage
 
       // Holdings
       holdings.push({
         symbol: position.symbol,
-        percentage
+        percentage,
       })
     }
 
@@ -333,7 +347,10 @@ export class SchwabUtils {
     const topHoldings = holdings.slice(0, 10)
 
     // Calculate diversity score (simplified Herfindahl-Hirschman Index)
-    const hhi = holdings.reduce((sum, holding) => sum + Math.pow(holding.percentage, 2), 0)
+    const hhi = holdings.reduce(
+      (sum, holding) => sum + Math.pow(holding.percentage, 2),
+      0
+    )
     const diversityScore = Math.max(0, 100 - hhi / 100)
 
     return {
@@ -341,7 +358,7 @@ export class SchwabUtils {
       assetAllocation,
       sectorAllocation,
       topHoldings,
-      diversityScore
+      diversityScore,
     }
   }
 
@@ -370,19 +387,19 @@ export class SchwabUtils {
         // SEC fee: $0.00008 per dollar of principal
         regulatoryFees = tradeValue * 0.00008
         break
-      
+
       case 'OPTION':
         // Options: $0.65 per contract
         commission = quantity * 0.65
         regulatoryFees = tradeValue * 0.00008
         break
-      
+
       case 'MUTUAL_FUND':
         // Most mutual funds have $0 commission
         commission = 0
         regulatoryFees = 0
         break
-      
+
       default:
         commission = 0
         regulatoryFees = 0
@@ -391,7 +408,7 @@ export class SchwabUtils {
     return {
       commission,
       regulatoryFees,
-      totalCost: commission + regulatoryFees
+      totalCost: commission + regulatoryFees,
     }
   }
 
@@ -405,32 +422,51 @@ export class SchwabUtils {
     errorRate: number
     recommendations: string[]
   } {
-    const totalDataPoints = syncResult.accountsSynced + syncResult.transactionsSynced + syncResult.positionsSynced
+    const totalDataPoints =
+      syncResult.accountsSynced +
+      syncResult.transactionsSynced +
+      syncResult.positionsSynced
     const successfulDataPoints = totalDataPoints - syncResult.errors.length
-    const successRate = totalDataPoints > 0 ? (successfulDataPoints / totalDataPoints) * 100 : 0
-    const errorRate = totalDataPoints > 0 ? (syncResult.errors.length / totalDataPoints) * 100 : 0
-    
+    const successRate =
+      totalDataPoints > 0 ? (successfulDataPoints / totalDataPoints) * 100 : 0
+    const errorRate =
+      totalDataPoints > 0
+        ? (syncResult.errors.length / totalDataPoints) * 100
+        : 0
+
     // Calculate sync efficiency based on new vs updated data
     const newDataPoints = syncResult.newTransactions + syncResult.newPositions
-    const updatedDataPoints = syncResult.updatedTransactions + syncResult.updatedPositions
-    const syncEfficiency = totalDataPoints > 0 ? (newDataPoints / (newDataPoints + updatedDataPoints)) * 100 : 0
+    const updatedDataPoints =
+      syncResult.updatedTransactions + syncResult.updatedPositions
+    const syncEfficiency =
+      totalDataPoints > 0
+        ? (newDataPoints / (newDataPoints + updatedDataPoints)) * 100
+        : 0
 
     const recommendations: string[] = []
 
     if (successRate < 95) {
-      recommendations.push('Consider investigating sync errors to improve reliability')
+      recommendations.push(
+        'Consider investigating sync errors to improve reliability'
+      )
     }
 
     if (syncResult.errors.length > 0) {
-      recommendations.push('Review error logs to identify common failure patterns')
+      recommendations.push(
+        'Review error logs to identify common failure patterns'
+      )
     }
 
     if (syncResult.warnings.length > 5) {
-      recommendations.push('High number of warnings detected - review sync configuration')
+      recommendations.push(
+        'High number of warnings detected - review sync configuration'
+      )
     }
 
     if (syncEfficiency < 50) {
-      recommendations.push('Consider optimizing sync frequency to reduce redundant updates')
+      recommendations.push(
+        'Consider optimizing sync frequency to reduce redundant updates'
+      )
     }
 
     return {
@@ -438,13 +474,15 @@ export class SchwabUtils {
       totalDataPoints,
       syncEfficiency,
       errorRate,
-      recommendations
+      recommendations,
     }
   }
 }
 
 // Export convenience functions for quick integration
-export const createSchwabClient = (config?: Partial<SchwabAuthConfig>): SchwabApiClient => {
+export const createSchwabClient = (
+  config?: Partial<SchwabAuthConfig>
+): SchwabApiClient => {
   const defaultConfig = SchwabUtils.createDefaultConfig()
   const finalConfig = { ...defaultConfig, ...config }
   return new SchwabApiClient(finalConfig)

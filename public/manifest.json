@@ -162,7 +162,12 @@
       "url": "url"
     }
   },
-  "display_override": ["window-controls-overlay", "minimal-ui", "standalone", "browser"],
+  "display_override": [
+    "window-controls-overlay",
+    "minimal-ui",
+    "standalone",
+    "browser"
+  ],
   "file_handlers": [
     {
       "action": "/import",

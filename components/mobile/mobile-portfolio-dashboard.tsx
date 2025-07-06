@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils/cn'
-import { 
+import {
   ChevronDownIcon,
   ChevronUpIcon,
   ArrowTrendingUpIcon,
@@ -23,7 +23,7 @@ import {
   InformationCircleIcon,
   Cog6ToothIcon,
   ShareIcon,
-  DocumentArrowDownIcon
+  DocumentArrowDownIcon,
 } from '@heroicons/react/24/outline'
 import MobileNavigation, { MobileTopBar } from './mobile-navigation'
 import MobileMetricCards from './mobile-metric-cards'
@@ -34,10 +34,10 @@ import type { MetricData } from './mobile-metric-cards'
 import type { ChartDataPoint } from './mobile-chart'
 import type { Holding } from './mobile-holdings-list'
 import type { ActionSheetItem } from './mobile-action-sheet'
-import { 
+import {
   LoadingPortfolioState,
   EmptyPortfolioState,
-  ErrorPortfolioState
+  ErrorPortfolioState,
 } from '@/components/states'
 import { AnimatedCard, NumberCounter } from '@/components/animated'
 import { usePortfolioState } from '@/lib/hooks/use-portfolio-state'
@@ -61,14 +61,14 @@ interface CollapsibleSectionProps {
   onToggle?: (expanded: boolean) => void
 }
 
-const CollapsibleSection = ({ 
-  title, 
-  subtitle, 
-  children, 
+const CollapsibleSection = ({
+  title,
+  subtitle,
+  children,
   defaultExpanded = true,
   icon,
   badge,
-  onToggle
+  onToggle,
 }: CollapsibleSectionProps) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded)
 
@@ -76,7 +76,7 @@ const CollapsibleSection = ({
     const newExpanded = !isExpanded
     setIsExpanded(newExpanded)
     onToggle?.(newExpanded)
-    
+
     // Haptic feedback
     if ('vibrate' in navigator) {
       navigator.vibrate(50)
@@ -86,21 +86,15 @@ const CollapsibleSection = ({
   return (
     <div className="mb-4">
       <motion.div
-        className="flex items-center justify-between p-4 bg-white rounded-t-lg border-b border-gray-100 cursor-pointer touch-manipulation"
+        className="flex cursor-pointer touch-manipulation items-center justify-between rounded-t-lg border-b border-gray-100 bg-white p-4"
         onClick={handleToggle}
         whileTap={{ scale: 0.98 }}
       >
         <div className="flex items-center space-x-3">
-          {icon && (
-            <div className="p-2 bg-blue-50 rounded-lg">
-              {icon}
-            </div>
-          )}
+          {icon && <div className="rounded-lg bg-blue-50 p-2">{icon}</div>}
           <div>
             <h3 className="font-semibold text-gray-900">{title}</h3>
-            {subtitle && (
-              <p className="text-sm text-gray-600">{subtitle}</p>
-            )}
+            {subtitle && <p className="text-sm text-gray-600">{subtitle}</p>}
           </div>
         </div>
         <div className="flex items-center space-x-2">
@@ -117,7 +111,7 @@ const CollapsibleSection = ({
           </motion.div>
         </div>
       </motion.div>
-      
+
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -127,7 +121,7 @@ const CollapsibleSection = ({
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
-            <div className="bg-white rounded-b-lg border border-t-0 border-gray-200">
+            <div className="rounded-b-lg border border-t-0 border-gray-200 bg-white">
               {children}
             </div>
           </motion.div>
@@ -137,14 +131,14 @@ const CollapsibleSection = ({
   )
 }
 
-const PullToRefresh = ({ 
-  onRefresh, 
-  isRefreshing, 
-  children 
-}: { 
+const PullToRefresh = ({
+  onRefresh,
+  isRefreshing,
+  children,
+}: {
   onRefresh: () => Promise<void>
   isRefreshing: boolean
-  children: React.ReactNode 
+  children: React.ReactNode
 }) => {
   const [isPulling, setIsPulling] = useState(false)
   const [pullDistance, setPullDistance] = useState(0)
@@ -154,15 +148,18 @@ const PullToRefresh = ({
     setStartY(e.touches[0].clientY)
   }, [])
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    const currentY = e.touches[0].clientY
-    const distance = currentY - startY
-    
-    if (distance > 0 && window.scrollY === 0) {
-      setIsPulling(true)
-      setPullDistance(Math.min(distance, 100))
-    }
-  }, [startY])
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      const currentY = e.touches[0].clientY
+      const distance = currentY - startY
+
+      if (distance > 0 && window.scrollY === 0) {
+        setIsPulling(true)
+        setPullDistance(Math.min(distance, 100))
+      }
+    },
+    [startY]
+  )
 
   const handleTouchEnd = useCallback(async () => {
     if (pullDistance > 60) {
@@ -186,17 +183,22 @@ const PullToRefresh = ({
             initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -50 }}
-            className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center py-4 bg-blue-50"
+            className="absolute left-0 right-0 top-0 z-10 flex items-center justify-center bg-blue-50 py-4"
           >
             <div className="flex items-center space-x-2 text-blue-600">
               <motion.div
                 animate={{ rotate: isRefreshing ? 360 : 0 }}
-                transition={{ duration: 1, repeat: isRefreshing ? Infinity : 0 }}
+                transition={{
+                  duration: 1,
+                  repeat: isRefreshing ? Infinity : 0,
+                }}
               >
                 <ArrowPathIcon className="h-5 w-5" />
               </motion.div>
               <span className="text-sm font-medium">
-                {pullDistance > 60 ? 'Slipp for å oppdatere' : 'Dra ned for å oppdatere'}
+                {pullDistance > 60
+                  ? 'Slipp for å oppdatere'
+                  : 'Dra ned for å oppdatere'}
               </span>
             </div>
           </motion.div>
@@ -204,9 +206,9 @@ const PullToRefresh = ({
       </AnimatePresence>
 
       <motion.div
-        style={{ 
+        style={{
           transform: `translateY(${isPulling ? pullDistance * 0.5 : 0}px)`,
-          transition: isPulling ? 'none' : 'transform 0.3s ease'
+          transition: isPulling ? 'none' : 'transform 0.3s ease',
         }}
       >
         {children}
@@ -220,7 +222,7 @@ export default function MobilePortfolioDashboard({
   initialView = 'overview',
   showNavigation = true,
   showTopBar = true,
-  className
+  className,
 }: MobilePortfolioDashboardProps) {
   const router = useRouter()
   const [currentView, setCurrentView] = useState(initialView)
@@ -230,34 +232,34 @@ export default function MobilePortfolioDashboard({
     overview: true,
     holdings: true,
     performance: true,
-    activity: false
+    activity: false,
   })
 
   // Portfolio state management
-  const { 
-    portfolio, 
-    loading, 
-    error, 
-    refresh, 
-    holdings, 
-    holdingsLoading, 
-    metrics, 
-    realtimePrices, 
-    isPricesConnected 
+  const {
+    portfolio,
+    loading,
+    error,
+    refresh,
+    holdings,
+    holdingsLoading,
+    metrics,
+    realtimePrices,
+    isPricesConnected,
   } = usePortfolioState(portfolioId, {
     enableRealtime: true,
     includeHoldings: true,
     autoRefresh: true,
-    refreshInterval: 30000
+    refreshInterval: 30000,
   })
 
   // Simple refresh management
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastRefresh, setLastRefresh] = useState(Date.now())
-  
+
   const performRefresh = async () => {
     if (isRefreshing) return
-    
+
     setIsRefreshing(true)
     try {
       await refresh()
@@ -298,7 +300,7 @@ export default function MobilePortfolioDashboard({
       icon: BanknotesIcon,
       color: 'blue',
       format: 'currency',
-      subtitle: 'Markedsverdi'
+      subtitle: 'Markedsverdi',
     },
     {
       id: 'total-return',
@@ -310,7 +312,7 @@ export default function MobilePortfolioDashboard({
       trend: metrics.totalGainLoss >= 0 ? 'up' : 'down',
       icon: ArrowTrendingUpIcon,
       color: metrics.totalGainLoss >= 0 ? 'green' : 'red',
-      format: 'percentage'
+      format: 'percentage',
     },
     {
       id: 'holdings-count',
@@ -319,7 +321,7 @@ export default function MobilePortfolioDashboard({
       icon: ChartBarIcon,
       color: 'purple',
       format: 'number',
-      subtitle: 'Aktive beholdninger'
+      subtitle: 'Aktive beholdninger',
     },
     {
       id: 'cost-basis',
@@ -328,27 +330,27 @@ export default function MobilePortfolioDashboard({
       icon: BanknotesIcon,
       color: 'gray',
       format: 'currency',
-      subtitle: 'Investert beløp'
-    }
+      subtitle: 'Investert beløp',
+    },
   ]
 
   // Prepare chart data (mock data - in production, fetch from API)
   const chartData: ChartDataPoint[] = useMemo(() => {
     const now = Date.now()
     const data: ChartDataPoint[] = []
-    
+
     for (let i = 29; i >= 0; i--) {
       const date = new Date(now - i * 24 * 60 * 60 * 1000)
       const baseValue = metrics.totalValue || 100000
       const variation = (Math.random() - 0.5) * 0.05 * baseValue
-      
+
       data.push({
         date: date.toISOString().split('T')[0],
         value: baseValue + variation,
-        timestamp: date.getTime()
+        timestamp: date.getTime(),
       })
     }
-    
+
     return data
   }, [metrics.totalValue])
 
@@ -364,7 +366,7 @@ export default function MobilePortfolioDashboard({
     unrealizedPL: holding.gain_loss,
     unrealizedPLPercent: holding.gain_loss_percent,
     sector: holding.stocks?.sector,
-    lastUpdated: new Date()
+    lastUpdated: new Date(),
   }))
 
   // Action sheet items
@@ -373,32 +375,32 @@ export default function MobilePortfolioDashboard({
       id: 'add-holding',
       title: 'Legg til posisjon',
       icon: PlusIcon,
-      action: () => router.push(`/investments/portfolios/${portfolioId}/add`)
+      action: () => router.push(`/investments/portfolios/${portfolioId}/add`),
     },
     {
       id: 'edit-portfolio',
       title: 'Rediger portefølje',
       icon: Cog6ToothIcon,
-      action: () => router.push(`/investments/portfolios/${portfolioId}/edit`)
+      action: () => router.push(`/investments/portfolios/${portfolioId}/edit`),
     },
     {
       id: 'share-portfolio',
       title: 'Del portefølje',
       icon: ShareIcon,
-      action: () => console.log('Share portfolio')
+      action: () => console.log('Share portfolio'),
     },
     {
       id: 'export-data',
       title: 'Eksporter data',
       icon: DocumentArrowDownIcon,
-      action: () => console.log('Export data')
-    }
+      action: () => console.log('Export data'),
+    },
   ]
 
   const handleSectionToggle = (section: string, expanded: boolean) => {
     setExpandedSections(prev => ({
       ...prev,
-      [section]: expanded
+      [section]: expanded,
     }))
   }
 
@@ -412,7 +414,7 @@ export default function MobilePortfolioDashboard({
       style: 'currency',
       currency: 'NOK',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(value)
   }
 
@@ -444,10 +446,12 @@ export default function MobilePortfolioDashboard({
                 )}
               </Button>
               <div className="flex items-center space-x-1">
-                <div className={cn(
-                  'w-2 h-2 rounded-full',
-                  isPricesConnected ? 'bg-green-500' : 'bg-gray-400'
-                )} />
+                <div
+                  className={cn(
+                    'h-2 w-2 rounded-full',
+                    isPricesConnected ? 'bg-green-500' : 'bg-gray-400'
+                  )}
+                />
                 <span className="text-xs text-gray-600">
                   {isPricesConnected ? 'Live' : 'Offline'}
                 </span>
@@ -458,19 +462,22 @@ export default function MobilePortfolioDashboard({
       )}
 
       {/* Main Content */}
-      <div className="pt-16 pb-20">
+      <div className="pb-20 pt-16">
         <PullToRefresh onRefresh={handleRefresh} isRefreshing={isRefreshing}>
-          <div className="px-4 py-6 space-y-6">
+          <div className="space-y-6 px-4 py-6">
             {/* Portfolio Overview */}
             <CollapsibleSection
               title="Porteføljeoversikt"
-              subtitle={`Oppdatert ${new Date(lastRefresh).toLocaleTimeString('nb-NO', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-              })}`}
+              subtitle={`Oppdatert ${new Date(lastRefresh).toLocaleTimeString(
+                'nb-NO',
+                {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                }
+              )}`}
               defaultExpanded={expandedSections.overview}
               icon={<BanknotesIcon className="h-5 w-5 text-blue-600" />}
-              onToggle={(expanded) => handleSectionToggle('overview', expanded)}
+              onToggle={expanded => handleSectionToggle('overview', expanded)}
             >
               <div className="p-4">
                 <MobileMetricCards
@@ -489,8 +496,12 @@ export default function MobilePortfolioDashboard({
               subtitle="Siste 30 dager"
               defaultExpanded={expandedSections.performance}
               icon={<ChartBarIcon className="h-5 w-5 text-blue-600" />}
-              badge={formatPercentage(metrics.performanceMetrics.dailyChangePercent)}
-              onToggle={(expanded) => handleSectionToggle('performance', expanded)}
+              badge={formatPercentage(
+                metrics.performanceMetrics.dailyChangePercent
+              )}
+              onToggle={expanded =>
+                handleSectionToggle('performance', expanded)
+              }
             >
               <div className="p-4">
                 <MobileChart
@@ -510,39 +521,51 @@ export default function MobilePortfolioDashboard({
               defaultExpanded={expandedSections.holdings}
               icon={<ChartBarIcon className="h-5 w-5 text-blue-600" />}
               badge={holdings.length}
-              onToggle={(expanded) => handleSectionToggle('holdings', expanded)}
+              onToggle={expanded => handleSectionToggle('holdings', expanded)}
             >
               <div className="p-4">
                 {holdingsLoading ? (
                   <div className="space-y-4">
                     {[1, 2, 3].map(i => (
                       <div key={i} className="animate-pulse">
-                        <div className="h-20 bg-gray-200 rounded-lg" />
+                        <div className="h-20 rounded-lg bg-gray-200" />
                       </div>
                     ))}
                   </div>
                 ) : holdings.length === 0 ? (
-                  <div className="text-center py-8">
+                  <div className="py-8 text-center">
                     <div className="mb-4">
-                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
                         <PlusIcon className="h-8 w-8 text-blue-600" />
                       </div>
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Ingen beholdninger</h3>
-                    <p className="text-gray-600 mb-4">Legg til dine første aksjer for å komme i gang</p>
-                    <Button 
-                      onClick={() => router.push(`/investments/portfolios/${portfolioId}/add`)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                      Ingen beholdninger
+                    </h3>
+                    <p className="mb-4 text-gray-600">
+                      Legg til dine første aksjer for å komme i gang
+                    </p>
+                    <Button
+                      onClick={() =>
+                        router.push(
+                          `/investments/portfolios/${portfolioId}/add`
+                        )
+                      }
+                      className="bg-blue-600 text-white hover:bg-blue-700"
                     >
-                      <PlusIcon className="h-4 w-4 mr-2" />
+                      <PlusIcon className="mr-2 h-4 w-4" />
                       Legg til aksje
                     </Button>
                   </div>
                 ) : (
                   <MobileHoldingsList
                     holdings={mobileHoldings}
-                    onEdit={(holding) => router.push(`/investments/holdings/${holding.id}/edit`)}
-                    onDelete={(holding) => console.log('Delete holding:', holding.id)}
+                    onEdit={holding =>
+                      router.push(`/investments/holdings/${holding.id}/edit`)
+                    }
+                    onDelete={holding =>
+                      console.log('Delete holding:', holding.id)
+                    }
                     onRefresh={handleRefresh}
                     isRefreshing={isRefreshing}
                   />
@@ -556,13 +579,13 @@ export default function MobilePortfolioDashboard({
               subtitle="Transaksjoner og oppdateringer"
               defaultExpanded={expandedSections.activity}
               icon={<ClockIcon className="h-5 w-5 text-blue-600" />}
-              onToggle={(expanded) => handleSectionToggle('activity', expanded)}
+              onToggle={expanded => handleSectionToggle('activity', expanded)}
             >
               <div className="p-4">
-                <div className="text-center py-8">
-                  <InformationCircleIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <div className="py-8 text-center">
+                  <InformationCircleIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                   <p className="text-gray-600">Ingen nylig aktivitet</p>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="mt-1 text-sm text-gray-500">
                     Transaksjoner og oppdateringer vises her
                   </p>
                 </div>

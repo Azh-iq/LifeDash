@@ -262,7 +262,9 @@ export default function EconomyPage() {
               <div className="text-right">
                 <p className="text-sm text-white/70">Finansiell helse</p>
                 <p className="font-semibold text-white">
-                  {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Bruker'}
+                  {user?.user_metadata?.full_name ||
+                    user?.email?.split('@')[0] ||
+                    'Bruker'}
                 </p>
               </div>
               <button

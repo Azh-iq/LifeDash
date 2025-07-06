@@ -74,26 +74,26 @@ const formatPercentage = (value: number): string => {
 // Date formatter
 const formatDate = (dateString: string, timeRange?: string): string => {
   const date = new Date(dateString)
-  
+
   switch (timeRange) {
     case '1W':
     case '1M':
-      return date.toLocaleDateString('nb-NO', { 
-        weekday: 'short', 
-        month: 'short', 
-        day: 'numeric' 
+      return date.toLocaleDateString('nb-NO', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
       })
     case '3M':
     case '6M':
-      return date.toLocaleDateString('nb-NO', { 
-        month: 'short', 
-        day: 'numeric' 
+      return date.toLocaleDateString('nb-NO', {
+        month: 'short',
+        day: 'numeric',
       })
     case '1Y':
     case 'ALL':
-      return date.toLocaleDateString('nb-NO', { 
-        year: 'numeric', 
-        month: 'short' 
+      return date.toLocaleDateString('nb-NO', {
+        year: 'numeric',
+        month: 'short',
       })
     default:
       return date.toLocaleDateString('nb-NO')
@@ -101,24 +101,34 @@ const formatDate = (dateString: string, timeRange?: string): string => {
 }
 
 // Normalize data to percentage or indexed view
-const normalizeData = (data: PerformanceDataPoint[], key: string, baselineValue: number = 100): PerformanceDataPoint[] => {
+const normalizeData = (
+  data: PerformanceDataPoint[],
+  key: string,
+  baselineValue: number = 100
+): PerformanceDataPoint[] => {
   if (data.length === 0) return []
-  
+
   const firstValue = data[0][key] as number
   if (firstValue === 0) return data
-  
+
   return data.map(point => ({
     ...point,
-    [key]: ((point[key] as number) / firstValue) * baselineValue
+    [key]: ((point[key] as number) / firstValue) * baselineValue,
   }))
 }
 
 // Custom tooltip component
-const CustomTooltip = ({ active, payload, label, currency, baselineValue }: any) => {
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+  currency,
+  baselineValue,
+}: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="rounded-lg border bg-white p-3 shadow-lg dark:bg-neutral-950 dark:border-neutral-800">
-        <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-2">
+      <div className="rounded-lg border bg-white p-3 shadow-lg dark:border-neutral-800 dark:bg-neutral-950">
+        <p className="mb-2 text-sm font-medium text-neutral-900 dark:text-neutral-100">
           {new Date(label).toLocaleDateString('nb-NO', {
             weekday: 'long',
             year: 'numeric',
@@ -128,10 +138,13 @@ const CustomTooltip = ({ active, payload, label, currency, baselineValue }: any)
         </p>
         <div className="space-y-1">
           {payload.map((entry: any, index: number) => (
-            <div key={index} className="flex items-center justify-between gap-4">
+            <div
+              key={index}
+              className="flex items-center justify-between gap-4"
+            >
               <div className="flex items-center gap-2">
-                <div 
-                  className="w-3 h-3 rounded-full"
+                <div
+                  className="h-3 w-3 rounded-full"
                   style={{ backgroundColor: entry.color }}
                 />
                 <span className="text-sm text-neutral-600 dark:text-neutral-400">
@@ -139,10 +152,9 @@ const CustomTooltip = ({ active, payload, label, currency, baselineValue }: any)
                 </span>
               </div>
               <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                {baselineValue === 100 
+                {baselineValue === 100
                   ? formatPercentage(entry.value - 100)
-                  : formatNOK(entry.value)
-                }
+                  : formatNOK(entry.value)}
               </span>
             </div>
           ))}
@@ -154,19 +166,23 @@ const CustomTooltip = ({ active, payload, label, currency, baselineValue }: any)
 }
 
 // Performance stats component
-const PerformanceStats = ({ comparisons }: { comparisons: PerformanceComparison[] }) => {
+const PerformanceStats = ({
+  comparisons,
+}: {
+  comparisons: PerformanceComparison[]
+}) => {
   const visibleComparisons = comparisons.filter(c => c.isVisible !== false)
-  
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-      {visibleComparisons.map((comparison) => (
-        <div 
+    <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {visibleComparisons.map(comparison => (
+        <div
           key={comparison.id}
-          className="p-3 rounded-lg border bg-neutral-50 dark:bg-neutral-900/50 dark:border-neutral-800"
+          className="rounded-lg border bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900/50"
         >
-          <div className="flex items-center gap-2 mb-2">
-            <div 
-              className="w-3 h-3 rounded-full"
+          <div className="mb-2 flex items-center gap-2">
+            <div
+              className="h-3 w-3 rounded-full"
               style={{ backgroundColor: comparison.color }}
             />
             <h4 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
@@ -181,7 +197,9 @@ const PerformanceStats = ({ comparisons }: { comparisons: PerformanceComparison[
           <div className="space-y-1">
             {comparison.currentValue && (
               <div className="flex justify-between text-sm">
-                <span className="text-neutral-600 dark:text-neutral-400">Verdi:</span>
+                <span className="text-neutral-600 dark:text-neutral-400">
+                  Verdi:
+                </span>
                 <span className="font-medium text-neutral-900 dark:text-neutral-100">
                   {formatNOK(comparison.currentValue)}
                 </span>
@@ -189,27 +207,37 @@ const PerformanceStats = ({ comparisons }: { comparisons: PerformanceComparison[
             )}
             {comparison.totalReturn && (
               <div className="flex justify-between text-sm">
-                <span className="text-neutral-600 dark:text-neutral-400">Avkastning:</span>
-                <span className={cn(
-                  "font-medium",
-                  comparison.totalReturn >= 0 
-                    ? "text-green-600 dark:text-green-400" 
-                    : "text-red-600 dark:text-red-400"
-                )}>
-                  {comparison.totalReturn >= 0 ? '+' : ''}{formatNOK(comparison.totalReturn)}
+                <span className="text-neutral-600 dark:text-neutral-400">
+                  Avkastning:
+                </span>
+                <span
+                  className={cn(
+                    'font-medium',
+                    comparison.totalReturn >= 0
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-red-600 dark:text-red-400'
+                  )}
+                >
+                  {comparison.totalReturn >= 0 ? '+' : ''}
+                  {formatNOK(comparison.totalReturn)}
                 </span>
               </div>
             )}
             {comparison.totalReturnPercent !== undefined && (
               <div className="flex justify-between text-sm">
-                <span className="text-neutral-600 dark:text-neutral-400">Prosent:</span>
-                <span className={cn(
-                  "font-medium",
-                  comparison.totalReturnPercent >= 0 
-                    ? "text-green-600 dark:text-green-400" 
-                    : "text-red-600 dark:text-red-400"
-                )}>
-                  {comparison.totalReturnPercent >= 0 ? '+' : ''}{formatPercentage(comparison.totalReturnPercent)}
+                <span className="text-neutral-600 dark:text-neutral-400">
+                  Prosent:
+                </span>
+                <span
+                  className={cn(
+                    'font-medium',
+                    comparison.totalReturnPercent >= 0
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-red-600 dark:text-red-400'
+                  )}
+                >
+                  {comparison.totalReturnPercent >= 0 ? '+' : ''}
+                  {formatPercentage(comparison.totalReturnPercent)}
                 </span>
               </div>
             )}
@@ -230,7 +258,7 @@ const ChartSkeleton = ({ height = 400 }: { height?: number }) => (
 // Main component
 export const PerformanceComparisonChart = ({
   comparisons,
-  title = "Portefølje Sammenligning",
+  title = 'Portefølje Sammenligning',
   className,
   height = 400,
   showGrid = true,
@@ -244,19 +272,19 @@ export const PerformanceComparisonChart = ({
   // Merge all data points by date
   const chartData = useMemo(() => {
     if (!comparisons || comparisons.length === 0) return []
-    
+
     const visibleComparisons = comparisons.filter(c => c.isVisible !== false)
     if (visibleComparisons.length === 0) return []
-    
+
     // Get all unique dates
     const allDates = new Set<string>()
     visibleComparisons.forEach(comparison => {
       comparison.data.forEach(point => allDates.add(point.date))
     })
-    
+
     // Sort dates
     const sortedDates = Array.from(allDates).sort()
-    
+
     // Create merged data
     return sortedDates.map(date => {
       const dataPoint: PerformanceDataPoint = {
@@ -264,19 +292,20 @@ export const PerformanceComparisonChart = ({
         timestamp: new Date(date).getTime(),
         formattedDate: formatDate(date, timeRange),
       }
-      
+
       // Add data for each visible comparison
       visibleComparisons.forEach(comparison => {
         const point = comparison.data.find(p => p.date === date)
         if (point) {
           // Normalize data if baseline value is provided
           const value = point[comparison.id] as number
-          dataPoint[comparison.id] = baselineValue === 100 
-            ? ((value / comparison.data[0][comparison.id] as number) * 100)
-            : value
+          dataPoint[comparison.id] =
+            baselineValue === 100
+              ? ((value / comparison.data[0][comparison.id]) as number) * 100
+              : value
         }
       })
-      
+
       return dataPoint
     })
   }, [comparisons, timeRange, baselineValue])
@@ -288,7 +317,7 @@ export const PerformanceComparisonChart = ({
 
   if (isLoading) {
     return (
-      <Card className={cn("w-full", className)}>
+      <Card className={cn('w-full', className)}>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">{title}</CardTitle>
         </CardHeader>
@@ -301,12 +330,12 @@ export const PerformanceComparisonChart = ({
 
   if (!comparisons || comparisons.length === 0 || chartData.length === 0) {
     return (
-      <Card className={cn("w-full", className)}>
+      <Card className={cn('w-full', className)}>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">{title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div 
+          <div
             className="flex items-center justify-center text-neutral-500 dark:text-neutral-400"
             style={{ height }}
           >
@@ -318,7 +347,7 @@ export const PerformanceComparisonChart = ({
   }
 
   return (
-    <Card className={cn("w-full", className)}>
+    <Card className={cn('w-full', className)}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold">{title}</CardTitle>
@@ -326,7 +355,9 @@ export const PerformanceComparisonChart = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => {/* Toggle normalized view */}}
+              onClick={() => {
+                /* Toggle normalized view */
+              }}
               className="h-8 px-3 text-xs"
             >
               {baselineValue === 100 ? 'Prosent' : 'Verdi'}
@@ -339,54 +370,63 @@ export const PerformanceComparisonChart = ({
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={height}>
-          <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+          <LineChart
+            data={chartData}
+            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+          >
             {showGrid && (
-              <CartesianGrid 
-                strokeDasharray="3 3" 
-                className="stroke-neutral-200 dark:stroke-neutral-800" 
+              <CartesianGrid
+                strokeDasharray="3 3"
+                className="stroke-neutral-200 dark:stroke-neutral-800"
               />
             )}
-            <XAxis 
+            <XAxis
               dataKey="formattedDate"
               axisLine={false}
               tickLine={false}
               tick={{ fontSize: 12 }}
               className="fill-neutral-600 dark:fill-neutral-400"
             />
-            <YAxis 
+            <YAxis
               axisLine={false}
               tickLine={false}
               tick={{ fontSize: 12 }}
-              tickFormatter={baselineValue === 100 ? 
-                (value: number) => `${value.toFixed(0)}%` : 
-                formatNOK
+              tickFormatter={
+                baselineValue === 100
+                  ? (value: number) => `${value.toFixed(0)}%`
+                  : formatNOK
               }
               className="fill-neutral-600 dark:fill-neutral-400"
             />
-            <Tooltip 
-              content={<CustomTooltip currency={currency} baselineValue={baselineValue} />} 
+            <Tooltip
+              content={
+                <CustomTooltip
+                  currency={currency}
+                  baselineValue={baselineValue}
+                />
+              }
             />
             {showLegend && <Legend />}
-            
+
             {/* Baseline reference line for percentage view */}
             {baselineValue === 100 && (
-              <ReferenceLine 
-                y={100} 
-                stroke="#6b7280" 
-                strokeDasharray="5 5" 
+              <ReferenceLine
+                y={100}
+                stroke="#6b7280"
+                strokeDasharray="5 5"
                 className="stroke-neutral-400 dark:stroke-neutral-500"
               />
             )}
-            
+
             {/* Render lines for each comparison */}
-            {visibleComparisons.map((comparison) => (
+            {visibleComparisons.map(comparison => (
               <Line
                 key={comparison.id}
                 type="monotone"
                 dataKey={comparison.id}
                 stroke={comparison.color}
                 strokeWidth={comparison.isBenchmark ? 2 : 3}
-                strokeDasharray={comparison.isBenchmark ? "5 5" : "0"}
+                strokeDasharray={comparison.isBenchmark ? '5 5' : '0'}
                 dot={false}
                 activeDot={{ r: 6, fill: comparison.color }}
                 name={comparison.name}
@@ -395,7 +435,7 @@ export const PerformanceComparisonChart = ({
             ))}
           </LineChart>
         </ResponsiveContainer>
-        
+
         {/* Performance statistics */}
         <PerformanceStats comparisons={visibleComparisons} />
       </CardContent>

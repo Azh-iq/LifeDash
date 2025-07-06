@@ -12,21 +12,46 @@ import {
   NORDNET_CURRENCIES,
   NORWEGIAN_CHARS,
   ISIN_PATTERN,
-  NORDNET_DATE_FORMATS
+  NORDNET_DATE_FORMATS,
 } from './types'
 
 export class NordnetCSVParser {
   private static readonly NORDNET_HEADERS = [
-    'Id', 'Bokføringsdag', 'Handelsdag', 'Oppgjørsdag', 'Portefølje',
-    'Transaksjonstype', 'Verdipapir', 'ISIN', 'Antall', 'Kurs', 'Rente',
-    'Totale Avgifter', 'Valuta', 'Beløp', 'Kjøpsverdi', 'Resultat',
-    'Totalt antall', 'Saldo', 'Vekslingskurs', 'Transaksjonstekst',
-    'Makuleringsddato', 'Sluttseddelnummer', 'Verifikasjonsnummer',
-    'Kurtasje', 'Valutakurs', 'Innledende rente'
+    'Id',
+    'Bokføringsdag',
+    'Handelsdag',
+    'Oppgjørsdag',
+    'Portefølje',
+    'Transaksjonstype',
+    'Verdipapir',
+    'ISIN',
+    'Antall',
+    'Kurs',
+    'Rente',
+    'Totale Avgifter',
+    'Valuta',
+    'Beløp',
+    'Kjøpsverdi',
+    'Resultat',
+    'Totalt antall',
+    'Saldo',
+    'Vekslingskurs',
+    'Transaksjonstekst',
+    'Makuleringsddato',
+    'Sluttseddelnummer',
+    'Verifikasjonsnummer',
+    'Kurtasje',
+    'Valutakurs',
+    'Innledende rente',
   ]
 
   private static readonly REQUIRED_HEADERS = [
-    'Id', 'Bokføringsdag', 'Transaksjonstype', 'Portefølje', 'Beløp', 'Valuta'
+    'Id',
+    'Bokføringsdag',
+    'Transaksjonstype',
+    'Portefølje',
+    'Beløp',
+    'Valuta',
   ]
 
   private static readonly MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
@@ -40,7 +65,7 @@ export class NordnetCSVParser {
     if (file.size > this.MAX_FILE_SIZE) {
       return {
         valid: false,
-        error: `File size exceeds 50MB limit. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`
+        error: `File size exceeds 50MB limit. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`,
       }
     }
 
@@ -49,7 +74,7 @@ export class NordnetCSVParser {
     if (!this.SUPPORTED_EXTENSIONS.includes(extension)) {
       return {
         valid: false,
-        error: `Unsupported file type. Please upload a CSV file (.csv or .txt)`
+        error: `Unsupported file type. Please upload a CSV file (.csv or .txt)`,
       }
     }
 
@@ -61,14 +86,16 @@ export class NordnetCSVParser {
       /transactions/i,
       /rapport/i,
       /export/i,
-      /\d{8,12}.*\.csv$/i // Numeric ID pattern
+      /\d{8,12}.*\.csv$/i, // Numeric ID pattern
     ]
 
-    const hasNordnetPattern = nordnetPatterns.some(pattern => pattern.test(filename))
+    const hasNordnetPattern = nordnetPatterns.some(pattern =>
+      pattern.test(filename)
+    )
     if (!hasNordnetPattern) {
       return {
         valid: true,
-        error: `File name doesn't match typical Nordnet export patterns. Please verify this is a Nordnet CSV export file.`
+        error: `File name doesn't match typical Nordnet export patterns. Please verify this is a Nordnet CSV export file.`,
       }
     }
 
@@ -83,17 +110,22 @@ export class NordnetCSVParser {
       // Read first 1KB to detect encoding
       const buffer = await file.slice(0, 1024).arrayBuffer()
       const bytes = new Uint8Array(buffer)
-      
+
       // Check for BOM markers
-      if (bytes.length >= 3 && bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF) {
+      if (
+        bytes.length >= 3 &&
+        bytes[0] === 0xef &&
+        bytes[1] === 0xbb &&
+        bytes[2] === 0xbf
+      ) {
         return 'utf-8'
       }
-      
-      if (bytes.length >= 2 && bytes[0] === 0xFF && bytes[1] === 0xFE) {
+
+      if (bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe) {
         return 'utf-16le'
       }
-      
-      if (bytes.length >= 2 && bytes[0] === 0xFE && bytes[1] === 0xFF) {
+
+      if (bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff) {
         return 'utf-16be'
       }
 
@@ -101,7 +133,7 @@ export class NordnetCSVParser {
       try {
         const decoder = new TextDecoder('utf-8', { fatal: true })
         const text = decoder.decode(bytes)
-        
+
         // Check for Norwegian characters which are common in Nordnet exports
         const norwegianChars = /[æøåÆØÅ]/
         if (norwegianChars.test(text)) {
@@ -117,12 +149,12 @@ export class NordnetCSVParser {
         try {
           const decoder = new TextDecoder(encoding, { fatal: true })
           const text = decoder.decode(bytes)
-          
+
           // Check if we can find typical Nordnet headers
-          const hasNordnetHeaders = this.NORDNET_HEADERS.some(header => 
+          const hasNordnetHeaders = this.NORDNET_HEADERS.some(header =>
             text.includes(header)
           )
-          
+
           if (hasNordnetHeaders) {
             return encoding
           }
@@ -149,7 +181,7 @@ export class NordnetCSVParser {
     for (const delimiter of delimiters) {
       const firstLine = text.split('\n')[0]
       const columns = firstLine.split(delimiter).length
-      
+
       if (columns > maxColumns) {
         maxColumns = columns
         bestDelimiter = delimiter
@@ -180,37 +212,49 @@ export class NordnetCSVParser {
   /**
    * Validates that the CSV has the expected Nordnet structure
    */
-  private static validateNordnetStructure(headers: string[]): NordnetValidationResult {
+  private static validateNordnetStructure(
+    headers: string[]
+  ): NordnetValidationResult {
     const errors: string[] = []
     const warnings: string[] = []
     const suggestions: string[] = []
 
     // Check for required headers
     const missingRequired = this.REQUIRED_HEADERS.filter(
-      required => !headers.some(header => header.toLowerCase().includes(required.toLowerCase()))
+      required =>
+        !headers.some(header =>
+          header.toLowerCase().includes(required.toLowerCase())
+        )
     )
 
     if (missingRequired.length > 0) {
-      errors.push(`Missing required Nordnet headers: ${missingRequired.join(', ')}`)
+      errors.push(
+        `Missing required Nordnet headers: ${missingRequired.join(', ')}`
+      )
     }
 
     // Check for expected Nordnet headers
     const expectedHeaders = this.NORDNET_HEADERS
     const foundHeaders = headers.filter(header =>
-      expectedHeaders.some(expected => 
-        header.toLowerCase().includes(expected.toLowerCase()) ||
-        expected.toLowerCase().includes(header.toLowerCase())
+      expectedHeaders.some(
+        expected =>
+          header.toLowerCase().includes(expected.toLowerCase()) ||
+          expected.toLowerCase().includes(header.toLowerCase())
       )
     )
 
     if (foundHeaders.length < expectedHeaders.length * 0.6) {
-      warnings.push(`Only ${foundHeaders.length} out of ${expectedHeaders.length} expected Nordnet headers found`)
+      warnings.push(
+        `Only ${foundHeaders.length} out of ${expectedHeaders.length} expected Nordnet headers found`
+      )
       suggestions.push('Verify this is a Nordnet CSV export file')
     }
 
     // Check for suspicious patterns
     if (headers.some(header => /[^\x00-\x7F]/.test(header))) {
-      warnings.push('Non-ASCII characters detected in headers - encoding issues may occur')
+      warnings.push(
+        'Non-ASCII characters detected in headers - encoding issues may occur'
+      )
     }
 
     // Check header count
@@ -224,14 +268,17 @@ export class NordnetCSVParser {
       isValid: errors.length === 0,
       errors,
       warnings,
-      suggestions
+      suggestions,
     }
   }
 
   /**
    * Parses a Nordnet CSV file
    */
-  static async parseFile(file: File, config?: Partial<NordnetImportConfig>): Promise<NordnetParseResult> {
+  static async parseFile(
+    file: File,
+    config?: Partial<NordnetImportConfig>
+  ): Promise<NordnetParseResult> {
     const validation = this.validateFile(file)
     if (!validation.valid) {
       return {
@@ -246,14 +293,14 @@ export class NordnetCSVParser {
         portfolios: [],
         transactionTypes: [],
         currencies: [],
-        isinCodes: []
+        isinCodes: [],
       }
     }
 
     try {
       // Detect encoding
       const encoding = await this.detectEncoding(file)
-      
+
       // Read file with detected encoding
       const fileBuffer = await file.arrayBuffer()
       const decoder = new TextDecoder(encoding)
@@ -261,7 +308,7 @@ export class NordnetCSVParser {
 
       // Detect delimiter
       const delimiter = this.detectDelimiter(text)
-      
+
       // Check for Norwegian characters
       const hasNorwegianChars = this.hasNorwegianCharacters(text)
 
@@ -275,8 +322,10 @@ export class NordnetCSVParser {
       const csvResult = this.parseCSVWithDelimiter(text, delimiter)
 
       // Validate structure
-      const structureValidation = this.validateNordnetStructure(csvResult.headers)
-      
+      const structureValidation = this.validateNordnetStructure(
+        csvResult.headers
+      )
+
       if (!structureValidation.isValid) {
         return {
           ...csvResult,
@@ -288,21 +337,27 @@ export class NordnetCSVParser {
           portfolios: [],
           transactionTypes: [],
           currencies: [],
-          isinCodes: []
+          isinCodes: [],
         }
       }
 
       // Extract unique values for analysis
       const portfolios = this.extractUniqueValues(csvResult.rows, 'Portefølje')
-      const transactionTypes = this.extractUniqueValues(csvResult.rows, 'Transaksjonstype')
+      const transactionTypes = this.extractUniqueValues(
+        csvResult.rows,
+        'Transaksjonstype'
+      )
       const currencies = this.extractUniqueValues(csvResult.rows, 'Valuta')
-      const isinCodes = this.extractUniqueValues(csvResult.rows, 'ISIN').filter(isin => 
-        isin && isin.length > 0 && ISIN_PATTERN.test(isin)
+      const isinCodes = this.extractUniqueValues(csvResult.rows, 'ISIN').filter(
+        isin => isin && isin.length > 0 && ISIN_PATTERN.test(isin)
       )
 
       // Add structure validation warnings
-      const allWarnings = [...csvResult.warnings, ...structureValidation.warnings]
-      
+      const allWarnings = [
+        ...csvResult.warnings,
+        ...structureValidation.warnings,
+      ]
+
       // Add suggestions as warnings
       if (structureValidation.suggestions.length > 0) {
         allWarnings.push(...structureValidation.suggestions)
@@ -320,15 +375,16 @@ export class NordnetCSVParser {
         portfolios,
         transactionTypes,
         currencies,
-        isinCodes
+        isinCodes,
       }
-
     } catch (error) {
       return {
         headers: [],
         rows: [],
         totalRows: 0,
-        errors: [`Failed to parse Nordnet CSV: ${error instanceof Error ? error.message : 'Unknown error'}`],
+        errors: [
+          `Failed to parse Nordnet CSV: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        ],
         warnings: [],
         detectedEncoding: 'utf-8',
         detectedDelimiter: ',',
@@ -336,7 +392,7 @@ export class NordnetCSVParser {
         portfolios: [],
         transactionTypes: [],
         currencies: [],
-        isinCodes: []
+        isinCodes: [],
       }
     }
   }
@@ -355,7 +411,7 @@ export class NordnetCSVParser {
         rows: [],
         totalRows: 0,
         errors: ['File is empty or contains no valid data'],
-        warnings: []
+        warnings: [],
       }
     }
 
@@ -367,7 +423,7 @@ export class NordnetCSVParser {
         rows: [],
         totalRows: 0,
         errors: ['No headers found in the first row'],
-        warnings: []
+        warnings: [],
       }
     }
 
@@ -390,9 +446,10 @@ export class NordnetCSVParser {
         } else {
           warnings.push(`Row ${i + 1}: Missing required fields, skipping`)
         }
-
       } catch (error) {
-        errors.push(`Row ${i + 1}: ${error instanceof Error ? error.message : 'Parse error'}`)
+        errors.push(
+          `Row ${i + 1}: ${error instanceof Error ? error.message : 'Parse error'}`
+        )
       }
     }
 
@@ -401,7 +458,7 @@ export class NordnetCSVParser {
       rows,
       totalRows: rows.length,
       errors,
-      warnings
+      warnings,
     }
   }
 
@@ -448,16 +505,19 @@ export class NordnetCSVParser {
   /**
    * Extracts unique values from a specific column
    */
-  private static extractUniqueValues(rows: any[], columnName: string): string[] {
+  private static extractUniqueValues(
+    rows: any[],
+    columnName: string
+  ): string[] {
     const values = new Set<string>()
-    
+
     for (const row of rows) {
       const value = row[columnName]
       if (value && typeof value === 'string' && value.trim() !== '') {
         values.add(value.trim())
       }
     }
-    
+
     return Array.from(values).sort()
   }
 
@@ -478,13 +538,14 @@ export class NordnetCSVParser {
         recognized.push(type)
       } else {
         unrecognized.push(type)
-        
+
         // Try to find similar transaction types
-        const similar = Object.keys(NORDNET_TRANSACTION_TYPES).find(knownType =>
-          knownType.toLowerCase().includes(type.toLowerCase()) ||
-          type.toLowerCase().includes(knownType.toLowerCase())
+        const similar = Object.keys(NORDNET_TRANSACTION_TYPES).find(
+          knownType =>
+            knownType.toLowerCase().includes(type.toLowerCase()) ||
+            type.toLowerCase().includes(knownType.toLowerCase())
         )
-        
+
         if (similar) {
           suggestions[type] = similar
         }
@@ -501,12 +562,12 @@ export class NordnetCSVParser {
     recognized: string[]
     unrecognized: string[]
   } {
-    const recognized = currencies.filter(currency => 
+    const recognized = currencies.filter(currency =>
       NORDNET_CURRENCIES.includes(currency as any)
     )
-    
-    const unrecognized = currencies.filter(currency => 
-      !NORDNET_CURRENCIES.includes(currency as any)
+
+    const unrecognized = currencies.filter(
+      currency => !NORDNET_CURRENCIES.includes(currency as any)
     )
 
     return { recognized, unrecognized }
@@ -526,9 +587,11 @@ export class NordnetCSVParser {
 
     for (const portfolio of portfolios) {
       let isValid = false
-      
+
       // Check against known patterns
-      for (const [patternName, pattern] of Object.entries(NORDNET_PORTFOLIO_PATTERNS)) {
+      for (const [patternName, pattern] of Object.entries(
+        NORDNET_PORTFOLIO_PATTERNS
+      )) {
         if (pattern.test(portfolio)) {
           valid.push(portfolio)
           patterns[portfolio] = patternName
@@ -536,7 +599,7 @@ export class NordnetCSVParser {
           break
         }
       }
-      
+
       if (!isValid) {
         invalid.push(portfolio)
       }
@@ -552,17 +615,61 @@ export class NordnetCSVParser {
     const headers = this.NORDNET_HEADERS.join('\t')
     const sampleRows = [
       [
-        '213948411', '2025-06-24', '2025-06-24', '2025-06-25', '551307769',
-        'KJØPT', 'Hims & Hers Health A', 'US4330001060', '66', '42.7597',
-        '0', '99', 'NOK', '-28706.04', '2831.91', '0', '131', '179.97',
-        '10.1366', '', '', '', '', '99', '10.1366', '0'
+        '213948411',
+        '2025-06-24',
+        '2025-06-24',
+        '2025-06-25',
+        '551307769',
+        'KJØPT',
+        'Hims & Hers Health A',
+        'US4330001060',
+        '66',
+        '42.7597',
+        '0',
+        '99',
+        'NOK',
+        '-28706.04',
+        '2831.91',
+        '0',
+        '131',
+        '179.97',
+        '10.1366',
+        '',
+        '',
+        '',
+        '',
+        '99',
+        '10.1366',
+        '0',
       ],
       [
-        '213948412', '2025-06-25', '2025-06-25', '2025-06-26', '551307769',
-        'SALG', 'Apple Inc', 'US0378331005', '50', '180.25', '0', '99',
-        'NOK', '9012.50', '9012.50', '450.75', '0', '9012.50', '10.1366',
-        '', '', '', '', '99', '10.1366', '0'
-      ]
+        '213948412',
+        '2025-06-25',
+        '2025-06-25',
+        '2025-06-26',
+        '551307769',
+        'SALG',
+        'Apple Inc',
+        'US0378331005',
+        '50',
+        '180.25',
+        '0',
+        '99',
+        'NOK',
+        '9012.50',
+        '9012.50',
+        '450.75',
+        '0',
+        '9012.50',
+        '10.1366',
+        '',
+        '',
+        '',
+        '',
+        '99',
+        '10.1366',
+        '0',
+      ],
     ]
 
     return [headers, ...sampleRows.map(row => row.join('\t'))].join('\n')

@@ -36,79 +36,97 @@ export function useSmartRefresh<T>(
   const [error, setError] = useState<Error | null>(null)
   const [lastFetch, setLastFetch] = useState<number>(0)
   const [retryCount, setRetryCount] = useState(0)
-  
+
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
 
-  const fetchData = useCallback(async (force = false) => {
-    if (!enabled) return
+  const fetchData = useCallback(
+    async (force = false) => {
+      if (!enabled) return
 
-    // Check if we have fresh cached data
-    const now = Date.now()
-    const timeSinceLastFetch = now - lastFetch
-    
-    if (!force && timeSinceLastFetch < staleTime && data) {
-      return data
-    }
+      // Check if we have fresh cached data
+      const now = Date.now()
+      const timeSinceLastFetch = now - lastFetch
 
-    // Check cache first
-    const cached = PortfolioCacheManager.getCalculation(key, 'fetch')
-    if (cached && !force) {
-      setData(cached)
-      return cached
-    }
-
-    // Cancel any ongoing request
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-    }
-
-    try {
-      setLoading(true)
-      setError(null)
-      
-      // Create new abort controller
-      abortControllerRef.current = new AbortController()
-      
-      const result = await fetcher()
-      
-      // Cache the result
-      PortfolioCacheManager.setCalculation(key, 'fetch', result, staleTime)
-      
-      setData(result)
-      setLastFetch(now)
-      setRetryCount(0)
-      
-      if (onSuccess) {
-        onSuccess(result)
+      if (!force && timeSinceLastFetch < staleTime && data) {
+        return data
       }
-      
-      return result
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Unknown error')
-      
-      // Don't set error if request was aborted
-      if (error.name === 'AbortError') {
-        return
+
+      // Check cache first
+      const cached = PortfolioCacheManager.getCalculation(key, 'fetch')
+      if (cached && !force) {
+        setData(cached)
+        return cached
       }
-      
-      setError(error)
-      
-      // Retry logic
-      if (retryCount < maxRetries) {
-        setRetryCount(prev => prev + 1)
-        setTimeout(() => {
-          fetchData(force)
-        }, retryDelay * Math.pow(2, retryCount)) // Exponential backoff
-      } else {
-        if (onError) {
-          onError(error)
+
+      // Cancel any ongoing request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+
+      try {
+        setLoading(true)
+        setError(null)
+
+        // Create new abort controller
+        abortControllerRef.current = new AbortController()
+
+        const result = await fetcher()
+
+        // Cache the result
+        PortfolioCacheManager.setCalculation(key, 'fetch', result, staleTime)
+
+        setData(result)
+        setLastFetch(now)
+        setRetryCount(0)
+
+        if (onSuccess) {
+          onSuccess(result)
         }
+
+        return result
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Unknown error')
+
+        // Don't set error if request was aborted
+        if (error.name === 'AbortError') {
+          return
+        }
+
+        setError(error)
+
+        // Retry logic
+        if (retryCount < maxRetries) {
+          setRetryCount(prev => prev + 1)
+          setTimeout(
+            () => {
+              fetchData(force)
+            },
+            retryDelay * Math.pow(2, retryCount)
+          ) // Exponential backoff
+        } else {
+          if (onError) {
+            onError(error)
+          }
+        }
+      } finally {
+        setLoading(false)
       }
-    } finally {
-      setLoading(false)
-    }
-  }, [enabled, key, fetcher, staleTime, data, lastFetch, retryCount, maxRetries, retryDelay, onError, onSuccess])
+    },
+    [
+      enabled,
+      key,
+      fetcher,
+      staleTime,
+      data,
+      lastFetch,
+      retryCount,
+      maxRetries,
+      retryDelay,
+      onError,
+      onSuccess,
+    ]
+  )
 
   const refresh = useCallback(() => {
     return fetchData(true)
@@ -163,22 +181,30 @@ export function useSmartRefresh<T>(
  * Hook for managing multiple smart refresh instances
  */
 export function useMultipleSmartRefresh<T extends Record<string, any>>(
-  refreshers: Record<keyof T, {
-    key: string
-    fetcher: () => Promise<T[keyof T]>
-    options?: SmartRefreshOptions
-  }>
+  refreshers: Record<
+    keyof T,
+    {
+      key: string
+      fetcher: () => Promise<T[keyof T]>
+      options?: SmartRefreshOptions
+    }
+  >
 ) {
   const [data, setData] = useState<Partial<T>>({})
-  const [loading, setLoading] = useState<Record<keyof T, boolean>>({} as Record<keyof T, boolean>)
-  const [errors, setErrors] = useState<Record<keyof T, Error | null>>({} as Record<keyof T, Error | null>)
+  const [loading, setLoading] = useState<Record<keyof T, boolean>>(
+    {} as Record<keyof T, boolean>
+  )
+  const [errors, setErrors] = useState<Record<keyof T, Error | null>>(
+    {} as Record<keyof T, Error | null>
+  )
 
   const refreshInstances = Object.entries(refreshers).map(([key, config]) => {
-    const { data: itemData, loading: itemLoading, error: itemError, refresh } = useSmartRefresh(
-      config.key,
-      config.fetcher,
-      config.options
-    )
+    const {
+      data: itemData,
+      loading: itemLoading,
+      error: itemError,
+      refresh,
+    } = useSmartRefresh(config.key, config.fetcher, config.options)
 
     useEffect(() => {
       setData(prev => ({ ...prev, [key]: itemData }))
@@ -199,10 +225,13 @@ export function useMultipleSmartRefresh<T extends Record<string, any>>(
     return Promise.all(refreshInstances.map(({ refresh }) => refresh()))
   }, [refreshInstances])
 
-  const refreshOne = useCallback((key: keyof T) => {
-    const instance = refreshInstances.find(r => r.key === key)
-    return instance?.refresh()
-  }, [refreshInstances])
+  const refreshOne = useCallback(
+    (key: keyof T) => {
+      const instance = refreshInstances.find(r => r.key === key)
+      return instance?.refresh()
+    },
+    [refreshInstances]
+  )
 
   const isAnyLoading = Object.values(loading).some(Boolean)
   const hasAnyError = Object.values(errors).some(Boolean)
@@ -243,12 +272,12 @@ export function useBackgroundRefresh<T>(
     try {
       setBackgroundLoading(true)
       setError(null)
-      
+
       const result = await fetcher()
-      
+
       // Cache the result
       PortfolioCacheManager.setCalculation(key, 'background', result, staleTime)
-      
+
       setData(result)
       setLastRefresh(Date.now())
     } catch (err) {
@@ -270,7 +299,7 @@ export function useBackgroundRefresh<T>(
 
     // Set up background refresh
     const intervalId = setInterval(backgroundFetch, interval)
-    
+
     return () => clearInterval(intervalId)
   }, [enabled, interval, backgroundFetch, key])
 

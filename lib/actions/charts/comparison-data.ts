@@ -13,10 +13,23 @@ type BenchmarkData = Database['public']['Tables']['benchmark_data']['Row']
 // Validation schemas
 const portfolioComparisonSchema = z.object({
   portfolioIds: z.array(z.string().uuid()).min(2).max(10),
-  period: z.enum(['1D', '1W', '1M', '3M', '6M', '1Y', 'YTD', 'ITD', 'ALL']).default('1Y'),
+  period: z
+    .enum(['1D', '1W', '1M', '3M', '6M', '1Y', 'YTD', 'ITD', 'ALL'])
+    .default('1Y'),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
-  metrics: z.array(z.enum(['return', 'volatility', 'sharpe', 'max_drawdown', 'alpha', 'beta'])).default(['return', 'volatility', 'sharpe']),
+  metrics: z
+    .array(
+      z.enum([
+        'return',
+        'volatility',
+        'sharpe',
+        'max_drawdown',
+        'alpha',
+        'beta',
+      ])
+    )
+    .default(['return', 'volatility', 'sharpe']),
   normalizeToBase: z.boolean().default(true),
   currency: z.string().length(3).optional(),
 })
@@ -24,7 +37,9 @@ const portfolioComparisonSchema = z.object({
 const benchmarkComparisonSchema = z.object({
   portfolioId: z.string().uuid(),
   benchmarkSymbols: z.array(z.string()).min(1).max(5).default(['SPY']),
-  period: z.enum(['1D', '1W', '1M', '3M', '6M', '1Y', 'YTD', 'ITD', 'ALL']).default('1Y'),
+  period: z
+    .enum(['1D', '1W', '1M', '3M', '6M', '1Y', 'YTD', 'ITD', 'ALL'])
+    .default('1Y'),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
   includeAlpha: z.boolean().default(true),
@@ -111,7 +126,15 @@ export async function comparePortfolios(
 ): Promise<ActionResult<ComparisonData>> {
   try {
     const validatedInput = portfolioComparisonSchema.parse(input)
-    const { portfolioIds, period, startDate, endDate, metrics, normalizeToBase, currency } = validatedInput
+    const {
+      portfolioIds,
+      period,
+      startDate,
+      endDate,
+      metrics,
+      normalizeToBase,
+      currency,
+    } = validatedInput
 
     const supabase = createClient()
 
@@ -120,7 +143,7 @@ export async function comparePortfolios(
       data: { user },
       error: userError,
     } = await supabase.auth.getUser()
-    
+
     if (userError || !user) {
       return {
         success: false,
@@ -143,7 +166,9 @@ export async function comparePortfolios(
     const performanceResults = await Promise.all(performancePromises)
 
     // Check for any errors
-    const failedPortfolios = performanceResults.filter(result => !result.success)
+    const failedPortfolios = performanceResults.filter(
+      result => !result.success
+    )
     if (failedPortfolios.length > 0) {
       return {
         success: false,
@@ -164,7 +189,7 @@ export async function comparePortfolios(
 
     // Find common date range across all portfolios
     const commonDates = findCommonDates(portfolioData.map(p => p.data))
-    
+
     if (commonDates.length === 0) {
       return {
         success: false,
@@ -175,7 +200,7 @@ export async function comparePortfolios(
     // Create comparison data points
     const comparisonData: ComparisonDataPoint[] = commonDates.map(date => {
       const portfolios: Record<string, number> = {}
-      
+
       portfolioData.forEach(portfolio => {
         const dataPoint = portfolio.data.find(d => d.date === date)
         if (dataPoint) {
@@ -192,10 +217,11 @@ export async function comparePortfolios(
     // Normalize to base 100 if requested
     if (normalizeToBase && comparisonData.length > 0) {
       const baseValues: Record<string, number> = {}
-      
+
       // Get base values (first data point for each portfolio)
       portfolioData.forEach(portfolio => {
-        baseValues[portfolio.portfolioId] = comparisonData[0].portfolios[portfolio.portfolioId] || 1
+        baseValues[portfolio.portfolioId] =
+          comparisonData[0].portfolios[portfolio.portfolioId] || 1
       })
 
       // Normalize all data points
@@ -203,20 +229,32 @@ export async function comparePortfolios(
         Object.keys(dataPoint.portfolios).forEach(portfolioId => {
           const baseValue = baseValues[portfolioId]
           if (baseValue > 0) {
-            dataPoint.portfolios[portfolioId] = (dataPoint.portfolios[portfolioId] / baseValue) * 100
+            dataPoint.portfolios[portfolioId] =
+              (dataPoint.portfolios[portfolioId] / baseValue) * 100
           }
         })
       })
     }
 
     // Calculate comparison metrics
-    const comparisonMetrics = await calculatePortfolioMetrics(portfolioData, comparisonData, period)
+    const comparisonMetrics = await calculatePortfolioMetrics(
+      portfolioData,
+      comparisonData,
+      period
+    )
 
     // Calculate correlation matrix if multiple portfolios
-    const correlationMatrix = calculateCorrelationMatrix(comparisonData, portfolioData)
+    const correlationMatrix = calculateCorrelationMatrix(
+      comparisonData,
+      portfolioData
+    )
 
     // Generate summary statistics
-    const summary = generateComparisonSummary(comparisonMetrics, correlationMatrix, portfolioData)
+    const summary = generateComparisonSummary(
+      comparisonMetrics,
+      correlationMatrix,
+      portfolioData
+    )
 
     const comparison: ComparisonData = {
       comparisonType: 'portfolio',
@@ -235,9 +273,8 @@ export async function comparePortfolios(
       metadata: {
         calculatedAt: new Date().toISOString(),
         dataPoints: comparisonData.length,
-      }
+      },
     }
-
   } catch (error) {
     console.error('Portfolio comparison error:', error)
 
@@ -264,7 +301,15 @@ export async function compareWithBenchmarks(
 ): Promise<ActionResult<ComparisonData>> {
   try {
     const validatedInput = benchmarkComparisonSchema.parse(input)
-    const { portfolioId, benchmarkSymbols, period, startDate, endDate, includeAlpha, includeBeta } = validatedInput
+    const {
+      portfolioId,
+      benchmarkSymbols,
+      period,
+      startDate,
+      endDate,
+      includeAlpha,
+      includeBeta,
+    } = validatedInput
 
     const supabase = createClient()
 
@@ -273,7 +318,7 @@ export async function compareWithBenchmarks(
       data: { user },
       error: userError,
     } = await supabase.auth.getUser()
-    
+
     if (userError || !user) {
       return {
         success: false,
@@ -301,7 +346,9 @@ export async function compareWithBenchmarks(
 
     // Calculate date range
     const endDateTime = endDate ? new Date(endDate) : new Date()
-    const startDateTime = startDate ? new Date(startDate) : calculateStartDate(period, endDateTime)
+    const startDateTime = startDate
+      ? new Date(startDate)
+      : calculateStartDate(period, endDateTime)
 
     // Fetch benchmark data
     const benchmarkPromises = benchmarkSymbols.map(async symbol => {
@@ -322,7 +369,9 @@ export async function compareWithBenchmarks(
     })
 
     const benchmarkResults = await Promise.all(benchmarkPromises)
-    const validBenchmarks = benchmarkResults.filter(result => result !== null) as Array<{
+    const validBenchmarks = benchmarkResults.filter(
+      result => result !== null
+    ) as Array<{
       symbol: string
       data: BenchmarkData[]
     }>
@@ -339,7 +388,9 @@ export async function compareWithBenchmarks(
     const benchmarkDates = new Set(
       validBenchmarks.flatMap(b => b.data.map(d => d.price_date))
     )
-    const commonDates = Array.from(portfolioDates).filter(date => benchmarkDates.has(date)).sort()
+    const commonDates = Array.from(portfolioDates)
+      .filter(date => benchmarkDates.has(date))
+      .sort()
 
     // Create comparison data points
     const comparisonData: ComparisonDataPoint[] = commonDates.map(date => {
@@ -373,13 +424,15 @@ export async function compareWithBenchmarks(
       const benchmarkBases: Record<string, number> = {}
 
       validBenchmarks.forEach(benchmark => {
-        benchmarkBases[benchmark.symbol] = comparisonData[0].benchmarks?.[benchmark.symbol] || 1
+        benchmarkBases[benchmark.symbol] =
+          comparisonData[0].benchmarks?.[benchmark.symbol] || 1
       })
 
       comparisonData.forEach(dataPoint => {
         // Normalize portfolio
         if (portfolioBase > 0 && dataPoint.portfolios[portfolioId]) {
-          dataPoint.portfolios[portfolioId] = (dataPoint.portfolios[portfolioId] / portfolioBase) * 100
+          dataPoint.portfolios[portfolioId] =
+            (dataPoint.portfolios[portfolioId] / portfolioBase) * 100
         }
 
         // Normalize benchmarks
@@ -387,7 +440,8 @@ export async function compareWithBenchmarks(
           Object.keys(dataPoint.benchmarks).forEach(symbol => {
             const base = benchmarkBases[symbol]
             if (base > 0) {
-              dataPoint.benchmarks![symbol] = (dataPoint.benchmarks![symbol] / base) * 100
+              dataPoint.benchmarks![symbol] =
+                (dataPoint.benchmarks![symbol] / base) * 100
             }
           })
         }
@@ -425,9 +479,8 @@ export async function compareWithBenchmarks(
       metadata: {
         calculatedAt: new Date().toISOString(),
         dataPoints: comparisonData.length,
-      }
+      },
     }
-
   } catch (error) {
     console.error('Benchmark comparison error:', error)
 
@@ -451,12 +504,14 @@ export async function compareWithBenchmarks(
  */
 export async function getRiskReturnAnalysis(
   input: z.infer<typeof riskReturnAnalysisSchema>
-): Promise<ActionResult<{
-  riskReturnPoints: RiskReturnPoint[]
-  efficientFrontier?: { risk: number; return: number }[]
-  marketPortfolio?: RiskReturnPoint
-  riskFreeRate: number
-}>> {
+): Promise<
+  ActionResult<{
+    riskReturnPoints: RiskReturnPoint[]
+    efficientFrontier?: { risk: number; return: number }[]
+    marketPortfolio?: RiskReturnPoint
+    riskFreeRate: number
+  }>
+> {
   try {
     const validatedInput = riskReturnAnalysisSchema.parse(input)
     const { portfolioIds, period, riskFreeRate } = validatedInput
@@ -468,7 +523,7 @@ export async function getRiskReturnAnalysis(
       data: { user },
       error: userError,
     } = await supabase.auth.getUser()
-    
+
     if (userError || !user) {
       return {
         success: false,
@@ -508,7 +563,9 @@ export async function getRiskReturnAnalysis(
     })
 
     const metricsResults = await Promise.all(metricsPromises)
-    const validMetrics = metricsResults.filter(result => result !== null) as Array<{
+    const validMetrics = metricsResults.filter(
+      result => result !== null
+    ) as Array<{
       portfolioId: string
       portfolioName: string
       metrics: any
@@ -517,26 +574,29 @@ export async function getRiskReturnAnalysis(
     if (validMetrics.length === 0) {
       return {
         success: false,
-        error: 'No performance metrics available for the specified portfolios and period',
+        error:
+          'No performance metrics available for the specified portfolios and period',
       }
     }
 
     // Create risk-return points
-    const riskReturnPoints: RiskReturnPoint[] = validMetrics.map((item, index) => {
-      const expectedReturn = (item.metrics.annualized_return || 0) * 100
-      const volatility = (item.metrics.volatility || 0) * 100
-      const sharpeRatio = item.metrics.sharpe_ratio || 0
+    const riskReturnPoints: RiskReturnPoint[] = validMetrics.map(
+      (item, index) => {
+        const expectedReturn = (item.metrics.annualized_return || 0) * 100
+        const volatility = (item.metrics.volatility || 0) * 100
+        const sharpeRatio = item.metrics.sharpe_ratio || 0
 
-      return {
-        portfolioId: item.portfolioId,
-        portfolioName: item.portfolioName,
-        expectedReturn,
-        volatility,
-        sharpeRatio,
-        color: getPortfolioColor(index),
-        size: Math.max(8, Math.min(20, sharpeRatio * 10)), // Size based on Sharpe ratio
+        return {
+          portfolioId: item.portfolioId,
+          portfolioName: item.portfolioName,
+          expectedReturn,
+          volatility,
+          sharpeRatio,
+          color: getPortfolioColor(index),
+          size: Math.max(8, Math.min(20, sharpeRatio * 10)), // Size based on Sharpe ratio
+        }
       }
-    })
+    )
 
     // TODO: Calculate efficient frontier if we have sufficient data
     // This would require optimization algorithms and more sophisticated calculations
@@ -549,9 +609,8 @@ export async function getRiskReturnAnalysis(
       },
       metadata: {
         calculatedAt: new Date().toISOString(),
-      }
+      },
     }
-
   } catch (error) {
     console.error('Risk-return analysis error:', error)
 
@@ -580,7 +639,7 @@ export const getCachedPortfolioComparison = unstable_cache(
       metadata: {
         ...result.metadata,
         cached: true,
-      }
+      },
     }
   },
   ['portfolio-comparison'],
@@ -592,15 +651,20 @@ export const getCachedPortfolioComparison = unstable_cache(
 
 // Helper functions
 
-function findCommonDates(portfolioDataArrays: Array<Array<{ date: string }>>): string[] {
+function findCommonDates(
+  portfolioDataArrays: Array<Array<{ date: string }>>
+): string[] {
   if (portfolioDataArrays.length === 0) return []
-  
+
   const firstPortfolioDates = new Set(portfolioDataArrays[0].map(d => d.date))
-  
-  return portfolioDataArrays.slice(1).reduce((commonDates, portfolioData) => {
-    const portfolioDates = new Set(portfolioData.map(d => d.date))
-    return commonDates.filter(date => portfolioDates.has(date))
-  }, Array.from(firstPortfolioDates)).sort()
+
+  return portfolioDataArrays
+    .slice(1)
+    .reduce((commonDates, portfolioData) => {
+      const portfolioDates = new Set(portfolioData.map(d => d.date))
+      return commonDates.filter(date => portfolioDates.has(date))
+    }, Array.from(firstPortfolioDates))
+    .sort()
 }
 
 function calculateStartDate(period: string, endDate: Date): Date {
@@ -634,7 +698,8 @@ async function calculatePortfolioMetrics(
       .map((dataPoint, index) => {
         if (index === 0) return 0
         const current = dataPoint.portfolios[portfolio.portfolioId]
-        const previous = comparisonData[index - 1].portfolios[portfolio.portfolioId]
+        const previous =
+          comparisonData[index - 1].portfolios[portfolio.portfolioId]
         return previous > 0 ? (current - previous) / previous : 0
       })
       .slice(1) // Remove first element (always 0)
@@ -674,28 +739,35 @@ async function calculateBenchmarkMetrics(
     .map((dataPoint, index) => {
       if (index === 0) return 0
       const current = dataPoint.portfolios[portfolioData.portfolioId]
-      const previous = comparisonData[index - 1].portfolios[portfolioData.portfolioId]
+      const previous =
+        comparisonData[index - 1].portfolios[portfolioData.portfolioId]
       return previous > 0 ? (current - previous) / previous : 0
     })
     .slice(1)
 
   // Calculate benchmark returns (using first benchmark as market proxy)
   const primaryBenchmark = benchmarkData[0]?.symbol
-  const benchmarkReturns = primaryBenchmark ? comparisonData
-    .map((dataPoint, index) => {
-      if (index === 0) return 0
-      const current = dataPoint.benchmarks?.[primaryBenchmark]
-      const previous = comparisonData[index - 1].benchmarks?.[primaryBenchmark]
-      return previous > 0 && current ? (current - previous) / previous : 0
-    })
-    .slice(1) : []
+  const benchmarkReturns = primaryBenchmark
+    ? comparisonData
+        .map((dataPoint, index) => {
+          if (index === 0) return 0
+          const current = dataPoint.benchmarks?.[primaryBenchmark]
+          const previous =
+            comparisonData[index - 1].benchmarks?.[primaryBenchmark]
+          return previous > 0 && current ? (current - previous) / previous : 0
+        })
+        .slice(1)
+    : []
 
   // Calculate alpha and beta if requested
   let alpha: number | undefined
   let beta: number | undefined
 
   if (options.includeAlpha || options.includeBeta) {
-    const regression = calculateLinearRegression(benchmarkReturns, portfolioReturns)
+    const regression = calculateLinearRegression(
+      benchmarkReturns,
+      portfolioReturns
+    )
     alpha = options.includeAlpha ? regression.intercept : undefined
     beta = options.includeBeta ? regression.slope : undefined
   }
@@ -703,23 +775,27 @@ async function calculateBenchmarkMetrics(
   const volatility = calculateVolatility(portfolioReturns)
   const sharpeRatio = portfolioData.summary.sharpeRatio || 0
 
-  return [{
-    portfolioId: portfolioData.portfolioId,
-    portfolioName: portfolioData.portfolioName,
-    totalReturn: portfolioData.summary.totalReturn,
-    totalReturnPercent: portfolioData.summary.totalReturnPercent,
-    annualizedReturn: portfolioData.summary.totalReturnPercent, // Simplified
-    volatility,
-    sharpeRatio,
-    maxDrawdown: portfolioData.summary.maxDrawdown || 0,
-    alpha,
-    beta,
-    calmarRatio: portfolioData.summary.totalReturnPercent / Math.abs(portfolioData.summary.maxDrawdown || 1),
-    sortinoRatio: calculateSortinoRatio(portfolioReturns),
-    winRate: calculateWinRate(portfolioReturns),
-    bestMonth: Math.max(...portfolioReturns) * 100,
-    worstMonth: Math.min(...portfolioReturns) * 100,
-  }]
+  return [
+    {
+      portfolioId: portfolioData.portfolioId,
+      portfolioName: portfolioData.portfolioName,
+      totalReturn: portfolioData.summary.totalReturn,
+      totalReturnPercent: portfolioData.summary.totalReturnPercent,
+      annualizedReturn: portfolioData.summary.totalReturnPercent, // Simplified
+      volatility,
+      sharpeRatio,
+      maxDrawdown: portfolioData.summary.maxDrawdown || 0,
+      alpha,
+      beta,
+      calmarRatio:
+        portfolioData.summary.totalReturnPercent /
+        Math.abs(portfolioData.summary.maxDrawdown || 1),
+      sortinoRatio: calculateSortinoRatio(portfolioReturns),
+      winRate: calculateWinRate(portfolioReturns),
+      bestMonth: Math.max(...portfolioReturns) * 100,
+      worstMonth: Math.min(...portfolioReturns) * 100,
+    },
+  ]
 }
 
 function calculateCorrelationMatrix(
@@ -730,23 +806,30 @@ function calculateCorrelationMatrix(
 
   portfolioData.forEach(portfolio1 => {
     matrix[portfolio1.portfolioId] = {}
-    
+
     portfolioData.forEach(portfolio2 => {
-      const returns1 = comparisonData.map((d, i) => {
-        if (i === 0) return 0
-        const current = d.portfolios[portfolio1.portfolioId]
-        const previous = comparisonData[i - 1].portfolios[portfolio1.portfolioId]
-        return previous > 0 ? (current - previous) / previous : 0
-      }).slice(1)
+      const returns1 = comparisonData
+        .map((d, i) => {
+          if (i === 0) return 0
+          const current = d.portfolios[portfolio1.portfolioId]
+          const previous =
+            comparisonData[i - 1].portfolios[portfolio1.portfolioId]
+          return previous > 0 ? (current - previous) / previous : 0
+        })
+        .slice(1)
 
-      const returns2 = comparisonData.map((d, i) => {
-        if (i === 0) return 0
-        const current = d.portfolios[portfolio2.portfolioId]
-        const previous = comparisonData[i - 1].portfolios[portfolio2.portfolioId]
-        return previous > 0 ? (current - previous) / previous : 0
-      }).slice(1)
+      const returns2 = comparisonData
+        .map((d, i) => {
+          if (i === 0) return 0
+          const current = d.portfolios[portfolio2.portfolioId]
+          const previous =
+            comparisonData[i - 1].portfolios[portfolio2.portfolioId]
+          return previous > 0 ? (current - previous) / previous : 0
+        })
+        .slice(1)
 
-      matrix[portfolio1.portfolioId][portfolio2.portfolioId] = calculateCorrelation(returns1, returns2)
+      matrix[portfolio1.portfolioId][portfolio2.portfolioId] =
+        calculateCorrelation(returns1, returns2)
     })
   })
 
@@ -758,23 +841,23 @@ function generateComparisonSummary(
   correlationMatrix: Record<string, Record<string, number>>,
   portfolioData: any[]
 ): ComparisonData['summary'] {
-  const bestPerformer = metrics.reduce((best, current) => 
+  const bestPerformer = metrics.reduce((best, current) =>
     current.totalReturnPercent > best.totalReturnPercent ? current : best
   )
 
-  const worstPerformer = metrics.reduce((worst, current) => 
+  const worstPerformer = metrics.reduce((worst, current) =>
     current.totalReturnPercent < worst.totalReturnPercent ? current : worst
   )
 
-  const mostVolatile = metrics.reduce((most, current) => 
+  const mostVolatile = metrics.reduce((most, current) =>
     current.volatility > most.volatility ? current : most
   )
 
-  const leastVolatile = metrics.reduce((least, current) => 
+  const leastVolatile = metrics.reduce((least, current) =>
     current.volatility < least.volatility ? current : least
   )
 
-  const bestSharpeRatio = metrics.reduce((best, current) => 
+  const bestSharpeRatio = metrics.reduce((best, current) =>
     current.sharpeRatio > best.sharpeRatio ? current : best
   )
 
@@ -793,17 +876,21 @@ function generateComparisonSummary(
 function calculateVolatility(returns: number[]): number {
   if (returns.length === 0) return 0
   const mean = returns.reduce((sum, r) => sum + r, 0) / returns.length
-  const variance = returns.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / returns.length
+  const variance =
+    returns.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / returns.length
   return Math.sqrt(variance) * Math.sqrt(252) * 100 // Annualized volatility as percentage
 }
 
-function calculateAnnualizedReturn(totalReturnPercent: number, period: string): number {
+function calculateAnnualizedReturn(
+  totalReturnPercent: number,
+  period: string
+): number {
   const periodDays: Record<string, number> = {
     '1M': 30,
     '3M': 90,
     '6M': 180,
     '1Y': 365,
-    'YTD': 365, // Simplified
+    YTD: 365, // Simplified
   }
 
   const days = periodDays[period] || 365
@@ -815,8 +902,9 @@ function calculateSortinoRatio(returns: number[]): number {
   const mean = returns.reduce((sum, r) => sum + r, 0) / returns.length
   const downside = returns.filter(r => r < 0)
   if (downside.length === 0) return 0
-  const downsideVariance = downside.reduce((sum, r) => sum + Math.pow(r, 2), 0) / downside.length
-  return mean / Math.sqrt(downsideVariance) * Math.sqrt(252)
+  const downsideVariance =
+    downside.reduce((sum, r) => sum + Math.pow(r, 2), 0) / downside.length
+  return (mean / Math.sqrt(downsideVariance)) * Math.sqrt(252)
 }
 
 function calculateWinRate(returns: number[]): number {
@@ -827,36 +915,56 @@ function calculateWinRate(returns: number[]): number {
 
 function calculateCorrelation(returns1: number[], returns2: number[]): number {
   if (returns1.length !== returns2.length || returns1.length === 0) return 0
-  
+
   const mean1 = returns1.reduce((sum, r) => sum + r, 0) / returns1.length
   const mean2 = returns2.reduce((sum, r) => sum + r, 0) / returns2.length
-  
-  const numerator = returns1.reduce((sum, r1, i) => sum + (r1 - mean1) * (returns2[i] - mean2), 0)
-  const denominator1 = Math.sqrt(returns1.reduce((sum, r) => sum + Math.pow(r - mean1, 2), 0))
-  const denominator2 = Math.sqrt(returns2.reduce((sum, r) => sum + Math.pow(r - mean2, 2), 0))
-  
-  return denominator1 * denominator2 > 0 ? numerator / (denominator1 * denominator2) : 0
+
+  const numerator = returns1.reduce(
+    (sum, r1, i) => sum + (r1 - mean1) * (returns2[i] - mean2),
+    0
+  )
+  const denominator1 = Math.sqrt(
+    returns1.reduce((sum, r) => sum + Math.pow(r - mean1, 2), 0)
+  )
+  const denominator2 = Math.sqrt(
+    returns2.reduce((sum, r) => sum + Math.pow(r - mean2, 2), 0)
+  )
+
+  return denominator1 * denominator2 > 0
+    ? numerator / (denominator1 * denominator2)
+    : 0
 }
 
-function calculateLinearRegression(x: number[], y: number[]): { slope: number; intercept: number } {
+function calculateLinearRegression(
+  x: number[],
+  y: number[]
+): { slope: number; intercept: number } {
   if (x.length !== y.length || x.length === 0) return { slope: 0, intercept: 0 }
-  
+
   const n = x.length
   const sumX = x.reduce((sum, val) => sum + val, 0)
   const sumY = y.reduce((sum, val) => sum + val, 0)
   const sumXY = x.reduce((sum, val, i) => sum + val * y[i], 0)
   const sumXX = x.reduce((sum, val) => sum + val * val, 0)
-  
+
   const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX)
   const intercept = (sumY - slope * sumX) / n
-  
+
   return { slope, intercept }
 }
 
 function getPortfolioColor(index: number): string {
   const colors = [
-    '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
-    '#EC4899', '#14B8A6', '#F97316', '#84CC16', '#6366F1'
+    '#3B82F6',
+    '#10B981',
+    '#F59E0B',
+    '#EF4444',
+    '#8B5CF6',
+    '#EC4899',
+    '#14B8A6',
+    '#F97316',
+    '#84CC16',
+    '#6366F1',
   ]
   return colors[index % colors.length]
 }

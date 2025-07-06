@@ -17,13 +17,13 @@ interface EmptyPortfolioStateProps {
 }
 
 export function EmptyPortfolioState({
-  title = "Ingen aksjer funnet",
-  subtitle = "Kom i gang med investeringene dine",
-  description = "Start med å sette opp investeringskontoene dine og legge til aksjeposisjoner for å få en komplett oversikt over porteføljen din.",
+  title = 'Ingen aksjer funnet',
+  subtitle = 'Kom i gang med investeringene dine',
+  description = 'Start med å sette opp investeringskontoene dine og legge til aksjeposisjoner for å få en komplett oversikt over porteføljen din.',
   onSetupPlatform,
   onManualSetup,
   onGoToPortfolios,
-  className = ""
+  className = '',
 }: EmptyPortfolioStateProps) {
   const router = useRouter()
 
@@ -50,7 +50,9 @@ export function EmptyPortfolioState({
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 ${className}`}>
+    <div
+      className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 ${className}`}
+    >
       <div className="mx-auto max-w-4xl px-6 py-16">
         <motion.div
           initial="hidden"
@@ -71,7 +73,7 @@ export function EmptyPortfolioState({
               <motion.div
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+                transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
               >
                 <svg
                   className="h-16 w-16 text-white"
@@ -95,12 +97,8 @@ export function EmptyPortfolioState({
 
           {/* Title and Description */}
           <motion.div variants={entranceVariants.item} className="mb-8">
-            <h2 className="mb-4 text-4xl font-bold text-gray-900">
-              {title}
-            </h2>
-            <p className="mb-2 text-xl font-medium text-blue-600">
-              {subtitle}
-            </p>
+            <h2 className="mb-4 text-4xl font-bold text-gray-900">{title}</h2>
+            <p className="mb-2 text-xl font-medium text-blue-600">{subtitle}</p>
             <p className="mx-auto max-w-2xl text-lg text-gray-600">
               {description}
             </p>
@@ -113,7 +111,7 @@ export function EmptyPortfolioState({
           >
             {/* Setup Platform Wizard */}
             <AnimatedCard
-              className="p-6 bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300"
+              className="border-0 bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-xl"
               hoverScale={1.02}
               clickEffect="bounce"
             >
@@ -142,7 +140,7 @@ export function EmptyPortfolioState({
               </p>
               <Button
                 onClick={handleSetupPlatform}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                className="w-full bg-blue-600 text-white hover:bg-blue-700"
               >
                 Start Veiviser
               </Button>
@@ -150,7 +148,7 @@ export function EmptyPortfolioState({
 
             {/* Manual Setup */}
             <AnimatedCard
-              className="p-6 bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300"
+              className="border-0 bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-xl"
               hoverScale={1.02}
               clickEffect="bounce"
             >
@@ -188,7 +186,7 @@ export function EmptyPortfolioState({
 
             {/* Import Data */}
             <AnimatedCard
-              className="p-6 bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300"
+              className="border-0 bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-xl"
               hoverScale={1.02}
               clickEffect="bounce"
             >
@@ -227,7 +225,7 @@ export function EmptyPortfolioState({
 
           {/* Additional Help */}
           <motion.div variants={entranceVariants.item}>
-            <Card className="bg-blue-50 border-blue-200 shadow-lg">
+            <Card className="border-blue-200 bg-blue-50 shadow-lg">
               <CardContent className="p-6">
                 <div className="flex items-start space-x-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
@@ -250,8 +248,9 @@ export function EmptyPortfolioState({
                       Trenger du hjelp?
                     </h4>
                     <p className="text-sm text-blue-700">
-                      Vi støtter populære norske plattformer som Nordnet, DNB, og Schwab. 
-                      Du kan også importere data fra CSV-filer eller legge til aksjer manuelt.
+                      Vi støtter populære norske plattformer som Nordnet, DNB,
+                      og Schwab. Du kan også importere data fra CSV-filer eller
+                      legge til aksjer manuelt.
                     </p>
                   </div>
                 </div>

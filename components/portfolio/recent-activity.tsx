@@ -21,7 +21,11 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Select } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
-import { AnimatedCard, CurrencyCounter, NumberCounter } from '@/components/animated'
+import {
+  AnimatedCard,
+  CurrencyCounter,
+  NumberCounter,
+} from '@/components/animated'
 import { formatCurrency, formatPercentage } from '@/components/charts'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils/cn'
@@ -145,11 +149,11 @@ export default function RecentActivity({
         setError(null)
 
         const supabase = createClient()
-        
+
         // Calculate date range
         const endDate = new Date()
         const startDate = new Date()
-        
+
         if (filters.dateRange !== 'all') {
           startDate.setDate(endDate.getDate() - parseInt(filters.dateRange))
         } else {
@@ -158,7 +162,8 @@ export default function RecentActivity({
 
         let query = supabase
           .from('transactions')
-          .select(`
+          .select(
+            `
             *,
             stocks (
               symbol,
@@ -167,7 +172,8 @@ export default function RecentActivity({
               asset_type,
               sector
             )
-          `)
+          `
+          )
           .eq('portfolio_id', portfolioId)
           .gte('transaction_date', startDate.toISOString())
           .lte('transaction_date', endDate.toISOString())
@@ -182,10 +188,16 @@ export default function RecentActivity({
         }
 
         // Apply sorting
-        const sortColumn = filters.sortBy === 'date' ? 'transaction_date' : 
-                          filters.sortBy === 'amount' ? 'total_amount' : 'symbol'
-        
-        query = query.order(sortColumn, { ascending: filters.sortOrder === 'asc' })
+        const sortColumn =
+          filters.sortBy === 'date'
+            ? 'transaction_date'
+            : filters.sortBy === 'amount'
+              ? 'total_amount'
+              : 'symbol'
+
+        query = query.order(sortColumn, {
+          ascending: filters.sortOrder === 'asc',
+        })
 
         // Limit results
         query = query.limit(maxItems * 2) // Get more than needed for filtering
@@ -224,14 +236,14 @@ export default function RecentActivity({
           table: 'transactions',
           filter: `portfolio_id=eq.${portfolioId}`,
         },
-        (payload) => {
+        payload => {
           console.log('New transaction detected:', payload)
-          
+
           if (payload.new) {
             // Add the new transaction and highlight it
             setNewTransactionId(payload.new.id)
             setTransactions(prev => [payload.new as Transaction, ...prev])
-            
+
             // Remove highlight after animation
             setTimeout(() => setNewTransactionId(null), 2000)
           }
@@ -339,7 +351,7 @@ export default function RecentActivity({
   // Get impact indicator for significant transactions
   const getImpactIndicator = (transaction: Transaction) => {
     const amount = Math.abs(transaction.total_amount)
-    
+
     if (amount > 100000) {
       return (
         <motion.div
@@ -352,7 +364,7 @@ export default function RecentActivity({
         </motion.div>
       )
     }
-    
+
     return null
   }
 
@@ -381,7 +393,8 @@ export default function RecentActivity({
           </h3>
           {transactions.length > 0 && (
             <Badge variant="secondary">
-              {transactions.length} transaksjon{transactions.length !== 1 ? 'er' : ''}
+              {transactions.length} transaksjon
+              {transactions.length !== 1 ? 'er' : ''}
             </Badge>
           )}
         </div>
@@ -393,7 +406,7 @@ export default function RecentActivity({
             onClick={() => setShowAllFilters(!showAllFilters)}
             className={showAllFilters ? 'bg-blue-50 text-blue-600' : ''}
           >
-            <FunnelIcon className="h-4 w-4 mr-2" />
+            <FunnelIcon className="mr-2 h-4 w-4" />
             Filter
           </Button>
         )}
@@ -408,19 +421,23 @@ export default function RecentActivity({
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <AnimatedCard className="p-4 bg-gray-50">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <AnimatedCard className="bg-gray-50 p-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
                     Type
                   </label>
                   <Select
                     value={filters.type}
-                    onValueChange={(value) => setFilters(prev => ({ ...prev, type: value }))}
+                    onValueChange={value =>
+                      setFilters(prev => ({ ...prev, type: value }))
+                    }
                   >
                     <option value="">Alle typer</option>
                     {filterOptions.types.map(type => {
-                      const typeInfo = getTransactionTypeInfo(type as Transaction['type'])
+                      const typeInfo = getTransactionTypeInfo(
+                        type as Transaction['type']
+                      )
                       return (
                         <option key={type} value={type}>
                           {typeInfo.label}
@@ -431,12 +448,14 @@ export default function RecentActivity({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
                     Symbol
                   </label>
                   <Select
                     value={filters.symbol}
-                    onValueChange={(value) => setFilters(prev => ({ ...prev, symbol: value }))}
+                    onValueChange={value =>
+                      setFilters(prev => ({ ...prev, symbol: value }))
+                    }
                   >
                     <option value="">Alle symboler</option>
                     {filterOptions.symbols.map(symbol => (
@@ -448,12 +467,14 @@ export default function RecentActivity({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
                     Periode
                   </label>
                   <Select
                     value={filters.dateRange}
-                    onValueChange={(value) => setFilters(prev => ({ ...prev, dateRange: value }))}
+                    onValueChange={value =>
+                      setFilters(prev => ({ ...prev, dateRange: value }))
+                    }
                   >
                     <option value="7">Siste 7 dager</option>
                     <option value="30">Siste 30 dager</option>
@@ -464,13 +485,15 @@ export default function RecentActivity({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
                     Sortering
                   </label>
                   <div className="flex space-x-2">
                     <Select
                       value={filters.sortBy}
-                      onValueChange={(value) => setFilters(prev => ({ ...prev, sortBy: value as any }))}
+                      onValueChange={value =>
+                        setFilters(prev => ({ ...prev, sortBy: value as any }))
+                      }
                     >
                       <option value="date">Dato</option>
                       <option value="amount">Beløp</option>
@@ -479,10 +502,12 @@ export default function RecentActivity({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setFilters(prev => ({
-                        ...prev,
-                        sortOrder: prev.sortOrder === 'asc' ? 'desc' : 'asc'
-                      }))}
+                      onClick={() =>
+                        setFilters(prev => ({
+                          ...prev,
+                          sortOrder: prev.sortOrder === 'asc' ? 'desc' : 'asc',
+                        }))
+                      }
                     >
                       {filters.sortOrder === 'asc' ? (
                         <ArrowTrendingUpIcon className="h-4 w-4" />
@@ -507,11 +532,11 @@ export default function RecentActivity({
                 <div key={i} className="flex items-center space-x-4">
                   <Skeleton className="h-10 w-10 rounded-full" />
                   <div className="flex-1">
-                    <Skeleton className="h-4 w-32 mb-2" />
+                    <Skeleton className="mb-2 h-4 w-32" />
                     <Skeleton className="h-3 w-20" />
                   </div>
                   <div className="text-right">
-                    <Skeleton className="h-4 w-20 mb-1" />
+                    <Skeleton className="mb-1 h-4 w-20" />
                     <Skeleton className="h-3 w-16" />
                   </div>
                 </div>
@@ -520,8 +545,8 @@ export default function RecentActivity({
           </div>
         ) : transactions.length === 0 ? (
           <div className="p-12 text-center">
-            <ClockIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <ClockIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+            <h3 className="mb-2 text-lg font-medium text-gray-900">
               Ingen aktivitet
             </h3>
             <p className="text-gray-600">
@@ -536,7 +561,7 @@ export default function RecentActivity({
             className="divide-y divide-gray-200"
           >
             <AnimatePresence>
-              {transactions.slice(0, maxItems).map((transaction) => {
+              {transactions.slice(0, maxItems).map(transaction => {
                 const typeInfo = getTransactionTypeInfo(transaction.type)
                 const isNewTransaction = newTransactionId === transaction.id
                 const impactIndicator = getImpactIndicator(transaction)
@@ -552,7 +577,8 @@ export default function RecentActivity({
                     layoutId={transaction.id}
                     className={cn(
                       'p-4 transition-all duration-300',
-                      isNewTransaction && 'bg-blue-50 border-l-4 border-blue-500'
+                      isNewTransaction &&
+                        'border-l-4 border-blue-500 bg-blue-50'
                     )}
                   >
                     <div className="flex items-center justify-between">
@@ -560,72 +586,82 @@ export default function RecentActivity({
                         {/* Transaction Type Icon */}
                         <motion.div
                           className={cn(
-                            'p-2 rounded-full border',
+                            'rounded-full border p-2',
                             typeInfo.bgColor,
                             typeInfo.borderColor
                           )}
-                          animate={isNewTransaction ? { scale: [1, 1.2, 1] } : {}}
+                          animate={
+                            isNewTransaction ? { scale: [1, 1.2, 1] } : {}
+                          }
                           transition={{ duration: 0.6 }}
                         >
-                          <div className={typeInfo.color}>
-                            {typeInfo.icon}
-                          </div>
+                          <div className={typeInfo.color}>{typeInfo.icon}</div>
                         </motion.div>
 
                         {/* Transaction Details */}
                         <div className="flex-1">
                           <div className="flex items-center space-x-2">
                             <span className="font-medium text-gray-900">
-                              {typeInfo.label} {transaction.stocks?.name || transaction.symbol}
+                              {typeInfo.label}{' '}
+                              {transaction.stocks?.name || transaction.symbol}
                             </span>
-                            
-                            {transaction.type !== 'DIVIDEND' && transaction.type !== 'FEE' && (
-                              <Badge variant="outline" className="text-xs">
-                                <NumberCounter value={transaction.quantity} />
-                                {transaction.quantity === 1 ? ' stk' : ' stk'}
-                              </Badge>
-                            )}
-                            
+
+                            {transaction.type !== 'DIVIDEND' &&
+                              transaction.type !== 'FEE' && (
+                                <Badge variant="outline" className="text-xs">
+                                  <NumberCounter value={transaction.quantity} />
+                                  {transaction.quantity === 1 ? ' stk' : ' stk'}
+                                </Badge>
+                              )}
+
                             {impactIndicator}
-                            
+
                             {isNewTransaction && (
                               <motion.div
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
                                 className="text-blue-600"
                               >
-                                <Badge variant="outline" className="text-blue-600 border-blue-200">
+                                <Badge
+                                  variant="outline"
+                                  className="border-blue-200 text-blue-600"
+                                >
                                   Ny
                                 </Badge>
                               </motion.div>
                             )}
                           </div>
 
-                          <div className="flex items-center space-x-4 mt-1 text-sm text-gray-600">
+                          <div className="mt-1 flex items-center space-x-4 text-sm text-gray-600">
                             <div className="flex items-center space-x-1">
                               <CalendarDaysIcon className="h-3 w-3" />
-                              <span>{formatDate(transaction.transaction_date)}</span>
-                            </div>
-                            
-                            {transaction.type !== 'DIVIDEND' && transaction.type !== 'FEE' && (
                               <span>
-                                @ <CurrencyCounter
-                                  value={transaction.price}
-                                  currency={transaction.currency}
-                                  className="font-medium"
-                                />
+                                {formatDate(transaction.transaction_date)}
                               </span>
-                            )}
-                            
+                            </div>
+
+                            {transaction.type !== 'DIVIDEND' &&
+                              transaction.type !== 'FEE' && (
+                                <span>
+                                  @{' '}
+                                  <CurrencyCounter
+                                    value={transaction.price}
+                                    currency={transaction.currency}
+                                    className="font-medium"
+                                  />
+                                </span>
+                              )}
+
                             {transaction.fee > 0 && (
                               <span className="text-gray-500">
-                                Gebyr: <CurrencyCounter
+                                Gebyr:{' '}
+                                <CurrencyCounter
                                   value={transaction.fee}
                                   currency={transaction.currency}
                                 />
                               </span>
                             )}
-                            
+
                             {transaction.stocks?.sector && (
                               <Badge variant="secondary" className="text-xs">
                                 {transaction.stocks.sector}
@@ -634,7 +670,7 @@ export default function RecentActivity({
                           </div>
 
                           {transaction.notes && (
-                            <p className="text-sm text-gray-600 mt-1 italic">
+                            <p className="mt-1 text-sm italic text-gray-600">
                               {transaction.notes}
                             </p>
                           )}
@@ -648,23 +684,27 @@ export default function RecentActivity({
                           currency={transaction.currency}
                           className={cn(
                             'text-lg font-semibold',
-                            transaction.type === 'SELL' || transaction.type === 'DIVIDEND'
+                            transaction.type === 'SELL' ||
+                              transaction.type === 'DIVIDEND'
                               ? 'text-green-600'
                               : transaction.type === 'FEE'
-                              ? 'text-red-600'
-                              : 'text-gray-900'
+                                ? 'text-red-600'
+                                : 'text-gray-900'
                           )}
                           prefix={
-                            transaction.type === 'SELL' || transaction.type === 'DIVIDEND'
+                            transaction.type === 'SELL' ||
+                            transaction.type === 'DIVIDEND'
                               ? '+'
                               : transaction.type === 'FEE'
-                              ? '-'
-                              : '-'
+                                ? '-'
+                                : '-'
                           }
                         />
-                        
-                        <div className="text-xs text-gray-500 mt-1">
-                          {new Date(transaction.transaction_date).toLocaleTimeString('nb-NO', {
+
+                        <div className="mt-1 text-xs text-gray-500">
+                          {new Date(
+                            transaction.transaction_date
+                          ).toLocaleTimeString('nb-NO', {
                             hour: '2-digit',
                             minute: '2-digit',
                           })}
@@ -680,7 +720,7 @@ export default function RecentActivity({
 
         {/* Show More Button */}
         {transactions.length > maxItems && (
-          <div className="p-4 bg-gray-50 border-t border-gray-200">
+          <div className="border-t border-gray-200 bg-gray-50 p-4">
             <Button
               variant="outline"
               className="w-full"

@@ -1,10 +1,10 @@
 /**
  * Chart Data Server Actions - LifeDash
- * 
+ *
  * This module provides comprehensive server actions for fetching and processing
  * chart data from the LifeDash database. All actions include proper error handling,
  * validation, caching, and RLS compliance.
- * 
+ *
  * Features:
  * - Portfolio performance tracking with historical snapshots
  * - Asset allocation analysis and drift calculations
@@ -13,7 +13,7 @@
  * - Norwegian market data support
  * - Currency conversion handling
  * - Optimized caching strategies
- * 
+ *
  * @author LifeDash Team
  * @version 1.0.0
  */
@@ -165,12 +165,12 @@ export function getChartColor(
       performance: {
         positive: '#10B981', // Green
         negative: '#EF4444', // Red
-        neutral: '#6B7280',  // Gray
+        neutral: '#6B7280', // Gray
       },
       allocation: {
-        primary: '#3B82F6',   // Blue
+        primary: '#3B82F6', // Blue
         secondary: '#8B5CF6', // Purple
-        tertiary: '#F59E0B',  // Amber
+        tertiary: '#F59E0B', // Amber
       },
       neutral: '#6B7280',
     },
@@ -178,12 +178,12 @@ export function getChartColor(
       performance: {
         positive: '#34D399', // Light Green
         negative: '#F87171', // Light Red
-        neutral: '#9CA3AF',  // Light Gray
+        neutral: '#9CA3AF', // Light Gray
       },
       allocation: {
-        primary: '#60A5FA',   // Light Blue
+        primary: '#60A5FA', // Light Blue
         secondary: '#A78BFA', // Light Purple
-        tertiary: '#FBBF24',  // Light Amber
+        tertiary: '#FBBF24', // Light Amber
       },
       neutral: '#9CA3AF',
     },
@@ -261,8 +261,9 @@ export function validateTimeRange(timeRange: TimeRange): {
     }
 
     const maxRangeDays = 365 * 5 // 5 years maximum
-    const daysDiff = (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)
-    
+    const daysDiff =
+      (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)
+
     if (daysDiff > maxRangeDays) {
       return {
         isValid: false,
@@ -277,7 +278,6 @@ export function validateTimeRange(timeRange: TimeRange): {
       startDate,
       endDate,
     }
-
   } catch (error) {
     return {
       isValid: false,

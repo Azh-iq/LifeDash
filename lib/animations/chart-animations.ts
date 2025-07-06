@@ -13,7 +13,7 @@ export const chartDrawingVariants = {
   linePath: {
     hidden: {
       pathLength: 0,
-      opacity: 0
+      opacity: 0,
     },
     visible: {
       pathLength: 1,
@@ -21,15 +21,15 @@ export const chartDrawingVariants = {
       transition: {
         pathLength: {
           duration: 2,
-          ease: "easeInOut",
-          delay: 0.2
+          ease: 'easeInOut',
+          delay: 0.2,
         },
         opacity: {
           duration: 0.5,
-          delay: 0.2
-        }
-      }
-    }
+          delay: 0.2,
+        },
+      },
+    },
   } as Variants,
 
   // Area chart fill animation
@@ -37,7 +37,7 @@ export const chartDrawingVariants = {
     hidden: {
       opacity: 0,
       scaleY: 0,
-      originY: 1
+      originY: 1,
     },
     visible: {
       opacity: 0.6,
@@ -45,15 +45,15 @@ export const chartDrawingVariants = {
       transition: {
         scaleY: {
           duration: 1.5,
-          ease: "easeOut",
-          delay: 0.5
+          ease: 'easeOut',
+          delay: 0.5,
         },
         opacity: {
           duration: 0.8,
-          delay: 0.5
-        }
-      }
-    }
+          delay: 0.5,
+        },
+      },
+    },
   } as Variants,
 
   // Bar chart individual bars
@@ -61,7 +61,7 @@ export const chartDrawingVariants = {
     hidden: {
       scaleY: 0,
       originY: 1,
-      opacity: 0
+      opacity: 0,
     },
     visible: (index: number) => ({
       scaleY: 1,
@@ -69,16 +69,16 @@ export const chartDrawingVariants = {
       transition: {
         delay: index * 0.1,
         duration: 0.8,
-        ease: "backOut"
-      }
-    })
+        ease: 'backOut',
+      },
+    }),
   } as Variants,
 
   // Candlestick chart
   candlestick: {
     hidden: {
       scaleY: 0,
-      opacity: 0
+      opacity: 0,
     },
     visible: (index: number) => ({
       scaleY: 1,
@@ -86,9 +86,9 @@ export const chartDrawingVariants = {
       transition: {
         delay: index * 0.05,
         duration: 0.6,
-        ease: "easeOut"
-      }
-    })
+        ease: 'easeOut',
+      },
+    }),
   } as Variants,
 
   // Pie chart sectors
@@ -96,7 +96,7 @@ export const chartDrawingVariants = {
     hidden: {
       scale: 0,
       rotate: -90,
-      opacity: 0
+      opacity: 0,
     },
     visible: (index: number) => ({
       scale: 1,
@@ -105,27 +105,27 @@ export const chartDrawingVariants = {
       transition: {
         delay: index * 0.15,
         duration: 1,
-        ease: "backOut"
-      }
-    })
+        ease: 'backOut',
+      },
+    }),
   } as Variants,
 
   // Donut chart with center text
   donutChart: {
     hidden: {
       scale: 0,
-      opacity: 0
+      opacity: 0,
     },
     visible: {
       scale: 1,
       opacity: 1,
       transition: {
         duration: 1.2,
-        ease: "backOut",
-        delay: 0.3
-      }
-    }
-  } as Variants
+        ease: 'backOut',
+        delay: 0.3,
+      },
+    },
+  } as Variants,
 } as const
 
 // =============================================================================
@@ -137,7 +137,7 @@ export const dataPointVariants = {
   scatterPoint: {
     hidden: {
       scale: 0,
-      opacity: 0
+      opacity: 0,
     },
     visible: (index: number) => ({
       scale: 1,
@@ -145,41 +145,41 @@ export const dataPointVariants = {
       transition: {
         delay: index * 0.03,
         duration: 0.5,
-        ease: "backOut"
-      }
+        ease: 'backOut',
+      },
     }),
     hover: {
       scale: 1.5,
-      transition: { duration: 0.2 }
-    }
+      transition: { duration: 0.2 },
+    },
   } as Variants,
 
   // Line chart data points
   linePoint: {
     hidden: {
       scale: 0,
-      opacity: 0
+      opacity: 0,
     },
     visible: (index: number) => ({
       scale: 1,
       opacity: 1,
       transition: {
-        delay: 0.5 + (index * 0.02), // Appear after line is drawn
+        delay: 0.5 + index * 0.02, // Appear after line is drawn
         duration: 0.4,
-        ease: "backOut"
-      }
+        ease: 'backOut',
+      },
     }),
     hover: {
       scale: 1.3,
-      transition: { duration: 0.15 }
-    }
+      transition: { duration: 0.15 },
+    },
   } as Variants,
 
   // Bubble chart bubbles
   bubble: {
     hidden: {
       scale: 0,
-      opacity: 0
+      opacity: 0,
     },
     visible: (index: number) => ({
       scale: 1,
@@ -187,15 +187,15 @@ export const dataPointVariants = {
       transition: {
         delay: index * 0.08,
         duration: 0.8,
-        ease: "elasticOut"
-      }
+        ease: 'elasticOut',
+      },
     }),
     hover: {
       scale: 1.1,
       opacity: 1,
-      transition: { duration: 0.2 }
-    }
-  } as Variants
+      transition: { duration: 0.2 },
+    },
+  } as Variants,
 } as const
 
 // =============================================================================
@@ -208,7 +208,7 @@ export const chartInteractionVariants = {
     hidden: {
       opacity: 0,
       scale: 0.8,
-      y: 10
+      y: 10,
     },
     visible: {
       opacity: 1,
@@ -216,23 +216,23 @@ export const chartInteractionVariants = {
       y: 0,
       transition: {
         duration: 0.15,
-        ease: "easeOut"
-      }
+        ease: 'easeOut',
+      },
     },
     exit: {
       opacity: 0,
       scale: 0.8,
       transition: {
-        duration: 0.1
-      }
-    }
+        duration: 0.1,
+      },
+    },
   } as Variants,
 
   // Chart legend
   legend: {
     hidden: {
       opacity: 0,
-      y: 20
+      y: 20,
     },
     visible: {
       opacity: 1,
@@ -240,62 +240,62 @@ export const chartInteractionVariants = {
       transition: {
         duration: 0.5,
         delay: 1, // Appear after chart animation
-        ease: "easeOut"
-      }
-    }
+        ease: 'easeOut',
+      },
+    },
   } as Variants,
 
   // Legend item
   legendItem: {
     hidden: {
       opacity: 0,
-      x: -10
+      x: -10,
     },
     visible: (index: number) => ({
       opacity: 1,
       x: 0,
       transition: {
-        delay: 1.2 + (index * 0.05),
-        duration: 0.3
-      }
+        delay: 1.2 + index * 0.05,
+        duration: 0.3,
+      },
     }),
     hover: {
       x: 5,
-      transition: { duration: 0.2 }
-    }
+      transition: { duration: 0.2 },
+    },
   } as Variants,
 
   // Chart axes
   axis: {
     hidden: {
       pathLength: 0,
-      opacity: 0
+      opacity: 0,
     },
     visible: {
       pathLength: 1,
       opacity: 1,
       transition: {
         duration: 0.8,
-        ease: "easeOut"
-      }
-    }
+        ease: 'easeOut',
+      },
+    },
   } as Variants,
 
   // Chart grid lines
   gridLine: {
     hidden: {
       pathLength: 0,
-      opacity: 0
+      opacity: 0,
     },
     visible: (index: number) => ({
       pathLength: 1,
       opacity: 0.3,
       transition: {
         delay: index * 0.02,
-        duration: 0.5
-      }
-    })
-  } as Variants
+        duration: 0.5,
+      },
+    }),
+  } as Variants,
 } as const
 
 // =============================================================================
@@ -308,7 +308,7 @@ export const financialDataVariants = {
     hidden: {
       opacity: 0,
       y: 20,
-      scale: 0.8
+      scale: 0.8,
     },
     visible: {
       opacity: 1,
@@ -316,9 +316,9 @@ export const financialDataVariants = {
       scale: 1,
       transition: {
         duration: 0.6,
-        ease: "backOut"
-      }
-    }
+        ease: 'backOut',
+      },
+    },
   } as Variants,
 
   // Percentage change indicator
@@ -326,49 +326,49 @@ export const financialDataVariants = {
     positive: {
       color: '#22c55e',
       scale: 1.05,
-      transition: { duration: 0.3 }
+      transition: { duration: 0.3 },
     },
     negative: {
       color: '#ef4444',
       scale: 1.05,
-      transition: { duration: 0.3 }
+      transition: { duration: 0.3 },
     },
     neutral: {
       color: '#6b7280',
       scale: 1,
-      transition: { duration: 0.3 }
-    }
+      transition: { duration: 0.3 },
+    },
   } as Variants,
 
   // Price flash animation
   priceFlash: {
     rest: {
-      backgroundColor: 'transparent'
+      backgroundColor: 'transparent',
     },
     flash: (type: 'positive' | 'negative') => ({
       backgroundColor: type === 'positive' ? '#22c55e20' : '#ef444420',
       transition: {
         duration: 0.3,
         repeat: 1,
-        repeatType: 'reverse' as const
-      }
-    })
+        repeatType: 'reverse' as const,
+      },
+    }),
   } as Variants,
 
   // Portfolio allocation bar
   allocationBar: {
     hidden: {
       scaleX: 0,
-      originX: 0
+      originX: 0,
     },
     visible: {
       scaleX: 1,
       transition: {
         duration: 1.2,
-        ease: "easeOut",
-        delay: 0.5
-      }
-    }
+        ease: 'easeOut',
+        delay: 0.5,
+      },
+    },
   } as Variants,
 
   // Stock price trend arrow
@@ -377,21 +377,21 @@ export const financialDataVariants = {
       rotate: 0,
       color: '#22c55e',
       y: 0,
-      transition: { duration: 0.3 }
+      transition: { duration: 0.3 },
     },
     down: {
       rotate: 180,
       color: '#ef4444',
       y: 0,
-      transition: { duration: 0.3 }
+      transition: { duration: 0.3 },
     },
     flat: {
       rotate: 90,
       color: '#6b7280',
       y: 0,
-      transition: { duration: 0.3 }
-    }
-  } as Variants
+      transition: { duration: 0.3 },
+    },
+  } as Variants,
 } as const
 
 // =============================================================================
@@ -406,9 +406,9 @@ export const chartLoadingVariants = {
       transition: {
         duration: 1.5,
         repeat: Infinity,
-        ease: "easeInOut"
-      }
-    }
+        ease: 'easeInOut',
+      },
+    },
   } as Variants,
 
   // Loading spinner for charts
@@ -418,9 +418,9 @@ export const chartLoadingVariants = {
       transition: {
         duration: 1,
         repeat: Infinity,
-        ease: "linear"
-      }
-    }
+        ease: 'linear',
+      },
+    },
   } as Variants,
 
   // Pulse animation for loading states
@@ -431,9 +431,9 @@ export const chartLoadingVariants = {
       transition: {
         duration: 2,
         repeat: Infinity,
-        ease: "easeInOut"
-      }
-    }
+        ease: 'easeInOut',
+      },
+    },
   } as Variants,
 
   // Shimmer effect for chart skeleton
@@ -443,10 +443,10 @@ export const chartLoadingVariants = {
       transition: {
         duration: 2,
         repeat: Infinity,
-        ease: "linear"
-      }
-    }
-  } as Variants
+        ease: 'linear',
+      },
+    },
+  } as Variants,
 } as const
 
 // =============================================================================
@@ -460,7 +460,7 @@ export const portfolioAnimationVariants = {
       opacity: 0,
       y: 50,
       scale: 0.9,
-      rotateX: -15
+      rotateX: -15,
     },
     visible: (index: number) => ({
       opacity: 1,
@@ -470,15 +470,15 @@ export const portfolioAnimationVariants = {
       transition: {
         delay: index * 0.1,
         duration: 0.8,
-        ease: "backOut"
-      }
+        ease: 'backOut',
+      },
     }),
     hover: {
       y: -10,
       scale: 1.02,
       rotateX: 5,
-      transition: { duration: 0.3 }
-    }
+      transition: { duration: 0.3 },
+    },
   } as Variants,
 
   // Holdings table row
@@ -486,29 +486,29 @@ export const portfolioAnimationVariants = {
     hidden: {
       opacity: 0,
       x: -30,
-      backgroundColor: 'transparent'
+      backgroundColor: 'transparent',
     },
     visible: (index: number) => ({
       opacity: 1,
       x: 0,
       transition: {
         delay: index * 0.05,
-        duration: 0.4
-      }
+        duration: 0.4,
+      },
     }),
     hover: {
       backgroundColor: 'rgba(59, 130, 246, 0.05)',
       x: 5,
-      transition: { duration: 0.2 }
+      transition: { duration: 0.2 },
     },
     updated: {
       backgroundColor: 'rgba(34, 197, 94, 0.1)',
       transition: {
         duration: 0.5,
         repeat: 1,
-        repeatType: 'reverse' as const
-      }
-    }
+        repeatType: 'reverse' as const,
+      },
+    },
   } as Variants,
 
   // Performance metric card
@@ -516,7 +516,7 @@ export const portfolioAnimationVariants = {
     hidden: {
       opacity: 0,
       scale: 0.8,
-      y: 30
+      y: 30,
     },
     visible: (index: number) => ({
       opacity: 1,
@@ -525,18 +525,18 @@ export const portfolioAnimationVariants = {
       transition: {
         delay: index * 0.15,
         duration: 0.6,
-        ease: "backOut"
-      }
+        ease: 'backOut',
+      },
     }),
     pulse: {
       scale: [1, 1.05, 1],
       transition: {
         duration: 2,
         repeat: Infinity,
-        ease: "easeInOut"
-      }
-    }
-  } as Variants
+        ease: 'easeInOut',
+      },
+    },
+  } as Variants,
 } as const
 
 // =============================================================================
@@ -548,51 +548,51 @@ export const chartContainerVariants = {
   chartContainer: {
     hidden: {
       opacity: 0,
-      scale: 0.95
+      scale: 0.95,
     },
     visible: {
       opacity: 1,
       scale: 1,
       transition: {
         duration: 0.5,
-        ease: "easeOut",
+        ease: 'easeOut',
         staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
+        delayChildren: 0.2,
+      },
+    },
   } as Variants,
 
   // Chart controls panel
   controlsPanel: {
     hidden: {
       opacity: 0,
-      y: -20
+      y: -20,
     },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
         duration: 0.4,
-        delay: 0.8 // Appear after chart
-      }
-    }
+        delay: 0.8, // Appear after chart
+      },
+    },
   } as Variants,
 
   // Time range selector
   timeSelector: {
     hidden: {
       opacity: 0,
-      scale: 0.9
+      scale: 0.9,
     },
     visible: {
       opacity: 1,
       scale: 1,
       transition: {
         duration: 0.3,
-        delay: 1 // Appear last
-      }
-    }
-  } as Variants
+        delay: 1, // Appear last
+      },
+    },
+  } as Variants,
 } as const
 
 // =============================================================================
@@ -608,20 +608,20 @@ export function createSequentialChartAnimation(
   stagger: number = 0.3
 ): Record<string, Variants> {
   const animations: Record<string, Variants> = {}
-  
+
   elements.forEach((element, index) => {
     animations[element] = {
       hidden: { opacity: 0 },
       visible: {
         opacity: 1,
         transition: {
-          delay: baseDelay + (index * stagger),
-          duration: 0.5
-        }
-      }
+          delay: baseDelay + index * stagger,
+          duration: 0.5,
+        },
+      },
     }
   })
-  
+
   return animations
 }
 
@@ -633,7 +633,7 @@ export function createDataDrivenAnimation(
   maxDelay: number = 2
 ): Variants {
   const delayPerItem = Math.min(maxDelay / dataLength, 0.1)
-  
+
   return {
     hidden: { opacity: 0, scale: 0 },
     visible: (index: number) => ({
@@ -642,20 +642,18 @@ export function createDataDrivenAnimation(
       transition: {
         delay: index * delayPerItem,
         duration: 0.5,
-        ease: "backOut"
-      }
-    })
+        ease: 'backOut',
+      },
+    }),
   }
 }
 
 /**
  * Create a chart update animation that smoothly transitions between data states
  */
-export function createChartUpdateAnimation(
-  duration: number = 0.8
-): Transition {
+export function createChartUpdateAnimation(duration: number = 0.8): Transition {
   return {
     duration,
-    ease: "easeInOut"
+    ease: 'easeInOut',
   }
 }

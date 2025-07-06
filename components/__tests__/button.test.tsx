@@ -38,14 +38,18 @@ describe('Button Component', () => {
   })
 
   test('handles loading state correctly', () => {
-    render(<Button loading loadingText="Loading...">Submit</Button>)
+    render(
+      <Button loading loadingText="Loading...">
+        Submit
+      </Button>
+    )
     const button = screen.getByRole('button')
-    
+
     expect(button).toBeDisabled()
     expect(button).toHaveAttribute('aria-busy', 'true')
     expect(screen.getByText('Loading...')).toBeInTheDocument()
     expect(screen.getByText('Submit')).toHaveClass('sr-only')
-    
+
     // Check for loading spinner
     expect(button.querySelector('svg')).toHaveClass('animate-spin')
   })
@@ -53,7 +57,7 @@ describe('Button Component', () => {
   test('handles disabled state correctly', () => {
     render(<Button disabled>Disabled</Button>)
     const button = screen.getByRole('button')
-    
+
     expect(button).toBeDisabled()
     expect(button).toHaveAttribute('aria-disabled', 'true')
     expect(button).toHaveClass('disabled:opacity-50')
@@ -62,23 +66,31 @@ describe('Button Component', () => {
   test('handles click events', () => {
     const handleClick = jest.fn()
     render(<Button onClick={handleClick}>Click me</Button>)
-    
+
     fireEvent.click(screen.getByRole('button'))
     expect(handleClick).toHaveBeenCalledTimes(1)
   })
 
   test('prevents click when loading', () => {
     const handleClick = jest.fn()
-    render(<Button loading onClick={handleClick}>Loading</Button>)
-    
+    render(
+      <Button loading onClick={handleClick}>
+        Loading
+      </Button>
+    )
+
     fireEvent.click(screen.getByRole('button'))
     expect(handleClick).not.toHaveBeenCalled()
   })
 
   test('prevents click when disabled', () => {
     const handleClick = jest.fn()
-    render(<Button disabled onClick={handleClick}>Disabled</Button>)
-    
+    render(
+      <Button disabled onClick={handleClick}>
+        Disabled
+      </Button>
+    )
+
     fireEvent.click(screen.getByRole('button'))
     expect(handleClick).not.toHaveBeenCalled()
   })
@@ -86,13 +98,13 @@ describe('Button Component', () => {
   test('renders with left and right icons', () => {
     const leftIcon = <span data-testid="left-icon">←</span>
     const rightIcon = <span data-testid="right-icon">→</span>
-    
+
     render(
       <Button leftIcon={leftIcon} rightIcon={rightIcon}>
         With Icons
       </Button>
     )
-    
+
     expect(screen.getByTestId('left-icon')).toBeInTheDocument()
     expect(screen.getByTestId('right-icon')).toBeInTheDocument()
     expect(screen.getByText('With Icons')).toBeInTheDocument()
@@ -101,13 +113,13 @@ describe('Button Component', () => {
   test('hides icons when loading', () => {
     const leftIcon = <span data-testid="left-icon">←</span>
     const rightIcon = <span data-testid="right-icon">→</span>
-    
+
     render(
       <Button loading leftIcon={leftIcon} rightIcon={rightIcon}>
         Loading
       </Button>
     )
-    
+
     expect(screen.queryByTestId('left-icon')).not.toBeInTheDocument()
     expect(screen.queryByTestId('right-icon')).not.toBeInTheDocument()
   })
@@ -118,7 +130,7 @@ describe('Button Component', () => {
         <a href="/test">Link Button</a>
       </Button>
     )
-    
+
     const link = screen.getByRole('link')
     expect(link).toBeInTheDocument()
     expect(link).toHaveAttribute('href', '/test')
@@ -128,7 +140,7 @@ describe('Button Component', () => {
   test('applies custom className', () => {
     render(<Button className="custom-class">Custom</Button>)
     const button = screen.getByRole('button')
-    
+
     expect(button).toHaveClass('custom-class')
     expect(button).toHaveClass('bg-primary-600') // Should also have default classes
   })
@@ -136,14 +148,14 @@ describe('Button Component', () => {
   test('forwards ref correctly', () => {
     const ref = jest.fn()
     render(<Button ref={ref}>Ref Test</Button>)
-    
+
     expect(ref).toHaveBeenCalledWith(expect.any(HTMLButtonElement))
   })
 
   test('has correct accessibility attributes', () => {
     render(<Button>Accessible Button</Button>)
     const button = screen.getByRole('button')
-    
+
     expect(button).toHaveAttribute('aria-disabled', 'false')
     expect(button).toHaveAttribute('aria-busy', 'false')
   })

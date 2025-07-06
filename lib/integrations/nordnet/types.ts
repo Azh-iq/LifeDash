@@ -3,32 +3,32 @@
 
 export interface NordnetCSVRow {
   // Core transaction fields from Nordnet CSV
-  "Id": string
-  "Bokføringsdag": string
-  "Handelsdag": string
-  "Oppgjørsdag": string
-  "Portefølje": string
-  "Transaksjonstype": string
-  "Verdipapir": string
-  "ISIN": string
-  "Antall": string
-  "Kurs": string
-  "Rente": string
-  "Totale Avgifter": string
-  "Valuta": string
-  "Beløp": string
-  "Kjøpsverdi": string
-  "Resultat": string
-  "Totalt antall": string
-  "Saldo": string
-  "Vekslingskurs": string
-  "Transaksjonstekst": string
-  "Makuleringsddato": string
-  "Sluttseddelnummer": string
-  "Verifikasjonsnummer": string
-  "Kurtasje": string
-  "Valutakurs": string
-  "Innledende rente": string
+  Id: string
+  Bokføringsdag: string
+  Handelsdag: string
+  Oppgjørsdag: string
+  Portefølje: string
+  Transaksjonstype: string
+  Verdipapir: string
+  ISIN: string
+  Antall: string
+  Kurs: string
+  Rente: string
+  'Totale Avgifter': string
+  Valuta: string
+  Beløp: string
+  Kjøpsverdi: string
+  Resultat: string
+  'Totalt antall': string
+  Saldo: string
+  Vekslingskurs: string
+  Transaksjonstekst: string
+  Makuleringsddato: string
+  Sluttseddelnummer: string
+  Verifikasjonsnummer: string
+  Kurtasje: string
+  Valutakurs: string
+  'Innledende rente': string
   [key: string]: string // Allow for additional fields
 }
 
@@ -85,7 +85,7 @@ export interface NordnetTransactionData {
   commission: number
   currency_rate: number
   initial_interest: number
-  
+
   // Additional computed fields
   internal_transaction_type: string
   account_name: string
@@ -140,67 +140,71 @@ export interface NordnetImportConfig {
 // Transaction type mappings from Nordnet to internal types
 export const NORDNET_TRANSACTION_TYPES = {
   // Buy/Sell operations
-  "KJØPT": "BUY",
-  "SALG": "SELL",
-  
+  KJØPT: 'BUY',
+  SALG: 'SELL',
+
   // Money movements
-  "Overføring via Trustly": "DEPOSIT",
-  "UTBETALING": "WITHDRAWAL",
-  "Innskudd": "DEPOSIT",
-  "Uttak": "WITHDRAWAL",
-  
+  'Overføring via Trustly': 'DEPOSIT',
+  UTBETALING: 'WITHDRAWAL',
+  Innskudd: 'DEPOSIT',
+  Uttak: 'WITHDRAWAL',
+
   // Fees and costs
-  "FORSIKRINGSKOSTNAD": "FEE",
-  "Kurtasje": "FEE",
-  "Avgift": "FEE",
-  "Kostnad": "FEE",
-  
+  FORSIKRINGSKOSTNAD: 'FEE',
+  Kurtasje: 'FEE',
+  Avgift: 'FEE',
+  Kostnad: 'FEE',
+
   // Dividends and interest
-  "Utbetaling aksjelån": "DIVIDEND",
-  "Aksjeutbytte": "DIVIDEND",
-  "Renter": "INTEREST",
-  "Rentegevinst": "INTEREST",
-  
+  'Utbetaling aksjelån': 'DIVIDEND',
+  Aksjeutbytte: 'DIVIDEND',
+  Renter: 'INTEREST',
+  Rentegevinst: 'INTEREST',
+
   // Corporate actions
-  "Aksjesplitt": "SPLIT",
-  "Sammenslåing": "MERGER",
-  "Utskilling": "SPINOFF",
-  
+  Aksjesplitt: 'SPLIT',
+  Sammenslåing: 'MERGER',
+  Utskilling: 'SPINOFF',
+
   // Transfers
-  "Overføring inn": "TRANSFER_IN",
-  "Overføring ut": "TRANSFER_OUT",
-  
+  'Overføring inn': 'TRANSFER_IN',
+  'Overføring ut': 'TRANSFER_OUT',
+
   // Tax
-  "Skatt": "TAX",
-  "Kildeskatt": "TAX",
-  
+  Skatt: 'TAX',
+  Kildeskatt: 'TAX',
+
   // Other
-  "Reinvestering": "REINVESTMENT",
-  "Tilbakeføring": "REVERSAL",
-  "Justering": "ADJUSTMENT"
+  Reinvestering: 'REINVESTMENT',
+  Tilbakeføring: 'REVERSAL',
+  Justering: 'ADJUSTMENT',
 } as const
 
 // Common Nordnet portfolio patterns
 export const NORDNET_PORTFOLIO_PATTERNS = {
   // Numeric portfolio IDs
   NUMERIC_ID: /^\d{8,12}$/,
-  
+
   // Named portfolios
   NAMED_PORTFOLIO: /^[A-ZÆØÅa-zæøå\s\-_]{3,50}$/,
-  
+
   // Account types
   PENSION_ACCOUNT: /IPS|pensjon|pension/i,
   SAVINGS_ACCOUNT: /spare|BSU|saving/i,
   INVESTMENT_ACCOUNT: /investering|invest|aksje/i,
-  
+
   // Currency patterns
-  CURRENCY_PATTERN: /^[A-Z]{3}$/
+  CURRENCY_PATTERN: /^[A-Z]{3}$/,
 }
 
 // Norwegian character handling
 export const NORWEGIAN_CHARS = {
-  'æ': 'ae', 'ø': 'oe', 'å': 'aa',
-  'Æ': 'AE', 'Ø': 'OE', 'Å': 'AA'
+  æ: 'ae',
+  ø: 'oe',
+  å: 'aa',
+  Æ: 'AE',
+  Ø: 'OE',
+  Å: 'AA',
 } as const
 
 // ISIN validation regex
@@ -211,14 +215,24 @@ export const NORDNET_DATE_FORMATS = [
   'YYYY-MM-DD',
   'DD.MM.YYYY',
   'DD/MM/YYYY',
-  'DD-MM-YYYY'
+  'DD-MM-YYYY',
 ] as const
 
 // Currency codes commonly used in Nordnet
 export const NORDNET_CURRENCIES = [
-  'NOK', 'SEK', 'DKK', 'EUR', 'USD', 'GBP', 'CHF', 'CAD', 'AUD', 'JPY'
+  'NOK',
+  'SEK',
+  'DKK',
+  'EUR',
+  'USD',
+  'GBP',
+  'CHF',
+  'CAD',
+  'AUD',
+  'JPY',
 ] as const
 
 // Export all transaction types for type safety
 export type NordnetTransactionType = keyof typeof NORDNET_TRANSACTION_TYPES
-export type InternalTransactionType = typeof NORDNET_TRANSACTION_TYPES[NordnetTransactionType]
+export type InternalTransactionType =
+  (typeof NORDNET_TRANSACTION_TYPES)[NordnetTransactionType]

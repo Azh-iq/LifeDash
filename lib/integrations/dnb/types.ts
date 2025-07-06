@@ -118,43 +118,43 @@ export interface DNBConnectionStatus {
 // Transaction type mappings from DNB to internal types
 export const DNB_TRANSACTION_TYPES = {
   // Card transactions
-  "CARD_PAYMENT": "PURCHASE",
-  "CARD_WITHDRAWAL": "WITHDRAWAL",
-  "CARD_REFUND": "REFUND",
-  
+  CARD_PAYMENT: 'PURCHASE',
+  CARD_WITHDRAWAL: 'WITHDRAWAL',
+  CARD_REFUND: 'REFUND',
+
   // Transfers
-  "TRANSFER_IN": "TRANSFER_IN",
-  "TRANSFER_OUT": "TRANSFER_OUT",
-  "INTERNAL_TRANSFER": "TRANSFER",
-  
+  TRANSFER_IN: 'TRANSFER_IN',
+  TRANSFER_OUT: 'TRANSFER_OUT',
+  INTERNAL_TRANSFER: 'TRANSFER',
+
   // Direct debits and standing orders
-  "DIRECT_DEBIT": "DIRECT_DEBIT",
-  "STANDING_ORDER": "STANDING_ORDER",
-  
+  DIRECT_DEBIT: 'DIRECT_DEBIT',
+  STANDING_ORDER: 'STANDING_ORDER',
+
   // Bank fees
-  "BANK_FEE": "FEE",
-  "ACCOUNT_FEE": "FEE",
-  "OVERDRAFT_FEE": "FEE",
-  
+  BANK_FEE: 'FEE',
+  ACCOUNT_FEE: 'FEE',
+  OVERDRAFT_FEE: 'FEE',
+
   // Interest
-  "INTEREST_CREDIT": "INTEREST",
-  "INTEREST_DEBIT": "INTEREST",
-  
+  INTEREST_CREDIT: 'INTEREST',
+  INTEREST_DEBIT: 'INTEREST',
+
   // Salary and benefits
-  "SALARY": "SALARY",
-  "PENSION": "PENSION",
-  "BENEFITS": "BENEFITS",
-  
+  SALARY: 'SALARY',
+  PENSION: 'PENSION',
+  BENEFITS: 'BENEFITS',
+
   // Loan payments
-  "LOAN_PAYMENT": "LOAN_PAYMENT",
-  "MORTGAGE_PAYMENT": "MORTGAGE_PAYMENT",
-  
+  LOAN_PAYMENT: 'LOAN_PAYMENT',
+  MORTGAGE_PAYMENT: 'MORTGAGE_PAYMENT',
+
   // Other
-  "CASH_DEPOSIT": "DEPOSIT",
-  "CASH_WITHDRAWAL": "WITHDRAWAL",
-  "CHECK_PAYMENT": "CHECK",
-  "CORRECTION": "ADJUSTMENT",
-  "UNKNOWN": "OTHER"
+  CASH_DEPOSIT: 'DEPOSIT',
+  CASH_WITHDRAWAL: 'WITHDRAWAL',
+  CHECK_PAYMENT: 'CHECK',
+  CORRECTION: 'ADJUSTMENT',
+  UNKNOWN: 'OTHER',
 } as const
 
 // DNB API endpoints
@@ -164,7 +164,7 @@ export const DNB_API_ENDPOINTS = {
   TRANSACTIONS: '/accounts/{accountId}/transactions',
   BALANCE: '/accounts/{accountId}/balance',
   CUSTOMER: '/customer/info',
-  REFRESH: '/auth/oauth/refresh'
+  REFRESH: '/auth/oauth/refresh',
 } as const
 
 // DNB OAuth scopes
@@ -172,24 +172,24 @@ export const DNB_OAUTH_SCOPES = [
   'read:accounts',
   'read:transactions',
   'read:balance',
-  'read:customer'
+  'read:customer',
 ] as const
 
 // DNB API rate limits
 export const DNB_RATE_LIMITS = {
   REQUESTS_PER_MINUTE: 60,
   REQUESTS_PER_HOUR: 1000,
-  REQUESTS_PER_DAY: 10000
+  REQUESTS_PER_DAY: 10000,
 } as const
 
 // DNB account types
 export const DNB_ACCOUNT_TYPES = {
-  'CHECKING': 'CHECKING',
-  'SAVINGS': 'SAVINGS',
-  'CREDIT_CARD': 'CREDIT_CARD',
-  'LOAN': 'LOAN',
-  'INVESTMENT': 'INVESTMENT',
-  'PENSION': 'PENSION'
+  CHECKING: 'CHECKING',
+  SAVINGS: 'SAVINGS',
+  CREDIT_CARD: 'CREDIT_CARD',
+  LOAN: 'LOAN',
+  INVESTMENT: 'INVESTMENT',
+  PENSION: 'PENSION',
 } as const
 
 // Common DNB transaction categories
@@ -208,11 +208,12 @@ export const DNB_CATEGORIES = [
   'INCOME',
   'TRANSFER',
   'INVESTMENT',
-  'OTHER'
+  'OTHER',
 ] as const
 
 // Export all transaction types for type safety
 export type DNBTransactionType = keyof typeof DNB_TRANSACTION_TYPES
-export type InternalDNBTransactionType = typeof DNB_TRANSACTION_TYPES[DNBTransactionType]
+export type InternalDNBTransactionType =
+  (typeof DNB_TRANSACTION_TYPES)[DNBTransactionType]
 export type DNBAccountType = keyof typeof DNB_ACCOUNT_TYPES
-export type DNBCategory = typeof DNB_CATEGORIES[number]
+export type DNBCategory = (typeof DNB_CATEGORIES)[number]

@@ -12,7 +12,9 @@ type CurrencyCode = Database['public']['Enums']['currency_code']
 // Validation schemas
 const benchmarkDataSchema = z.object({
   symbols: z.array(z.string()).min(1).max(10).default(['SPY']),
-  period: z.enum(['1D', '1W', '1M', '3M', '6M', '1Y', 'YTD', '3Y', '5Y', 'ALL']).default('1Y'),
+  period: z
+    .enum(['1D', '1W', '1M', '3M', '6M', '1Y', 'YTD', '3Y', '5Y', 'ALL'])
+    .default('1Y'),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
   currency: z.string().length(3).optional(),
@@ -22,13 +24,17 @@ const benchmarkDataSchema = z.object({
 const benchmarkComparisonSchema = z.object({
   primarySymbol: z.string(),
   comparisonSymbols: z.array(z.string()).max(5),
-  period: z.enum(['1D', '1W', '1M', '3M', '6M', '1Y', 'YTD', '3Y', '5Y', 'ALL']).default('1Y'),
+  period: z
+    .enum(['1D', '1W', '1M', '3M', '6M', '1Y', 'YTD', '3Y', '5Y', 'ALL'])
+    .default('1Y'),
   normalizeToBase: z.boolean().default(true),
 })
 
 const marketOverviewSchema = z.object({
   region: z.enum(['US', 'EUROPE', 'ASIA', 'NORDIC', 'GLOBAL']).default('US'),
-  assetClasses: z.array(z.enum(['INDEX', 'ETF', 'SECTOR', 'CUSTOM'])).default(['INDEX', 'ETF']),
+  assetClasses: z
+    .array(z.enum(['INDEX', 'ETF', 'SECTOR', 'CUSTOM']))
+    .default(['INDEX', 'ETF']),
   currency: z.string().length(3).optional(),
 })
 
@@ -126,7 +132,8 @@ export async function getBenchmarkData(
 ): Promise<ActionResult<BenchmarkPerformanceData[]>> {
   try {
     const validatedInput = benchmarkDataSchema.parse(input)
-    const { symbols, period, startDate, endDate, currency, includeMetrics } = validatedInput
+    const { symbols, period, startDate, endDate, currency, includeMetrics } =
+      validatedInput
 
     const supabase = createClient()
 
@@ -155,31 +162,38 @@ export async function getBenchmarkData(
       }
 
       // Transform data points
-      const dataPoints: BenchmarkDataPoint[] = benchmarkData.map((point, index) => {
-        const previousPoint = index > 0 ? benchmarkData[index - 1] : null
-        const change = previousPoint ? point.close_price - previousPoint.close_price : point.day_change
-        const changePercent = previousPoint && previousPoint.close_price > 0 
-          ? ((point.close_price - previousPoint.close_price) / previousPoint.close_price) * 100
-          : point.day_change_percent
+      const dataPoints: BenchmarkDataPoint[] = benchmarkData.map(
+        (point, index) => {
+          const previousPoint = index > 0 ? benchmarkData[index - 1] : null
+          const change = previousPoint
+            ? point.close_price - previousPoint.close_price
+            : point.day_change
+          const changePercent =
+            previousPoint && previousPoint.close_price > 0
+              ? ((point.close_price - previousPoint.close_price) /
+                  previousPoint.close_price) *
+                100
+              : point.day_change_percent
 
-        return {
-          date: point.price_date,
-          open: point.open_price || point.close_price,
-          high: point.high_price || point.close_price,
-          low: point.low_price || point.close_price,
-          close: point.close_price,
-          volume: point.volume,
-          adjustedClose: point.adjusted_close,
-          change,
-          changePercent,
-          metadata: {
-            marketCap: point.market_cap,
-            peRatio: point.pe_ratio,
-            dividendYield: point.dividend_yield,
-            volatility: point.volatility_30d,
+          return {
+            date: point.price_date,
+            open: point.open_price || point.close_price,
+            high: point.high_price || point.close_price,
+            low: point.low_price || point.close_price,
+            close: point.close_price,
+            volume: point.volume,
+            adjustedClose: point.adjusted_close,
+            change,
+            changePercent,
+            metadata: {
+              marketCap: point.market_cap,
+              peRatio: point.pe_ratio,
+              dividendYield: point.dividend_yield,
+              volatility: point.volatility_30d,
+            },
           }
         }
-      })
+      )
 
       // Calculate metrics
       const latestData = benchmarkData[benchmarkData.length - 1]
@@ -214,11 +228,16 @@ export async function getBenchmarkData(
         if (priceHistory.length > 0) {
           metrics.fiftyTwoWeekHigh = Math.max(...priceHistory)
           metrics.fiftyTwoWeekLow = Math.min(...priceHistory)
-          
+
           // Calculate 30-day average volume
-          const recentVolumes = dataPoints.slice(-30).map(d => d.volume).filter(v => v != null) as number[]
+          const recentVolumes = dataPoints
+            .slice(-30)
+            .map(d => d.volume)
+            .filter(v => v != null) as number[]
           if (recentVolumes.length > 0) {
-            metrics.avgVolume30D = recentVolumes.reduce((sum, vol) => sum + vol, 0) / recentVolumes.length
+            metrics.avgVolume30D =
+              recentVolumes.reduce((sum, vol) => sum + vol, 0) /
+              recentVolumes.length
           }
         }
       }
@@ -234,12 +253,15 @@ export async function getBenchmarkData(
     })
 
     const benchmarkResults = await Promise.all(benchmarkPromises)
-    const validBenchmarks = benchmarkResults.filter(result => result !== null) as BenchmarkPerformanceData[]
+    const validBenchmarks = benchmarkResults.filter(
+      result => result !== null
+    ) as BenchmarkPerformanceData[]
 
     if (validBenchmarks.length === 0) {
       return {
         success: false,
-        error: 'No benchmark data available for the specified symbols and period',
+        error:
+          'No benchmark data available for the specified symbols and period',
       }
     }
 
@@ -248,11 +270,14 @@ export async function getBenchmarkData(
       validBenchmarks.forEach(benchmark => {
         benchmark.correlations = {}
         const returns1 = calculateReturns(benchmark.data.map(d => d.close))
-        
+
         validBenchmarks.forEach(otherBenchmark => {
           if (benchmark.symbol !== otherBenchmark.symbol) {
-            const returns2 = calculateReturns(otherBenchmark.data.map(d => d.close))
-            benchmark.correlations![otherBenchmark.symbol] = calculateCorrelation(returns1, returns2)
+            const returns2 = calculateReturns(
+              otherBenchmark.data.map(d => d.close)
+            )
+            benchmark.correlations![otherBenchmark.symbol] =
+              calculateCorrelation(returns1, returns2)
           }
         })
       })
@@ -265,9 +290,8 @@ export async function getBenchmarkData(
         calculatedAt: new Date().toISOString(),
         dataPoints: validBenchmarks.reduce((sum, b) => sum + b.data.length, 0),
         source: 'benchmark_data',
-      }
+      },
     }
-
   } catch (error) {
     console.error('Benchmark data error:', error)
 
@@ -296,7 +320,7 @@ export const getCachedBenchmarkData = unstable_cache(
       metadata: {
         ...result.metadata,
         cached: true,
-      }
+      },
     }
   },
   ['benchmark-data'],
@@ -312,21 +336,24 @@ export const getCachedBenchmarkData = unstable_cache(
  */
 export async function compareBenchmarks(
   input: z.infer<typeof benchmarkComparisonSchema>
-): Promise<ActionResult<{
-  primary: BenchmarkPerformanceData
-  comparisons: BenchmarkPerformanceData[]
-  normalizedData: Array<{
-    date: string
-    [symbol: string]: number | string
+): Promise<
+  ActionResult<{
+    primary: BenchmarkPerformanceData
+    comparisons: BenchmarkPerformanceData[]
+    normalizedData: Array<{
+      date: string
+      [symbol: string]: number | string
+    }>
+    relativePerformance: Record<string, number>
   }>
-  relativePerformance: Record<string, number>
-}>> {
+> {
   try {
     const validatedInput = benchmarkComparisonSchema.parse(input)
-    const { primarySymbol, comparisonSymbols, period, normalizeToBase } = validatedInput
+    const { primarySymbol, comparisonSymbols, period, normalizeToBase } =
+      validatedInput
 
     const allSymbols = [primarySymbol, ...comparisonSymbols]
-    
+
     const benchmarkResult = await getBenchmarkData({
       symbols: allSymbols,
       period,
@@ -362,23 +389,31 @@ export async function compareBenchmarks(
     const commonDates = Array.from(allDates).sort()
 
     // Create normalized comparison data
-    let normalizedData: Array<{ date: string; [symbol: string]: number | string }> = []
+    let normalizedData: Array<{
+      date: string
+      [symbol: string]: number | string
+    }> = []
     let baseValues: Record<string, number> = {}
 
     if (normalizeToBase && commonDates.length > 0) {
       // Calculate base values (first available price for each benchmark)
       benchmarks.forEach(benchmark => {
-        const firstDataPoint = benchmark.data.find(d => commonDates.includes(d.date))
+        const firstDataPoint = benchmark.data.find(d =>
+          commonDates.includes(d.date)
+        )
         baseValues[benchmark.symbol] = firstDataPoint?.close || 1
       })
 
       normalizedData = commonDates.map(date => {
-        const dataPoint: { date: string; [symbol: string]: number | string } = { date }
-        
+        const dataPoint: { date: string; [symbol: string]: number | string } = {
+          date,
+        }
+
         benchmarks.forEach(benchmark => {
           const point = benchmark.data.find(d => d.date === date)
           if (point && baseValues[benchmark.symbol] > 0) {
-            dataPoint[benchmark.symbol] = (point.close / baseValues[benchmark.symbol]) * 100
+            dataPoint[benchmark.symbol] =
+              (point.close / baseValues[benchmark.symbol]) * 100
           }
         })
 
@@ -386,8 +421,10 @@ export async function compareBenchmarks(
       })
     } else {
       normalizedData = commonDates.map(date => {
-        const dataPoint: { date: string; [symbol: string]: number | string } = { date }
-        
+        const dataPoint: { date: string; [symbol: string]: number | string } = {
+          date,
+        }
+
         benchmarks.forEach(benchmark => {
           const point = benchmark.data.find(d => d.date === date)
           if (point) {
@@ -418,9 +455,8 @@ export async function compareBenchmarks(
       metadata: {
         calculatedAt: new Date().toISOString(),
         dataPoints: normalizedData.length,
-      }
+      },
     }
-
   } catch (error) {
     console.error('Benchmark comparison error:', error)
 
@@ -453,7 +489,7 @@ export async function getMarketOverview(
 
     // Get regional benchmark symbols
     const regionalSymbols = getRegionalSymbols(region)
-    
+
     // Fetch latest benchmark data for the region
     const { data: benchmarkData, error } = await supabase
       .from('benchmark_data')
@@ -495,7 +531,10 @@ export async function getMarketOverview(
       .map(data => createBenchmarkMetrics(data, currency))
 
     const sectors = latestData
-      .filter(data => data.benchmark_type === 'SECTOR' || data.benchmark_type === 'ETF')
+      .filter(
+        data =>
+          data.benchmark_type === 'SECTOR' || data.benchmark_type === 'ETF'
+      )
       .map(data => createBenchmarkMetrics(data, currency))
 
     // Calculate market summary
@@ -505,18 +544,24 @@ export async function getMarketOverview(
     const unchanged = allMetrics.filter(m => m.dayChangePercent === 0).length
 
     // Calculate new highs/lows (simplified - would need more historical data)
-    const newHighs = allMetrics.filter(m => m.currentPrice === m.fiftyTwoWeekHigh).length
-    const newLows = allMetrics.filter(m => m.currentPrice === m.fiftyTwoWeekLow).length
+    const newHighs = allMetrics.filter(
+      m => m.currentPrice === m.fiftyTwoWeekHigh
+    ).length
+    const newLows = allMetrics.filter(
+      m => m.currentPrice === m.fiftyTwoWeekLow
+    ).length
 
     // Determine market sentiment
-    const advancerRatio = allMetrics.length > 0 ? advancers / allMetrics.length : 0
+    const advancerRatio =
+      allMetrics.length > 0 ? advancers / allMetrics.length : 0
     let marketSentiment: 'bullish' | 'bearish' | 'neutral' = 'neutral'
     if (advancerRatio > 0.6) marketSentiment = 'bullish'
     else if (advancerRatio < 0.4) marketSentiment = 'bearish'
 
     const overview: MarketOverview = {
       region,
-      asOfDate: latestData[0]?.price_date || new Date().toISOString().split('T')[0],
+      asOfDate:
+        latestData[0]?.price_date || new Date().toISOString().split('T')[0],
       indices,
       sectors,
       summary: {
@@ -526,7 +571,7 @@ export async function getMarketOverview(
         newHighs,
         newLows,
         marketSentiment,
-      }
+      },
     }
 
     return {
@@ -535,9 +580,8 @@ export async function getMarketOverview(
       metadata: {
         calculatedAt: new Date().toISOString(),
         source: 'benchmark_data',
-      }
+      },
     }
-
   } catch (error) {
     console.error('Market overview error:', error)
 
@@ -590,9 +634,13 @@ export async function getGlobalMarketIndices(
 
 // Helper functions
 
-function calculateStartDate(period: string, startDate?: string, endDate?: Date): Date {
+function calculateStartDate(
+  period: string,
+  startDate?: string,
+  endDate?: Date
+): Date {
   const endDateTime = endDate || new Date()
-  
+
   if (startDate) {
     return new Date(startDate)
   }
@@ -635,7 +683,10 @@ function getRegionalSymbols(region: string): string[] {
   return symbolMaps[region as keyof typeof symbolMaps] || symbolMaps.US
 }
 
-function createBenchmarkMetrics(data: BenchmarkData, currency?: string): BenchmarkMetrics {
+function createBenchmarkMetrics(
+  data: BenchmarkData,
+  currency?: string
+): BenchmarkMetrics {
   return {
     symbol: data.benchmark_symbol,
     name: data.benchmark_name,
@@ -674,13 +725,22 @@ function calculateReturns(prices: number[]): number[] {
 
 function calculateCorrelation(returns1: number[], returns2: number[]): number {
   if (returns1.length !== returns2.length || returns1.length === 0) return 0
-  
+
   const mean1 = returns1.reduce((sum, r) => sum + r, 0) / returns1.length
   const mean2 = returns2.reduce((sum, r) => sum + r, 0) / returns2.length
-  
-  const numerator = returns1.reduce((sum, r1, i) => sum + (r1 - mean1) * (returns2[i] - mean2), 0)
-  const denominator1 = Math.sqrt(returns1.reduce((sum, r) => sum + Math.pow(r - mean1, 2), 0))
-  const denominator2 = Math.sqrt(returns2.reduce((sum, r) => sum + Math.pow(r - mean2, 2), 0))
-  
-  return denominator1 * denominator2 > 0 ? numerator / (denominator1 * denominator2) : 0
+
+  const numerator = returns1.reduce(
+    (sum, r1, i) => sum + (r1 - mean1) * (returns2[i] - mean2),
+    0
+  )
+  const denominator1 = Math.sqrt(
+    returns1.reduce((sum, r) => sum + Math.pow(r - mean1, 2), 0)
+  )
+  const denominator2 = Math.sqrt(
+    returns2.reduce((sum, r) => sum + Math.pow(r - mean2, 2), 0)
+  )
+
+  return denominator1 * denominator2 > 0
+    ? numerator / (denominator1 * denominator2)
+    : 0
 }

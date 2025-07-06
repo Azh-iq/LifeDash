@@ -17,20 +17,20 @@ const DEMO_PORTFOLIOS = [
     id: 'demo-investment',
     name: 'Investeringsportefølje',
     type: 'INVESTMENT',
-    description: 'Hovedinvesteringer i norske og internasjonale aksjer'
+    description: 'Hovedinvesteringer i norske og internasjonale aksjer',
   },
   {
-    id: 'demo-retirement', 
+    id: 'demo-retirement',
     name: 'Pensjonsportefølje',
     type: 'RETIREMENT',
-    description: 'Langsiktig pensjonssparing med diversifiserte investeringer'
+    description: 'Langsiktig pensjonssparing med diversifiserte investeringer',
   },
   {
     id: 'demo-trading',
-    name: 'Trading portefølje', 
+    name: 'Trading portefølje',
     type: 'TRADING',
-    description: 'Aktiv trading med høyere risiko og volatilitet'
-  }
+    description: 'Aktiv trading med høyere risiko og volatilitet',
+  },
 ]
 
 interface DemoControlsProps {
@@ -52,7 +52,7 @@ function DemoControls({
   showTopBar,
   onTopBarToggle,
   initialView,
-  onViewChange
+  onViewChange,
 }: DemoControlsProps) {
   return (
     <Card className="mb-6">
@@ -65,12 +65,14 @@ function DemoControls({
       <CardContent className="space-y-4">
         {/* Portfolio Selection */}
         <div>
-          <label className="block text-sm font-medium mb-2">Velg Portefølje</label>
+          <label className="mb-2 block text-sm font-medium">
+            Velg Portefølje
+          </label>
           <div className="grid grid-cols-1 gap-2">
-            {DEMO_PORTFOLIOS.map((portfolio) => (
+            {DEMO_PORTFOLIOS.map(portfolio => (
               <div
                 key={portfolio.id}
-                className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                className={`cursor-pointer rounded-lg border p-3 transition-colors ${
                   selectedPortfolio === portfolio.id
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 hover:border-gray-300'
@@ -80,7 +82,9 @@ function DemoControls({
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-medium">{portfolio.name}</div>
-                    <div className="text-xs text-gray-500">{portfolio.description}</div>
+                    <div className="text-xs text-gray-500">
+                      {portfolio.description}
+                    </div>
                   </div>
                   <Badge variant="secondary">{portfolio.type}</Badge>
                 </div>
@@ -91,13 +95,13 @@ function DemoControls({
 
         {/* Initial View */}
         <div>
-          <label className="block text-sm font-medium mb-2">Startvisning</label>
+          <label className="mb-2 block text-sm font-medium">Startvisning</label>
           <div className="flex space-x-2">
             {[
               { value: 'overview', label: 'Oversikt' },
               { value: 'holdings', label: 'Beholdninger' },
-              { value: 'charts', label: 'Grafer' }
-            ].map((view) => (
+              { value: 'charts', label: 'Grafer' },
+            ].map(view => (
               <Button
                 key={view.value}
                 variant={initialView === view.value ? 'default' : 'outline'}
@@ -117,20 +121,20 @@ function DemoControls({
               type="checkbox"
               id="showNavigation"
               checked={showNavigation}
-              onChange={(e) => onNavigationToggle(e.target.checked)}
+              onChange={e => onNavigationToggle(e.target.checked)}
               className="rounded border-gray-300"
             />
             <label htmlFor="showNavigation" className="text-sm">
               Vis navigasjon
             </label>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <input
               type="checkbox"
               id="showTopBar"
               checked={showTopBar}
-              onChange={(e) => onTopBarToggle(e.target.checked)}
+              onChange={e => onTopBarToggle(e.target.checked)}
               className="rounded border-gray-300"
             />
             <label htmlFor="showTopBar" className="text-sm">
@@ -144,10 +148,14 @@ function DemoControls({
 }
 
 export function MobilePortfolioDashboardDemo() {
-  const [selectedPortfolio, setSelectedPortfolio] = useState(DEMO_PORTFOLIOS[0].id)
+  const [selectedPortfolio, setSelectedPortfolio] = useState(
+    DEMO_PORTFOLIOS[0].id
+  )
   const [showNavigation, setShowNavigation] = useState(true)
   const [showTopBar, setShowTopBar] = useState(true)
-  const [initialView, setInitialView] = useState<'overview' | 'holdings' | 'charts'>('overview')
+  const [initialView, setInitialView] = useState<
+    'overview' | 'holdings' | 'charts'
+  >('overview')
   const [key, setKey] = useState(0) // Force re-render when config changes
 
   const handleConfigChange = () => {
@@ -177,14 +185,15 @@ export function MobilePortfolioDashboardDemo() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Demo Controls - Only show on larger screens */}
-      <div className="hidden md:block p-6 max-w-4xl mx-auto">
+      <div className="mx-auto hidden max-w-4xl p-6 md:block">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="mb-2 text-3xl font-bold text-gray-900">
             Mobile Portfolio Dashboard Demo
           </h1>
           <p className="text-gray-600">
-            Test og utforsk den mobile porteføljedashboard komponenten med ulike konfigurasjoner.
-            Reduser nettleservinduet til mobil størrelse for beste opplevelse.
+            Test og utforsk den mobile porteføljedashboard komponenten med ulike
+            konfigurasjoner. Reduser nettleservinduet til mobil størrelse for
+            beste opplevelse.
           </p>
         </div>
 
@@ -201,7 +210,7 @@ export function MobilePortfolioDashboardDemo() {
       </div>
 
       {/* Mobile Dashboard Container */}
-      <div className="md:max-w-md md:mx-auto md:shadow-2xl md:rounded-lg md:overflow-hidden">
+      <div className="md:mx-auto md:max-w-md md:overflow-hidden md:rounded-lg md:shadow-2xl">
         <MobilePortfolioDashboard
           key={key}
           portfolioId={selectedPortfolio}
@@ -213,10 +222,13 @@ export function MobilePortfolioDashboardDemo() {
       </div>
 
       {/* Mobile Demo Info */}
-      <div className="md:hidden p-4 bg-blue-50 border-t border-blue-200">
+      <div className="border-t border-blue-200 bg-blue-50 p-4 md:hidden">
         <div className="text-center text-sm text-blue-700">
           <p className="font-medium">Demo Modus</p>
-          <p>Portfolie: {DEMO_PORTFOLIOS.find(p => p.id === selectedPortfolio)?.name}</p>
+          <p>
+            Portfolie:{' '}
+            {DEMO_PORTFOLIOS.find(p => p.id === selectedPortfolio)?.name}
+          </p>
           <p className="mt-2 text-xs">
             For å endre innstillinger, åpne på desktop eller tablet
           </p>

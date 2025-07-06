@@ -55,7 +55,9 @@ jest.mock('./lib/supabase/client', () => ({
       single: jest.fn().mockResolvedValue({ data: null, error: null }),
     })),
     auth: {
-      getUser: jest.fn().mockResolvedValue({ data: { user: null }, error: null }),
+      getUser: jest
+        .fn()
+        .mockResolvedValue({ data: { user: null }, error: null }),
       signIn: jest.fn().mockResolvedValue({ data: {}, error: null }),
       signOut: jest.fn().mockResolvedValue({ error: null }),
     },
@@ -74,7 +76,9 @@ jest.mock('./lib/supabase/server', () => ({
       single: jest.fn().mockResolvedValue({ data: null, error: null }),
     })),
     auth: {
-      getUser: jest.fn().mockResolvedValue({ data: { user: null }, error: null }),
+      getUser: jest
+        .fn()
+        .mockResolvedValue({ data: { user: null }, error: null }),
     },
   })),
 }))

@@ -2,26 +2,26 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  ChartBarIcon, 
+import {
+  ChartBarIcon,
   PresentationChartLineIcon,
   CogIcon,
   ArrowsPointingOutIcon,
-  ArrowsPointingInIcon 
+  ArrowsPointingInIcon,
 } from '@heroicons/react/24/outline'
 import { AnimatedCard } from '@/components/animated'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { 
+import {
   PortfolioPerformanceChart,
   AssetAllocationChart,
   PerformanceComparisonChart,
   ChartControls,
   TimeRangeSelector,
   useChartConfig,
-  CHART_PRESETS
+  CHART_PRESETS,
 } from '@/components/charts'
 import { usePortfolioState } from '@/lib/hooks/use-portfolio-state'
 import { useRealtimeUpdates } from '@/lib/hooks/use-realtime-updates'
@@ -30,20 +30,18 @@ interface PortfolioChartSectionProps {
   portfolioId: string
 }
 
-export default function PortfolioChartSection({ portfolioId }: PortfolioChartSectionProps) {
+export default function PortfolioChartSection({
+  portfolioId,
+}: PortfolioChartSectionProps) {
   const [activeTab, setActiveTab] = useState('performance')
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
-  
+
   const { portfolio, loading, error } = usePortfolioState(portfolioId)
   const { priceUpdates, isConnected } = useRealtimeUpdates(portfolioId)
-  
-  const {
-    config,
-    updateConfig,
-    resetConfig,
-    presets
-  } = useChartConfig('standard')
+
+  const { config, updateConfig, resetConfig, presets } =
+    useChartConfig('standard')
 
   // Handle fullscreen mode
   useEffect(() => {
@@ -68,13 +66,13 @@ export default function PortfolioChartSection({ portfolioId }: PortfolioChartSec
         <AnimatedCard className="p-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" />
+              <div className="h-6 w-32 animate-pulse rounded bg-gray-200" />
               <div className="flex space-x-2">
-                <div className="h-8 w-20 bg-gray-200 rounded animate-pulse" />
-                <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
+                <div className="h-8 w-20 animate-pulse rounded bg-gray-200" />
+                <div className="h-8 w-8 animate-pulse rounded bg-gray-200" />
               </div>
             </div>
-            <div className="h-80 bg-gray-200 rounded animate-pulse" />
+            <div className="h-80 animate-pulse rounded bg-gray-200" />
           </div>
         </AnimatedCard>
       </motion.div>
@@ -89,7 +87,7 @@ export default function PortfolioChartSection({ portfolioId }: PortfolioChartSec
         transition={{ duration: 0.5, delay: 0.4 }}
         className="mb-6"
       >
-        <AnimatedCard className="p-6 border-red-200 bg-red-50">
+        <AnimatedCard className="border-red-200 bg-red-50 p-6">
           <div className="flex items-center space-x-2 text-red-600">
             <ChartBarIcon className="h-5 w-5" />
             <p>Kunne ikke laste inn diagramdata: {error}</p>
@@ -104,20 +102,20 @@ export default function PortfolioChartSection({ portfolioId }: PortfolioChartSec
       id: 'performance',
       label: 'Ytelse',
       icon: <PresentationChartLineIcon className="h-4 w-4" />,
-      description: 'Porteføljeytelse over tid'
+      description: 'Porteføljeytelse over tid',
     },
     {
       id: 'allocation',
       label: 'Fordeling',
       icon: <ChartBarIcon className="h-4 w-4" />,
-      description: 'Aktivafordeling'
+      description: 'Aktivafordeling',
     },
     {
       id: 'comparison',
       label: 'Sammenligning',
       icon: <ChartBarIcon className="h-4 w-4" />,
-      description: 'Sammenlign med referanseindekser'
-    }
+      description: 'Sammenlign med referanseindekser',
+    },
   ]
 
   const ChartContent = ({ className = '' }) => (
@@ -125,29 +123,40 @@ export default function PortfolioChartSection({ portfolioId }: PortfolioChartSec
       {/* Chart Controls */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-auto">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-auto"
+          >
             <TabsList className="grid w-full grid-cols-3">
-              {chartTabs.map((tab) => (
-                <TabsTrigger key={tab.id} value={tab.id} className="flex items-center space-x-2">
+              {chartTabs.map(tab => (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className="flex items-center space-x-2"
+                >
                   {tab.icon}
                   <span className="hidden sm:inline">{tab.label}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
           </Tabs>
-          
-          <Badge variant="outline" className={isConnected ? 'text-green-600' : 'text-gray-500'}>
+
+          <Badge
+            variant="outline"
+            className={isConnected ? 'text-green-600' : 'text-gray-500'}
+          >
             {isConnected ? 'Live' : 'Offline'}
           </Badge>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           <TimeRangeSelector
             value={config.timeRange}
-            onChange={(timeRange) => updateConfig({ timeRange })}
+            onChange={timeRange => updateConfig({ timeRange })}
             size="sm"
           />
-          
+
           <Button
             variant="outline"
             size="sm"
@@ -156,7 +165,7 @@ export default function PortfolioChartSection({ portfolioId }: PortfolioChartSec
           >
             <CogIcon className="h-4 w-4" />
           </Button>
-          
+
           <Button
             variant="outline"
             size="sm"
@@ -180,7 +189,7 @@ export default function PortfolioChartSection({ portfolioId }: PortfolioChartSec
           exit={{ opacity: 0, height: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <Card className="p-4 bg-gray-50">
+          <Card className="bg-gray-50 p-4">
             <ChartControls
               config={config}
               onConfigChange={updateConfig}
@@ -202,7 +211,7 @@ export default function PortfolioChartSection({ portfolioId }: PortfolioChartSec
               className="w-full"
             />
           </TabsContent>
-          
+
           <TabsContent value="allocation" className="mt-0">
             <AssetAllocationChart
               portfolioId={portfolioId}
@@ -211,7 +220,7 @@ export default function PortfolioChartSection({ portfolioId }: PortfolioChartSec
               className="w-full"
             />
           </TabsContent>
-          
+
           <TabsContent value="comparison" className="mt-0">
             <PerformanceComparisonChart
               portfolioId={portfolioId}
@@ -239,20 +248,21 @@ export default function PortfolioChartSection({ portfolioId }: PortfolioChartSec
         className="mb-6"
       >
         <AnimatedCard className="p-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-gray-900">
               Porteføljeanalyse
             </h2>
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-500">
-                Sist oppdatert: {new Date().toLocaleTimeString('nb-NO', { 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
+                Sist oppdatert:{' '}
+                {new Date().toLocaleTimeString('nb-NO', {
+                  hour: '2-digit',
+                  minute: '2-digit',
                 })}
               </span>
             </div>
           </div>
-          
+
           <ChartContent />
         </AnimatedCard>
       </motion.div>
@@ -264,10 +274,10 @@ export default function PortfolioChartSection({ portfolioId }: PortfolioChartSec
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 bg-white z-50 overflow-auto"
+          className="fixed inset-0 z-50 overflow-auto bg-white"
         >
           <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
+            <div className="mb-6 flex items-center justify-between">
               <h2 className="text-2xl font-bold text-gray-900">
                 {portfolio?.name} - Porteføljeanalyse
               </h2>
@@ -276,11 +286,11 @@ export default function PortfolioChartSection({ portfolioId }: PortfolioChartSec
                 onClick={() => setIsFullscreen(false)}
                 className="hover:bg-gray-50"
               >
-                <ArrowsPointingInIcon className="h-4 w-4 mr-2" />
+                <ArrowsPointingInIcon className="mr-2 h-4 w-4" />
                 Lukk fullskjerm
               </Button>
             </div>
-            
+
             <ChartContent className="h-full" />
           </div>
         </motion.div>

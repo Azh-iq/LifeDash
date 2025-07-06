@@ -1,9 +1,9 @@
 /**
  * Portfolio Components Library - LifeDash
- * 
+ *
  * Comprehensive collection of portfolio management components with real-time updates,
  * advanced state management, and professional Norwegian financial UI.
- * 
+ *
  * Features:
  * - Real-time portfolio state management
  * - Advanced holdings table with filtering and sorting
@@ -12,7 +12,7 @@
  * - Responsive design with mobile-first approach
  * - Norwegian language and NOK currency formatting
  * - Professional investment theme with blue color scheme
- * 
+ *
  * @author LifeDash Team
  * @version 1.0.0
  */
@@ -61,13 +61,13 @@ export const PortfolioComponents = {
   // Layout and navigation
   Header: PortfolioHeader,
   Sidebar: PortfolioSidebar,
-  
+
   // Data display and visualization
   Metrics: PortfolioMetrics,
   ChartSection: PortfolioChartSection,
   Holdings: HoldingsSection,
   Activity: RecentActivity,
-  
+
   // Actions and controls
   QuickActions,
 } as const
@@ -134,10 +134,17 @@ export {
  * Calculate portfolio performance metrics
  */
 export function calculatePortfolioMetrics(holdings: HoldingWithMetrics[]) {
-  const totalValue = holdings.reduce((sum, holding) => sum + holding.current_value, 0)
-  const totalCost = holdings.reduce((sum, holding) => sum + (holding.quantity * holding.cost_basis), 0)
+  const totalValue = holdings.reduce(
+    (sum, holding) => sum + holding.current_value,
+    0
+  )
+  const totalCost = holdings.reduce(
+    (sum, holding) => sum + holding.quantity * holding.cost_basis,
+    0
+  )
   const totalGainLoss = totalValue - totalCost
-  const totalGainLossPercent = totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0
+  const totalGainLossPercent =
+    totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0
 
   const topHoldings = holdings
     .sort((a, b) => b.current_value - a.current_value)
@@ -226,7 +233,9 @@ export function calculateHoldingWeight(
   holdingValue: number,
   totalPortfolioValue: number
 ): number {
-  return totalPortfolioValue > 0 ? (holdingValue / totalPortfolioValue) * 100 : 0
+  return totalPortfolioValue > 0
+    ? (holdingValue / totalPortfolioValue) * 100
+    : 0
 }
 
 /**
@@ -258,11 +267,15 @@ export function formatHoldingQuantity(quantity: number): string {
 /**
  * Generate portfolio summary text
  */
-export function generatePortfolioSummary(portfolio: PortfolioWithMetrics): string {
+export function generatePortfolioSummary(
+  portfolio: PortfolioWithMetrics
+): string {
   const valueText = formatNorwegianCurrency(portfolio.total_value)
-  const performanceText = formatNorwegianPercentage(portfolio.total_gain_loss_percent)
+  const performanceText = formatNorwegianPercentage(
+    portfolio.total_gain_loss_percent
+  )
   const holdingsText = `${portfolio.holdings_count} beholdning${portfolio.holdings_count !== 1 ? 'er' : ''}`
-  
+
   return `${portfolio.name}: ${valueText} (${performanceText}) med ${holdingsText}`
 }
 
@@ -280,20 +293,20 @@ export const DEFAULT_PORTFOLIO_CONFIG = {
   showHoldings: true,
   showActivity: true,
   showQuickActions: true,
-  
+
   // Table options
   holdingsPageSize: 25,
   activityPageSize: 10,
   showSmallHoldings: true,
-  
+
   // Real-time options
   enableRealtime: true,
   refreshInterval: 30000,
-  
+
   // Export options
   defaultExportFormat: 'csv',
   includeMetricsInExport: true,
-  
+
   // Theme
   theme: 'light',
   currency: 'NOK',
@@ -316,16 +329,16 @@ export const PORTFOLIO_BREAKPOINTS = {
 export const PORTFOLIO_ANIMATIONS = {
   // Stagger timing
   staggerDelay: 0.1,
-  
+
   // Duration settings
   fastDuration: 0.2,
   normalDuration: 0.3,
   slowDuration: 0.5,
-  
+
   // Easing
   easeOut: [0.25, 0.46, 0.45, 0.94],
   easeInOut: [0.42, 0, 0.58, 1],
-  
+
   // Scale settings
   hoverScale: 1.02,
   tapScale: 0.98,

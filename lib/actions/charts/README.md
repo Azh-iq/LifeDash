@@ -37,18 +37,18 @@ import { getPortfolioPerformanceData } from '@/lib/actions/charts'
 const result = await getPortfolioPerformanceData({
   portfolioId: 'portfolio-uuid',
   period: '1Y',
-  granularity: 'daily'
+  granularity: 'daily',
 })
 
 if (result.success && result.data) {
   const { data, summary } = result.data
   console.log(`Total Return: ${summary.totalReturnPercent}%`)
   console.log(`Sharpe Ratio: ${summary.sharpeRatio}`)
-  
+
   // Use data for chart visualization
   const chartData = data.map(point => ({
     x: point.date,
-    y: point.value
+    y: point.value,
   }))
 }
 ```
@@ -62,19 +62,19 @@ import { getPortfolioAllocation } from '@/lib/actions/charts'
 const result = await getPortfolioAllocation({
   portfolioId: 'portfolio-uuid',
   groupBy: 'asset_class',
-  includeTargets: true
+  includeTargets: true,
 })
 
 if (result.success && result.data) {
   const { allocations, targets, summary } = result.data
-  
+
   // Create pie chart data
   const pieData = allocations.map(allocation => ({
     label: allocation.category,
     value: allocation.percentage,
-    color: allocation.color
+    color: allocation.color,
   }))
-  
+
   // Check if rebalancing is recommended
   if (summary.rebalanceRecommended) {
     console.log('Portfolio rebalancing recommended')
@@ -91,19 +91,19 @@ import { comparePortfolios } from '@/lib/actions/charts'
 const result = await comparePortfolios({
   portfolioIds: ['portfolio-1', 'portfolio-2', 'portfolio-3'],
   period: '1Y',
-  normalizeToBase: true
+  normalizeToBase: true,
 })
 
 if (result.success && result.data) {
   const { data, metrics, summary } = result.data
-  
+
   console.log(`Best Performer: ${summary.bestPerformer}`)
   console.log(`Most Volatile: ${summary.mostVolatile}`)
-  
+
   // Use data for line chart
   const lineChartData = data.map(point => ({
     date: point.date,
-    ...point.portfolios
+    ...point.portfolios,
   }))
 }
 ```
@@ -119,12 +119,12 @@ const result = await compareWithBenchmarks({
   benchmarkSymbols: ['SPY', 'OSEBX', 'QQQ'],
   period: '1Y',
   includeAlpha: true,
-  includeBeta: true
+  includeBeta: true,
 })
 
 if (result.success && result.data) {
   const { data, metrics } = result.data
-  
+
   // Check alpha and beta
   const portfolioMetrics = metrics[0]
   console.log(`Alpha: ${portfolioMetrics.alpha}`)
@@ -155,12 +155,12 @@ import { getMarketOverview } from '@/lib/actions/charts'
 // Get Nordic market overview
 const result = await getMarketOverview({
   region: 'NORDIC',
-  assetClasses: ['INDEX', 'ETF']
+  assetClasses: ['INDEX', 'ETF'],
 })
 
 if (result.success && result.data) {
   const { indices, sectors, summary } = result.data
-  
+
   console.log(`Market Sentiment: ${summary.marketSentiment}`)
   console.log(`Advancers: ${summary.advancers}`)
   console.log(`Decliners: ${summary.decliners}`)
@@ -177,7 +177,7 @@ import { getCachedPortfolioPerformanceData } from '@/lib/actions/charts'
 // This will use cached data if available and fresh
 const result = await getCachedPortfolioPerformanceData({
   portfolioId: 'portfolio-uuid',
-  period: '1M'
+  period: '1M',
 })
 
 // Check if data was served from cache
@@ -262,6 +262,7 @@ console.log(formatted) // "NOK 1,234.56"
 ```
 
 Supported currencies include:
+
 - USD, EUR, GBP, JPY, CAD, AUD
 - NOK, SEK, DKK (Nordic currencies)
 - And many more...
@@ -298,12 +299,12 @@ All queries respect RLS policies:
 
 ```sql
 -- Example RLS policy for portfolio snapshots
-CREATE POLICY "Users can view accessible portfolio snapshots" 
+CREATE POLICY "Users can view accessible portfolio snapshots"
 ON portfolio_snapshots_enhanced
 FOR SELECT USING (
   EXISTS (
     SELECT 1 FROM portfolios p
-    WHERE p.id = portfolio_id 
+    WHERE p.id = portfolio_id
     AND (p.user_id = auth.uid() OR p.is_public = true)
   )
 );
@@ -347,14 +348,14 @@ Test chart actions with different scenarios:
 // Test with invalid portfolio ID
 const invalidResult = await getPortfolioPerformanceData({
   portfolioId: 'invalid-uuid',
-  period: '1Y'
+  period: '1Y',
 })
 expect(invalidResult.success).toBe(false)
 
 // Test with valid data
 const validResult = await getPortfolioPerformanceData({
   portfolioId: validPortfolioId,
-  period: '1Y'
+  period: '1Y',
 })
 expect(validResult.success).toBe(true)
 expect(validResult.data).toBeDefined()

@@ -37,7 +37,6 @@ export class NordnetParserTester {
       await this.testCurrencyAndPortfolioDetection()
 
       console.log('✅ All tests completed successfully!')
-
     } catch (error) {
       console.error('❌ Test failed:', error)
       throw error
@@ -51,21 +50,28 @@ export class NordnetParserTester {
     const mockFile = {
       name: 'nordnet-export.csv',
       size: sampleCSVText.length,
-      type: 'text/csv'
+      type: 'text/csv',
     } as File
 
     const validation = NordnetCSVParser.validateFile(mockFile)
-    console.log('  File validation:', validation.valid ? '✅ Valid' : '❌ Invalid')
+    console.log(
+      '  File validation:',
+      validation.valid ? '✅ Valid' : '❌ Invalid'
+    )
     if (!validation.valid) {
       console.log('  Error:', validation.error)
     }
 
     // Parse the CSV text directly
-    const parseResult = NordnetCSVParser.parseCSVText(sampleCSVText.replace(/\t/g, '\t'))
+    const parseResult = NordnetCSVParser.parseCSVText(
+      sampleCSVText.replace(/\t/g, '\t')
+    )
     console.log(`  Headers found: ${parseResult.headers.length}`)
     console.log(`  Rows parsed: ${parseResult.totalRows}`)
     console.log(`  Errors: ${parseResult.errors.length}`)
-    console.log(`  Sample headers: ${parseResult.headers.slice(0, 5).join(', ')}...`)
+    console.log(
+      `  Sample headers: ${parseResult.headers.slice(0, 5).join(', ')}...`
+    )
 
     if (parseResult.errors.length > 0) {
       console.log('  Parse errors:', parseResult.errors)
@@ -78,7 +84,7 @@ export class NordnetParserTester {
     console.log('🔍 Test 2: Data Parsing')
 
     const parseResult = NordnetCSVParser.parseCSVText(sampleCSVText)
-    
+
     if (parseResult.totalRows > 0) {
       const firstRow = parseResult.rows[0]
       console.log('  First row data:')
@@ -99,15 +105,22 @@ export class NordnetParserTester {
     console.log('🗺️ Test 3: Field Mapping')
 
     const parseResult = NordnetCSVParser.parseCSVText(sampleCSVText)
-    
+
     // Test auto-detection
-    const autoMappings = NordnetFieldMapper.autoDetectMappings(parseResult.headers)
+    const autoMappings = NordnetFieldMapper.autoDetectMappings(
+      parseResult.headers
+    )
     console.log(`  Auto-detected mappings: ${autoMappings.length}`)
-    
+
     // Test validation
-    const validation = NordnetFieldMapper.validateMappings(autoMappings, parseResult.headers)
-    console.log(`  Mapping validation: ${validation.valid ? '✅ Valid' : '❌ Invalid'}`)
-    
+    const validation = NordnetFieldMapper.validateMappings(
+      autoMappings,
+      parseResult.headers
+    )
+    console.log(
+      `  Mapping validation: ${validation.valid ? '✅ Valid' : '❌ Invalid'}`
+    )
+
     if (validation.errors.length > 0) {
       console.log('  Mapping errors:', validation.errors)
     }
@@ -117,13 +130,17 @@ export class NordnetParserTester {
     }
 
     // Show some key mappings
-    const keyMappings = autoMappings.filter(m => 
-      ['id', 'booking_date', 'transaction_type', 'amount'].includes(m.internalField)
+    const keyMappings = autoMappings.filter(m =>
+      ['id', 'booking_date', 'transaction_type', 'amount'].includes(
+        m.internalField
+      )
     )
-    
+
     console.log('  Key mappings:')
     for (const mapping of keyMappings) {
-      console.log(`    ${mapping.csvField} → ${mapping.internalField} (${mapping.dataType})`)
+      console.log(
+        `    ${mapping.csvField} → ${mapping.internalField} (${mapping.dataType})`
+      )
     }
 
     console.log('')
@@ -138,28 +155,40 @@ export class NordnetParserTester {
     if (parseResult.totalRows > 0) {
       const firstRow = parseResult.rows[0]
       const transformed = NordnetFieldMapper.transformRow(firstRow, mappings)
-      
+
       console.log('  Transformed data:')
       console.log(`    ID: ${transformed.id}`)
       console.log(`    Booking Date: ${transformed.booking_date}`)
-      console.log(`    Transaction Type: ${transformed.transaction_type} → ${transformed.internal_transaction_type}`)
+      console.log(
+        `    Transaction Type: ${transformed.transaction_type} → ${transformed.internal_transaction_type}`
+      )
       console.log(`    Security: ${transformed.security_name}`)
       console.log(`    ISIN: ${transformed.isin}`)
       console.log(`    Quantity: ${transformed.quantity}`)
       console.log(`    Price: ${transformed.price}`)
       console.log(`    Amount: ${transformed.amount}`)
       console.log(`    Currency: ${transformed.currency}`)
-      console.log(`    Portfolio: ${transformed.portfolio_name} → ${transformed.account_name}`)
+      console.log(
+        `    Portfolio: ${transformed.portfolio_name} → ${transformed.account_name}`
+      )
       console.log(`    Needs Stock Lookup: ${transformed.needs_stock_lookup}`)
-      
-      console.log(`  Validation Errors: ${transformed.validation_errors.length}`)
+
+      console.log(
+        `  Validation Errors: ${transformed.validation_errors.length}`
+      )
       if (transformed.validation_errors.length > 0) {
-        transformed.validation_errors.forEach(error => console.log(`    - ${error}`))
+        transformed.validation_errors.forEach(error =>
+          console.log(`    - ${error}`)
+        )
       }
-      
-      console.log(`  Validation Warnings: ${transformed.validation_warnings.length}`)
+
+      console.log(
+        `  Validation Warnings: ${transformed.validation_warnings.length}`
+      )
       if (transformed.validation_warnings.length > 0) {
-        transformed.validation_warnings.forEach(warning => console.log(`    - ${warning}`))
+        transformed.validation_warnings.forEach(warning =>
+          console.log(`    - ${warning}`)
+        )
       }
     }
 
@@ -170,23 +199,26 @@ export class NordnetParserTester {
     console.log('📊 Test 5: Transaction Type Validation')
 
     const parseResult = NordnetCSVParser.parseCSVText(sampleCSVText)
-    
+
     // Extract unique transaction types
-    const transactionTypes = Array.from(new Set(
-      parseResult.rows.map(row => row['Transaksjonstype'])
-    )).filter(Boolean)
+    const transactionTypes = Array.from(
+      new Set(parseResult.rows.map(row => row['Transaksjonstype']))
+    ).filter(Boolean)
 
     console.log(`  Found transaction types: ${transactionTypes.length}`)
-    
-    const validation = NordnetCSVParser.validateTransactionTypes(transactionTypes)
-    
+
+    const validation =
+      NordnetCSVParser.validateTransactionTypes(transactionTypes)
+
     console.log(`  Recognized types: ${validation.recognized.length}`)
     validation.recognized.forEach(type => console.log(`    ✅ ${type}`))
-    
+
     console.log(`  Unrecognized types: ${validation.unrecognized.length}`)
     validation.unrecognized.forEach(type => {
       const suggestion = validation.suggestions[type]
-      console.log(`    ❓ ${type}${suggestion ? ` (suggest: ${suggestion})` : ''}`)
+      console.log(
+        `    ❓ ${type}${suggestion ? ` (suggest: ${suggestion})` : ''}`
+      )
     })
 
     console.log('')
@@ -196,19 +228,19 @@ export class NordnetParserTester {
     console.log('💰 Test 6: Currency and Portfolio Detection')
 
     const parseResult = NordnetCSVParser.parseCSVText(sampleCSVText)
-    
+
     // Extract unique values
-    const portfolios = Array.from(new Set(
-      parseResult.rows.map(row => row['Portefølje'])
-    )).filter(Boolean)
-    
-    const currencies = Array.from(new Set(
-      parseResult.rows.map(row => row['Valuta'])
-    )).filter(Boolean)
+    const portfolios = Array.from(
+      new Set(parseResult.rows.map(row => row['Portefølje']))
+    ).filter(Boolean)
+
+    const currencies = Array.from(
+      new Set(parseResult.rows.map(row => row['Valuta']))
+    ).filter(Boolean)
 
     console.log(`  Portfolios found: ${portfolios.length}`)
     portfolios.forEach(portfolio => console.log(`    📁 ${portfolio}`))
-    
+
     console.log(`  Currencies found: ${currencies.length}`)
     currencies.forEach(currency => console.log(`    💱 ${currency}`))
 
@@ -216,15 +248,21 @@ export class NordnetParserTester {
     const portfolioValidation = NordnetCSVParser.validatePortfolios(portfolios)
     console.log(`  Valid portfolios: ${portfolioValidation.valid.length}`)
     console.log(`  Invalid portfolios: ${portfolioValidation.invalid.length}`)
-    
-    for (const [portfolio, pattern] of Object.entries(portfolioValidation.patterns)) {
+
+    for (const [portfolio, pattern] of Object.entries(
+      portfolioValidation.patterns
+    )) {
       console.log(`    ${portfolio} → ${pattern}`)
     }
 
     // Validate currencies
     const currencyValidation = NordnetCSVParser.validateCurrencies(currencies)
-    console.log(`  Recognized currencies: ${currencyValidation.recognized.length}`)
-    console.log(`  Unrecognized currencies: ${currencyValidation.unrecognized.length}`)
+    console.log(
+      `  Recognized currencies: ${currencyValidation.recognized.length}`
+    )
+    console.log(
+      `  Unrecognized currencies: ${currencyValidation.unrecognized.length}`
+    )
 
     console.log('')
   }

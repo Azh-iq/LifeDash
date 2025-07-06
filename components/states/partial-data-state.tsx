@@ -5,7 +5,11 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { AnimatedCard, entranceVariants, NumberCounter } from '@/components/animated'
+import {
+  AnimatedCard,
+  entranceVariants,
+  NumberCounter,
+} from '@/components/animated'
 
 interface PartialDataIssue {
   type: 'missing_prices' | 'stale_data' | 'incomplete_holdings' | 'sync_error'
@@ -37,7 +41,7 @@ export function PartialDataState({
   onFixIssues,
   onContinueAnyway,
   onGoToSetup,
-  className = ""
+  className = '',
 }: PartialDataStateProps) {
   const router = useRouter()
 
@@ -58,32 +62,82 @@ export function PartialDataState({
     switch (type) {
       case 'missing_prices':
         return (
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+            />
           </svg>
         )
       case 'stale_data':
         return (
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
         )
       case 'incomplete_holdings':
         return (
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
           </svg>
         )
       case 'sync_error':
         return (
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 14.5c-.77.833.192 2.5 1.732 2.5z" />
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 14.5c-.77.833.192 2.5 1.732 2.5z"
+            />
           </svg>
         )
       default:
         return (
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
         )
     }
@@ -138,7 +192,9 @@ export function PartialDataState({
   const canContinue = highSeverityIssues.length === 0
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 ${className}`}>
+    <div
+      className={`min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 ${className}`}
+    >
       <div className="mx-auto max-w-4xl px-6 py-16">
         <motion.div
           initial="hidden"
@@ -158,10 +214,20 @@ export function PartialDataState({
               <motion.div
                 initial={{ scale: 0, rotate: -45 }}
                 animate={{ scale: 1, rotate: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+                transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
               >
-                <svg className="h-16 w-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 14.5c-.77.833.192 2.5 1.732 2.5z" />
+                <svg
+                  className="h-16 w-16 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 14.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
                 </svg>
               </motion.div>
             </AnimatedCard>
@@ -181,16 +247,28 @@ export function PartialDataState({
           {portfolioData && (
             <motion.div variants={entranceVariants.item} className="mb-8">
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                <Card className="bg-white border-0 shadow-lg">
+                <Card className="border-0 bg-white shadow-lg">
                   <CardContent className="p-6 text-center">
                     <div className="mb-2">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 mx-auto">
-                        <svg className="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-green-100">
+                        <svg
+                          className="h-5 w-5 text-green-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
                         </svg>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600">Fungerende beholdninger</p>
+                    <p className="text-sm text-gray-600">
+                      Fungerende beholdninger
+                    </p>
                     <div className="flex items-center justify-center space-x-2">
                       <NumberCounter
                         value={portfolioData.workingHoldings}
@@ -205,12 +283,22 @@ export function PartialDataState({
                   </CardContent>
                 </Card>
 
-                <Card className="bg-white border-0 shadow-lg">
+                <Card className="border-0 bg-white shadow-lg">
                   <CardContent className="p-6 text-center">
                     <div className="mb-2">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 mx-auto">
-                        <svg className="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                      <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100">
+                        <svg
+                          className="h-5 w-5 text-blue-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                          />
                         </svg>
                       </div>
                     </div>
@@ -226,23 +314,36 @@ export function PartialDataState({
                   </CardContent>
                 </Card>
 
-                <Card className="bg-white border-0 shadow-lg">
+                <Card className="border-0 bg-white shadow-lg">
                   <CardContent className="p-6 text-center">
                     <div className="mb-2">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100 mx-auto">
-                        <svg className="h-5 w-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100">
+                        <svg
+                          className="h-5 w-5 text-orange-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
                         </svg>
                       </div>
                     </div>
                     <p className="text-sm text-gray-600">Sist oppdatert</p>
                     <p className="text-2xl font-bold text-orange-600">
-                      {new Date(portfolioData.lastSync).toLocaleDateString('no-NO', {
-                        day: 'numeric',
-                        month: 'short',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                      {new Date(portfolioData.lastSync).toLocaleDateString(
+                        'no-NO',
+                        {
+                          day: 'numeric',
+                          month: 'short',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        }
+                      )}
                     </p>
                   </CardContent>
                 </Card>
@@ -252,7 +353,7 @@ export function PartialDataState({
 
           {/* Issues List */}
           <motion.div variants={entranceVariants.item} className="mb-8">
-            <Card className="bg-white border-0 shadow-xl">
+            <Card className="border-0 bg-white shadow-xl">
               <CardHeader>
                 <h3 className="text-xl font-bold text-gray-900">
                   Identifiserte problemer ({issues.length})
@@ -266,29 +367,40 @@ export function PartialDataState({
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex items-start space-x-4 p-4 rounded-lg border border-gray-200 bg-gray-50"
+                      className="flex items-start space-x-4 rounded-lg border border-gray-200 bg-gray-50 p-4"
                     >
                       <div className="flex-shrink-0">
-                        <div className={`p-2 rounded-lg ${getSeverityColor(issue.severity)}`}>
+                        <div
+                          className={`rounded-lg p-2 ${getSeverityColor(issue.severity)}`}
+                        >
                           {getIssueIcon(issue.type)}
                         </div>
                       </div>
                       <div className="flex-1 text-left">
-                        <div className="flex items-center justify-between mb-1">
+                        <div className="mb-1 flex items-center justify-between">
                           <h4 className="font-semibold text-gray-900">
                             {getIssueTitle(issue.type)}
                           </h4>
                           <Badge className={getSeverityColor(issue.severity)}>
-                            {issue.severity === 'high' ? 'Kritisk' : issue.severity === 'medium' ? 'Middels' : 'Lav'}
+                            {issue.severity === 'high'
+                              ? 'Kritisk'
+                              : issue.severity === 'medium'
+                                ? 'Middels'
+                                : 'Lav'}
                           </Badge>
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">
+                        <p className="mb-2 text-sm text-gray-600">
                           {issue.description}
                         </p>
                         <div className="flex items-center space-x-4 text-xs text-gray-500">
                           <span>Berørte elementer: {issue.affectedItems}</span>
                           {issue.lastUpdate && (
-                            <span>Sist oppdatert: {new Date(issue.lastUpdate).toLocaleString('no-NO')}</span>
+                            <span>
+                              Sist oppdatert:{' '}
+                              {new Date(issue.lastUpdate).toLocaleString(
+                                'no-NO'
+                              )}
+                            </span>
                           )}
                         </div>
                       </div>
@@ -301,24 +413,44 @@ export function PartialDataState({
 
           {/* Action Buttons */}
           <motion.div variants={entranceVariants.item} className="mb-8">
-            <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 sm:justify-center">
+            <div className="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-x-4 sm:space-y-0">
               <Button
                 onClick={handleRefreshData}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
+                className="bg-blue-600 px-6 py-3 text-white hover:bg-blue-700"
               >
-                <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                <svg
+                  className="mr-2 h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
                 </svg>
                 Oppdater data
               </Button>
-              
+
               <Button
                 onClick={handleFixIssues}
                 variant="outline"
-                className="border-orange-300 text-orange-700 hover:bg-orange-50 px-6 py-3"
+                className="border-orange-300 px-6 py-3 text-orange-700 hover:bg-orange-50"
               >
-                <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                <svg
+                  className="mr-2 h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"
+                  />
                 </svg>
                 Løs problemer
               </Button>
@@ -327,7 +459,7 @@ export function PartialDataState({
                 <Button
                   onClick={handleContinueAnyway}
                   variant="ghost"
-                  className="text-gray-600 hover:text-gray-800 px-6 py-3"
+                  className="px-6 py-3 text-gray-600 hover:text-gray-800"
                 >
                   Fortsett likevel
                 </Button>
@@ -338,12 +470,22 @@ export function PartialDataState({
           {/* Warning for High Severity Issues */}
           {!canContinue && (
             <motion.div variants={entranceVariants.item}>
-              <Card className="bg-red-50 border-red-200">
+              <Card className="border-red-200 bg-red-50">
                 <CardContent className="p-6">
                   <div className="flex items-center space-x-3">
                     <div className="flex-shrink-0">
-                      <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 14.5c-.77.833.192 2.5 1.732 2.5z" />
+                      <svg
+                        className="h-6 w-6 text-red-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 14.5c-.77.833.192 2.5 1.732 2.5z"
+                        />
                       </svg>
                     </div>
                     <div className="text-left">
@@ -351,7 +493,8 @@ export function PartialDataState({
                         Kritiske problemer må løses først
                       </h4>
                       <p className="text-sm text-red-700">
-                        Du må løse alle kritiske problemer før du kan fortsette til porteføljevisningen.
+                        Du må løse alle kritiske problemer før du kan fortsette
+                        til porteføljevisningen.
                       </p>
                     </div>
                   </div>

@@ -103,7 +103,17 @@ export default function QuickActions({
     setIsExporting('csv')
     try {
       // Create CSV content
-      const headers = ['Symbol', 'Navn', 'Antall', 'Kostbasis', 'Nåværende kurs', 'Markedsverdi', 'Gevinst/Tap', 'Gevinst/Tap %', 'Vekt %']
+      const headers = [
+        'Symbol',
+        'Navn',
+        'Antall',
+        'Kostbasis',
+        'Nåværende kurs',
+        'Markedsverdi',
+        'Gevinst/Tap',
+        'Gevinst/Tap %',
+        'Vekt %',
+      ]
       const rows = holdings.map(holding => [
         holding.symbol,
         holding.stocks?.name || '',
@@ -118,7 +128,7 @@ export default function QuickActions({
 
       const csvContent = [
         headers.join(','),
-        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+        ...rows.map(row => row.map(cell => `"${cell}"`).join(',')),
       ].join('\n')
 
       // Create and download file
@@ -126,7 +136,10 @@ export default function QuickActions({
       const link = document.createElement('a')
       const url = URL.createObjectURL(blob)
       link.setAttribute('href', url)
-      link.setAttribute('download', `${portfolio?.name || 'portfolio'}_beholdninger.csv`)
+      link.setAttribute(
+        'download',
+        `${portfolio?.name || 'portfolio'}_beholdninger.csv`
+      )
       link.style.visibility = 'hidden'
       document.body.appendChild(link)
       link.click()
@@ -194,7 +207,7 @@ export default function QuickActions({
   // Handle share functionality
   const handleShare = useCallback(async () => {
     const shareUrl = `${window.location.origin}/portfolios/${portfolioId}/share`
-    
+
     if (navigator.share) {
       try {
         await navigator.share({
@@ -266,7 +279,11 @@ export default function QuickActions({
     {
       id: 'refresh',
       label: variant === 'compact' ? 'Oppdater' : 'Oppdater priser',
-      icon: <ArrowPathIcon className={cn('h-4 w-4', isRefreshing && 'animate-spin')} />,
+      icon: (
+        <ArrowPathIcon
+          className={cn('h-4 w-4', isRefreshing && 'animate-spin')}
+        />
+      ),
       shortcut: 'Ctrl+R',
       action: handleRefresh,
       loading: isRefreshing,
@@ -288,7 +305,11 @@ export default function QuickActions({
     {
       id: 'share',
       label: 'Del',
-      icon: copiedToClipboard ? <CheckIcon className="h-4 w-4" /> : <ShareIcon className="h-4 w-4" />,
+      icon: copiedToClipboard ? (
+        <CheckIcon className="h-4 w-4" />
+      ) : (
+        <ShareIcon className="h-4 w-4" />
+      ),
       action: () => setShowShareModal(true),
       variant: 'ghost',
       color: 'gray',
@@ -330,9 +351,8 @@ export default function QuickActions({
     },
   ]
 
-  const allActions = variant === 'full' 
-    ? [...quickActions, ...additionalActions]
-    : quickActions
+  const allActions =
+    variant === 'full' ? [...quickActions, ...additionalActions] : quickActions
 
   const containerClass = cn(
     'flex gap-2',
@@ -340,11 +360,12 @@ export default function QuickActions({
     className
   )
 
-  const buttonClass = (action: QuickAction) => cn(
-    'transition-all duration-200',
-    orientation === 'vertical' && 'justify-start',
-    action.loading && 'opacity-75 cursor-not-allowed'
-  )
+  const buttonClass = (action: QuickAction) =>
+    cn(
+      'transition-all duration-200',
+      orientation === 'vertical' && 'justify-start',
+      action.loading && 'opacity-75 cursor-not-allowed'
+    )
 
   return (
     <>
@@ -352,10 +373,12 @@ export default function QuickActions({
         {/* Connection Status Indicator */}
         {variant === 'full' && (
           <div className="flex items-center space-x-2 text-sm">
-            <div className={cn(
-              'w-2 h-2 rounded-full',
-              isPricesConnected ? 'bg-green-500' : 'bg-yellow-500'
-            )} />
+            <div
+              className={cn(
+                'h-2 w-2 rounded-full',
+                isPricesConnected ? 'bg-green-500' : 'bg-yellow-500'
+              )}
+            />
             <span className="text-gray-600">
               {isPricesConnected ? 'Live priser' : 'Offline modus'}
             </span>
@@ -363,7 +386,7 @@ export default function QuickActions({
         )}
 
         {/* Quick Action Buttons */}
-        {allActions.map((action) => (
+        {allActions.map(action => (
           <motion.div
             key={action.id}
             whileHover={{ scale: 1.02 }}
@@ -420,7 +443,7 @@ export default function QuickActions({
           </p>
 
           <div className="space-y-3">
-            {exportFormats.map((format) => (
+            {exportFormats.map(format => (
               <motion.button
                 key={format.id}
                 whileHover={{ scale: 1.02 }}
@@ -428,10 +451,10 @@ export default function QuickActions({
                 onClick={format.action}
                 disabled={isExporting === format.id}
                 className={cn(
-                  'w-full p-4 border border-gray-200 rounded-lg text-left transition-all',
+                  'w-full rounded-lg border border-gray-200 p-4 text-left transition-all',
                   'hover:border-blue-300 hover:bg-blue-50',
                   'focus:outline-none focus:ring-2 focus:ring-blue-500',
-                  isExporting === format.id && 'opacity-50 cursor-not-allowed'
+                  isExporting === format.id && 'cursor-not-allowed opacity-50'
                 )}
               >
                 <div className="flex items-center space-x-3">
@@ -455,11 +478,8 @@ export default function QuickActions({
             ))}
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4 border-t border-gray-200">
-            <Button
-              variant="outline"
-              onClick={() => setShowExportModal(false)}
-            >
+          <div className="flex justify-end space-x-2 border-t border-gray-200 pt-4">
+            <Button variant="outline" onClick={() => setShowExportModal(false)}>
               Avbryt
             </Button>
           </div>
@@ -479,13 +499,12 @@ export default function QuickActions({
           </p>
 
           <div className="space-y-3">
-            <div className="p-3 bg-gray-50 rounded-lg border">
+            <div className="rounded-lg border bg-gray-50 p-3">
               <div className="flex items-center justify-between">
-                <code className="text-sm text-gray-800 flex-1 truncate">
-                  {typeof window !== 'undefined' 
+                <code className="flex-1 truncate text-sm text-gray-800">
+                  {typeof window !== 'undefined'
                     ? `${window.location.origin}/portfolios/${portfolioId}/share`
-                    : '#'
-                  }
+                    : '#'}
                 </code>
                 <Button
                   variant="outline"
@@ -502,23 +521,21 @@ export default function QuickActions({
               </div>
             </div>
 
-            <div className="flex items-start space-x-2 p-3 bg-blue-50 rounded-lg">
-              <InformationCircleIcon className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div className="flex items-start space-x-2 rounded-lg bg-blue-50 p-3">
+              <InformationCircleIcon className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
               <div className="text-sm text-blue-800">
                 <p className="font-medium">Personvernmerknader</p>
                 <p>
-                  Når du deler porteføljen, vil mottakere kun se beholdninger og 
-                  ytelse - ikke personlig informasjon eller transaksjonshistorikk.
+                  Når du deler porteføljen, vil mottakere kun se beholdninger og
+                  ytelse - ikke personlig informasjon eller
+                  transaksjonshistorikk.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4 border-t border-gray-200">
-            <Button
-              variant="outline"
-              onClick={() => setShowShareModal(false)}
-            >
+          <div className="flex justify-end space-x-2 border-t border-gray-200 pt-4">
+            <Button variant="outline" onClick={() => setShowShareModal(false)}>
               Lukk
             </Button>
             <Button onClick={handleShare}>

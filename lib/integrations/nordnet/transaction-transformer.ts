@@ -6,7 +6,7 @@ import {
   NordnetImportResult,
   NordnetPortfolioMapping,
   NordnetImportConfig,
-  NORDNET_TRANSACTION_TYPES
+  NORDNET_TRANSACTION_TYPES,
 } from './types'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { v4 as uuidv4 } from 'uuid'
@@ -72,15 +72,23 @@ export class NordnetTransactionTransformer {
       errors: [],
       warnings: [],
       importBatchId: this.importBatchId,
-      processedData: transactions
+      processedData: transactions,
     }
 
     try {
       // Step 1: Create/get accounts for portfolios
-      const accountMap = await this.createOrGetAccounts(transactions, config, result)
+      const accountMap = await this.createOrGetAccounts(
+        transactions,
+        config,
+        result
+      )
 
       // Step 2: Lookup or create stocks
-      const stockMap = await this.lookupOrCreateStocks(transactions, config, result)
+      const stockMap = await this.lookupOrCreateStocks(
+        transactions,
+        config,
+        result
+      )
 
       // Step 3: Transform transactions to database format
       const transformedTransactions = await this.transformTransactions(
@@ -95,9 +103,10 @@ export class NordnetTransactionTransformer {
 
       result.success = result.errors.length === 0
       result.transformedRows = transformedTransactions.length
-
     } catch (error) {
-      result.errors.push(`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      result.errors.push(
+        `Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
       result.success = false
     }
 
@@ -113,7 +122,9 @@ export class NordnetTransactionTransformer {
     result: NordnetImportResult
   ): Promise<Map<string, string>> {
     const accountMap = new Map<string, string>()
-    const uniquePortfolios = [...new Set(transactions.map(t => t.portfolio_name))]
+    const uniquePortfolios = [
+      ...new Set(transactions.map(t => t.portfolio_name)),
+    ]
 
     for (const portfolioName of uniquePortfolios) {
       try {
@@ -136,9 +147,16 @@ export class NordnetTransactionTransformer {
         }
 
         // Create new account
-        const portfolioMapping = this.findPortfolioMapping(portfolioName, config.portfolioMappings)
+        const portfolioMapping = this.findPortfolioMapping(
+          portfolioName,
+          config.portfolioMappings
+        )
         const accountType = this.determineAccountType(portfolioName)
-        const currency = this.determineCurrency(transactions, portfolioName, config)
+        const currency = this.determineCurrency(
+          transactions,
+          portfolioName,
+          config
+        )
 
         // Get or create portfolio
         const portfolioId = await this.getOrCreatePortfolio(portfolioName)
@@ -149,7 +167,7 @@ export class NordnetTransactionTransformer {
           platform_id: this.platformId,
           name: portfolioMapping?.internalAccountName || portfolioName,
           currency,
-          account_type: portfolioMapping?.accountType || accountType
+          account_type: portfolioMapping?.accountType || accountType,
         }
 
         const { data: newAccount, error: createError } = await this.supabase
@@ -164,9 +182,10 @@ export class NordnetTransactionTransformer {
 
         accountMap.set(portfolioName, newAccount.id)
         result.createdAccounts++
-
       } catch (error) {
-        result.errors.push(`Failed to create account for portfolio '${portfolioName}': ${error instanceof Error ? error.message : 'Unknown error'}`)
+        result.errors.push(
+          `Failed to create account for portfolio '${portfolioName}': ${error instanceof Error ? error.message : 'Unknown error'}`
+        )
       }
     }
 
@@ -196,7 +215,7 @@ export class NordnetTransactionTransformer {
         user_id: this.userId,
         name: portfolioName,
         description: `Imported from Nordnet CSV`,
-        currency: 'NOK' // Default for Nordnet
+        currency: 'NOK', // Default for Nordnet
       })
       .select('id')
       .single()
@@ -217,17 +236,22 @@ export class NordnetTransactionTransformer {
     result: NordnetImportResult
   ): Promise<Map<string, string>> {
     const stockMap = new Map<string, string>()
-    
+
     // Get unique stocks that need lookup
-    const stockTransactions = transactions.filter(t => t.needs_stock_lookup && t.isin)
-    const uniqueStocks = new Map<string, { isin: string; name: string; currency: string }>()
+    const stockTransactions = transactions.filter(
+      t => t.needs_stock_lookup && t.isin
+    )
+    const uniqueStocks = new Map<
+      string,
+      { isin: string; name: string; currency: string }
+    >()
 
     for (const transaction of stockTransactions) {
       if (transaction.isin && !uniqueStocks.has(transaction.isin)) {
         uniqueStocks.set(transaction.isin, {
           isin: transaction.isin,
           name: transaction.security_name || 'Unknown',
-          currency: transaction.currency
+          currency: transaction.currency,
         })
       }
     }
@@ -260,7 +284,7 @@ export class NordnetTransactionTransformer {
             isin,
             currency: stockInfo.currency,
             asset_class: 'STOCK',
-            data_source: 'CSV_IMPORT'
+            data_source: 'CSV_IMPORT',
           }
 
           const { data: newStock, error: createError } = await this.supabase
@@ -275,11 +299,14 @@ export class NordnetTransactionTransformer {
 
           stockMap.set(isin, newStock.id)
         } else {
-          result.warnings.push(`Stock with ISIN ${isin} not found and creation is disabled`)
+          result.warnings.push(
+            `Stock with ISIN ${isin} not found and creation is disabled`
+          )
         }
-
       } catch (error) {
-        result.errors.push(`Failed to lookup/create stock for ISIN '${isin}': ${error instanceof Error ? error.message : 'Unknown error'}`)
+        result.errors.push(
+          `Failed to lookup/create stock for ISIN '${isin}': ${error instanceof Error ? error.message : 'Unknown error'}`
+        )
       }
     }
 
@@ -302,14 +329,20 @@ export class NordnetTransactionTransformer {
         // Skip if validation errors
         if (transaction.validation_errors.length > 0) {
           result.skippedRows++
-          result.errors.push(...transaction.validation_errors.map(e => `Transaction ${transaction.id}: ${e}`))
+          result.errors.push(
+            ...transaction.validation_errors.map(
+              e => `Transaction ${transaction.id}: ${e}`
+            )
+          )
           continue
         }
 
         const accountId = accountMap.get(transaction.portfolio_name)
         if (!accountId) {
           result.skippedRows++
-          result.errors.push(`No account found for portfolio: ${transaction.portfolio_name}`)
+          result.errors.push(
+            `No account found for portfolio: ${transaction.portfolio_name}`
+          )
           continue
         }
 
@@ -336,20 +369,23 @@ export class NordnetTransactionTransformer {
           price: transaction.price || undefined,
           total_amount: transaction.amount,
           commission: transaction.commission || 0,
-          other_fees: (transaction.total_fees || 0) - (transaction.commission || 0),
+          other_fees:
+            (transaction.total_fees || 0) - (transaction.commission || 0),
           currency: transaction.currency,
           exchange_rate: transaction.exchange_rate || 1.0,
-          description: transaction.transaction_text || transaction.security_name,
+          description:
+            transaction.transaction_text || transaction.security_name,
           notes: this.generateNotes(transaction),
           data_source: 'CSV_IMPORT',
-          import_batch_id: this.importBatchId
+          import_batch_id: this.importBatchId,
         }
 
         transformedTransactions.push(transformedTransaction)
-
       } catch (error) {
         result.skippedRows++
-        result.errors.push(`Failed to transform transaction ${transaction.id}: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        result.errors.push(
+          `Failed to transform transaction ${transaction.id}: ${error instanceof Error ? error.message : 'Unknown error'}`
+        )
       }
     }
 
@@ -374,7 +410,7 @@ export class NordnetTransactionTransformer {
         if (config.duplicateTransactionHandling === 'skip') {
           const filteredBatch = await this.filterDuplicates(batch)
           if (filteredBatch.length === 0) continue
-          
+
           const { error } = await this.supabase
             .from('transactions')
             .insert(filteredBatch)
@@ -389,9 +425,10 @@ export class NordnetTransactionTransformer {
           if (error) throw error
           result.createdTransactions += batch.length
         }
-
       } catch (error) {
-        result.errors.push(`Failed to import batch ${Math.floor(i / batchSize) + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        result.errors.push(
+          `Failed to import batch ${Math.floor(i / batchSize) + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`
+        )
       }
     }
   }
@@ -399,17 +436,21 @@ export class NordnetTransactionTransformer {
   /**
    * Filters out duplicate transactions
    */
-  private async filterDuplicates(transactions: TransactionRecord[]): Promise<TransactionRecord[]> {
+  private async filterDuplicates(
+    transactions: TransactionRecord[]
+  ): Promise<TransactionRecord[]> {
     const externalIds = transactions.map(t => t.external_id)
-    
+
     const { data: existingTransactions } = await this.supabase
       .from('transactions')
       .select('external_id')
       .in('external_id', externalIds)
       .eq('user_id', this.userId)
 
-    const existingIds = new Set(existingTransactions?.map(t => t.external_id) || [])
-    
+    const existingIds = new Set(
+      existingTransactions?.map(t => t.external_id) || []
+    )
+
     return transactions.filter(t => !existingIds.has(t.external_id))
   }
 
@@ -425,11 +466,11 @@ export class NordnetTransactionTransformer {
 
   private determineAccountType(portfolioName: string): string {
     const name = portfolioName.toLowerCase()
-    
+
     if (name.includes('ips') || name.includes('pensjon')) return 'PENSION'
     if (name.includes('spare') || name.includes('bsu')) return 'SAVINGS'
     if (name.includes('isk')) return 'TFSA'
-    
+
     return 'TAXABLE' // Default
   }
 
@@ -439,19 +480,20 @@ export class NordnetTransactionTransformer {
     config: NordnetImportConfig
   ): string {
     // Find most common currency for this portfolio
-    const portfolioTransactions = transactions.filter(t => t.portfolio_name === portfolioName)
+    const portfolioTransactions = transactions.filter(
+      t => t.portfolio_name === portfolioName
+    )
     const currencyCount = new Map<string, number>()
-    
+
     for (const transaction of portfolioTransactions) {
       const currency = transaction.currency
       currencyCount.set(currency, (currencyCount.get(currency) || 0) + 1)
     }
-    
+
     if (currencyCount.size === 0) return 'NOK' // Default for Nordnet
-    
+
     // Return most common currency
-    return Array.from(currencyCount.entries())
-      .sort((a, b) => b[1] - a[1])[0][0]
+    return Array.from(currencyCount.entries()).sort((a, b) => b[1] - a[1])[0][0]
   }
 
   private extractSymbolFromName(name: string): string {
@@ -460,14 +502,14 @@ export class NordnetTransactionTransformer {
     const patterns = [
       /\(([A-Z]{1,6})\)/, // Symbol in parentheses
       /([A-Z]{1,6})\s*-/, // Symbol before dash
-      /^([A-Z]{1,6})\s/,  // Symbol at start
+      /^([A-Z]{1,6})\s/, // Symbol at start
     ]
-    
+
     for (const pattern of patterns) {
       const match = name.match(pattern)
       if (match) return match[1]
     }
-    
+
     // Fallback: use first word in uppercase
     const firstWord = name.split(' ')[0].toUpperCase()
     return firstWord.slice(0, 6) // Limit to 6 characters
@@ -475,23 +517,23 @@ export class NordnetTransactionTransformer {
 
   private generateNotes(transaction: NordnetTransactionData): string {
     const notes: string[] = []
-    
+
     if (transaction.transaction_text) {
       notes.push(transaction.transaction_text)
     }
-    
+
     if (transaction.verification_number) {
       notes.push(`Verification: ${transaction.verification_number}`)
     }
-    
+
     if (transaction.settlement_number) {
       notes.push(`Settlement: ${transaction.settlement_number}`)
     }
-    
+
     if (transaction.validation_warnings.length > 0) {
       notes.push(`Warnings: ${transaction.validation_warnings.join(', ')}`)
     }
-    
+
     return notes.join(' | ')
   }
 
@@ -509,7 +551,7 @@ export class NordnetTransactionTransformer {
       validateISIN: true,
       strictMode: false,
       dateFormat: 'YYYY-MM-DD',
-      currencyConversion: false
+      currencyConversion: false,
     }
   }
 
@@ -543,20 +585,24 @@ export class NordnetTransactionTransformer {
     // Validate duplicate handling
     const validDuplicateHandling = ['skip', 'update', 'error']
     if (!validDuplicateHandling.includes(config.duplicateTransactionHandling)) {
-      errors.push(`Invalid duplicate handling: ${config.duplicateTransactionHandling}`)
+      errors.push(
+        `Invalid duplicate handling: ${config.duplicateTransactionHandling}`
+      )
     }
 
     // Validate portfolio mappings
     for (const mapping of config.portfolioMappings) {
       if (!mapping.csvPortfolioName || !mapping.internalAccountName) {
-        errors.push('Portfolio mapping must have both CSV and internal account names')
+        errors.push(
+          'Portfolio mapping must have both CSV and internal account names'
+        )
       }
     }
 
     return {
       valid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     }
   }
 }

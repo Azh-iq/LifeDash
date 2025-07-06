@@ -9,6 +9,7 @@ Comprehensive chart components for the LifeDash investment platform using Rechar
 Main portfolio performance chart with time-series data visualization.
 
 **Features:**
+
 - Line and area chart modes
 - Norwegian currency formatting (NOK)
 - Interactive tooltips with detailed data
@@ -17,10 +18,11 @@ Main portfolio performance chart with time-series data visualization.
 - Responsive design with mobile optimization
 
 **Usage:**
+
 ```tsx
 import { PortfolioPerformanceChart } from '@/components/charts'
 
-<PortfolioPerformanceChart
+;<PortfolioPerformanceChart
   data={portfolioData}
   title="Portfolio Performance"
   height={400}
@@ -35,6 +37,7 @@ import { PortfolioPerformanceChart } from '@/components/charts'
 Pie, donut, and bar charts for asset allocation visualization.
 
 **Features:**
+
 - Multiple chart types (pie, donut, bar)
 - Interactive tooltips
 - Asset breakdown list
@@ -42,10 +45,11 @@ Pie, donut, and bar charts for asset allocation visualization.
 - Color-coded allocation display
 
 **Usage:**
+
 ```tsx
 import { AssetAllocationChart } from '@/components/charts'
 
-<AssetAllocationChart
+;<AssetAllocationChart
   data={allocationData}
   title="Asset Allocation"
   chartType="donut"
@@ -58,12 +62,14 @@ import { AssetAllocationChart } from '@/components/charts'
 Time period selector component with preset ranges.
 
 **Features:**
+
 - Predefined time ranges (1W, 1M, 3M, 6M, 1Y, ALL)
 - Button and tab variants
 - Compact mobile variant
 - Norwegian labels and descriptions
 
 **Usage:**
+
 ```tsx
 import { TimeRangeSelector, useTimeRange } from '@/components/charts'
 
@@ -81,6 +87,7 @@ const { selectedRange, setSelectedRange } = useTimeRange()
 Comprehensive chart configuration and control panel.
 
 **Features:**
+
 - Chart type selection
 - Toggle options (grid, legend, area, etc.)
 - Time range integration
@@ -89,6 +96,7 @@ Comprehensive chart configuration and control panel.
 - Compact and full variants
 
 **Usage:**
+
 ```tsx
 import { ChartControls, useChartConfig } from '@/components/charts'
 
@@ -106,6 +114,7 @@ const { config, updateConfig } = useChartConfig()
 Multi-portfolio/benchmark comparison chart.
 
 **Features:**
+
 - Multiple portfolio comparison
 - Benchmark integration
 - Performance statistics
@@ -114,11 +123,12 @@ Multi-portfolio/benchmark comparison chart.
 - Portfolio metrics display
 
 **Usage:**
+
 ```tsx
-import { 
+import {
   PerformanceComparisonChart,
   createPortfolioComparison,
-  createBenchmarkComparison 
+  createBenchmarkComparison
 } from '@/components/charts'
 
 const comparisons = [
@@ -136,18 +146,23 @@ const comparisons = [
 ## Utilities and Hooks
 
 ### useTimeRange()
+
 Hook for managing time range selection:
+
 ```tsx
 const { selectedRange, setSelectedRange, getDateRange } = useTimeRange('1M')
 ```
 
 ### useChartConfig()
+
 Hook for managing chart configuration:
+
 ```tsx
 const { config, updateConfig, resetConfig } = useChartConfig()
 ```
 
 ### Formatting Functions
+
 - `formatCurrency(value, currency)` - Format currency values
 - `formatPercentage(value)` - Format percentage values
 - `formatCompactNumber(value)` - Format large numbers (1.2M, 850K)
@@ -155,7 +170,9 @@ const { config, updateConfig, resetConfig } = useChartConfig()
 ## Styling and Theming
 
 ### Color Palette
+
 The charts use a blue investment theme consistent with the LifeDash brand:
+
 - Primary: `#1e40af` (Deep blue)
 - Secondary: `#3b82f6` (Blue)
 - Accent: `#60a5fa` (Light blue)
@@ -164,7 +181,9 @@ The charts use a blue investment theme consistent with the LifeDash brand:
 - Error: `#ef4444` (Red)
 
 ### Norwegian Locale
+
 All components use Norwegian locale formatting:
+
 - Currency: NOK with proper thousand separators
 - Dates: Norwegian date format
 - Numbers: Norwegian number formatting
@@ -172,6 +191,7 @@ All components use Norwegian locale formatting:
 ## Data Format
 
 ### Portfolio Data
+
 ```typescript
 interface PortfolioDataPoint {
   date: string
@@ -183,6 +203,7 @@ interface PortfolioDataPoint {
 ```
 
 ### Asset Allocation Data
+
 ```typescript
 interface AssetAllocation {
   name: string
@@ -194,6 +215,7 @@ interface AssetAllocation {
 ```
 
 ### Performance Comparison Data
+
 ```typescript
 interface PerformanceComparison {
   id: string
@@ -211,13 +233,14 @@ interface PerformanceComparison {
 ## Dependencies
 
 - **recharts**: Chart library
-- **@radix-ui/react-***: UI primitives
+- **@radix-ui/react-\***: UI primitives
 - **class-variance-authority**: CSS variant management
 - **tailwindcss**: Styling framework
 
 ## Configuration Presets
 
 The components come with predefined configuration presets:
+
 - `minimal`: Clean, minimal charts
 - `standard`: Default configuration
 - `detailed`: Full feature set enabled
@@ -226,11 +249,13 @@ The components come with predefined configuration presets:
 ## Responsive Design
 
 All charts are responsive and optimized for:
+
 - Mobile devices (320px+)
 - Tablets (768px+)
 - Desktop (1024px+)
 
 Charts automatically adjust:
+
 - Height based on screen size
 - Margins and padding
 - Font sizes and element spacing
@@ -239,6 +264,7 @@ Charts automatically adjust:
 ## Export Functionality
 
 Charts support export to:
+
 - PNG (raster image)
 - SVG (vector graphics)
 - PDF (document)

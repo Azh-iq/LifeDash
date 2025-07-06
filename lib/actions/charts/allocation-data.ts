@@ -6,22 +6,29 @@ import { unstable_cache } from 'next/cache'
 import { Database } from '@/lib/types/database.types'
 
 // Types for allocation data
-type AssetAllocationHistory = Database['public']['Tables']['asset_allocation_history']['Row']
+type AssetAllocationHistory =
+  Database['public']['Tables']['asset_allocation_history']['Row']
 type AssetClass = Database['public']['Enums']['asset_class']
 
 // Validation schemas
 const allocationDataSchema = z.object({
   portfolioId: z.string().uuid('Invalid portfolio ID'),
-  period: z.enum(['1D', '1W', '1M', '3M', '6M', '1Y', 'YTD', 'ITD', 'ALL']).default('1M'),
+  period: z
+    .enum(['1D', '1W', '1M', '3M', '6M', '1Y', 'YTD', 'ITD', 'ALL'])
+    .default('1M'),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
-  groupBy: z.enum(['asset_class', 'sector', 'industry', 'geographic_region']).default('asset_class'),
+  groupBy: z
+    .enum(['asset_class', 'sector', 'industry', 'geographic_region'])
+    .default('asset_class'),
   includeTargets: z.boolean().default(true),
 })
 
 const portfolioAllocationComparisonSchema = z.object({
   portfolioIds: z.array(z.string().uuid()).min(1).max(5),
-  groupBy: z.enum(['asset_class', 'sector', 'industry', 'geographic_region']).default('asset_class'),
+  groupBy: z
+    .enum(['asset_class', 'sector', 'industry', 'geographic_region'])
+    .default('asset_class'),
   date: z.string().datetime().optional(),
 })
 
@@ -85,7 +92,8 @@ export async function getPortfolioAllocation(
 ): Promise<ActionResult<AllocationData>> {
   try {
     const validatedInput = allocationDataSchema.parse(input)
-    const { portfolioId, period, startDate, endDate, groupBy, includeTargets } = validatedInput
+    const { portfolioId, period, startDate, endDate, groupBy, includeTargets } =
+      validatedInput
 
     const supabase = createClient()
 
@@ -94,7 +102,7 @@ export async function getPortfolioAllocation(
       data: { user },
       error: userError,
     } = await supabase.auth.getUser()
-    
+
     if (userError || !user) {
       return {
         success: false,
@@ -154,16 +162,19 @@ export async function getPortfolioAllocation(
     )
 
     // Transform and group allocations based on groupBy parameter
-    const allocationMap = new Map<string, {
-      marketValue: number
-      costBasis: number
-      percentage: number
-      targetPercentage?: number
-      holdingsCount: number
-      unrealizedPnl: number
-      unrealizedPnlPercent: number
-      largestHoldingPercent?: number
-    }>()
+    const allocationMap = new Map<
+      string,
+      {
+        marketValue: number
+        costBasis: number
+        percentage: number
+        targetPercentage?: number
+        holdingsCount: number
+        unrealizedPnl: number
+        unrealizedPnlPercent: number
+        largestHoldingPercent?: number
+      }
+    >()
 
     let totalValue = 0
 
@@ -194,35 +205,45 @@ export async function getPortfolioAllocation(
     })
 
     // Recalculate percentages based on total portfolio value
-    const allocations: AllocationDataPoint[] = Array.from(allocationMap.entries()).map(([category, data]) => {
-      const percentage = totalValue > 0 ? (data.marketValue / totalValue) * 100 : 0
-      const unrealizedPnlPercent = data.costBasis > 0 ? (data.unrealizedPnl / data.costBasis) * 100 : 0
-      const deviation = data.targetPercentage ? percentage - data.targetPercentage : undefined
+    const allocations: AllocationDataPoint[] = Array.from(
+      allocationMap.entries()
+    )
+      .map(([category, data]) => {
+        const percentage =
+          totalValue > 0 ? (data.marketValue / totalValue) * 100 : 0
+        const unrealizedPnlPercent =
+          data.costBasis > 0 ? (data.unrealizedPnl / data.costBasis) * 100 : 0
+        const deviation = data.targetPercentage
+          ? percentage - data.targetPercentage
+          : undefined
 
-      return {
-        category,
-        value: data.marketValue,
-        percentage,
-        targetPercentage: data.targetPercentage,
-        deviation,
-        color: getColorForCategory(category, groupBy),
-        metadata: {
-          marketValue: data.marketValue,
-          costBasis: data.costBasis,
-          unrealizedPnl: data.unrealizedPnl,
-          unrealizedPnlPercent,
-          holdingsCount: data.holdingsCount,
-          largestHoldingPercent: data.largestHoldingPercent,
+        return {
+          category,
+          value: data.marketValue,
+          percentage,
+          targetPercentage: data.targetPercentage,
+          deviation,
+          color: getColorForCategory(category, groupBy),
+          metadata: {
+            marketValue: data.marketValue,
+            costBasis: data.costBasis,
+            unrealizedPnl: data.unrealizedPnl,
+            unrealizedPnlPercent,
+            holdingsCount: data.holdingsCount,
+            largestHoldingPercent: data.largestHoldingPercent,
+          },
         }
-      }
-    }).sort((a, b) => b.percentage - a.percentage)
+      })
+      .sort((a, b) => b.percentage - a.percentage)
 
     // Get target allocations if requested
     let targets: AllocationDataPoint[] | undefined
     if (includeTargets) {
       const { data: targetAllocations } = await supabase
         .from('portfolio_allocations')
-        .select('asset_class, target_percentage, min_percentage, max_percentage')
+        .select(
+          'asset_class, target_percentage, min_percentage, max_percentage'
+        )
         .eq('portfolio_id', portfolioId)
 
       if (targetAllocations && targetAllocations.length > 0) {
@@ -240,7 +261,7 @@ export async function getPortfolioAllocation(
             holdingsCount: 0,
             minPercentage: target.min_percentage,
             maxPercentage: target.max_percentage,
-          }
+          },
         }))
       }
     }
@@ -285,9 +306,8 @@ export async function getPortfolioAllocation(
       metadata: {
         calculatedAt: new Date().toISOString(),
         groupBy,
-      }
+      },
     }
-
   } catch (error) {
     console.error('Portfolio allocation error:', error)
 
@@ -316,7 +336,7 @@ export const getCachedPortfolioAllocation = unstable_cache(
       metadata: {
         ...result.metadata,
         cached: true,
-      }
+      },
     }
   },
   ['portfolio-allocation'],
@@ -343,7 +363,7 @@ export async function comparePortfolioAllocations(
       data: { user },
       error: userError,
     } = await supabase.auth.getUser()
-    
+
     if (userError || !user) {
       return {
         success: false,
@@ -382,9 +402,8 @@ export async function comparePortfolioAllocations(
       metadata: {
         calculatedAt: new Date().toISOString(),
         groupBy,
-      }
+      },
     }
-
   } catch (error) {
     console.error('Portfolio allocation comparison error:', error)
 
@@ -397,7 +416,8 @@ export async function comparePortfolioAllocations(
 
     return {
       success: false,
-      error: 'An unexpected error occurred while comparing portfolio allocations',
+      error:
+        'An unexpected error occurred while comparing portfolio allocations',
     }
   }
 }
@@ -405,23 +425,23 @@ export async function comparePortfolioAllocations(
 /**
  * Get allocation drift analysis for rebalancing recommendations
  */
-export async function getAllocationDriftAnalysis(
-  portfolioId: string
-): Promise<ActionResult<{
-  currentAllocations: AllocationDataPoint[]
-  targetAllocations: AllocationDataPoint[]
-  driftAnalysis: {
-    category: string
-    currentPercent: number
-    targetPercent: number
-    drift: number
-    driftPercent: number
-    action: 'buy' | 'sell' | 'hold'
-    recommendedAmount: number
-  }[]
-  rebalanceRequired: boolean
-  totalDrift: number
-}>> {
+export async function getAllocationDriftAnalysis(portfolioId: string): Promise<
+  ActionResult<{
+    currentAllocations: AllocationDataPoint[]
+    targetAllocations: AllocationDataPoint[]
+    driftAnalysis: {
+      category: string
+      currentPercent: number
+      targetPercent: number
+      drift: number
+      driftPercent: number
+      action: 'buy' | 'sell' | 'hold'
+      recommendedAmount: number
+    }[]
+    rebalanceRequired: boolean
+    totalDrift: number
+  }>
+> {
   try {
     const supabase = createClient()
 
@@ -430,7 +450,7 @@ export async function getAllocationDriftAnalysis(
       data: { user },
       error: userError,
     } = await supabase.auth.getUser()
-    
+
     if (userError || !user) {
       return {
         success: false,
@@ -453,7 +473,11 @@ export async function getAllocationDriftAnalysis(
       }
     }
 
-    const { allocations: currentAllocations, targets: targetAllocations, totalValue } = currentResult.data
+    const {
+      allocations: currentAllocations,
+      targets: targetAllocations,
+      totalValue,
+    } = currentResult.data
 
     if (!targetAllocations || targetAllocations.length === 0) {
       return {
@@ -464,12 +488,14 @@ export async function getAllocationDriftAnalysis(
 
     // Calculate drift analysis
     const driftAnalysis = targetAllocations.map(target => {
-      const current = currentAllocations.find(alloc => alloc.category === target.category)
+      const current = currentAllocations.find(
+        alloc => alloc.category === target.category
+      )
       const currentPercent = current?.percentage || 0
       const targetPercent = target.percentage
       const drift = currentPercent - targetPercent
       const driftPercent = targetPercent > 0 ? (drift / targetPercent) * 100 : 0
-      
+
       let action: 'buy' | 'sell' | 'hold' = 'hold'
       let recommendedAmount = 0
 
@@ -495,7 +521,10 @@ export async function getAllocationDriftAnalysis(
       }
     })
 
-    const totalDrift = driftAnalysis.reduce((sum, item) => sum + Math.abs(item.drift), 0)
+    const totalDrift = driftAnalysis.reduce(
+      (sum, item) => sum + Math.abs(item.drift),
+      0
+    )
     const rebalanceRequired = totalDrift > 10 // Rebalance if total drift > 10%
 
     return {
@@ -509,9 +538,8 @@ export async function getAllocationDriftAnalysis(
       },
       metadata: {
         calculatedAt: new Date().toISOString(),
-      }
+      },
     }
-
   } catch (error) {
     console.error('Allocation drift analysis error:', error)
     return {
@@ -523,7 +551,10 @@ export async function getAllocationDriftAnalysis(
 
 // Helper functions
 
-function getGroupByKey(allocation: AssetAllocationHistory, groupBy: string): string {
+function getGroupByKey(
+  allocation: AssetAllocationHistory,
+  groupBy: string
+): string {
   switch (groupBy) {
     case 'asset_class':
       return allocation.asset_class
@@ -541,32 +572,36 @@ function getGroupByKey(allocation: AssetAllocationHistory, groupBy: string): str
 function getColorForCategory(category: string, groupBy: string): string {
   const colorMaps = {
     asset_class: {
-      'STOCK': '#3B82F6',
-      'ETF': '#10B981',
-      'BOND': '#F59E0B',
-      'CASH': '#6B7280',
-      'CRYPTOCURRENCY': '#8B5CF6',
-      'REAL_ESTATE': '#EF4444',
-      'COMMODITY': '#F97316',
-      'ALTERNATIVE': '#EC4899',
+      STOCK: '#3B82F6',
+      ETF: '#10B981',
+      BOND: '#F59E0B',
+      CASH: '#6B7280',
+      CRYPTOCURRENCY: '#8B5CF6',
+      REAL_ESTATE: '#EF4444',
+      COMMODITY: '#F97316',
+      ALTERNATIVE: '#EC4899',
     },
     sector: {
-      'Technology': '#3B82F6',
-      'Healthcare': '#10B981',
-      'Financial': '#F59E0B',
-      'Consumer': '#EF4444',
-      'Industrial': '#8B5CF6',
-      'Energy': '#F97316',
-      'Unknown': '#6B7280',
+      Technology: '#3B82F6',
+      Healthcare: '#10B981',
+      Financial: '#F59E0B',
+      Consumer: '#EF4444',
+      Industrial: '#8B5CF6',
+      Energy: '#F97316',
+      Unknown: '#6B7280',
     },
   }
 
   return colorMaps[groupBy as keyof typeof colorMaps]?.[category] || '#6B7280'
 }
 
-function calculateStartDate(period: string, startDate?: string, endDate?: Date): Date {
+function calculateStartDate(
+  period: string,
+  startDate?: string,
+  endDate?: Date
+): Date {
   const endDateTime = endDate || new Date()
-  
+
   if (startDate) {
     return new Date(startDate)
   }
@@ -590,7 +625,7 @@ function calculateStartDate(period: string, startDate?: string, endDate?: Date):
 }
 
 function processAllocationHistory(
-  historicalAllocations: AssetAllocationHistory[], 
+  historicalAllocations: AssetAllocationHistory[],
   groupBy: string
 ): AllocationHistory[] {
   const historyMap = new Map<string, Map<string, number>>()
@@ -599,11 +634,11 @@ function processAllocationHistory(
   historicalAllocations.forEach(allocation => {
     const date = allocation.allocation_date
     const category = getGroupByKey(allocation, groupBy)
-    
+
     if (!historyMap.has(date)) {
       historyMap.set(date, new Map())
     }
-    
+
     const dateMap = historyMap.get(date)!
     const existing = dateMap.get(category) || 0
     dateMap.set(category, existing + allocation.allocation_percent)
@@ -613,18 +648,20 @@ function processAllocationHistory(
   return Array.from(historyMap.entries())
     .map(([date, allocationsMap]) => ({
       date,
-      allocations: Array.from(allocationsMap.entries()).map(([category, percentage]) => ({
-        category,
-        value: 0, // We don't have market value in history, only percentages
-        percentage,
-        color: getColorForCategory(category, groupBy),
-      }))
+      allocations: Array.from(allocationsMap.entries()).map(
+        ([category, percentage]) => ({
+          category,
+          value: 0, // We don't have market value in history, only percentages
+          percentage,
+          color: getColorForCategory(category, groupBy),
+        })
+      ),
     }))
     .sort((a, b) => a.date.localeCompare(b.date))
 }
 
 function calculateAllocationSummary(
-  allocations: AllocationDataPoint[], 
+  allocations: AllocationDataPoint[],
   targets?: AllocationDataPoint[]
 ): AllocationData['summary'] {
   // Calculate diversification score (inverse of concentration)
@@ -638,7 +675,7 @@ function calculateAllocationSummary(
   if (targets && targets.length > 0) {
     allocationDrift = allocations.reduce((sum, allocation) => {
       const target = targets.find(t => t.category === allocation.category)
-      return sum + Math.abs((allocation.percentage) - (target?.percentage || 0))
+      return sum + Math.abs(allocation.percentage - (target?.percentage || 0))
     }, 0)
 
     rebalanceRecommended = allocationDrift > 10 // Recommend rebalance if drift > 10%

@@ -1,7 +1,10 @@
 'use client'
 
 import { lazy, Suspense, useState, useEffect, useRef } from 'react'
-import { PortfolioChartSectionSkeleton, HoldingsSectionSkeleton } from '@/components/ui/portfolio-skeletons'
+import {
+  PortfolioChartSectionSkeleton,
+  HoldingsSectionSkeleton,
+} from '@/components/ui/portfolio-skeletons'
 
 // Lazy load heavy components
 const PortfolioChartSection = lazy(() => import('./portfolio-chart-section'))
@@ -28,7 +31,9 @@ export function LazyHoldingsSection(props: any) {
 
 export function LazyQuickActions(props: any) {
   return (
-    <Suspense fallback={<div className="animate-pulse h-32 bg-gray-100 rounded-lg" />}>
+    <Suspense
+      fallback={<div className="h-32 animate-pulse rounded-lg bg-gray-100" />}
+    >
       <QuickActions {...props} />
     </Suspense>
   )
@@ -36,29 +41,35 @@ export function LazyQuickActions(props: any) {
 
 export function LazyRecentActivity(props: any) {
   return (
-    <Suspense fallback={<div className="animate-pulse h-40 bg-gray-100 rounded-lg" />}>
+    <Suspense
+      fallback={<div className="h-40 animate-pulse rounded-lg bg-gray-100" />}
+    >
       <RecentActivity {...props} />
     </Suspense>
   )
 }
 
 // Progressive loading component that shows critical data first
-export function ProgressivePortfolioLoader({ portfolioId }: { portfolioId: string }) {
+export function ProgressivePortfolioLoader({
+  portfolioId,
+}: {
+  portfolioId: string
+}) {
   return (
     <div className="space-y-6">
       {/* Load immediately - critical data */}
       <div className="space-y-4">
         {/* Portfolio metrics are loaded synchronously as they're critical */}
       </div>
-      
+
       {/* Load after a delay - secondary data */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-        <div className="lg:col-span-3 space-y-6">
+        <div className="space-y-6 lg:col-span-3">
           <LazyPortfolioChartSection portfolioId={portfolioId} />
           <LazyHoldingsSection portfolioId={portfolioId} />
         </div>
-        
-        <div className="lg:col-span-1 space-y-4">
+
+        <div className="space-y-4 lg:col-span-1">
           <LazyQuickActions portfolioId={portfolioId} />
           <LazyRecentActivity portfolioId={portfolioId} />
         </div>
@@ -68,11 +79,11 @@ export function ProgressivePortfolioLoader({ portfolioId }: { portfolioId: strin
 }
 
 // Intersection Observer based lazy loading
-export function IntersectionLazyLoader({ 
-  children, 
-  fallback, 
+export function IntersectionLazyLoader({
+  children,
+  fallback,
   rootMargin = '100px',
-  threshold = 0.1 
+  threshold = 0.1,
 }: {
   children: React.ReactNode
   fallback: React.ReactNode
@@ -104,11 +115,7 @@ export function IntersectionLazyLoader({
     return () => observer.disconnect()
   }, [rootMargin, threshold, hasLoaded])
 
-  return (
-    <div ref={ref}>
-      {isVisible ? children : fallback}
-    </div>
-  )
+  return <div ref={ref}>{isVisible ? children : fallback}</div>
 }
 
 // Export all lazy components

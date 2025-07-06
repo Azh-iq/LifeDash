@@ -5,37 +5,53 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  ArrowRight, 
-  Check, 
-  X, 
-  AlertTriangle, 
-  Info, 
-  Shuffle, 
+import {
+  ArrowRight,
+  Check,
+  X,
+  AlertTriangle,
+  Info,
+  Shuffle,
   RotateCcw,
   Eye,
-  EyeOff
+  EyeOff,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { 
-  NordnetFieldMapping, 
+import {
+  NordnetFieldMapping,
   NordnetCSVRow,
-  NordnetParseResult 
+  NordnetParseResult,
 } from '@/lib/integrations/nordnet/types'
 import { NordnetFieldMapper } from '@/lib/integrations/nordnet/field-mapping'
 
 interface FieldMapperProps {
   parseResult: NordnetParseResult
   onMappingChange: (mappings: NordnetFieldMapping[]) => void
-  onValidationChange: (isValid: boolean, errors: string[], warnings: string[]) => void
+  onValidationChange: (
+    isValid: boolean,
+    errors: string[],
+    warnings: string[]
+  ) => void
   className?: string
 }
 
@@ -55,123 +71,170 @@ export function FieldMapper({
   parseResult,
   onMappingChange,
   onValidationChange,
-  className
+  className,
 }: FieldMapperProps) {
   const [state, setState] = useState<MappingState>({
     mappings: [],
     autoMappings: [],
     showPreview: false,
     previewRowIndex: 0,
-    validationResult: { valid: false, errors: [], warnings: [] }
+    validationResult: { valid: false, errors: [], warnings: [] },
   })
 
   // Initialize with auto-detected mappings
   useEffect(() => {
-    const autoMappings = NordnetFieldMapper.autoDetectMappings(parseResult.headers)
-    const validation = NordnetFieldMapper.validateMappings(autoMappings, parseResult.headers)
-    
+    const autoMappings = NordnetFieldMapper.autoDetectMappings(
+      parseResult.headers
+    )
+    const validation = NordnetFieldMapper.validateMappings(
+      autoMappings,
+      parseResult.headers
+    )
+
     setState(prev => ({
       ...prev,
       mappings: autoMappings,
       autoMappings,
-      validationResult: validation
+      validationResult: validation,
     }))
 
     onMappingChange(autoMappings)
     onValidationChange(validation.valid, validation.errors, validation.warnings)
   }, [parseResult.headers, onMappingChange, onValidationChange])
 
-  const handleMappingChange = useCallback((index: number, field: 'csvField' | 'internalField' | 'required', value: any) => {
-    setState(prev => {
-      const newMappings = [...prev.mappings]
-      newMappings[index] = { ...newMappings[index], [field]: value }
-      
-      const validation = NordnetFieldMapper.validateMappings(newMappings, parseResult.headers)
-      
-      onMappingChange(newMappings)
-      onValidationChange(validation.valid, validation.errors, validation.warnings)
-      
-      return {
-        ...prev,
-        mappings: newMappings,
-        validationResult: validation
-      }
-    })
-  }, [parseResult.headers, onMappingChange, onValidationChange])
+  const handleMappingChange = useCallback(
+    (
+      index: number,
+      field: 'csvField' | 'internalField' | 'required',
+      value: any
+    ) => {
+      setState(prev => {
+        const newMappings = [...prev.mappings]
+        newMappings[index] = { ...newMappings[index], [field]: value }
+
+        const validation = NordnetFieldMapper.validateMappings(
+          newMappings,
+          parseResult.headers
+        )
+
+        onMappingChange(newMappings)
+        onValidationChange(
+          validation.valid,
+          validation.errors,
+          validation.warnings
+        )
+
+        return {
+          ...prev,
+          mappings: newMappings,
+          validationResult: validation,
+        }
+      })
+    },
+    [parseResult.headers, onMappingChange, onValidationChange]
+  )
 
   const handleAddMapping = useCallback(() => {
     const newMapping: NordnetFieldMapping = {
       csvField: '' as keyof NordnetCSVRow,
       internalField: '',
       required: false,
-      dataType: 'string'
+      dataType: 'string',
     }
-    
+
     setState(prev => ({
       ...prev,
-      mappings: [...prev.mappings, newMapping]
+      mappings: [...prev.mappings, newMapping],
     }))
   }, [])
 
-  const handleRemoveMapping = useCallback((index: number) => {
-    setState(prev => {
-      const newMappings = prev.mappings.filter((_, i) => i !== index)
-      const validation = NordnetFieldMapper.validateMappings(newMappings, parseResult.headers)
-      
-      onMappingChange(newMappings)
-      onValidationChange(validation.valid, validation.errors, validation.warnings)
-      
-      return {
-        ...prev,
-        mappings: newMappings,
-        validationResult: validation
-      }
-    })
-  }, [parseResult.headers, onMappingChange, onValidationChange])
+  const handleRemoveMapping = useCallback(
+    (index: number) => {
+      setState(prev => {
+        const newMappings = prev.mappings.filter((_, i) => i !== index)
+        const validation = NordnetFieldMapper.validateMappings(
+          newMappings,
+          parseResult.headers
+        )
+
+        onMappingChange(newMappings)
+        onValidationChange(
+          validation.valid,
+          validation.errors,
+          validation.warnings
+        )
+
+        return {
+          ...prev,
+          mappings: newMappings,
+          validationResult: validation,
+        }
+      })
+    },
+    [parseResult.headers, onMappingChange, onValidationChange]
+  )
 
   const handleResetToAuto = useCallback(() => {
     setState(prev => {
-      const validation = NordnetFieldMapper.validateMappings(prev.autoMappings, parseResult.headers)
-      
+      const validation = NordnetFieldMapper.validateMappings(
+        prev.autoMappings,
+        parseResult.headers
+      )
+
       onMappingChange(prev.autoMappings)
-      onValidationChange(validation.valid, validation.errors, validation.warnings)
-      
+      onValidationChange(
+        validation.valid,
+        validation.errors,
+        validation.warnings
+      )
+
       return {
         ...prev,
         mappings: [...prev.autoMappings],
-        validationResult: validation
+        validationResult: validation,
       }
     })
   }, [parseResult.headers, onMappingChange, onValidationChange])
 
   const handleAutoSuggest = useCallback(() => {
-    const suggestions = NordnetFieldMapper.generateMappingSuggestions(parseResult.headers)
-    
+    const suggestions = NordnetFieldMapper.generateMappingSuggestions(
+      parseResult.headers
+    )
+
     setState(prev => {
       const newMappings = [...prev.mappings]
-      
+
       // Apply suggestions with high confidence
       for (const suggestion of suggestions) {
         if (suggestion.confidence > 0.7) {
-          const existingIndex = newMappings.findIndex(m => m.csvField === suggestion.csvField)
+          const existingIndex = newMappings.findIndex(
+            m => m.csvField === suggestion.csvField
+          )
           if (existingIndex >= 0) {
             newMappings[existingIndex] = {
               ...newMappings[existingIndex],
-              internalField: suggestion.suggestedInternalField
+              internalField: suggestion.suggestedInternalField,
             }
           }
         }
       }
-      
-      const validation = NordnetFieldMapper.validateMappings(newMappings, parseResult.headers)
-      
+
+      const validation = NordnetFieldMapper.validateMappings(
+        newMappings,
+        parseResult.headers
+      )
+
       onMappingChange(newMappings)
-      onValidationChange(validation.valid, validation.errors, validation.warnings)
-      
+      onValidationChange(
+        validation.valid,
+        validation.errors,
+        validation.warnings
+      )
+
       return {
         ...prev,
         mappings: newMappings,
-        validationResult: validation
+        validationResult: validation,
       }
     })
   }, [parseResult.headers, onMappingChange, onValidationChange])
@@ -183,20 +246,24 @@ export function FieldMapper({
   const getAvailableInternalFields = useCallback(() => {
     return NordnetFieldMapper.DEFAULT_MAPPINGS.map(m => ({
       value: m.internalField,
-      label: m.internalField.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      label: m.internalField
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, l => l.toUpperCase()),
       required: m.required,
-      dataType: m.dataType
+      dataType: m.dataType,
     }))
   }, [])
 
   const getUnmappedHeaders = useCallback(() => {
     const mappedHeaders = new Set(state.mappings.map(m => m.csvField))
-    return parseResult.headers.filter(header => !mappedHeaders.has(header as keyof NordnetCSVRow))
+    return parseResult.headers.filter(
+      header => !mappedHeaders.has(header as keyof NordnetCSVRow)
+    )
   }, [parseResult.headers, state.mappings])
 
   const previewTransformation = useCallback(() => {
     if (parseResult.rows.length === 0) return null
-    
+
     const sampleRow = parseResult.rows[state.previewRowIndex]
     return NordnetFieldMapper.transformRow(sampleRow, state.mappings)
   }, [parseResult.rows, state.previewRowIndex, state.mappings])
@@ -210,20 +277,25 @@ export function FieldMapper({
             <div>
               <CardTitle>Field Mapping</CardTitle>
               <CardDescription>
-                Map CSV columns to internal fields. {state.mappings.length} mappings configured.
+                Map CSV columns to internal fields. {state.mappings.length}{' '}
+                mappings configured.
               </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
               <Button variant="outline" size="sm" onClick={handleAutoSuggest}>
-                <Shuffle className="w-4 h-4 mr-2" />
+                <Shuffle className="mr-2 h-4 w-4" />
                 Auto Suggest
               </Button>
               <Button variant="outline" size="sm" onClick={handleResetToAuto}>
-                <RotateCcw className="w-4 h-4 mr-2" />
+                <RotateCcw className="mr-2 h-4 w-4" />
                 Reset
               </Button>
               <Button variant="outline" size="sm" onClick={togglePreview}>
-                {state.showPreview ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
+                {state.showPreview ? (
+                  <EyeOff className="mr-2 h-4 w-4" />
+                ) : (
+                  <Eye className="mr-2 h-4 w-4" />
+                )}
                 Preview
               </Button>
             </div>
@@ -233,7 +305,8 @@ export function FieldMapper({
 
       {/* Validation Results */}
       <AnimatePresence>
-        {(state.validationResult.errors.length > 0 || state.validationResult.warnings.length > 0) && (
+        {(state.validationResult.errors.length > 0 ||
+          state.validationResult.warnings.length > 0) && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -246,9 +319,9 @@ export function FieldMapper({
                 <AlertDescription>
                   <div className="space-y-1">
                     <p className="font-medium">Mapping Errors:</p>
-                    <ul className="text-sm space-y-1">
+                    <ul className="space-y-1 text-sm">
                       {state.validationResult.errors.map((error, index) => (
-                        <li key={index} className="list-disc list-inside">
+                        <li key={index} className="list-inside list-disc">
                           {error}
                         </li>
                       ))}
@@ -264,9 +337,9 @@ export function FieldMapper({
                 <AlertDescription>
                   <div className="space-y-1">
                     <p className="font-medium">Mapping Warnings:</p>
-                    <ul className="text-sm space-y-1">
+                    <ul className="space-y-1 text-sm">
                       {state.validationResult.warnings.map((warning, index) => (
-                        <li key={index} className="list-disc list-inside">
+                        <li key={index} className="list-inside list-disc">
                           {warning}
                         </li>
                       ))}
@@ -296,20 +369,22 @@ export function FieldMapper({
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="flex items-center space-x-4 p-4 border rounded-lg"
+                  className="flex items-center space-x-4 rounded-lg border p-4"
                 >
                   {/* CSV Field */}
                   <div className="flex-1">
                     <Label className="text-xs font-medium">CSV Column</Label>
                     <Select
                       value={mapping.csvField as string}
-                      onValueChange={(value) => handleMappingChange(index, 'csvField', value)}
+                      onValueChange={value =>
+                        handleMappingChange(index, 'csvField', value)
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select CSV column" />
                       </SelectTrigger>
                       <SelectContent>
-                        {parseResult.headers.map((header) => (
+                        {parseResult.headers.map(header => (
                           <SelectItem key={header} value={header}>
                             {header}
                           </SelectItem>
@@ -320,19 +395,27 @@ export function FieldMapper({
 
                   {/* Arrow */}
                   <div className="flex-shrink-0">
-                    <ArrowRight className="w-4 h-4 text-gray-400" />
+                    <ArrowRight className="h-4 w-4 text-gray-400" />
                   </div>
 
                   {/* Internal Field */}
                   <div className="flex-1">
-                    <Label className="text-xs font-medium">Internal Field</Label>
+                    <Label className="text-xs font-medium">
+                      Internal Field
+                    </Label>
                     <Select
                       value={mapping.internalField}
-                      onValueChange={(value) => {
-                        const internalField = getAvailableInternalFields().find(f => f.value === value)
+                      onValueChange={value => {
+                        const internalField = getAvailableInternalFields().find(
+                          f => f.value === value
+                        )
                         handleMappingChange(index, 'internalField', value)
                         if (internalField) {
-                          handleMappingChange(index, 'required', internalField.required)
+                          handleMappingChange(
+                            index,
+                            'required',
+                            internalField.required
+                          )
                         }
                       }}
                     >
@@ -340,12 +423,14 @@ export function FieldMapper({
                         <SelectValue placeholder="Select internal field" />
                       </SelectTrigger>
                       <SelectContent>
-                        {getAvailableInternalFields().map((field) => (
+                        {getAvailableInternalFields().map(field => (
                           <SelectItem key={field.value} value={field.value}>
                             <div className="flex items-center space-x-2">
                               <span>{field.label}</span>
                               {field.required && (
-                                <Badge variant="secondary" className="text-xs">Required</Badge>
+                                <Badge variant="secondary" className="text-xs">
+                                  Required
+                                </Badge>
                               )}
                               <Badge variant="outline" className="text-xs">
                                 {field.dataType}
@@ -358,10 +443,12 @@ export function FieldMapper({
                   </div>
 
                   {/* Required Toggle */}
-                  <div className="flex-shrink-0 flex items-center space-x-2">
+                  <div className="flex flex-shrink-0 items-center space-x-2">
                     <Switch
                       checked={mapping.required}
-                      onCheckedChange={(checked) => handleMappingChange(index, 'required', checked)}
+                      onCheckedChange={checked =>
+                        handleMappingChange(index, 'required', checked)
+                      }
                     />
                     <Label className="text-xs">Required</Label>
                   </div>
@@ -373,7 +460,7 @@ export function FieldMapper({
                     onClick={() => handleRemoveMapping(index)}
                     className="text-red-500 hover:text-red-700"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="h-4 w-4" />
                   </Button>
                 </motion.div>
               ))}
@@ -403,8 +490,13 @@ export function FieldMapper({
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {getUnmappedHeaders().map((header) => (
-                <Badge key={header} variant="outline" className="cursor-pointer" onClick={handleAddMapping}>
+              {getUnmappedHeaders().map(header => (
+                <Badge
+                  key={header}
+                  variant="outline"
+                  className="cursor-pointer"
+                  onClick={handleAddMapping}
+                >
                   {header}
                 </Badge>
               ))}
@@ -425,7 +517,9 @@ export function FieldMapper({
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-lg">Transformation Preview</CardTitle>
+                    <CardTitle className="text-lg">
+                      Transformation Preview
+                    </CardTitle>
                     <CardDescription>
                       Preview how the first row will be transformed
                     </CardDescription>
@@ -433,7 +527,12 @@ export function FieldMapper({
                   {parseResult.rows.length > 1 && (
                     <Select
                       value={state.previewRowIndex.toString()}
-                      onValueChange={(value) => setState(prev => ({ ...prev, previewRowIndex: parseInt(value) }))}
+                      onValueChange={value =>
+                        setState(prev => ({
+                          ...prev,
+                          previewRowIndex: parseInt(value),
+                        }))
+                      }
                     >
                       <SelectTrigger className="w-32">
                         <SelectValue />
@@ -453,18 +552,26 @@ export function FieldMapper({
                 <div className="space-y-4">
                   {/* Original Data */}
                   <div>
-                    <h4 className="font-medium text-sm mb-2">Original CSV Data:</h4>
-                    <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg text-sm font-mono">
+                    <h4 className="mb-2 text-sm font-medium">
+                      Original CSV Data:
+                    </h4>
+                    <div className="rounded-lg bg-gray-50 p-3 font-mono text-sm dark:bg-gray-900">
                       <pre className="whitespace-pre-wrap">
-                        {JSON.stringify(parseResult.rows[state.previewRowIndex], null, 2)}
+                        {JSON.stringify(
+                          parseResult.rows[state.previewRowIndex],
+                          null,
+                          2
+                        )}
                       </pre>
                     </div>
                   </div>
 
                   {/* Transformed Data */}
                   <div>
-                    <h4 className="font-medium text-sm mb-2">Transformed Data:</h4>
-                    <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm font-mono">
+                    <h4 className="mb-2 text-sm font-medium">
+                      Transformed Data:
+                    </h4>
+                    <div className="rounded-lg bg-blue-50 p-3 font-mono text-sm dark:bg-blue-900/20">
                       <pre className="whitespace-pre-wrap">
                         {JSON.stringify(previewTransformation(), null, 2)}
                       </pre>
@@ -474,16 +581,20 @@ export function FieldMapper({
                   {/* Validation Status */}
                   {previewTransformation() && (
                     <div className="flex items-center space-x-2 text-sm">
-                      {previewTransformation()!.validation_errors.length === 0 ? (
+                      {previewTransformation()!.validation_errors.length ===
+                      0 ? (
                         <>
-                          <Check className="w-4 h-4 text-green-500" />
-                          <span className="text-green-600">Valid transformation</span>
+                          <Check className="h-4 w-4 text-green-500" />
+                          <span className="text-green-600">
+                            Valid transformation
+                          </span>
                         </>
                       ) : (
                         <>
-                          <X className="w-4 h-4 text-red-500" />
+                          <X className="h-4 w-4 text-red-500" />
                           <span className="text-red-600">
-                            {previewTransformation()!.validation_errors.length} validation errors
+                            {previewTransformation()!.validation_errors.length}{' '}
+                            validation errors
                           </span>
                         </>
                       )}
