@@ -380,6 +380,9 @@ export function usePortfolioState(
 
   // Update holdings with real-time prices (debounced)
   useEffect(() => {
+    // Only trigger if we have holdings to update
+    if (!holdingsRef.current || holdingsRef.current.length === 0) return
+
     const now = Date.now()
 
     // Clear existing timeout
@@ -401,7 +404,7 @@ export function usePortfolioState(
         clearTimeout(updateTimeoutRef.current)
       }
     }
-  }, [updateHoldingsWithPrices])
+  }, [realtimePrices, yahooFinancePrices]) // Remove updateHoldingsWithPrices from dependencies
 
   // Calculate portfolio weights separately
   const holdingsWithWeights = useMemo(() => {

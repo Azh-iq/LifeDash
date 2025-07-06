@@ -10,7 +10,7 @@ interface Platform {
   description: string
   type: string
   country: string
-  logo: string
+  logo: React.ReactNode
   connectionTypes: string[]
   features: string[]
   commission: string
@@ -36,7 +36,7 @@ export function PlatformSelectionCard({
     >
       <Card
         className={`
-          relative cursor-pointer overflow-hidden transition-all duration-300
+          relative cursor-pointer overflow-hidden transition-all duration-300 min-h-[420px] flex flex-col
           ${
             isSelected
               ? 'bg-blue-50 shadow-lg ring-2 ring-blue-500 ring-offset-2'
@@ -89,10 +89,10 @@ export function PlatformSelectionCard({
           </motion.div>
         </div>
 
-        <div className="p-6 pt-12">
+        <div className="p-6 pt-12 flex flex-col flex-1">
           {/* Platform Header */}
           <div className="mb-6 text-center">
-            <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 text-3xl">
+            <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-50 shadow-sm">
               {platform.logo}
             </div>
             <h3
@@ -173,8 +173,11 @@ export function PlatformSelectionCard({
               </div>
             </div>
 
+            {/* Spacer to push selection status to bottom */}
+            <div className="flex-1"></div>
+
             {/* Selection Status */}
-            <div className="border-t border-gray-100 pt-4">
+            <div className="border-t border-gray-100 pt-4 mt-4">
               <div
                 className={`
                 rounded-lg py-2 text-center transition-colors duration-200

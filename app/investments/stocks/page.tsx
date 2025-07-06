@@ -175,11 +175,20 @@ export default function StocksPage() {
 
       setUser(session.user)
 
-      // Check platform setup status
-      const setupResult = await checkSetupStatus()
-      if (setupResult.success && !setupResult.data?.isSetupComplete) {
-        router.replace('/investments/stocks/setup')
-        return
+      // Check if user has skipped setup
+      const urlParams = new URLSearchParams(window.location.search)
+      const isSkippedViaUrl = urlParams.get('skip') === 'true'
+      const isSkippedViaSession = typeof window !== 'undefined' && 
+        sessionStorage.getItem('setupSkipped') === 'true'
+      const isSetupSkipped = isSkippedViaUrl || isSkippedViaSession
+
+      // Check platform setup status only if not skipped
+      if (!isSetupSkipped) {
+        const setupResult = await checkSetupStatus()
+        if (setupResult.success && !setupResult.data?.isSetupComplete) {
+          router.replace('/investments/stocks/setup')
+          return
+        }
       }
 
       // Fetch user's portfolios

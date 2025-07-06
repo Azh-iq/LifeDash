@@ -24,11 +24,42 @@ interface PlatformWizardProps {
   steps: Step[]
 }
 
+// Define platform logos as SVG components
+const PlatformLogos = {
+  nordnet: (
+    <svg viewBox="0 0 100 100" className="h-full w-full">
+      <rect width="100" height="100" rx="20" fill="#00A9CE"/>
+      <text x="50" y="35" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">NORD</text>
+      <text x="50" y="55" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">NET</text>
+      <circle cx="50" cy="70" r="8" fill="white"/>
+    </svg>
+  ),
+  dnb: (
+    <svg viewBox="0 0 100 100" className="h-full w-full">
+      <rect width="100" height="100" rx="12" fill="#004B87"/>
+      <rect x="20" y="30" width="60" height="8" fill="white"/>
+      <rect x="20" y="45" width="60" height="8" fill="white"/>
+      <rect x="20" y="60" width="60" height="8" fill="white"/>
+      <text x="50" y="85" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">DNB</text>
+    </svg>
+  ),
+  charles_schwab: (
+    <svg viewBox="0 0 100 100" className="h-full w-full">
+      <rect width="100" height="100" rx="16" fill="#00A651"/>
+      <text x="50" y="40" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">CHARLES</text>
+      <text x="50" y="60" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">SCHWAB</text>
+      <circle cx="25" cy="75" r="3" fill="white"/>
+      <circle cx="50" cy="75" r="3" fill="white"/>
+      <circle cx="75" cy="75" r="3" fill="white"/>
+    </svg>
+  ),
+}
+
 // Define platform metadata that corresponds to database entries
 const platformMetadata: Record<
   string,
   {
-    logo: string
+    logo: React.ReactNode
     description: string
     connectionTypes: string[]
     features: string[]
@@ -36,21 +67,21 @@ const platformMetadata: Record<
   }
 > = {
   nordnet: {
-    logo: '🔵',
+    logo: PlatformLogos.nordnet,
     description: 'Skandinavias ledende investeringsplattform',
     connectionTypes: ['csv'],
     features: ['Aksjer', 'ETF', 'Fond', 'Opsjoner'],
     popular: true,
   },
   dnb: {
-    logo: '🏦',
+    logo: PlatformLogos.dnb,
     description: 'DNBs investeringstjeneste',
     connectionTypes: ['api'],
     features: ['Aksjer', 'Fond', 'Obligasjoner'],
     popular: true,
   },
   charles_schwab: {
-    logo: '🇺🇸',
+    logo: PlatformLogos.charles_schwab,
     description: 'Global investeringsplattform',
     connectionTypes: ['api'],
     features: ['Aksjer', 'ETF', 'Opsjoner', 'Futures'],
@@ -209,6 +240,7 @@ function WelcomeStep({ onNext }: { onNext: () => void }) {
       </motion.div>
 
       <motion.div
+        className="flex justify-center"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.0 }}
@@ -218,14 +250,7 @@ function WelcomeStep({ onNext }: { onNext: () => void }) {
           size="lg"
           className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 text-lg font-semibold text-white hover:from-blue-700 hover:to-purple-700"
         >
-          Start oppsettet
-          <svg className="ml-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
+          Start oppsett
         </Button>
       </motion.div>
     </motion.div>
@@ -237,11 +262,13 @@ function PlatformSelectionStep({
   setSelectedPlatforms,
   onNext,
   onBack,
+  onSkip,
 }: {
   selectedPlatforms: string[]
   setSelectedPlatforms: (platforms: string[]) => void
   onNext: () => void
   onBack: () => void
+  onSkip?: () => void
 }) {
   const [availablePlatforms, setAvailablePlatforms] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -256,7 +283,15 @@ function PlatformSelectionStep({
             .filter((platform: any) => platform.name !== 'demo') // Filter out demo platform
             .map((platform: any) => {
               const metadata = platformMetadata[platform.name] || {
-                logo: '💼',
+                logo: (
+                  <svg viewBox="0 0 100 100" className="h-full w-full">
+                    <rect width="100" height="100" rx="16" fill="#6B7280"/>
+                    <rect x="25" y="35" width="50" height="30" rx="4" fill="white"/>
+                    <rect x="30" y="45" width="15" height="3" fill="#6B7280"/>
+                    <rect x="30" y="52" width="25" height="3" fill="#6B7280"/>
+                    <rect x="30" y="59" width="20" height="3" fill="#6B7280"/>
+                  </svg>
+                ),
                 description: platform.display_name,
                 connectionTypes: ['api'],
                 features: ['Investments'],
@@ -345,38 +380,56 @@ function PlatformSelectionStep({
         ))}
       </div>
 
-      <div className="mx-auto flex max-w-2xl items-center justify-between pt-8">
-        <Button variant="outline" onClick={onBack} className="px-6">
-          <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-          Tilbake
-        </Button>
+      <div className="mx-auto max-w-3xl pt-8">
+        {/* Navigation Buttons */}
+        <div className="flex items-center justify-between">
+          <Button variant="outline" onClick={onBack} className="px-6">
+            <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Tilbake
+          </Button>
 
-        <div className="text-center">
-          <p className="text-sm text-gray-600">
-            {selectedPlatforms.length} plattformer valgt
-          </p>
+          <div className="text-center">
+            <p className="text-sm text-gray-600">
+              {selectedPlatforms.length} plattformer valgt
+            </p>
+          </div>
+
+          <div className="flex items-center space-x-3">
+            {/* Skip knapp - liten og til høyre */}
+            {onSkip && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onSkip}
+                className="text-gray-500 hover:text-gray-700 text-sm px-3 py-1"
+              >
+                Hopp over
+              </Button>
+            )}
+            
+            {/* Hovedknapp for å fortsette */}
+            <Button
+              onClick={onNext}
+              disabled={selectedPlatforms.length === 0}
+              className="px-6"
+            >
+              Fortsett
+              <svg className="ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </Button>
+          </div>
         </div>
-
-        <Button
-          onClick={onNext}
-          disabled={selectedPlatforms.length === 0}
-          className="px-6"
-        >
-          Fortsett
-          <svg className="ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </Button>
       </div>
     </motion.div>
   )
@@ -386,10 +439,12 @@ function ConnectionStep({
   selectedPlatforms,
   onNext,
   onBack,
+  onSkip,
 }: {
   selectedPlatforms: string[]
   onNext: () => void
   onBack: () => void
+  onSkip?: () => void
 }) {
   const [connectedPlatforms, setConnectedPlatforms] = useState<string[]>([])
   const [currentConnectionModal, setCurrentConnectionModal] = useState<
@@ -406,7 +461,15 @@ function ConnectionStep({
           // Transform database platforms to include metadata
           const platforms = result.data.map((platform: any) => {
             const metadata = platformMetadata[platform.name] || {
-              logo: '💼',
+              logo: (
+                <svg viewBox="0 0 100 100" className="h-full w-full">
+                  <rect width="100" height="100" rx="16" fill="#6B7280"/>
+                  <rect x="25" y="35" width="50" height="30" rx="4" fill="white"/>
+                  <rect x="30" y="45" width="15" height="3" fill="#6B7280"/>
+                  <rect x="30" y="52" width="25" height="3" fill="#6B7280"/>
+                  <rect x="30" y="59" width="20" height="3" fill="#6B7280"/>
+                </svg>
+              ),
               description: platform.display_name,
               connectionTypes: ['api'],
               features: ['Investments'],
@@ -484,7 +547,7 @@ function ConnectionStep({
               <Card className="p-6 transition-all duration-200 hover:shadow-lg">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-2xl">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-50 shadow-sm">
                       {platform.logo}
                     </div>
                     <div>
@@ -542,34 +605,52 @@ function ConnectionStep({
         })}
       </div>
 
-      <div className="mx-auto flex max-w-2xl items-center justify-between pt-8">
-        <Button variant="outline" onClick={onBack} className="px-6">
-          <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-          Tilbake
-        </Button>
+      <div className="mx-auto max-w-3xl pt-8">
+        {/* Navigation Buttons */}
+        <div className="flex items-center justify-between">
+          <Button variant="outline" onClick={onBack} className="px-6">
+            <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Tilbake
+          </Button>
 
-        <div className="text-center">
-          <p className="text-sm text-gray-600">
-            {connectedPlatforms.length} av {selectedPlatforms.length} tilkoblet
-          </p>
+          <div className="text-center">
+            <p className="text-sm text-gray-600">
+              {connectedPlatforms.length} av {selectedPlatforms.length} tilkoblet
+            </p>
+          </div>
+
+          <div className="flex items-center space-x-3">
+            {/* Skip knapp - liten og til høyre */}
+            {onSkip && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onSkip}
+                className="text-gray-500 hover:text-gray-700 text-sm px-3 py-1"
+              >
+                Hopp over
+              </Button>
+            )}
+            
+            {/* Hovedknapp for å fortsette */}
+            <Button onClick={onNext} disabled={!canProceed} className="px-6">
+              Fortsett
+              <svg className="ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </Button>
+          </div>
         </div>
-
-        <Button onClick={onNext} disabled={!canProceed} className="px-6">
-          Fortsett
-          <svg className="ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </Button>
       </div>
 
       <AnimatePresence>
@@ -748,6 +829,8 @@ export function PlatformWizard({
   setSelectedPlatforms,
   steps,
 }: PlatformWizardProps) {
+  const router = useRouter()
+
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1)
@@ -757,6 +840,21 @@ export function PlatformWizard({
   const handleBack = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1)
+    }
+  }
+
+  const handleSkip = () => {
+    try {
+      // Mark setup as skipped in session storage for immediate effect
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('setupSkipped', 'true')
+      }
+      // Redirect with skip parameter and session flag
+      router.push('/investments/stocks?skip=true')
+    } catch (error) {
+      console.error('Failed to skip setup:', error)
+      // Still redirect to stocks page with skip parameter
+      router.push('/investments/stocks?skip=true')
     }
   }
 
@@ -771,6 +869,7 @@ export function PlatformWizard({
           setSelectedPlatforms={setSelectedPlatforms}
           onNext={handleNext}
           onBack={handleBack}
+          onSkip={handleSkip}
         />
       )}
 
@@ -780,6 +879,7 @@ export function PlatformWizard({
           selectedPlatforms={selectedPlatforms}
           onNext={handleNext}
           onBack={handleBack}
+          onSkip={handleSkip}
         />
       )}
 
