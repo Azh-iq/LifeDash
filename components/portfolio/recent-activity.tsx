@@ -47,7 +47,7 @@ interface Transaction {
     symbol: string
     name: string
     currency: string
-    asset_type: string
+    asset_class: string
     sector?: string
   }
 }
@@ -169,7 +169,7 @@ const RecentActivity = memo(function RecentActivity({
               symbol,
               name,
               currency,
-              asset_type,
+              asset_class,
               sector
             )
           `
