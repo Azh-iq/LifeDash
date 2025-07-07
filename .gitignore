@@ -93,3 +93,11 @@ dist
 # Temporary folders
 tmp/
 temp/
+
+# Test files and session notes
+test-*.js
+NEXT_SESSION_*.md
+*_SESSION_*.md
+FINNHUB_API_SETUP.md
+TASKS.md
+OPTIMIZATION_REPORT.md
