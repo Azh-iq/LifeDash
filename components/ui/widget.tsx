@@ -20,15 +20,19 @@ const widgetVariants = cva(
         hero: 'min-h-[500px] max-h-[800px]',
       },
       category: {
-        stocks: 'border-l-4 border-l-purple-500 bg-gradient-to-br from-purple-50/50 to-transparent dark:from-purple-950/30',
-        crypto: 'border-l-4 border-l-orange-500 bg-gradient-to-br from-orange-50/50 to-transparent dark:from-orange-950/30',
+        stocks:
+          'border-l-4 border-l-purple-500 bg-gradient-to-br from-purple-50/50 to-transparent dark:from-purple-950/30',
+        crypto:
+          'border-l-4 border-l-orange-500 bg-gradient-to-br from-orange-50/50 to-transparent dark:from-orange-950/30',
         art: 'border-l-4 border-l-pink-500 bg-gradient-to-br from-pink-50/50 to-transparent dark:from-pink-950/30',
-        other: 'border-l-4 border-l-blue-500 bg-gradient-to-br from-blue-50/50 to-transparent dark:from-blue-950/30',
+        other:
+          'border-l-4 border-l-blue-500 bg-gradient-to-br from-blue-50/50 to-transparent dark:from-blue-950/30',
       },
       state: {
         default: 'hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]',
         loading: 'pointer-events-none',
-        error: 'border-red-200 bg-red-50/50 dark:border-red-800/50 dark:bg-red-950/20',
+        error:
+          'border-red-200 bg-red-50/50 dark:border-red-800/50 dark:bg-red-950/20',
       },
     },
     defaultVariants: {
@@ -70,21 +74,21 @@ const categoryColors = {
 // Animation variants
 const containerVariants = {
   initial: { opacity: 0, y: 20 },
-  animate: { 
-    opacity: 1, 
+  animate: {
+    opacity: 1,
     y: 0,
     transition: {
       duration: 0.4,
       ease: [0.4, 0.0, 0.2, 1], // Norwegian-inspired smooth easing
-    }
+    },
   },
-  exit: { 
-    opacity: 0, 
+  exit: {
+    opacity: 0,
     y: -20,
     transition: {
       duration: 0.2,
       ease: [0.4, 0.0, 0.2, 1],
-    }
+    },
   },
 }
 
@@ -101,26 +105,66 @@ const shimmerVariants = {
 
 // Icons
 const RefreshIcon = () => (
-  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+  <svg
+    className="h-4 w-4"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+    />
   </svg>
 )
 
 const ExportIcon = () => (
-  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+  <svg
+    className="h-4 w-4"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+    />
   </svg>
 )
 
 const MoreIcon = () => (
-  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+  <svg
+    className="h-4 w-4"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+    />
   </svg>
 )
 
 const ErrorIcon = () => (
-  <svg className="h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+  <svg
+    className="h-5 w-5 text-red-500"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
   </svg>
 )
 
@@ -131,20 +175,20 @@ export interface WidgetProps
   title: string
   description?: string
   icon?: React.ReactNode
-  
+
   // Widget state
   loading?: boolean
   error?: string | null
-  
+
   // Actions
   onRefresh?: () => void | Promise<void>
   onExport?: () => void | Promise<void>
   onMenuClick?: () => void
-  
+
   // Customization
   actions?: React.ReactNode
   footer?: React.ReactNode
-  
+
   // Norwegian accessibility
   refreshLabel?: string
   exportLabel?: string
@@ -182,13 +226,13 @@ const Widget = forwardRef<HTMLDivElement, WidgetProps>(
   ) => {
     const [isRefreshing, setIsRefreshing] = useState(false)
     const [isExporting, setIsExporting] = useState(false)
-    
+
     const colors = categoryColors[category]
     const currentState = error ? 'error' : loading ? 'loading' : state
 
     const handleRefresh = useCallback(async () => {
       if (!onRefresh || isRefreshing) return
-      
+
       setIsRefreshing(true)
       try {
         await onRefresh()
@@ -199,7 +243,7 @@ const Widget = forwardRef<HTMLDivElement, WidgetProps>(
 
     const handleExport = useCallback(async () => {
       if (!onExport || isExporting) return
-      
+
       setIsExporting(true)
       try {
         await onExport()
@@ -242,11 +286,11 @@ const Widget = forwardRef<HTMLDivElement, WidgetProps>(
                   )}
                 </div>
               </div>
-              
+
               {/* Actions */}
               <div className="flex items-center gap-1">
                 {actions}
-                
+
                 {onRefresh && (
                   <Button
                     variant="ghost"
@@ -259,13 +303,17 @@ const Widget = forwardRef<HTMLDivElement, WidgetProps>(
                   >
                     <motion.div
                       animate={isRefreshing ? { rotate: 360 } : { rotate: 0 }}
-                      transition={{ duration: 1, repeat: isRefreshing ? Infinity : 0, ease: 'linear' }}
+                      transition={{
+                        duration: 1,
+                        repeat: isRefreshing ? Infinity : 0,
+                        ease: 'linear',
+                      }}
                     >
                       <RefreshIcon />
                     </motion.div>
                   </Button>
                 )}
-                
+
                 {onExport && (
                   <Button
                     variant="ghost"
@@ -279,7 +327,7 @@ const Widget = forwardRef<HTMLDivElement, WidgetProps>(
                     <ExportIcon />
                   </Button>
                 )}
-                
+
                 {onMenuClick && (
                   <Button
                     variant="ghost"
@@ -334,7 +382,7 @@ const Widget = forwardRef<HTMLDivElement, WidgetProps>(
                   {/* Loading skeleton */}
                   <div className="space-y-3">
                     <motion.div
-                      className="h-4 bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-200 dark:from-neutral-800 dark:via-neutral-700 dark:to-neutral-800 rounded"
+                      className="h-4 rounded bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-200 dark:from-neutral-800 dark:via-neutral-700 dark:to-neutral-800"
                       variants={shimmerVariants}
                       animate="animate"
                       style={{
@@ -342,7 +390,7 @@ const Widget = forwardRef<HTMLDivElement, WidgetProps>(
                       }}
                     />
                     <motion.div
-                      className="h-4 w-3/4 bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-200 dark:from-neutral-800 dark:via-neutral-700 dark:to-neutral-800 rounded"
+                      className="h-4 w-3/4 rounded bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-200 dark:from-neutral-800 dark:via-neutral-700 dark:to-neutral-800"
                       variants={shimmerVariants}
                       animate="animate"
                       style={{
@@ -350,7 +398,7 @@ const Widget = forwardRef<HTMLDivElement, WidgetProps>(
                       }}
                     />
                     <motion.div
-                      className="h-4 w-1/2 bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-200 dark:from-neutral-800 dark:via-neutral-700 dark:to-neutral-800 rounded"
+                      className="h-4 w-1/2 rounded bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-200 dark:from-neutral-800 dark:via-neutral-700 dark:to-neutral-800"
                       variants={shimmerVariants}
                       animate="animate"
                       style={{
@@ -358,7 +406,7 @@ const Widget = forwardRef<HTMLDivElement, WidgetProps>(
                       }}
                     />
                   </div>
-                  <div className="text-sm text-neutral-500 dark:text-neutral-400 text-center">
+                  <div className="text-center text-sm text-neutral-500 dark:text-neutral-400">
                     {loadingLabel}
                   </div>
                 </motion.div>
@@ -377,11 +425,7 @@ const Widget = forwardRef<HTMLDivElement, WidgetProps>(
           </CardContent>
 
           {/* Footer */}
-          {footer && (
-            <CardFooter className="pt-0">
-              {footer}
-            </CardFooter>
-          )}
+          {footer && <CardFooter className="pt-0">{footer}</CardFooter>}
         </Card>
       </motion.div>
     )
@@ -392,23 +436,17 @@ Widget.displayName = 'Widget'
 
 // Specialized widget components
 const StockWidget = forwardRef<HTMLDivElement, Omit<WidgetProps, 'category'>>(
-  (props, ref) => (
-    <Widget ref={ref} category="stocks" {...props} />
-  )
+  (props, ref) => <Widget ref={ref} category="stocks" {...props} />
 )
 StockWidget.displayName = 'StockWidget'
 
 const CryptoWidget = forwardRef<HTMLDivElement, Omit<WidgetProps, 'category'>>(
-  (props, ref) => (
-    <Widget ref={ref} category="crypto" {...props} />
-  )
+  (props, ref) => <Widget ref={ref} category="crypto" {...props} />
 )
 CryptoWidget.displayName = 'CryptoWidget'
 
 const ArtWidget = forwardRef<HTMLDivElement, Omit<WidgetProps, 'category'>>(
-  (props, ref) => (
-    <Widget ref={ref} category="art" {...props} />
-  )
+  (props, ref) => <Widget ref={ref} category="art" {...props} />
 )
 ArtWidget.displayName = 'ArtWidget'
 
@@ -425,14 +463,14 @@ const WidgetContainer = forwardRef<
     md: 'gap-6',
     lg: 'gap-8',
   }
-  
+
   const columnClasses = {
     1: 'grid-cols-1',
     2: 'grid-cols-1 md:grid-cols-2',
     3: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
     4: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
   }
-  
+
   return (
     <div
       ref={ref}

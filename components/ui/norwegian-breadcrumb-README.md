@@ -43,7 +43,7 @@ import { User, Settings } from 'lucide-react'
 
 const customRoutes = {
   'min-side': { label: 'Min Side', icon: User },
-  'innstillinger': { label: 'Innstillinger', icon: Settings }
+  innstillinger: { label: 'Innstillinger', icon: Settings },
 }
 
 function MyPage() {
@@ -65,11 +65,11 @@ function MyPage() {
 ```tsx
 <NorwegianBreadcrumb
   className="my-breadcrumb"
-  maxItems={5}                    // Maks antall elementer på desktop
-  showIcons={true}                // Vis ikoner
-  showHomeIcon={true}             // Vis hjemmeikon
-  enableHoverEffects={true}       // Aktiver hover-animasjoner
-  customRoutes={customRoutes}     // Tilpassede ruter
+  maxItems={5} // Maks antall elementer på desktop
+  showIcons={true} // Vis ikoner
+  showHomeIcon={true} // Vis hjemmeikon
+  enableHoverEffects={true} // Aktiver hover-animasjoner
+  customRoutes={customRoutes} // Tilpassede ruter
   onBreadcrumbClick={handleClick} // Klikk-behandler
 />
 ```
@@ -78,30 +78,32 @@ function MyPage() {
 
 Komponenten kommer med innebygde norske etiketter for standard LifeDash-ruter:
 
-| Rute | Norsk etikett | Ikon |
-|------|---------------|------|
-| `/dashboard` | Dashboard | Home |
-| `/investments` | Investeringer | TrendingUp |
-| `/stocks` | Aksjer | TrendingUp |
-| `/portfolio` | Portefølje | PieChart |
-| `/economy` | Økonomi | DollarSign |
-| `/tools` | Verktøy | Tool |
-| `/hobby` | Hobby prosjekter | Heart |
-| `/settings` | Innstillinger | Settings |
-| `/setup` | Oppsett | Settings |
-| `/transactions` | Transaksjoner | DollarSign |
-| `/performance` | Ytelse | TrendingUp |
-| `/holdings` | Beholdninger | PieChart |
+| Rute            | Norsk etikett    | Ikon       |
+| --------------- | ---------------- | ---------- |
+| `/dashboard`    | Dashboard        | Home       |
+| `/investments`  | Investeringer    | TrendingUp |
+| `/stocks`       | Aksjer           | TrendingUp |
+| `/portfolio`    | Portefølje       | PieChart   |
+| `/economy`      | Økonomi          | DollarSign |
+| `/tools`        | Verktøy          | Tool       |
+| `/hobby`        | Hobby prosjekter | Heart      |
+| `/settings`     | Innstillinger    | Settings   |
+| `/setup`        | Oppsett          | Settings   |
+| `/transactions` | Transaksjoner    | DollarSign |
+| `/performance`  | Ytelse           | TrendingUp |
+| `/holdings`     | Beholdninger     | PieChart   |
 
 ## Responsivt design
 
 ### Desktop (≥768px)
+
 - Full brødsmule-sti med ikoner
 - Hover-animasjoner
 - Ellipsis (...) for lange stier
 - Smooth overganger
 
 ### Mobile (<768px)
+
 - Kompakt visning
 - Kollapsbar for lange stier
 - Touch-vennlige knapper
@@ -110,6 +112,7 @@ Komponenten kommer med innebygde norske etiketter for standard LifeDash-ruter:
 ## Styling og tema
 
 Komponenten følger LifeDash sin purple-fargeprofil:
+
 - **Primær farge**: #6366f1 (purple-600)
 - **Hover-farge**: purple-600
 - **Aktiv side**: purple-600
@@ -120,15 +123,15 @@ Komponenten følger LifeDash sin purple-fargeprofil:
 
 ### Props
 
-| Prop | Type | Default | Beskrivelse |
-|------|------|---------|-------------|
-| `className` | string | - | Tilpasset CSS-klasse |
-| `maxItems` | number | 5 | Maks antall elementer på desktop |
-| `showIcons` | boolean | true | Vis ikoner |
-| `showHomeIcon` | boolean | true | Vis hjemmeikon |
-| `enableHoverEffects` | boolean | true | Aktiver hover-animasjoner |
-| `customRoutes` | object | - | Tilpassede ruter og etiketter |
-| `onBreadcrumbClick` | function | - | Klikk-behandler |
+| Prop                 | Type     | Default | Beskrivelse                      |
+| -------------------- | -------- | ------- | -------------------------------- |
+| `className`          | string   | -       | Tilpasset CSS-klasse             |
+| `maxItems`           | number   | 5       | Maks antall elementer på desktop |
+| `showIcons`          | boolean  | true    | Vis ikoner                       |
+| `showHomeIcon`       | boolean  | true    | Vis hjemmeikon                   |
+| `enableHoverEffects` | boolean  | true    | Aktiver hover-animasjoner        |
+| `customRoutes`       | object   | -       | Tilpassede ruter og etiketter    |
+| `onBreadcrumbClick`  | function | -       | Klikk-behandler                  |
 
 ### BreadcrumbSegment Interface
 
@@ -144,10 +147,13 @@ interface BreadcrumbSegment {
 ### Custom Routes Type
 
 ```typescript
-Record<string, { 
-  label: string
-  icon?: React.ElementType 
-}>
+Record<
+  string,
+  {
+    label: string
+    icon?: React.ElementType
+  }
+>
 ```
 
 ## Utility funktioner
@@ -182,6 +188,7 @@ Se `norwegian-breadcrumb-demo.tsx` for fullstendige eksempler på alle funksjone
 ## Tilgjengelighet
 
 Komponenten følger WCAG 2.1 retningslinjer:
+
 - Proper ARIA labels (`aria-label="breadcrumb"`)
 - Keyboard navigation support
 - Screen reader-vennlige etiketter

@@ -8,7 +8,7 @@ import {
   type PortfolioResult,
 } from '@/lib/actions/portfolio/crud'
 import { useRealtimePrices } from '@/lib/hooks/use-realtime-prices'
-import { useStockPrices } from '@/lib/hooks/use-stock-prices'
+import { useStockPrices, StockPrice } from '@/lib/hooks/use-stock-prices'
 
 // Extended Portfolio interface with calculated metrics
 export interface PortfolioWithMetrics {

@@ -74,15 +74,15 @@ const StockHeader = ({ stockData }: { stockData: HoldingWithMetrics }) => {
           <h2 className="text-2xl font-bold text-gray-900">
             {stock?.symbol || 'N/A'}
           </h2>
-          <Badge variant="secondary" className="text-xs">
+          <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
             {stock?.currency || 'NOK'}
           </Badge>
         </div>
-        <p className="mb-1 text-sm text-gray-600">
+        <p className="mb-1 text-sm text-purple-600">
           {stock?.name || 'Unknown Company'}
         </p>
         {stock?.sector && (
-          <p className="flex items-center gap-1 text-xs text-gray-500">
+          <p className="flex items-center gap-1 text-xs text-purple-600">
             <Building className="h-3 w-3" />
             {stock.sector}
           </p>
@@ -129,9 +129,9 @@ const OverviewTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
     <div className="space-y-6">
       {/* Key Metrics */}
       <div className="grid grid-cols-2 gap-4">
-        <Card>
+        <Card className="border-purple-200">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">
+            <CardTitle className="text-sm font-medium text-purple-600">
               Kvantitet
             </CardTitle>
           </CardHeader>
@@ -139,13 +139,13 @@ const OverviewTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
             <div className="text-2xl font-bold">
               {stockData.quantity.toLocaleString()}
             </div>
-            <p className="mt-1 text-xs text-gray-500">aksjer</p>
+            <p className="mt-1 text-xs text-purple-500">aksjer</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-purple-200">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">
+            <CardTitle className="text-sm font-medium text-purple-600">
               Gjennomsnittspris
             </CardTitle>
           </CardHeader>
@@ -156,13 +156,13 @@ const OverviewTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
                 stockData.stocks?.currency || 'NOK'
               )}
             </div>
-            <p className="mt-1 text-xs text-gray-500">per aksje</p>
+            <p className="mt-1 text-xs text-purple-500">per aksje</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-purple-200">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">
+            <CardTitle className="text-sm font-medium text-purple-600">
               Markedsverdi
             </CardTitle>
           </CardHeader>
@@ -170,13 +170,13 @@ const OverviewTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
             <div className="text-2xl font-bold">
               {formatCurrency(marketValue, stockData.stocks?.currency || 'NOK')}
             </div>
-            <p className="mt-1 text-xs text-gray-500">nåværende verdi</p>
+            <p className="mt-1 text-xs text-purple-500">nåværende verdi</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-purple-200">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">
+            <CardTitle className="text-sm font-medium text-purple-600">
               Kostbasis
             </CardTitle>
           </CardHeader>
@@ -187,16 +187,16 @@ const OverviewTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
                 stockData.stocks?.currency || 'NOK'
               )}
             </div>
-            <p className="mt-1 text-xs text-gray-500">totalt investert</p>
+            <p className="mt-1 text-xs text-purple-500">totalt investert</p>
           </CardContent>
         </Card>
       </div>
 
       {/* P&L Section */}
-      <Card>
+      <Card className="border-purple-200">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-purple-700">
+            <TrendingUp className="h-5 w-5 text-purple-600" />
             Urealisert P&L
           </CardTitle>
         </CardHeader>
@@ -241,28 +241,28 @@ const OverviewTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
       </Card>
 
       {/* Stock Info */}
-      <Card>
+      <Card className="border-purple-200">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-purple-700">
+            <Activity className="h-5 w-5 text-purple-600" />
             Aksjeinformasjon
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Sektor</span>
+            <span className="text-sm text-purple-600">Sektor</span>
             <span className="text-sm font-medium">
               {stockData.stocks?.sector || 'N/A'}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Aktivaklasse</span>
+            <span className="text-sm text-purple-600">Aktivaklasse</span>
             <span className="text-sm font-medium">
               {stockData.stocks?.asset_type || 'N/A'}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Markedsverdi</span>
+            <span className="text-sm text-purple-600">Markedsverdi</span>
             <span className="text-sm font-medium">
               {stockData.stocks?.market_cap
                 ? formatCurrency(
@@ -273,7 +273,7 @@ const OverviewTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Vekt i portefølje</span>
+            <span className="text-sm text-purple-600">Vekt i portefølje</span>
             <span className="text-sm font-medium">
               {formatPercentage(stockData.weight)}
             </span>
@@ -282,14 +282,14 @@ const OverviewTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
       </Card>
 
       {/* Placeholder for Chart */}
-      <Card>
+      <Card className="border-purple-200">
         <CardHeader>
-          <CardTitle>Prishistorikk</CardTitle>
+          <CardTitle className="text-purple-700">Prishistorikk</CardTitle>
           <CardDescription>Interaktivt diagram kommer snart</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex h-48 items-center justify-center rounded-lg bg-gray-50">
-            <div className="text-center text-gray-500">
+          <div className="flex h-48 items-center justify-center rounded-lg bg-purple-50">
+            <div className="text-center text-purple-600">
               <Activity className="mx-auto mb-2 h-8 w-8" />
               <p className="text-sm">TradingView integrasjon kommer snart</p>
             </div>
@@ -348,8 +348,8 @@ const TransactionsTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
   if (transactions.length === 0) {
     return (
       <div className="py-8 text-center">
-        <Calendar className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-        <p className="text-gray-600">Ingen transaksjoner funnet</p>
+        <Calendar className="mx-auto mb-4 h-12 w-12 text-purple-400" />
+        <p className="text-purple-600">Ingen transaksjoner funnet</p>
       </div>
     )
   }
@@ -357,7 +357,7 @@ const TransactionsTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
   return (
     <div className="space-y-4">
       {transactions.map(transaction => (
-        <Card key={transaction.id}>
+        <Card key={transaction.id} className="border-purple-200">
           <CardContent className="py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -368,7 +368,7 @@ const TransactionsTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
                       ? 'bg-green-100 text-green-600'
                       : transaction.transaction_type === 'SELL'
                         ? 'bg-red-100 text-red-600'
-                        : 'bg-blue-100 text-blue-600'
+                        : 'bg-purple-100 text-purple-600'
                   )}
                 >
                   {transaction.transaction_type === 'BUY' ? (
@@ -387,7 +387,7 @@ const TransactionsTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
                         ? 'Salg'
                         : 'Utbytte'}
                   </div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-purple-500">
                     {new Date(transaction.date).toLocaleDateString('nb-NO')}
                   </div>
                 </div>
@@ -396,7 +396,7 @@ const TransactionsTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
                 <div className="font-medium">
                   {transaction.quantity.toLocaleString()} aksjer
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-purple-500">
                   {formatCurrency(transaction.price, transaction.currency)} per
                   aksje
                 </div>
@@ -410,7 +410,7 @@ const TransactionsTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
             </div>
             {transaction.notes && (
               <div className="mt-3 border-t pt-3">
-                <p className="text-sm text-gray-600">{transaction.notes}</p>
+                <p className="text-sm text-purple-600">{transaction.notes}</p>
               </div>
             )}
           </CardContent>
@@ -437,28 +437,28 @@ const PerformanceTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
   return (
     <div className="space-y-6">
       {/* Performance Summary */}
-      <Card>
+      <Card className="border-purple-200">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <PieChart className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-purple-700">
+            <PieChart className="h-5 w-5 text-purple-600" />
             Ytelsessammendrag
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Totalt investert</span>
+            <span className="text-sm text-purple-600">Totalt investert</span>
             <span className="text-sm font-medium">
               {formatCurrency(totalCost, stockData.stocks?.currency || 'NOK')}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Nåværende verdi</span>
+            <span className="text-sm text-purple-600">Nåværende verdi</span>
             <span className="text-sm font-medium">
               {formatCurrency(marketValue, stockData.stocks?.currency || 'NOK')}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Urealisert P&L</span>
+            <span className="text-sm text-purple-600">Urealisert P&L</span>
             <span
               className={cn(
                 'text-sm font-medium',
@@ -473,7 +473,7 @@ const PerformanceTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Prosentvis endring</span>
+            <span className="text-sm text-purple-600">Prosentvis endring</span>
             <span
               className={cn(
                 'text-sm font-medium',
@@ -487,26 +487,26 @@ const PerformanceTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
       </Card>
 
       {/* Holding Period */}
-      <Card>
+      <Card className="border-purple-200">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-purple-700">
+            <Calendar className="h-5 w-5 text-purple-600" />
             Holdeperiode
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Første kjøp</span>
+            <span className="text-sm text-purple-600">Første kjøp</span>
             <span className="text-sm font-medium">{firstPurchaseDate}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Dager holdt</span>
+            <span className="text-sm text-purple-600">Dager holdt</span>
             <span className="text-sm font-medium">
               {holdingPeriod.toLocaleString()}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Måneder holdt</span>
+            <span className="text-sm text-purple-600">Måneder holdt</span>
             <span className="text-sm font-medium">
               {Math.floor(holdingPeriod / 30).toLocaleString()}
             </span>
@@ -515,16 +515,16 @@ const PerformanceTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
       </Card>
 
       {/* Placeholder for Charts */}
-      <Card>
+      <Card className="border-purple-200">
         <CardHeader>
-          <CardTitle>Ytelsesanalyse</CardTitle>
+          <CardTitle className="text-purple-700">Ytelsesanalyse</CardTitle>
           <CardDescription>
             Avansert ytelsesanalyse kommer snart
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex h-48 items-center justify-center rounded-lg bg-gray-50">
-            <div className="text-center text-gray-500">
+          <div className="flex h-48 items-center justify-center rounded-lg bg-purple-50">
+            <div className="text-center text-purple-600">
               <PieChart className="mx-auto mb-2 h-8 w-8" />
               <p className="text-sm">Avanserte diagrammer kommer snart</p>
             </div>
@@ -590,10 +590,10 @@ export default function StockDetailModal({
             </div>
           ) : (
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="overview">Oversikt</TabsTrigger>
-                <TabsTrigger value="transactions">Transaksjoner</TabsTrigger>
-                <TabsTrigger value="performance">Ytelse</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 bg-purple-50 border-purple-200">
+                <TabsTrigger value="overview" className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700">Oversikt</TabsTrigger>
+                <TabsTrigger value="transactions" className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700">Transaksjoner</TabsTrigger>
+                <TabsTrigger value="performance" className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700">Ytelse</TabsTrigger>
               </TabsList>
 
               <div className="mt-6">

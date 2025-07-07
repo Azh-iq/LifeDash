@@ -10,7 +10,7 @@ import { Settings, Star, Target } from 'lucide-react'
 
 /**
  * Demo component showcasing the Norwegian Breadcrumb component
- * 
+ *
  * This file demonstrates all the features and usage patterns of the NorwegianBreadcrumb:
  * - Basic usage with automatic route detection
  * - Custom route mapping
@@ -41,11 +41,12 @@ const NorwegianBreadcrumbDemo = () => {
   return (
     <div className="space-y-8 p-6">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="mb-2 text-3xl font-bold text-gray-900">
           Norwegian Breadcrumb Component Demo
         </h1>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Demonstrasjon av den norske brødsmule-komponenten med alle funksjoner og konfigurasjonsmuligheter.
+        <p className="mx-auto max-w-2xl text-gray-600">
+          Demonstrasjon av den norske brødsmule-komponenten med alle funksjoner
+          og konfigurasjonsmuligheter.
         </p>
       </div>
 
@@ -61,12 +62,13 @@ const NorwegianBreadcrumbDemo = () => {
           <CardContent>
             <div className="space-y-4">
               <p className="text-sm text-gray-600">
-                Automatisk generering av brødsmule-navigasjon basert på gjeldende URL-sti.
+                Automatisk generering av brødsmule-navigasjon basert på
+                gjeldende URL-sti.
               </p>
-              <div className="border rounded-lg p-4 bg-gray-50">
+              <div className="rounded-lg border bg-gray-50 p-4">
                 <NorwegianBreadcrumb />
               </div>
-              <div className="text-xs text-gray-500 font-mono">
+              <div className="font-mono text-xs text-gray-500">
                 Eksempel: /dashboard → /investeringer → /aksjer
               </div>
             </div>
@@ -84,16 +86,18 @@ const NorwegianBreadcrumbDemo = () => {
           <CardContent>
             <div className="space-y-4">
               <p className="text-sm text-gray-600">
-                Bruk customRoutes for å definere egne etiketter og ikoner for spesifikke ruter.
+                Bruk customRoutes for å definere egne etiketter og ikoner for
+                spesifikke ruter.
               </p>
-              <div className="border rounded-lg p-4 bg-gray-50">
+              <div className="rounded-lg border bg-gray-50 p-4">
                 <NorwegianBreadcrumb
                   customRoutes={customRoutes}
                   onBreadcrumbClick={handleBreadcrumbClick}
                 />
               </div>
-              <div className="text-xs text-gray-500 bg-gray-100 p-2 rounded">
-                <strong>customRoutes:</strong> Definerer tilpassede etiketter og ikoner
+              <div className="rounded bg-gray-100 p-2 text-xs text-gray-500">
+                <strong>customRoutes:</strong> Definerer tilpassede etiketter og
+                ikoner
               </div>
             </div>
           </CardContent>
@@ -109,39 +113,39 @@ const NorwegianBreadcrumbDemo = () => {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4">
-              
               {/* Without Icons */}
               <div className="space-y-2">
-                <h4 className="font-semibold text-sm">Uten ikoner</h4>
-                <div className="border rounded-lg p-3 bg-gray-50">
+                <h4 className="text-sm font-semibold">Uten ikoner</h4>
+                <div className="rounded-lg border bg-gray-50 p-3">
                   <NorwegianBreadcrumb showIcons={false} />
                 </div>
               </div>
 
               {/* Without Home Icon */}
               <div className="space-y-2">
-                <h4 className="font-semibold text-sm">Uten hjemmeikon</h4>
-                <div className="border rounded-lg p-3 bg-gray-50">
+                <h4 className="text-sm font-semibold">Uten hjemmeikon</h4>
+                <div className="rounded-lg border bg-gray-50 p-3">
                   <NorwegianBreadcrumb showHomeIcon={false} />
                 </div>
               </div>
 
               {/* Without Hover Effects */}
               <div className="space-y-2">
-                <h4 className="font-semibold text-sm">Uten hover-effekter</h4>
-                <div className="border rounded-lg p-3 bg-gray-50">
+                <h4 className="text-sm font-semibold">Uten hover-effekter</h4>
+                <div className="rounded-lg border bg-gray-50 p-3">
                   <NorwegianBreadcrumb enableHoverEffects={false} />
                 </div>
               </div>
 
               {/* Limited Items */}
               <div className="space-y-2">
-                <h4 className="font-semibold text-sm">Begrenset antall elementer (maxItems=3)</h4>
-                <div className="border rounded-lg p-3 bg-gray-50">
+                <h4 className="text-sm font-semibold">
+                  Begrenset antall elementer (maxItems=3)
+                </h4>
+                <div className="rounded-lg border bg-gray-50 p-3">
                   <NorwegianBreadcrumb maxItems={3} />
                 </div>
               </div>
-
             </div>
           </CardContent>
         </Card>
@@ -157,16 +161,18 @@ const NorwegianBreadcrumbDemo = () => {
           <CardContent>
             <div className="space-y-4">
               <p className="text-sm text-gray-600">
-                Komponenten tilpasser seg automatisk til mobile enheter med kollapsbar funksjonalitet.
+                Komponenten tilpasser seg automatisk til mobile enheter med
+                kollapsbar funksjonalitet.
               </p>
-              <div className="border rounded-lg p-4 bg-gray-50">
-                <div className="text-xs text-gray-500 mb-2">
+              <div className="rounded-lg border bg-gray-50 p-4">
+                <div className="mb-2 text-xs text-gray-500">
                   Endre vindusstørrelse for å se mobil versjon
                 </div>
                 <NorwegianBreadcrumb className="w-full" />
               </div>
-              <div className="text-xs text-gray-500 bg-blue-50 p-2 rounded">
-                <strong>Mobil:</strong> Viser forkortet versjon med "..." for lange stier
+              <div className="rounded bg-blue-50 p-2 text-xs text-gray-500">
+                <strong>Mobil:</strong> Viser forkortet versjon med "..." for
+                lange stier
               </div>
             </div>
           </CardContent>
@@ -183,18 +189,18 @@ const NorwegianBreadcrumbDemo = () => {
           <CardContent>
             <div className="space-y-4">
               <div className="space-y-2">
-                <h4 className="font-semibold text-sm">Grunnleggende bruk</h4>
-                <pre className="text-xs bg-gray-100 p-3 rounded overflow-x-auto">
-{`import { NorwegianBreadcrumb } from '@/components/ui/norwegian-breadcrumb'
+                <h4 className="text-sm font-semibold">Grunnleggende bruk</h4>
+                <pre className="overflow-x-auto rounded bg-gray-100 p-3 text-xs">
+                  {`import { NorwegianBreadcrumb } from '@/components/ui/norwegian-breadcrumb'
 
 <NorwegianBreadcrumb />`}
                 </pre>
               </div>
 
               <div className="space-y-2">
-                <h4 className="font-semibold text-sm">Med tilpassede ruter</h4>
-                <pre className="text-xs bg-gray-100 p-3 rounded overflow-x-auto">
-{`const customRoutes = {
+                <h4 className="text-sm font-semibold">Med tilpassede ruter</h4>
+                <pre className="overflow-x-auto rounded bg-gray-100 p-3 text-xs">
+                  {`const customRoutes = {
   'min-side': { label: 'Min Side', icon: User },
   'innstillinger': { label: 'Innstillinger', icon: Settings }
 }
@@ -210,9 +216,9 @@ const NorwegianBreadcrumbDemo = () => {
               </div>
 
               <div className="space-y-2">
-                <h4 className="font-semibold text-sm">Alle alternativer</h4>
-                <pre className="text-xs bg-gray-100 p-3 rounded overflow-x-auto">
-{`<NorwegianBreadcrumb
+                <h4 className="text-sm font-semibold">Alle alternativer</h4>
+                <pre className="overflow-x-auto rounded bg-gray-100 p-3 text-xs">
+                  {`<NorwegianBreadcrumb
   className="my-breadcrumb"
   maxItems={5}
   showIcons={true}
@@ -236,10 +242,12 @@ const NorwegianBreadcrumbDemo = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-3">
-                <h4 className="font-semibold text-sm text-purple-600">Automatisk</h4>
-                <ul className="text-sm space-y-1 text-gray-600">
+                <h4 className="text-sm font-semibold text-purple-600">
+                  Automatisk
+                </h4>
+                <ul className="space-y-1 text-sm text-gray-600">
                   <li>• Automatisk rute-oppdaging</li>
                   <li>• Norske etiketter</li>
                   <li>• Responsive design</li>
@@ -247,8 +255,10 @@ const NorwegianBreadcrumbDemo = () => {
                 </ul>
               </div>
               <div className="space-y-3">
-                <h4 className="font-semibold text-sm text-purple-600">Tilpassbar</h4>
-                <ul className="text-sm space-y-1 text-gray-600">
+                <h4 className="text-sm font-semibold text-purple-600">
+                  Tilpassbar
+                </h4>
+                <ul className="space-y-1 text-sm text-gray-600">
                   <li>• Egendefinerte ruter</li>
                   <li>• Ikoner og effekter</li>
                   <li>• Klikk-behandlere</li>
@@ -270,46 +280,47 @@ const NorwegianBreadcrumbDemo = () => {
           <CardContent>
             <div className="space-y-4">
               <p className="text-sm text-gray-600">
-                Test navigasjon ved å klikke på knappene nedenfor for å simulere forskjellige sider.
+                Test navigasjon ved å klikke på knappene nedenfor for å simulere
+                forskjellige sider.
               </p>
               <div className="flex flex-wrap gap-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => router.push('/dashboard')}
                 >
                   Dashboard
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => router.push('/investments')}
                 >
                   Investeringer
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => router.push('/investments/stocks')}
                 >
                   Aksjer
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => router.push('/investments/stocks/setup')}
                 >
                   Aksjeoppsett
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => router.push('/economy')}
                 >
                   Økonomi
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => router.push('/tools')}
                 >

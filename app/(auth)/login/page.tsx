@@ -43,12 +43,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 to-indigo-100 px-4">
       <div className="w-full max-w-lg">
-        {/* Enhanced Logo with Untitled UI styling */}
+        {/* Enhanced Logo with Norwegian Purple Theme */}
         <div className="card-entrance mb-10 text-center">
           <div className="mb-6 inline-flex items-center space-x-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-purple-600 to-purple-700 shadow-lg">
               <span className="text-2xl font-bold text-white">L</span>
             </div>
             <div className="text-left">
@@ -60,7 +60,7 @@ export default function LoginPage() {
 
         {/* Enhanced Login Form */}
         <Card
-          className="card-entrance border-0 bg-white/90 shadow-2xl backdrop-blur-sm"
+          className="card-entrance border-purple-200 bg-white/90 shadow-2xl backdrop-blur-sm"
           style={{ animationDelay: '200ms' }}
         >
           <CardHeader className="pb-8 text-center">
@@ -136,7 +136,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="h-14 w-full transform rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-lg font-semibold text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="h-14 w-full transform rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 text-lg font-semibold text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:from-purple-700 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
               >
                 {loading ? (
                   <div className="flex items-center justify-center space-x-3">
@@ -167,7 +167,7 @@ export default function LoginPage() {
             <div className="mt-8 text-center">
               <a
                 href="#"
-                className="text-sm font-medium text-blue-600 transition-colors hover:text-blue-700 hover:underline"
+                className="text-sm font-medium text-purple-600 transition-colors hover:text-purple-700 hover:underline"
               >
                 Glemt passord? Klikk her for å nullstille
               </a>
@@ -177,13 +177,13 @@ export default function LoginPage() {
 
         {/* Enhanced Demo info */}
         <div
-          className="card-entrance mt-8 rounded-xl border border-blue-200/50 bg-gradient-to-r from-blue-50 to-indigo-50 p-6"
+          className="card-entrance mt-8 rounded-xl border border-purple-200/50 bg-gradient-to-r from-purple-50 to-indigo-50 p-6"
           style={{ animationDelay: '400ms' }}
         >
           <div className="flex items-start space-x-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100">
               <svg
-                className="h-5 w-5 text-blue-600"
+                className="h-5 w-5 text-purple-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -197,8 +197,8 @@ export default function LoginPage() {
               </svg>
             </div>
             <div>
-              <h3 className="mb-1 font-semibold text-blue-900">Demo Tilgang</h3>
-              <p className="text-sm leading-relaxed text-blue-800">
+              <h3 className="mb-1 font-semibold text-purple-900">Demo Tilgang</h3>
+              <p className="text-sm leading-relaxed text-purple-800">
                 Du kan bruke hvilken som helst e-post og passord for å teste
                 systemet. Alle funksjoner er tilgjengelige i demo-modus.
               </p>

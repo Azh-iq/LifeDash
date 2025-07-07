@@ -3,7 +3,18 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { NorwegianBreadcrumb } from '@/components/ui/norwegian-breadcrumb'
+import { Widget, WidgetContainer } from '@/components/ui/widget'
+import { LoadingState } from '@/components/ui/loading-states'
+import { Button } from '@/components/ui/button'
+import { 
+  TrendingUp, 
+  DollarSign, 
+  Heart, 
+  PieChart, 
+  LogOut,
+  ArrowLeft 
+} from 'lucide-react'
 import {
   PageErrorBoundary,
   RenderErrorBoundary,
@@ -59,24 +70,8 @@ export default function InvestmentsPage() {
       subtitle: `${investments.stocks.count} posisjoner`,
       value: investments.stocks.value,
       change: investments.stocks.change,
-      icon: (
-        <svg
-          className="h-8 w-8"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-          />
-        </svg>
-      ),
-      gradient: 'from-blue-500 to-blue-600',
-      bgColor: 'bg-blue-50',
-      textColor: 'text-blue-600',
+      icon: <TrendingUp className="h-6 w-6" />,
+      category: 'stocks' as const,
       href: '/investments/stocks',
     },
     {
@@ -85,24 +80,8 @@ export default function InvestmentsPage() {
       subtitle: `${investments.crypto.count} coins`,
       value: investments.crypto.value,
       change: investments.crypto.change,
-      icon: (
-        <svg
-          className="h-8 w-8"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
-          />
-        </svg>
-      ),
-      gradient: 'from-blue-600 to-blue-700',
-      bgColor: 'bg-blue-100',
-      textColor: 'text-blue-700',
+      icon: <DollarSign className="h-6 w-6" />,
+      category: 'crypto' as const,
       href: '/investments/crypto',
     },
     {
@@ -111,30 +90,8 @@ export default function InvestmentsPage() {
       subtitle: `${investments.art.count} objekter`,
       value: investments.art.value,
       change: investments.art.change,
-      icon: (
-        <svg
-          className="h-8 w-8"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM7 3H5a2 2 0 00-2 2v12a4 4 0 004 4h2a4 4 0 004-4V5a2 2 0 00-2-2h-2z"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M16 3h2a2 2 0 012 2v12a4 4 0 01-4 4h-2"
-          />
-        </svg>
-      ),
-      gradient: 'from-blue-400 to-blue-500',
-      bgColor: 'bg-blue-25',
-      textColor: 'text-blue-500',
+      icon: <Heart className="h-6 w-6" />,
+      category: 'art' as const,
       href: '/investments/art',
     },
     {
@@ -143,37 +100,22 @@ export default function InvestmentsPage() {
       subtitle: `${investments.other.count} investeringer`,
       value: investments.other.value,
       change: investments.other.change,
-      icon: (
-        <svg
-          className="h-8 w-8"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-          />
-        </svg>
-      ),
-      gradient: 'from-blue-700 to-blue-800',
-      bgColor: 'bg-blue-200',
-      textColor: 'text-blue-800',
+      icon: <PieChart className="h-6 w-6" />,
+      category: 'other' as const,
       href: '/investments/other',
     },
   ]
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="text-center">
-          <div className="mb-4 flex items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
-          </div>
-          <h1 className="mb-2 text-2xl font-bold text-blue-900">LifeDash</h1>
-          <p className="text-blue-600">Loading investments...</p>
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
+        <div className="flex min-h-screen items-center justify-center">
+          <LoadingState 
+            variant="widget" 
+            size="lg" 
+            text="Laster investeringer..."
+            className="text-center"
+          />
         </div>
       </div>
     )
@@ -181,317 +123,178 @@ export default function InvestmentsPage() {
 
   return (
     <PageErrorBoundary>
-      <div className="min-h-screen bg-gradient-to-br from-investments-50 via-blue-50 to-investments-100">
-        {/* Enhanced Header with Navy Theme */}
-        <div className="header-investments border-b border-investments-200/50">
-          <div className="mx-auto max-w-7xl px-6 py-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={() => router.back()}
-                  className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 text-white transition-all duration-200 hover:scale-105 hover:bg-white/30"
-                >
-                  <svg
-                    className="ui-icon h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 19l-7-7 7-7"
-                    />
-                  </svg>
-                </button>
-                <div>
-                  <h1 className="text-3xl font-bold text-white">
-                    Investeringer
-                  </h1>
-                  <p className="text-white/80">
-                    Professionell oversikt over alle dine investeringer
-                  </p>
-                </div>
-              </div>
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
+        {/* Breadcrumb Navigation */}
+        <div className="border-b border-gray-200 bg-white px-4 py-3">
+          <NorwegianBreadcrumb />
+        </div>
 
-              <div className="flex items-center space-x-6">
-                <div className="text-right">
-                  <p className="text-sm text-white/70">Portefølje</p>
-                  <p className="font-semibold text-white">
-                    {user?.user_metadata?.full_name ||
-                      user?.email?.split('@')[0] ||
-                      'Bruker'}
-                  </p>
-                </div>
-                <button
-                  onClick={async () => {
-                    const supabase = createClient()
-                    await supabase.auth.signOut()
-                    router.replace('/login')
-                  }}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-white transition-all duration-200 hover:bg-white/30"
-                >
-                  <svg
-                    className="ui-icon h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                    />
-                  </svg>
-                </button>
+        {/* Header */}
+        <div className="border-b border-gray-200 bg-white px-4 py-4">
+          <div className="mx-auto flex max-w-7xl items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.back()}
+                className="border-purple-200 text-purple-600 hover:bg-purple-50"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Tilbake
+              </Button>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Investeringer</h1>
+                <p className="text-gray-600">Oversikt over alle dine investeringer</p>
               </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-sm text-gray-500">Portefølje</p>
+                <p className="font-semibold text-gray-900">
+                  {user?.user_metadata?.full_name ||
+                    user?.email?.split('@')[0] ||
+                    'Bruker'}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  const supabase = createClient()
+                  await supabase.auth.signOut()
+                  router.replace('/login')
+                }}
+                className="border-purple-200 text-purple-600 hover:bg-purple-50"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logg ut
+              </Button>
             </div>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="mx-auto max-w-7xl px-6 py-8">
-          {/* Enhanced Total Value Section */}
-          <Card className="header-investments mb-8 border-0 shadow-2xl">
-            <CardContent className="p-10">
-              <div className="text-center">
-                <p className="mb-3 text-sm font-medium uppercase tracking-wider text-white/80">
-                  Total Porteføljeverdi
-                </p>
-                <h2 className="financial-number mb-6 font-mono text-6xl font-bold text-white">
-                  NOK {totalValue.toLocaleString('no-NO')}
-                </h2>
-                <div className="flex items-center justify-center space-x-3">
-                  <div
-                    className={`flex items-center space-x-2 rounded-full px-4 py-2 ${totalChangePercent >= 0 ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}
-                  >
-                    {totalChangePercent >= 0 ? (
-                      <svg
-                        className="ui-icon h-5 w-5"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    ) : (
-                      <svg
-                        className="ui-icon h-5 w-5"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    )}
-                    <span className="text-lg font-semibold">
-                      {totalChangePercent >= 0 ? '+' : ''}
-                      {totalChangePercent.toFixed(1)}%
-                    </span>
-                  </div>
-                  <span className="text-white/60">•</span>
-                  <span
-                    className={`financial-number text-lg font-semibold ${totalChangePercent >= 0 ? 'text-green-300' : 'text-red-300'}`}
-                  >
-                    {totalChangePercent >= 0 ? '+' : ''}NOK{' '}
-                    {Math.abs(totalChange).toLocaleString('no-NO', {
-                      maximumFractionDigits: 0,
-                    })}
-                  </span>
-                  <span className="rounded-full bg-white/10 px-3 py-1 text-sm text-white/70">
-                    i dag
+        <main className="mx-auto max-w-7xl px-4 py-6">
+          {/* Total Portfolio Value */}
+          <Widget
+            title="Total Porteføljeverdi"
+            size="hero"
+            category="stocks"
+            className="mb-8"
+          >
+            <div className="text-center space-y-4">
+              <h2 className="text-5xl font-bold text-gray-900">
+                NOK {totalValue.toLocaleString('no-NO')}
+              </h2>
+              <div className="flex items-center justify-center gap-4">
+                <div
+                  className={`flex items-center gap-2 rounded-full px-4 py-2 ${
+                    totalChangePercent >= 0 
+                      ? 'bg-green-50 text-green-600' 
+                      : 'bg-red-50 text-red-600'
+                  }`}
+                >
+                  <TrendingUp className={`h-4 w-4 ${totalChangePercent < 0 ? 'rotate-180' : ''}`} />
+                  <span className="font-semibold">
+                    {totalChangePercent >= 0 ? '+' : ''}
+                    {totalChangePercent.toFixed(1)}%
                   </span>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Enhanced Categories Grid */}
-          <RenderErrorBoundary>
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-              {categories.map((category, index) => (
-                <button
-                  key={category.id}
-                  onClick={() => router.push(category.href)}
-                  className="card-investments card-entrance group transform transition-all duration-300 hover:-translate-y-3"
-                  style={{
-                    animationDelay: `${index * 150}ms`,
-                  }}
+                <span
+                  className={`text-lg font-semibold ${
+                    totalChangePercent >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}
                 >
-                  <Card className="h-full border-0 shadow-xl">
-                    <CardHeader className="pb-4">
-                      <div className="flex items-center justify-between">
-                        <div
-                          className={`flex h-14 w-14 items-center justify-center rounded-xl ${category.bgColor} shadow-lg transition-transform duration-300 group-hover:scale-110`}
-                        >
-                          <div className={category.textColor}>
-                            {category.icon}
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div
-                            className={`inline-flex items-center space-x-1 rounded-full px-3 py-1 text-sm font-semibold ${category.change >= 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}
-                          >
-                            {category.change >= 0 ? (
-                              <svg
-                                className="ui-icon h-4 w-4"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            ) : (
-                              <svg
-                                className="ui-icon h-4 w-4"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            )}
-                            <span>
-                              {category.change >= 0 ? '+' : ''}
-                              {category.change}%
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </CardHeader>
-
-                    <CardContent className="pt-0">
-                      <div className="space-y-3">
-                        <h3 className="text-xl font-bold text-gray-900 transition-colors group-hover:text-investments-700">
-                          {category.title}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {category.subtitle}
-                        </p>
-                        <div className="pt-3">
-                          <p className="financial-number font-mono text-3xl font-bold text-gray-900">
-                            NOK {category.value.toLocaleString('no-NO')}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </button>
-              ))}
+                  {totalChangePercent >= 0 ? '+' : ''}NOK{' '}
+                  {Math.abs(totalChange).toLocaleString('no-NO', {
+                    maximumFractionDigits: 0,
+                  })}
+                </span>
+                <span className="rounded-full bg-purple-100 px-3 py-1 text-sm text-purple-700">
+                  i dag
+                </span>
+              </div>
             </div>
+          </Widget>
+
+          {/* Investment Categories */}
+          <RenderErrorBoundary>
+            <WidgetContainer columns={4} gap="lg" className="mb-8">
+              {categories.map((category) => (
+                <Widget
+                  key={category.id}
+                  title={category.title}
+                  description={category.subtitle}
+                  icon={category.icon}
+                  size="medium"
+                  category={category.category}
+                  className="cursor-pointer transition-transform hover:scale-[1.02]"
+                  onClick={() => router.push(category.href)}
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-end justify-between">
+                      <div>
+                        <p className="text-2xl font-bold text-gray-900">
+                          NOK {category.value.toLocaleString('no-NO')}
+                        </p>
+                      </div>
+                      <div
+                        className={`text-sm font-semibold ${
+                          category.change >= 0 ? 'text-green-600' : 'text-red-600'
+                        }`}
+                      >
+                        {category.change >= 0 ? '+' : ''}
+                        {category.change}%
+                      </div>
+                    </div>
+                  </div>
+                </Widget>
+              ))}
+            </WidgetContainer>
           </RenderErrorBoundary>
 
-          {/* Enhanced Quick Stats */}
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
-            <Card className="border-0 bg-investments-50 shadow-lg">
-              <CardContent className="p-8 text-center">
-                <div className="mb-4 flex justify-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-investments-500 text-white">
-                    <svg
-                      className="ui-icon h-6 w-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <h4 className="text-sm font-medium uppercase tracking-wide text-investments-600">
-                  Beste Kategori
-                </h4>
-                <p className="financial-number mt-2 text-3xl font-bold text-investments-900">
-                  Kunst
-                </p>
-                <p className="text-sm font-semibold text-green-600">
-                  +8.7% i dag
-                </p>
-              </CardContent>
-            </Card>
+          {/* Quick Stats */}
+          <WidgetContainer columns={3} gap="md">
+            <Widget
+              title="Beste Kategori"
+              size="small"
+              category="art"
+              icon={<Heart className="h-5 w-5" />}
+            >
+              <div className="text-center">
+                <p className="text-2xl font-bold text-gray-900">Kunst</p>
+                <p className="text-sm text-green-600">+8.7% i dag</p>
+              </div>
+            </Widget>
 
-            <Card className="border-0 bg-investments-50 shadow-lg">
-              <CardContent className="p-8 text-center">
-                <div className="mb-4 flex justify-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-investments-500 text-white">
-                    <svg
-                      className="ui-icon h-6 w-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <h4 className="text-sm font-medium uppercase tracking-wide text-investments-600">
-                  Totalt Posisjoner
-                </h4>
-                <p className="financial-number mt-2 text-3xl font-bold text-investments-900">
-                  {Object.values(investments).reduce(
-                    (sum, cat) => sum + cat.count,
-                    0
-                  )}
+            <Widget
+              title="Totalt Posisjoner"
+              size="small"
+              category="stocks"
+              icon={<PieChart className="h-5 w-5" />}
+            >
+              <div className="text-center">
+                <p className="text-2xl font-bold text-gray-900">
+                  {Object.values(investments).reduce((sum, cat) => sum + cat.count, 0)}
                 </p>
-                <p className="text-sm text-investments-600">
-                  På tvers av alle kategorier
-                </p>
-              </CardContent>
-            </Card>
+                <p className="text-sm text-gray-600">På tvers av alle kategorier</p>
+              </div>
+            </Widget>
 
-            <Card className="border-0 bg-investments-50 shadow-lg">
-              <CardContent className="p-8 text-center">
-                <div className="mb-4 flex justify-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-investments-500 text-white">
-                    <svg
-                      className="ui-icon h-6 w-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <h4 className="text-sm font-medium uppercase tracking-wide text-investments-600">
-                  Månedlig Avkastning
-                </h4>
-                <p className="financial-number mt-2 text-3xl font-bold text-green-600">
-                  +12.4%
-                </p>
-                <p className="text-sm text-investments-600">Denne måneden</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+            <Widget
+              title="Månedlig Avkastning"
+              size="small"
+              category="other"
+              icon={<TrendingUp className="h-5 w-5" />}
+            >
+              <div className="text-center">
+                <p className="text-2xl font-bold text-green-600">+12.4%</p>
+                <p className="text-sm text-gray-600">Denne måneden</p>
+              </div>
+            </Widget>
+          </WidgetContainer>
+        </main>
       </div>
     </PageErrorBoundary>
   )

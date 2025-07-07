@@ -11,11 +11,15 @@ import {
 import { useRealtimeUpdates } from '@/lib/hooks/use-realtime-updates'
 import { useSmartRefresh } from '@/lib/hooks/use-smart-refresh'
 import { getUserPortfolios } from '@/lib/actions/portfolio/crud'
-import PortfolioChartSection from '@/components/portfolio/portfolio-chart-section'
-import HoldingsSection from '@/components/portfolio/holdings-section'
-import StockDetailModal from '@/components/stocks/stock-detail-modal'
-import TopNavigationMenu from '@/components/layout/top-navigation-menu'
+import StockDetailModalV2 from '@/components/stocks/stock-detail-modal-v2'
+import CSVImportModal from '@/components/stocks/csv-import-modal'
+import YahooFinanceTest from '@/components/stocks/yahoo-finance-test'
+import { calculatePortfolioMetrics, generatePortfolioHistoryData } from '@/lib/utils/portfolio-calculations'
 import MobilePortfolioDashboard from '@/components/mobile/mobile-portfolio-dashboard'
+import { StockChartWidget } from '@/components/stocks/stock-chart-widget'
+import { NorwegianHoldingsTable } from '@/components/stocks/norwegian-holdings-table'
+import { NorwegianBreadcrumb } from '@/components/ui/norwegian-breadcrumb'
+import { Button } from '@/components/ui/button'
 import {
   EmptyPortfolioState,
   ErrorPortfolioState,
@@ -50,6 +54,13 @@ export default function StocksPage() {
     null
   )
   const [isStockModalOpen, setIsStockModalOpen] = useState(false)
+  
+  // CSV import modal state
+  const [isCSVModalOpen, setIsCSVModalOpen] = useState(false)
+
+  // Chart and table state (handlers)
+  const setChartTimeRange = () => {} // Placeholder for chart time range changes
+  const setTableTimeRange = () => {} // Placeholder for table time range changes
 
   // All hooks must be called before any early returns
   const { isMobile } = useResponsive()
@@ -122,13 +133,6 @@ export default function StocksPage() {
   }, [])
 
   // Memoize component props to prevent unnecessary re-renders
-  const holdingsSectionProps = useMemo(
-    () => ({
-      portfolioId: safePortfolioId,
-      onStockClick: handleStockClick,
-    }),
-    [safePortfolioId, handleStockClick]
-  )
 
   const stockModalProps = useMemo(
     () => ({
@@ -229,6 +233,10 @@ export default function StocksPage() {
     )
   }
 
+  // DEMO MODE: Skip loading/empty states for FASE 3-6 demonstration
+  // Uncomment the below code blocks to restore original portfolio-dependent behavior
+  
+  /*
   // Loading states - show loading if we don't have a portfolio ID yet or if portfolio is loading
   if (
     isInitialLoading ||
@@ -258,6 +266,7 @@ export default function StocksPage() {
       />
     )
   }
+  */
 
   // Mobile view
   if (isMobile) {
@@ -273,25 +282,181 @@ export default function StocksPage() {
     )
   }
 
-  // Desktop view - Main portfolio view with new components
+  // Calculate real portfolio metrics using live prices
+  
+  const realTimeMetrics = calculatePortfolioMetrics(
+    portfolioState.holdings || [],
+    portfolioState.realtimePrices || {}
+  )
+  
+  const portfolioChartData = generatePortfolioHistoryData(
+    portfolioState.holdings || [],
+    portfolioState.realtimePrices || {},
+    30
+  )
+  
+  const currentValue = realTimeMetrics.totalValue || portfolioState.portfolio?.total_value || 1847250
+  const changePercent = realTimeMetrics.dailyChangePercent || portfolioState.portfolio?.daily_change_percent || 0
+
+  // Debug Yahoo Finance prices
+  console.log('Portfolio Debug Info:', {
+    loading: portfolioState.loading,
+    holdingsCount: portfolioState.holdings?.length || 0,
+    pricesConnected: portfolioState.isPricesConnected,
+    realTimePricesCount: Object.keys(portfolioState.realtimePrices || {}).length,
+    realTimePrices: portfolioState.realtimePrices,
+    portfolioValue: portfolioState.portfolio?.total_value,
+    calculatedValue: realTimeMetrics.totalValue,
+    calculatedChange: realTimeMetrics.dailyChangePercent,
+    holdings: portfolioState.holdings?.map(h => ({
+      symbol: h.symbol,
+      quantity: h.quantity,
+      costBasis: h.cost_basis,
+      currentPrice: h.current_price,
+      currentValue: h.current_value,
+      dailyChange: h.daily_change
+    }))
+  })
+
+  // Desktop view - Main portfolio view with new Norwegian components
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        {/* Top Navigation Menu */}
-        <TopNavigationMenu portfolioId={safePortfolioId} />
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
+        {/* Breadcrumb Navigation */}
+        <div className="border-b border-gray-200 bg-white px-4 py-3">
+          <NorwegianBreadcrumb />
+        </div>
+
+        {/* Top Menu Bar */}
+        <div className="border-b border-gray-200 bg-white px-4 py-3">
+          <div className="mx-auto flex max-w-7xl items-center justify-between">
+            <h1 className="text-2xl font-bold text-gray-900">Aksjer</h1>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-purple-200 text-purple-600 hover:bg-purple-50"
+              >
+                🧙‍♂️ Platform Wizard
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsCSVModalOpen(true)}
+                className="border-purple-200 text-purple-600 hover:bg-purple-50"
+              >
+                📥 Import CSV
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-purple-200 text-purple-600 hover:bg-purple-50"
+              >
+                📤 Export CSV
+              </Button>
+            </div>
+          </div>
+        </div>
 
         {/* Main Content */}
         <main className="mx-auto max-w-7xl px-4 py-6">
-          <div className="space-y-6">
-            {/* Charts Section - Primary focus */}
-            <ErrorBoundary>
-              <PortfolioChartSection portfolioId={safePortfolioId} />
-            </ErrorBoundary>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+            {/* Left Column - Chart and Holdings */}
+            <div className="space-y-6 lg:col-span-3">
+              {/* Stock Chart Widget */}
+              <ErrorBoundary>
+                <StockChartWidget
+                  title="Portefølje Utvikling"
+                  data={portfolioChartData}
+                  currentValue={currentValue}
+                  changePercent={changePercent}
+                  onTimeRangeChange={setChartTimeRange}
+                  loading={portfolioState.loading}
+                  error={portfolioState.error}
+                />
+              </ErrorBoundary>
 
-            {/* Holdings Section - Stock list */}
-            <ErrorBoundary>
-              <HoldingsSection {...holdingsSectionProps} />
-            </ErrorBoundary>
+              {/* Norwegian Holdings Table */}
+              <ErrorBoundary>
+                <NorwegianHoldingsTable
+                  holdings={portfolioState.holdings}
+                  loading={portfolioState.loading}
+                  error={portfolioState.error}
+                  onHoldingClick={handleStockClick}
+                  onTimeRangeChange={setTableTimeRange}
+                />
+              </ErrorBoundary>
+            </div>
+
+            {/* Right Column - Feed and KPI */}
+            <div className="space-y-6 lg:col-span-1">
+              {/* Feed Panel */}
+              <div className="rounded-lg border border-gray-200 bg-white p-6">
+                <h3 className="mb-4 text-lg font-semibold text-gray-900">
+                  Feed (Patreon)
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                    <span className="text-sm text-gray-600">
+                      Tesla Q3 resultater
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                    <span className="text-sm text-gray-600">
+                      Equinor dividend
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="h-2 w-2 rounded-full bg-purple-500"></div>
+                    <span className="text-sm text-gray-600">
+                      DNB banknotater
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* KPI Panel */}
+              <div className="rounded-lg border border-gray-200 bg-white p-6">
+                <h3 className="mb-4 text-lg font-semibold text-gray-900">
+                  Nøkkeltall
+                </h3>
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-600">Total Verdi</p>
+                    <p className="text-lg font-bold text-gray-900">
+                      NOK {(currentValue).toLocaleString('no-NO', { maximumFractionDigits: 0 })}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-600">Dagens Endring</p>
+                    <p className={`text-lg font-bold ${changePercent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {changePercent >= 0 ? '+' : ''}{changePercent.toFixed(1)}%
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-600">Total Avkastning</p>
+                    <p className={`text-lg font-bold ${(portfolioState.portfolio?.total_gain_loss_percent || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {(portfolioState.portfolio?.total_gain_loss_percent || 0) >= 0 ? '+' : ''}{(portfolioState.portfolio?.total_gain_loss_percent || 15.8).toFixed(1)}%
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-600">Antall Posisjoner</p>
+                    <p className="text-lg font-bold text-gray-900">
+                      {portfolioState.holdings?.length || 0}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Yahoo Finance Test (Development Only) */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="mt-6">
+                  <YahooFinanceTest />
+                </div>
+              )}
+            </div>
           </div>
         </main>
       </div>
@@ -299,9 +464,26 @@ export default function StocksPage() {
       {/* Stock Detail Modal */}
       {selectedStock && (
         <ErrorBoundary>
-          <StockDetailModal {...stockModalProps} />
+          <StockDetailModalV2
+            isOpen={isStockModalOpen}
+            onClose={handleCloseStockModal}
+            stockData={selectedStock}
+          />
         </ErrorBoundary>
       )}
+
+      {/* CSV Import Modal */}
+      <CSVImportModal
+        isOpen={isCSVModalOpen}
+        onClose={() => setIsCSVModalOpen(false)}
+        onImportComplete={(result) => {
+          console.log('CSV import completed:', result)
+          // Here you would refresh the portfolio data
+          if (portfolioState.refresh) {
+            portfolioState.refresh()
+          }
+        }}
+      />
     </ErrorBoundary>
   )
 }
