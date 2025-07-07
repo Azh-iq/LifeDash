@@ -116,19 +116,24 @@ All files are saved and ready. The mock API integration is complete and should r
 
 ## 🚀 NEXT SESSION STARTUP PROMPT
 
-Use this prompt to start the next session efficiently:
+**IMPORTANT: User wants REAL stock prices, NOT mock data!**
 
-**"Continue LifeDash development. I just completed the Yahoo Finance API fallback implementation. The mock API is ready and should fix the unrealistic price movements. Please:**
+Use this prompt to start the next session:
 
-1. **Start the development server and test the complete system**
-2. **Verify the stocks page shows realistic price movements** 
-3. **Check that portfolio calculations work with the new mock API**
-4. **If everything works, continue with the remaining todo: Patreon feed integration**
+**"The user explicitly wants REAL stock prices from Yahoo Finance or another real API, NOT mock data. I need to:**
+
+1. **Replace the mock API with a real API that works (Finnhub API recommended)**
+2. **Get API key from Finnhub.io (free tier: 60 calls/minute)**
+3. **Implement `/lib/utils/finnhub-api.ts` for real stock prices**
+4. **Remove mock API fallback completely**
+5. **Test with real Norwegian stocks (EQNR.OL, DNB.OL) and US stocks (AAPL, TSLA)**
+
+**User's exact words**: "jeg vil ikke ha noen mock api jeg vil ha ekte priser fr ayahoo finance slik at akskjeprisene er riktig til en hver tid"
 
 **Key files to focus on:**
-- `/app/investments/stocks/page.tsx` - Main stocks page
-- `/lib/utils/mock-stock-api.ts` - Mock API implementation  
-- `/lib/utils/yahoo-finance.ts` - Fallback logic
-- Console logs will show debug info about portfolio calculations
+- `/lib/utils/yahoo-finance.ts` - Remove mock fallback
+- `/lib/utils/finnhub-api.ts` - NEW: Real API implementation
+- `/NEXT_SESSION_REAL_API_PLAN.md` - Detailed implementation plan
+- Test with real API endpoints and verify actual prices
 
-**The system should now show realistic Norwegian stock prices (EQNR.OL, DNB.OL) and US stocks (AAPL, TSLA) instead of random fluctuations."**
+**Goal**: Replace ALL mock data with real stock prices that update in real-time."**

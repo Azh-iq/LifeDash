@@ -1,5 +1,4 @@
 import { Database } from '@/lib/types/database.types'
-import { fetchMockStockPrices } from './mock-stock-api'
 
 // Types for Yahoo Finance API responses
 export interface YahooFinanceQuote {
@@ -356,25 +355,18 @@ export async function fetchStockPrices(
     const errors: YahooFinanceError[] = []
     const stockPrices: StockPrice[] = []
 
-    // Handle API errors - if Yahoo Finance is down, use mock API
+    // Handle API errors
     if (data.quoteResponse.error) {
-      console.warn('Yahoo Finance API error, falling back to mock API:', data.quoteResponse.error)
-      
-      // Use mock API as fallback
-      const mockResult = await fetchMockStockPrices(normalizedSymbols)
-      
-      if (useCache && mockResult.data.length > 0) {
-        cache.set(cacheKey, mockResult.data)
-      }
-
       return {
-        success: true,
-        data: mockResult.data,
-        errors: mockResult.errors.map(e => ({
-          code: e.code,
-          message: e.message,
-          timestamp: e.timestamp
-        })),
+        success: false,
+        data: [],
+        errors: [
+          {
+            code: 'YAHOO_API_ERROR',
+            message: `Yahoo Finance API error: ${data.quoteResponse.error}`,
+            timestamp: new Date().toISOString(),
+          },
+        ],
         fromCache: false,
       }
     }
@@ -420,42 +412,20 @@ export async function fetchStockPrices(
       fromCache: false,
     }
   } catch (error) {
-    console.warn('Yahoo Finance API failed, falling back to mock API:', error)
-    
-    // Use mock API as fallback when Yahoo Finance fails completely
-    try {
-      const mockResult = await fetchMockStockPrices(normalizedSymbols)
-      
-      if (useCache && mockResult.data.length > 0) {
-        cache.set(cacheKey, mockResult.data)
-      }
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error occurred'
 
-      return {
-        success: true,
-        data: mockResult.data,
-        errors: mockResult.errors.map(e => ({
-          code: e.code,
-          message: e.message,
-          timestamp: e.timestamp
-        })),
-        fromCache: false,
-      }
-    } catch (mockError) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error occurred'
-
-      return {
-        success: false,
-        data: [],
-        errors: [
-          {
-            code: 'FETCH_ERROR',
-            message: `Both Yahoo Finance and mock API failed: ${errorMessage}`,
-            timestamp: new Date().toISOString(),
-          },
-        ],
-        fromCache: false,
-      }
+    return {
+      success: false,
+      data: [],
+      errors: [
+        {
+          code: 'FETCH_ERROR',
+          message: `Yahoo Finance API failed: ${errorMessage}`,
+          timestamp: new Date().toISOString(),
+        },
+      ],
+      fromCache: false,
     }
   }
 }

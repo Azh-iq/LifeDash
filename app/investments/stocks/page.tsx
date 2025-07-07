@@ -13,7 +13,7 @@ import { useSmartRefresh } from '@/lib/hooks/use-smart-refresh'
 import { getUserPortfolios } from '@/lib/actions/portfolio/crud'
 import StockDetailModalV2 from '@/components/stocks/stock-detail-modal-v2'
 import CSVImportModal from '@/components/stocks/csv-import-modal'
-import YahooFinanceTest from '@/components/stocks/yahoo-finance-test'
+import FinnhubTest from '@/components/stocks/finnhub-test'
 import { calculatePortfolioMetrics, generatePortfolioHistoryData } from '@/lib/utils/portfolio-calculations'
 import MobilePortfolioDashboard from '@/components/mobile/mobile-portfolio-dashboard'
 import { StockChartWidget } from '@/components/stocks/stock-chart-widget'
@@ -450,10 +450,10 @@ export default function StocksPage() {
                 </div>
               </div>
 
-              {/* Yahoo Finance Test (Development Only) */}
+              {/* Finnhub API Test (Development Only) */}
               {process.env.NODE_ENV === 'development' && (
                 <div className="mt-6">
-                  <YahooFinanceTest />
+                  <FinnhubTest />
                 </div>
               )}
             </div>

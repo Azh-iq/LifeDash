@@ -2,11 +2,15 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import {
-  fetchStockPrices,
+  fetchRealStockPrices,
   StockPrice,
+  FinnhubError,
+  type FinnhubQuote,
+} from '@/lib/utils/finnhub-api'
+import {
+  fetchStockPrices as fetchYahooStockPrices,
   YahooFinanceError,
   getMarketStatus,
-  type YahooFinanceQuote,
 } from '@/lib/utils/yahoo-finance'
 
 export interface StockPricesState {
@@ -25,7 +29,7 @@ export interface UseStockPricesOptions {
   // Callback when prices update
   onPricesUpdate?: (prices: StockPricesState) => void
   // Callback when errors occur
-  onError?: (errors: YahooFinanceError[]) => void
+  onError?: (errors: FinnhubError[]) => void
 }
 
 export interface UseStockPricesReturn {
@@ -36,7 +40,7 @@ export interface UseStockPricesReturn {
   // Error state
   error: string | null
   // All errors from API
-  errors: YahooFinanceError[]
+  errors: FinnhubError[]
   // Whether data is from cache
   fromCache: boolean
   // Last update timestamp
@@ -78,7 +82,7 @@ export function useStockPrices(
   const [prices, setPrices] = useState<StockPricesState>({})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [errors, setErrors] = useState<YahooFinanceError[]>([])
+  const [errors, setErrors] = useState<FinnhubError[]>([])
   const [fromCache, setFromCache] = useState(false)
   const [lastUpdate, setLastUpdate] = useState<string | null>(null)
   const [marketStatus, setMarketStatus] = useState(getMarketStatus())
@@ -108,9 +112,19 @@ export function useStockPrices(
         setLoading(true)
         setError(null)
 
-        const result = await fetchStockPrices(symbolsToFetch, {
-          useCache: opts.useCache,
-        })
+        // Try Finnhub API first (real data), fallback to Yahoo Finance if needed
+        let result
+        try {
+          result = await fetchRealStockPrices(symbolsToFetch, {
+            useCache: opts.useCache,
+          })
+        } catch (finnhubError) {
+          console.warn('Finnhub API failed, trying Yahoo Finance fallback:', finnhubError)
+          // Fallback to Yahoo Finance if Finnhub fails
+          result = await fetchYahooStockPrices(symbolsToFetch, {
+            useCache: opts.useCache,
+          })
+        }
 
         // Check if request was aborted
         if (abortController.signal.aborted) {
