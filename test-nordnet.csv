@@ -1,0 +1,3 @@
+Id	Bokføringsdag	Handelsdag	Oppgjørsdag	Portefølje	Transaksjonstype	Verdipapir	ISIN	Antall	Kurs	Rente	Totale Avgifter	Valuta	Beløp	Kjøpsverdi	Resultat	Totalt antall	Saldo	Vekslingskurs	Transaksjonstekst	Makuleringsddato	Sluttseddelnummer	Verifikasjonsnummer	Kurtasje	Valutakurs	Innledende rente
+213948411	2025-01-07	2025-01-07	2025-01-08	551307769	KJØPT	Apple Inc	US0378331005	100	180.25	0	99	NOK	-18124	18025	0	100	18025	10.1366	Kjøp av aksjer			123456	99	10.1366	0
+213948412	2025-01-06	2025-01-06	2025-01-07	551307769	KJØPT	Equinor ASA	NO0010096985	50	280.50	0	55	NOK	-14080	14025	0	50	32050	1.0000	Kjøp av norske aksjer			123457	55	1.0000	0

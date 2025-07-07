@@ -8,7 +8,8 @@ const supabaseKey =
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 // Using service key to bypass RLS for stock creation
-const serviceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQzIfVcfC-e4RDP3q5sI6Y'
+const serviceKey =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQzIfVcfC-e4RDP3q5sI6Y'
 const supabaseService = createClient(supabaseUrl, serviceKey)
 
 async function addMissingStocks() {
@@ -17,8 +18,18 @@ async function addMissingStocks() {
   try {
     // Key stocks that should exist for our test transactions
     const requiredSymbols = [
-      'EQNR.OL', 'DNB.OL', 'TEL.OL', 'MOWI.OL', 'YAR.OL', 'SALM.OL', // Norwegian stocks
-      'META', 'AMZN', 'V', 'JNJ', 'WMT', 'HD' // US stocks
+      'EQNR.OL',
+      'DNB.OL',
+      'TEL.OL',
+      'MOWI.OL',
+      'YAR.OL',
+      'SALM.OL', // Norwegian stocks
+      'META',
+      'AMZN',
+      'V',
+      'JNJ',
+      'WMT',
+      'HD', // US stocks
     ]
 
     for (const symbol of requiredSymbols) {
@@ -81,7 +92,6 @@ async function addMissingStocks() {
       .select('*', { count: 'exact', head: true })
 
     console.log(`\n📊 Total stocks in stocks table: ${stocksCount}`)
-
   } catch (error) {
     console.error('❌ Error adding missing stocks:', error)
     throw error
@@ -93,7 +103,9 @@ if (require.main === module) {
   addMissingStocks()
     .then(() => {
       console.log('\n🎉 Missing stocks added successfully!')
-      console.log('You can now run the transaction script again to add more transactions')
+      console.log(
+        'You can now run the transaction script again to add more transactions'
+      )
       process.exit(0)
     })
     .catch(error => {

@@ -47,6 +47,7 @@
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.50.3",
     "@types/qrcode": "^1.5.5",
+    "@types/uuid": "^10.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.0",
     "dotenv": "^17.0.1",
@@ -63,6 +64,7 @@
     "speakeasy": "^2.0.0",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^11.1.0",
     "zod": "^3.25.71"
   },
   "devDependencies": {

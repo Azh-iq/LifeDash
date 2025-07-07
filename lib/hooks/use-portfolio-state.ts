@@ -172,21 +172,17 @@ export function usePortfolioState(
   // Extract symbols for real-time price updates
   const symbols = useMemo(() => {
     const holdingSymbols = holdings.map(holding => holding.symbol)
-    // Always include demo symbols for testing real prices
-    const demoSymbols = ['AAPL', 'MSFT', 'EQNR.OL']
-    const allSymbols = [...new Set([...holdingSymbols, ...demoSymbols])]
-    return allSymbols
+    // Only return symbols for actual holdings
+    return [...new Set(holdingSymbols)]
   }, [holdings])
 
   // Use Finnhub for real-time price updates
-  const { prices: realtimePrices, loading: pricesLoading } = useFinnhubStockPrices(
-    enableRealtime ? symbols : [],
-    {
+  const { prices: realtimePrices, loading: pricesLoading } =
+    useFinnhubStockPrices(enableRealtime ? symbols : [], {
       refreshInterval: 60, // 1 minute for Finnhub rate limits
       enabled: enableRealtime,
       useCache: true,
-    }
-  )
+    })
 
   const isPricesConnected = useMemo(() => {
     return Object.keys(realtimePrices).length > 0

@@ -15,10 +15,11 @@ async function verifyTestUserData() {
 
   try {
     // Sign in as test user
-    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email: TEST_USER_EMAIL,
-      password: TEST_USER_PASSWORD,
-    })
+    const { data: signInData, error: signInError } =
+      await supabase.auth.signInWithPassword({
+        email: TEST_USER_EMAIL,
+        password: TEST_USER_PASSWORD,
+      })
 
     if (signInError || !signInData.user) {
       console.error('❌ Could not sign in as test user:', signInError?.message)
@@ -29,7 +30,9 @@ async function verifyTestUserData() {
     console.log('========================')
     console.log(`Email: ${signInData.user.email}`)
     console.log(`User ID: ${signInData.user.id}`)
-    console.log(`Created: ${new Date(signInData.user.created_at).toLocaleDateString('nb-NO')}`)
+    console.log(
+      `Created: ${new Date(signInData.user.created_at).toLocaleDateString('nb-NO')}`
+    )
 
     // Get user profile
     const { data: profile } = await supabase
@@ -68,17 +71,21 @@ async function verifyTestUserData() {
     // Get accounts
     const { data: accounts } = await supabase
       .from('accounts')
-      .select(`
+      .select(
+        `
         *,
         platforms (name, display_name)
-      `)
+      `
+      )
       .eq('user_id', signInData.user.id)
 
     console.log('\n🏦 ACCOUNTS')
     console.log('===========')
     accounts?.forEach((account, index) => {
       console.log(`${index + 1}. ${account.name}`)
-      console.log(`   Platform: ${account.platforms?.display_name || account.platforms?.name || 'N/A'}`)
+      console.log(
+        `   Platform: ${account.platforms?.display_name || account.platforms?.name || 'N/A'}`
+      )
       console.log(`   Type: ${account.account_type}`)
       console.log(`   Currency: ${account.currency}`)
       console.log(`   Active: ${account.is_active ? 'Yes' : 'No'}`)
@@ -88,10 +95,12 @@ async function verifyTestUserData() {
     // Get transactions
     const { data: transactions } = await supabase
       .from('transactions')
-      .select(`
+      .select(
+        `
         *,
         stocks (symbol, name, currency)
-      `)
+      `
+      )
       .eq('user_id', signInData.user.id)
       .order('date', { ascending: false })
 
@@ -103,7 +112,9 @@ async function verifyTestUserData() {
       console.log('\nTransaction Details:')
       transactions.forEach((tx, index) => {
         const stock = tx.stocks
-        console.log(`${index + 1}. ${tx.transaction_type} ${tx.quantity} ${stock?.symbol || 'N/A'} @ ${tx.price} ${stock?.currency || ''}`)
+        console.log(
+          `${index + 1}. ${tx.transaction_type} ${tx.quantity} ${stock?.symbol || 'N/A'} @ ${tx.price} ${stock?.currency || ''}`
+        )
         console.log(`   Date: ${tx.date}`)
         console.log(`   Total: ${tx.total_amount} ${stock?.currency || ''}`)
         console.log(`   Fees: ${tx.commission || 0}`)
@@ -115,10 +126,12 @@ async function verifyTestUserData() {
     // Get holdings
     const { data: holdings } = await supabase
       .from('holdings')
-      .select(`
+      .select(
+        `
         *,
         stocks (symbol, name, currency, exchange)
-      `)
+      `
+      )
       .eq('user_id', signInData.user.id)
       .eq('is_active', true)
       .order('market_value', { ascending: false })
@@ -132,17 +145,28 @@ async function verifyTestUserData() {
       console.log('\nHolding Details:')
       holdings.forEach((holding, index) => {
         const stock = holding.stocks
-        const marketValue = holding.market_value || (holding.quantity * holding.current_price)
+        const marketValue =
+          holding.market_value || holding.quantity * holding.current_price
         const unrealizedPnL = holding.unrealized_pnl || 0
         const pnlPercent = holding.unrealized_pnl_percent || 0
-        
-        console.log(`${index + 1}. ${stock?.symbol || 'N/A'} (${stock?.name || 'Unknown'})`)
+
+        console.log(
+          `${index + 1}. ${stock?.symbol || 'N/A'} (${stock?.name || 'Unknown'})`
+        )
         console.log(`   Exchange: ${stock?.exchange || 'N/A'}`)
         console.log(`   Quantity: ${holding.quantity}`)
-        console.log(`   Avg Cost: ${holding.average_cost} ${stock?.currency || ''}`)
-        console.log(`   Current Price: ${holding.current_price || 'N/A'} ${stock?.currency || ''}`)
-        console.log(`   Market Value: ${marketValue || 'N/A'} ${stock?.currency || ''}`)
-        console.log(`   Unrealized P&L: ${unrealizedPnL > 0 ? '+' : ''}${unrealizedPnL} (${pnlPercent > 0 ? '+' : ''}${pnlPercent}%)`)
+        console.log(
+          `   Avg Cost: ${holding.average_cost} ${stock?.currency || ''}`
+        )
+        console.log(
+          `   Current Price: ${holding.current_price || 'N/A'} ${stock?.currency || ''}`
+        )
+        console.log(
+          `   Market Value: ${marketValue || 'N/A'} ${stock?.currency || ''}`
+        )
+        console.log(
+          `   Unrealized P&L: ${unrealizedPnL > 0 ? '+' : ''}${unrealizedPnL} (${pnlPercent > 0 ? '+' : ''}${pnlPercent}%)`
+        )
         console.log('')
 
         if (marketValue && typeof marketValue === 'number') {
@@ -151,7 +175,9 @@ async function verifyTestUserData() {
       })
 
       console.log(`📊 Portfolio Summary:`)
-      console.log(`   Total Market Value: ${totalValue.toLocaleString('nb-NO')} (mixed currencies)`)
+      console.log(
+        `   Total Market Value: ${totalValue.toLocaleString('nb-NO')} (mixed currencies)`
+      )
     }
 
     // Get stock registry count
@@ -181,7 +207,6 @@ async function verifyTestUserData() {
     console.log('\nLogin credentials:')
     console.log('• Email: test@test.no')
     console.log('• Password: 123456')
-
   } catch (error) {
     console.error('❌ Error verifying test user data:', error)
     throw error

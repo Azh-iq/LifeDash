@@ -2,7 +2,8 @@
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = 'http://localhost:54321'
-const serviceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQzIfVcfC-e4RDP3q5sI6Y'
+const serviceKey =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQzIfVcfC-e4RDP3q5sI6Y'
 const supabase = createClient(supabaseUrl, serviceKey)
 
 async function debugStockRegistry() {
@@ -15,29 +16,29 @@ async function debugStockRegistry() {
       .from('stock_registry')
       .select('*')
       .eq('symbol', 'EQNR.OL')
-    
+
     console.log('EQNR.OL result:', eqnrData)
     console.log('EQNR.OL error:', eqnrError)
 
     // Get first few Norwegian stocks
     console.log('\n2. Getting Norwegian stocks...')
     const { data: norwegianStocks, error: norError } = await supabase
-      .from('stock_registry') 
+      .from('stock_registry')
       .select('symbol, name, exchange')
       .ilike('symbol', '%.OL')
       .limit(5)
-    
+
     console.log('Norwegian stocks:', norwegianStocks)
     console.log('Norwegian error:', norError)
 
     // Get first few US stocks
     console.log('\n3. Getting US stocks...')
     const { data: usStocks, error: usError } = await supabase
-      .from('stock_registry') 
+      .from('stock_registry')
       .select('symbol, name, exchange')
       .eq('exchange', 'NASDAQ')
       .limit(5)
-    
+
     console.log('US stocks:', usStocks)
     console.log('US error:', usError)
 
@@ -61,7 +62,6 @@ async function debugStockRegistry() {
       console.log('Created stock:', newStock)
       console.log('Create error:', createError)
     }
-
   } catch (error) {
     console.error('Debug error:', error)
   }

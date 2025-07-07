@@ -89,7 +89,7 @@ const getHoldingsForStock = (stockSymbol: string) => [
 const generateChartData = (symbol: string, currentPrice: number) => {
   const data = []
   const now = new Date()
-  
+
   // Use current price as baseline instead of hardcoded values
   const basePrice = currentPrice > 0 ? currentPrice : 150
 

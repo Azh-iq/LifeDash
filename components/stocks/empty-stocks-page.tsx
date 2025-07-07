@@ -11,7 +11,7 @@ import CSVImportModal from './csv-import-modal'
 
 interface EmptyStocksPageProps {
   onTransactionAdded?: (transaction: TransactionData) => void
-  onImportComplete?: (result: any) => void
+  onImportComplete?: () => void
 }
 
 export function EmptyStocksPage({
@@ -249,8 +249,8 @@ export function EmptyStocksPage({
       <CSVImportModal
         isOpen={isCSVModalOpen}
         onClose={() => setIsCSVModalOpen(false)}
-        onImportComplete={result => {
-          onImportComplete?.(result)
+        onImportComplete={() => {
+          onImportComplete?.()
           setIsCSVModalOpen(false)
         }}
       />

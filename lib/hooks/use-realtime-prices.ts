@@ -80,7 +80,7 @@ export function useRealtimePrices(symbols: string[]) {
 
         // Use Finnhub API to get real prices
         const { fetchRealStockPrices } = await import('@/lib/utils/finnhub-api')
-        
+
         const finnhubResult = await fetchRealStockPrices(symbols, {
           useCache: true,
           bypassRateLimit: false,

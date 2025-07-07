@@ -6,9 +6,8 @@ import {
   NordnetImportResult,
   NordnetPortfolioMapping,
   NordnetImportConfig,
-  NORDNET_TRANSACTION_TYPES,
 } from './types'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/lib/supabase/server'
 import { v4 as uuidv4 } from 'uuid'
 
 interface TransactionRecord {
@@ -44,7 +43,7 @@ interface AccountRecord {
 }
 
 export class NordnetTransactionTransformer {
-  private supabase = createClientComponentClient()
+  private supabase = createClient()
   private importBatchId: string
   private userId: string
   private platformId: string
@@ -152,11 +151,7 @@ export class NordnetTransactionTransformer {
           config.portfolioMappings
         )
         const accountType = this.determineAccountType(portfolioName)
-        const currency = this.determineCurrency(
-          transactions,
-          portfolioName,
-          config
-        )
+        const currency = this.determineCurrency(transactions, portfolioName)
 
         // Get or create portfolio
         const portfolioId = await this.getOrCreatePortfolio(portfolioName)
@@ -197,7 +192,7 @@ export class NordnetTransactionTransformer {
    */
   private async getOrCreatePortfolio(portfolioName: string): Promise<string> {
     // Check if portfolio exists
-    const { data: existingPortfolio, error: findError } = await this.supabase
+    const { data: existingPortfolio } = await this.supabase
       .from('portfolios')
       .select('id')
       .eq('user_id', this.userId)
@@ -476,8 +471,7 @@ export class NordnetTransactionTransformer {
 
   private determineCurrency(
     transactions: NordnetTransactionData[],
-    portfolioName: string,
-    config: NordnetImportConfig
+    portfolioName: string
   ): string {
     // Find most common currency for this portfolio
     const portfolioTransactions = transactions.filter(

@@ -60,7 +60,41 @@ export class CSVParser {
     }
 
     try {
-      const text = await file.text()
+      // Try to detect file encoding and parse accordingly
+      const buffer = await file.arrayBuffer()
+      const uint8Array = new Uint8Array(buffer)
+
+      // Check for UTF-16 BOM (byte order mark)
+      const hasUTF16LE_BOM =
+        uint8Array.length >= 2 &&
+        uint8Array[0] === 0xff &&
+        uint8Array[1] === 0xfe
+      const hasUTF16BE_BOM =
+        uint8Array.length >= 2 &&
+        uint8Array[0] === 0xfe &&
+        uint8Array[1] === 0xff
+
+      // Check for UTF-16 encoding by looking for null bytes in typical positions
+      const hasNullBytes =
+        uint8Array.length > 10 &&
+        (uint8Array[2] === 0 || uint8Array[4] === 0 || uint8Array[6] === 0)
+
+      let text: string
+
+      if (hasUTF16LE_BOM || (hasNullBytes && !hasUTF16BE_BOM)) {
+        // UTF-16 Little Endian (common for Windows/Nordnet exports)
+        text = new TextDecoder('utf-16le').decode(buffer)
+      } else if (hasUTF16BE_BOM) {
+        // UTF-16 Big Endian
+        text = new TextDecoder('utf-16be').decode(buffer)
+      } else {
+        // Default to UTF-8
+        text = new TextDecoder('utf-8').decode(buffer)
+      }
+
+      // Remove BOM if present
+      text = text.replace(/^\uFEFF/, '')
+
       return this.parseCSVText(text)
     } catch (error) {
       return {
@@ -87,8 +121,14 @@ export class CSVParser {
       }
     }
 
+    // Detect separator (tab or comma)
+    const firstLine = lines[0]
+    const tabCount = (firstLine.match(/\t/g) || []).length
+    const commaCount = (firstLine.match(/,/g) || []).length
+    const separator = tabCount > commaCount ? '\t' : ','
+
     // Parse headers
-    const headers = this.parseCSVLine(lines[0])
+    const headers = this.parseCSVLine(lines[0], separator)
     if (headers.length === 0) {
       return {
         headers: [],
@@ -110,7 +150,7 @@ export class CSVParser {
     const rows: CSVRow[] = []
     for (let i = 1; i < lines.length; i++) {
       try {
-        const values = this.parseCSVLine(lines[i])
+        const values = this.parseCSVLine(lines[i], separator)
         if (values.length === 0) continue // Skip empty rows
 
         // Create row object
@@ -142,7 +182,7 @@ export class CSVParser {
     }
   }
 
-  private static parseCSVLine(line: string): string[] {
+  private static parseCSVLine(line: string, separator: string = ','): string[] {
     const result: string[] = []
     let current = ''
     let inQuotes = false
@@ -162,7 +202,7 @@ export class CSVParser {
           inQuotes = !inQuotes
           i++
         }
-      } else if (char === ',' && !inQuotes) {
+      } else if (char === separator && !inQuotes) {
         // Field separator
         result.push(current.trim())
         current = ''

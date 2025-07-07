@@ -165,7 +165,7 @@ const convertToNorwegianHolding = (
 ): NorwegianHolding => {
   // Determine country based on symbol
   const country = holding.symbol.includes('.OL') ? 'NO' : 'US'
-  
+
   console.log('Converting holding to Norwegian format:', {
     symbol: holding.symbol,
     currentPrice: holding.current_price,

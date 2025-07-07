@@ -5,8 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Bars3Icon,
   ChevronDownIcon,
-  ArrowDownTrayIcon,
-  ArrowUpTrayIcon,
   ShareIcon,
   DocumentArrowDownIcon,
   DocumentArrowUpIcon,
@@ -15,10 +13,12 @@ import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/ui/modal'
 import { toast } from '@/components/ui/toast'
 import { cn } from '@/lib/utils/cn'
+import CSVImportModal from '@/components/stocks/csv-import-modal'
 
 interface TopNavigationMenuProps {
   portfolioId?: string
   className?: string
+  onImportComplete?: () => void
 }
 
 interface ToolAction {
@@ -32,20 +32,17 @@ interface ToolAction {
 export default function TopNavigationMenu({
   portfolioId,
   className,
+  onImportComplete,
 }: TopNavigationMenuProps) {
   const [showToolsDropdown, setShowToolsDropdown] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
+  const [showCSVImportModal, setShowCSVImportModal] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
 
   // Tool actions
   const handleCSVImport = useCallback(() => {
     setShowToolsDropdown(false)
-    // TODO: Implement CSV import modal
-    toast({
-      title: 'CSV Import',
-      description: 'CSV import funksjon kommer snart...',
-      variant: 'info',
-    })
+    setShowCSVImportModal(true)
   }, [])
 
   const handleCSVExport = useCallback(async () => {
@@ -90,6 +87,16 @@ export default function TopNavigationMenu({
     }
     setShowShareModal(false)
   }, [portfolioId])
+
+  const handleCSVImportComplete = useCallback(() => {
+    setShowCSVImportModal(false)
+    onImportComplete?.()
+    toast({
+      title: 'CSV Import Fullført',
+      description: 'Transaksjoner er importert og porteføljen oppdatert.',
+      variant: 'success',
+    })
+  }, [onImportComplete])
 
   // Tool actions configuration
   const toolActions: ToolAction[] = [
@@ -270,6 +277,13 @@ export default function TopNavigationMenu({
           </div>
         </div>
       </Modal>
+
+      {/* CSV Import Modal */}
+      <CSVImportModal
+        isOpen={showCSVImportModal}
+        onClose={() => setShowCSVImportModal(false)}
+        onImportComplete={handleCSVImportComplete}
+      />
     </>
   )
 }

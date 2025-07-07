@@ -107,11 +107,11 @@ export class NordnetCSVParser {
    */
   private static async detectEncoding(file: File): Promise<string> {
     try {
-      // Read first 1KB to detect encoding
-      const buffer = await file.slice(0, 1024).arrayBuffer()
+      // Read first 2KB to detect encoding (increased for better detection)
+      const buffer = await file.slice(0, 2048).arrayBuffer()
       const bytes = new Uint8Array(buffer)
 
-      // Check for BOM markers
+      // Check for BOM markers first - these are definitive indicators
       if (
         bytes.length >= 3 &&
         bytes[0] === 0xef &&
@@ -121,53 +121,158 @@ export class NordnetCSVParser {
         return 'utf-8'
       }
 
+      // UTF-16 Little Endian BOM (most common for Norwegian Nordnet exports)
       if (bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe) {
         return 'utf-16le'
       }
 
+      // UTF-16 Big Endian BOM
       if (bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff) {
         return 'utf-16be'
       }
 
-      // Try to decode as UTF-8 first
-      try {
-        const decoder = new TextDecoder('utf-8', { fatal: true })
-        const text = decoder.decode(bytes)
+      // Priority order: Windows-1252 first for Nordic banking exports
+      // This is what Nordnet typically uses for Norwegian CSV files
+      const encodings = ['windows-1252', 'iso-8859-1', 'utf-8']
 
-        // Check for Norwegian characters which are common in Nordnet exports
-        const norwegianChars = /[æøåÆØÅ]/
-        if (norwegianChars.test(text)) {
-          return 'utf-8'
-        }
-      } catch {
-        // UTF-8 decode failed, try other encodings
-      }
-
-      // Try common European encodings
-      const encodings = ['iso-8859-1', 'windows-1252', 'utf-8']
       for (const encoding of encodings) {
         try {
           const decoder = new TextDecoder(encoding, { fatal: true })
           const text = decoder.decode(bytes)
 
-          // Check if we can find typical Nordnet headers
-          const hasNordnetHeaders = this.NORDNET_HEADERS.some(header =>
-            text.includes(header)
-          )
+          // Check for garbled text indicators (signs of wrong encoding)
+          const hasGarbledText = this.detectGarbledText(text)
+          if (hasGarbledText) {
+            continue // Skip this encoding, it's producing garbled text
+          }
 
-          if (hasNordnetHeaders) {
+          // Check for proper Norwegian characters (should be readable)
+          const norwegianScore = this.calculateNorwegianScore(text)
+
+          // Check for Nordnet-specific headers and content
+          const nordnetScore = this.calculateNordnetScore(text)
+
+          // Combined score for this encoding
+          const totalScore = norwegianScore + nordnetScore
+
+          // If we have a good score, use this encoding
+          if (totalScore >= 2) {
+            return encoding
+          }
+
+          // Special check for Windows-1252 with proper Norwegian characters
+          if (encoding === 'windows-1252' && totalScore >= 1) {
             return encoding
           }
         } catch {
-          continue
+          continue // This encoding failed, try next
         }
       }
 
-      return 'utf-8' // Default fallback
+      // Fallback: Try UTF-8 with stricter validation
+      try {
+        const decoder = new TextDecoder('utf-8', { fatal: true })
+        const text = decoder.decode(bytes)
+
+        // Only accept UTF-8 if it doesn't contain replacement characters
+        if (!text.includes('\uFFFD')) {
+          return 'utf-8'
+        }
+      } catch {
+        // UTF-8 decode failed
+      }
+
+      // Final fallback to Windows-1252 for Nordic banking files
+      return 'windows-1252'
     } catch (error) {
       console.warn('Error detecting encoding:', error)
-      return 'utf-8'
+      return 'windows-1252' // Default to Windows-1252 for Norwegian files
     }
+  }
+
+  /**
+   * Detects garbled text patterns that indicate wrong encoding
+   */
+  private static detectGarbledText(text: string): boolean {
+    // Check for common garbled patterns
+    const garbledPatterns = [
+      /[��]/g, // Replacement characters
+      /\s[A-Z]\s[a-z]\s[a-z]/g, // Spaced out letters like "B o k f"
+      /[�]/g, // Question mark diamonds
+      /\uFFFD/g, // Unicode replacement character
+      /[A-Z]\s[a-z]\s[a-z]\s[a-z]/g, // More spaced patterns
+    ]
+
+    return garbledPatterns.some(pattern => pattern.test(text))
+  }
+
+  /**
+   * Calculates a score for Norwegian character presence and readability
+   */
+  private static calculateNorwegianScore(text: string): number {
+    let score = 0
+
+    // Check for proper Norwegian characters
+    const norwegianChars = /[æøåÆØÅ]/g
+    const norwegianMatches = text.match(norwegianChars)
+    if (norwegianMatches) {
+      score += Math.min(norwegianMatches.length, 3) // Up to 3 points for Norwegian chars
+    }
+
+    // Check for Norwegian words common in financial contexts
+    const norwegianWords = [
+      'Bokføringsdag',
+      'Handelsdag',
+      'Oppgjørsdag',
+      'Portefølje',
+      'Transaksjonstype',
+      'Verdipapir',
+      'Kjøpsverdi',
+      'Beløp',
+      'Totale',
+      'Avgifter',
+      'Valuta',
+      'Kurtasje',
+      'Overføring',
+    ]
+
+    const foundWords = norwegianWords.filter(word => text.includes(word)).length
+
+    if (foundWords >= 5) score += 2
+    else if (foundWords >= 3) score += 1
+
+    return score
+  }
+
+  /**
+   * Calculates a score for Nordnet-specific content
+   */
+  private static calculateNordnetScore(text: string): number {
+    let score = 0
+
+    // Check for Nordnet-specific headers
+    const nordnetHeaders = this.NORDNET_HEADERS.filter(header =>
+      text.includes(header)
+    )
+
+    if (nordnetHeaders.length >= 10) score += 3
+    else if (nordnetHeaders.length >= 6) score += 2
+    else if (nordnetHeaders.length >= 3) score += 1
+
+    // Check for transaction types
+    const transactionTypes = ['KJØPT', 'SALG', 'UTBETALING']
+    const foundTypes = transactionTypes.filter(type =>
+      text.includes(type)
+    ).length
+
+    if (foundTypes >= 2) score += 1
+
+    // Check for typical Nordnet patterns
+    if (/\d{6,12}/.test(text)) score += 1 // Portfolio IDs
+    if (/[A-Z]{2}[A-Z0-9]{9}[0-9]/.test(text)) score += 1 // ISIN codes
+    if (/NOK|SEK|DKK|EUR|USD/.test(text)) score += 1 // Nordic currencies
+
+    return score
   }
 
   /**
@@ -192,13 +297,6 @@ export class NordnetCSVParser {
   }
 
   /**
-   * Checks if the CSV contains Norwegian characters
-   */
-  private static hasNorwegianCharacters(text: string): boolean {
-    return /[æøåÆØÅ]/.test(text)
-  }
-
-  /**
    * Normalizes Norwegian characters to ASCII equivalents
    */
   private static normalizeNorwegianText(text: string): string {
@@ -207,6 +305,36 @@ export class NordnetCSVParser {
       normalized = normalized.replace(new RegExp(norwegian, 'g'), ascii)
     }
     return normalized
+  }
+
+  /**
+   * Enhanced Norwegian character detection that works with UTF-16 encoding
+   */
+  private static hasNorwegianCharacters(text: string): boolean {
+    // Check for Norwegian characters (æ, ø, å and their uppercase variants)
+    const norwegianPattern = /[æøåÆØÅ]/
+
+    // Also check for Norwegian words that are common in Nordnet exports
+    const norwegianWords = [
+      'Bokføringsdag',
+      'Handelsdag',
+      'Oppgjørsdag',
+      'Portefølje',
+      'Transaksjonstype',
+      'Verdipapir',
+      'Kjøpsverdi',
+      'Beløp',
+      'Totale',
+      'Avgifter',
+      'Valuta',
+      'Kurtasje',
+      'Overføring',
+    ]
+
+    return (
+      norwegianPattern.test(text) ||
+      norwegianWords.some(word => text.includes(word))
+    )
   }
 
   /**
@@ -303,13 +431,28 @@ export class NordnetCSVParser {
 
       // Read file with detected encoding
       const fileBuffer = await file.arrayBuffer()
+      let bufferToUse = fileBuffer
+
+      // Handle BOM removal for UTF-16
+      if (encoding === 'utf-16le' || encoding === 'utf-16be') {
+        const bytes = new Uint8Array(fileBuffer)
+        if (
+          bytes.length >= 2 &&
+          ((bytes[0] === 0xff && bytes[1] === 0xfe) ||
+            (bytes[0] === 0xfe && bytes[1] === 0xff))
+        ) {
+          // Skip BOM bytes
+          bufferToUse = fileBuffer.slice(2)
+        }
+      }
+
       const decoder = new TextDecoder(encoding)
-      let text = decoder.decode(fileBuffer)
+      let text = decoder.decode(bufferToUse)
 
       // Detect delimiter
       const delimiter = this.detectDelimiter(text)
 
-      // Check for Norwegian characters
+      // Check for Norwegian characters using enhanced detection
       const hasNorwegianChars = this.hasNorwegianCharacters(text)
 
       // Skip rows if configured

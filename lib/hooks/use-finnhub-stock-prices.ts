@@ -150,7 +150,7 @@ class FinnhubQueueManager {
     try {
       // Use real Finnhub API call
       const { fetchRealStockPrice } = await import('@/lib/utils/finnhub-api')
-      
+
       const result = await fetchRealStockPrice(symbol, {
         useCache: true,
         bypassRateLimit: false,
@@ -178,7 +178,7 @@ class FinnhubQueueManager {
           message: 'No data available for symbol',
           timestamp: new Date().toISOString(),
         }
-        
+
         onError(symbol, error)
         this.failed.add(symbol)
       }

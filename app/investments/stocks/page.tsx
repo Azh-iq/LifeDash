@@ -35,6 +35,7 @@ import {
 import { createDefaultPortfolio } from '@/lib/actions/portfolio/create-default'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
 import { EmptyStocksPage } from '@/components/stocks/empty-stocks-page'
+import TopNavigationMenu from '@/components/layout/top-navigation-menu'
 
 // Simple responsive hook
 const useResponsive = () => {
@@ -279,6 +280,17 @@ export default function StocksPage() {
     await smartRefresh()
   }, [smartRefresh])
 
+  // Handle CSV import completion from top navigation
+  const handleTopNavImportComplete = useCallback(async () => {
+    console.log('Top navigation CSV import completed')
+    // Refresh the portfolio data to show newly imported transactions
+    if (portfolioState.refresh) {
+      await portfolioState.refresh()
+    }
+    // Also trigger smart refresh for consistency
+    await smartRefresh()
+  }, [portfolioState, smartRefresh])
+
   // State initialization guards
   const isValidPortfolioId = portfolioId && portfolioId.trim().length > 0
 
@@ -350,14 +362,23 @@ export default function StocksPage() {
       }
     }
 
+    const handleCSVImportComplete = async () => {
+      console.log('CSV import completed for empty state')
+      // Create default portfolio and refresh the page to show the portfolio
+      const defaultResult = await createDefaultPortfolio()
+      if (defaultResult.success && defaultResult.data) {
+        // Update the portfolioId to show the real portfolio
+        setPortfolioId(defaultResult.data.portfolioId)
+        // Refresh the app to load the new portfolio
+        await initializeApp()
+      }
+    }
+
     return (
       <ErrorBoundary>
         <EmptyStocksPage
           onTransactionAdded={handleTransactionAdded}
-          onImportComplete={result => {
-            console.log('CSV import completed:', result)
-            // TODO: Handle CSV import for empty state
-          }}
+          onImportComplete={handleCSVImportComplete}
         />
       </ErrorBoundary>
     )
@@ -394,9 +415,7 @@ export default function StocksPage() {
   )
 
   const currentValue =
-    realTimeMetrics.totalValue ||
-    portfolioState.portfolio?.total_value ||
-    1847250
+    realTimeMetrics.totalValue || portfolioState.portfolio?.total_value || 0
   const changePercent =
     realTimeMetrics.dailyChangePercent ||
     portfolioState.portfolio?.daily_change_percent ||
@@ -427,12 +446,18 @@ export default function StocksPage() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
+        {/* Top Navigation Menu */}
+        <TopNavigationMenu
+          portfolioId={safePortfolioId}
+          onImportComplete={handleTopNavImportComplete}
+        />
+
         {/* Breadcrumb Navigation */}
         <div className="border-b border-gray-200 bg-white px-4 py-3">
           <NorwegianBreadcrumb />
         </div>
 
-        {/* Top Menu Bar */}
+        {/* Page Header with Actions */}
         <div className="border-b border-gray-200 bg-white px-4 py-3">
           <div className="mx-auto flex max-w-7xl items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900">Aksjer</h1>
@@ -565,8 +590,7 @@ export default function StocksPage() {
                         ? '+'
                         : ''}
                       {(
-                        portfolioState.portfolio?.total_gain_loss_percent ||
-                        15.8
+                        portfolioState.portfolio?.total_gain_loss_percent || 0
                       ).toFixed(1)}
                       %
                     </p>
@@ -613,12 +637,14 @@ export default function StocksPage() {
       <CSVImportModal
         isOpen={isCSVModalOpen}
         onClose={() => setIsCSVModalOpen(false)}
-        onImportComplete={result => {
-          console.log('CSV import completed:', result)
-          // Here you would refresh the portfolio data
+        onImportComplete={async () => {
+          console.log('CSV import completed successfully')
+          // Refresh the portfolio data to show newly imported transactions
           if (portfolioState.refresh) {
-            portfolioState.refresh()
+            await portfolioState.refresh()
           }
+          // Also trigger smart refresh for consistency
+          await smartRefresh()
         }}
       />
 

@@ -1,15 +1,16 @@
 'use client'
 
 import { useState } from 'react'
-import { X, FileUp, Check } from 'lucide-react'
+import { X, FileUp, Check, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CSVUploadZone } from '@/components/features/import/csv-upload'
 import { NordnetParseResult } from '@/lib/integrations/nordnet/types'
+import { importNordnetTransactions } from '@/lib/actions/transactions/csv-import'
 
 interface CSVImportModalProps {
   isOpen: boolean
   onClose: () => void
-  onImportComplete?: (result: NordnetParseResult) => void
+  onImportComplete?: () => void
 }
 
 export default function CSVImportModal({
@@ -23,6 +24,14 @@ export default function CSVImportModal({
   )
   const [isImporting, setIsImporting] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
+  const [importSuccess, setImportSuccess] = useState<boolean>(false)
+  const [importSummary, setImportSummary] = useState<{
+    createdTransactions: number
+    createdAccounts: number
+    skippedRows: number
+    errors: string[]
+    warnings: string[]
+  } | null>(null)
 
   if (!isOpen) return null
 
@@ -42,18 +51,41 @@ export default function CSVImportModal({
     if (!parseResult) return
 
     setIsImporting(true)
+    setImportError(null)
+    setImportSuccess(false)
+
     try {
-      // Here you would normally save the data to your database
-      // For now we'll just simulate the import
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Import transactions to the database
+      const result = await importNordnetTransactions(parseResult)
 
-      onImportComplete?.(parseResult)
-      onClose()
+      if (result.success && result.data) {
+        // Import was successful
+        setImportSuccess(true)
+        setImportSummary({
+          createdTransactions: result.data.createdTransactions,
+          createdAccounts: result.data.createdAccounts,
+          skippedRows: result.data.skippedRows,
+          errors: result.data.errors,
+          warnings: result.data.warnings,
+        })
 
-      // Reset state
-      setSelectedFile(null)
-      setParseResult(null)
-      setImportError(null)
+        // Notify parent component to refresh data
+        onImportComplete?.()
+
+        // Show success for a moment, then close
+        setTimeout(() => {
+          onClose()
+          // Reset state
+          setSelectedFile(null)
+          setParseResult(null)
+          setImportError(null)
+          setImportSuccess(false)
+          setImportSummary(null)
+        }, 3000)
+      } else {
+        // Import failed
+        setImportError(result.error || 'Import failed with unknown error')
+      }
     } catch (error) {
       setImportError(error instanceof Error ? error.message : 'Import failed')
     } finally {
@@ -66,6 +98,8 @@ export default function CSVImportModal({
       setSelectedFile(null)
       setParseResult(null)
       setImportError(null)
+      setImportSuccess(false)
+      setImportSummary(null)
       onClose()
     }
   }
@@ -110,15 +144,63 @@ export default function CSVImportModal({
               disabled={isImporting}
             />
 
+            {/* Success Display */}
+            {importSuccess && importSummary && (
+              <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+                <div className="mb-2 flex items-center gap-2">
+                  <Check className="h-5 w-5 text-green-600" />
+                  <h3 className="font-medium text-green-900">
+                    Import vellykket!
+                  </h3>
+                </div>
+                <div className="space-y-1 text-sm text-green-800">
+                  <p>
+                    • {importSummary.createdTransactions} transaksjoner
+                    opprettet
+                  </p>
+                  <p>• {importSummary.createdAccounts} kontoer opprettet</p>
+                  {importSummary.skippedRows > 0 && (
+                    <p>• {importSummary.skippedRows} rader hoppet over</p>
+                  )}
+                  {importSummary.warnings.length > 0 && (
+                    <p>• {importSummary.warnings.length} advarsler</p>
+                  )}
+                </div>
+                {importSummary.warnings.length > 0 && (
+                  <div className="mt-2 rounded border border-yellow-200 bg-yellow-50 p-2">
+                    <p className="mb-1 text-xs font-medium text-yellow-800">
+                      Advarsler:
+                    </p>
+                    {importSummary.warnings
+                      .slice(0, 3)
+                      .map((warning, index) => (
+                        <p key={index} className="text-xs text-yellow-700">
+                          • {warning}
+                        </p>
+                      ))}
+                    {importSummary.warnings.length > 3 && (
+                      <p className="text-xs text-yellow-700">
+                        ... og {importSummary.warnings.length - 3} flere
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Error Display */}
             {importError && (
               <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                <div className="mb-2 flex items-center gap-2">
+                  <AlertCircle className="h-5 w-5 text-red-600" />
+                  <h3 className="font-medium text-red-900">Import feilet</h3>
+                </div>
                 <p className="text-sm text-red-800">{importError}</p>
               </div>
             )}
 
             {/* Import Actions */}
-            {parseResult && (
+            {parseResult && !importSuccess && (
               <div className="flex justify-end gap-3 border-t pt-4">
                 <Button
                   variant="outline"
@@ -143,6 +225,19 @@ export default function CSVImportModal({
                       Importer {parseResult.totalRows} transaksjoner
                     </>
                   )}
+                </Button>
+              </div>
+            )}
+
+            {/* Success Actions */}
+            {importSuccess && (
+              <div className="flex justify-end gap-3 border-t pt-4">
+                <Button
+                  onClick={handleClose}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Check className="mr-2 h-4 w-4" />
+                  Ferdig
                 </Button>
               </div>
             )}
