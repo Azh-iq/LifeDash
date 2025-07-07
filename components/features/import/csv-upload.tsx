@@ -487,8 +487,8 @@ export function CSVUploadZone({
               <div className="space-y-1 border-t pt-2 text-xs text-gray-500">
                 <div>Encoding: {uploadState.parseResult.detectedEncoding}</div>
                 <div>
-                  Delimiter:{' '}
-                  &quot;{uploadState.parseResult.detectedDelimiter}&quot;
+                  Delimiter: &quot;{uploadState.parseResult.detectedDelimiter}
+                  &quot;
                 </div>
                 <div>
                   Norwegian Characters:{' '}

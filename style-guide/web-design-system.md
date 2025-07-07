@@ -21,39 +21,43 @@ LifeDash is now enhanced with professional UI kits - Untitled UI as the primary 
 - **Financial UI patterns**: Transaction lists, account summaries, performance metrics
 - **Responsive design** optimized for financial data presentation
 
-## New Color Palette - 4 Main Life Areas
+## Widget-Based Color System - Investment Categories
 
-### 🔵 Investeringer (Investments) - Deep Navy Theme
+### 📈 Stocks (Aksjer) - Deep Amethyst Theme
 
-- **Primary**: #1e40af (Deep Navy Blue)
-- **Light**: #dbeafe (Light Blue Background)
-- **Hover**: #1d4ed8 (Darker Navy Hover)
-- **Gradient**: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)
-- **Usage**: Investment portfolios, financial charts, stock analysis, portfolio metrics
+- **Primary**: #6366f1 (Deep Amethyst)
+- **Secondary**: #a855f7 (Purple accent)
+- **Light Background**: #f3f4ff (Light purple background)
+- **Gradient**: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)
+- **Chart Gradient**: linear-gradient(to bottom, #6366f1/20 0%, #8b5cf6/5 100%)
+- **Usage**: Stock portfolios, equity charts, stock analysis, holdings tables
 
-### 🟣 Hobby Prosjekter (Hobby Projects) - Creative Purple Theme
+### ₿ Crypto - Bitcoin Gold Theme
 
-- **Primary**: #7c3aed (Vibrant Purple)
-- **Light**: #f3e8ff (Light Purple Background)
-- **Hover**: #6d28d9 (Darker Purple Hover)
-- **Gradient**: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)
-- **Usage**: Project tracking, creative workflows, hobby management, task completion
+- **Primary**: #f59e0b (Bitcoin Gold)
+- **Secondary**: #fbbf24 (Gold accent)
+- **Light Background**: #fffbeb (Light amber background)
+- **Gradient**: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)
+- **Chart Gradient**: linear-gradient(to bottom, #f59e0b/20 0%, #fbbf24/5 100%)
+- **Usage**: Cryptocurrency portfolios, crypto charts, DeFi tracking, coin metrics
 
-### 🟢 Økonomi (Economy) - Financial Green Theme
+### 🎨 Art (Kunst) - Rose Pink Theme
 
-- **Primary**: #059669 (Emerald Green)
-- **Light**: #d1fae5 (Light Green Background)
-- **Hover**: #047857 (Darker Green Hover)
-- **Gradient**: linear-gradient(135deg, #059669 0%, #10b981 100%)
-- **Usage**: Budget tracking, savings goals, expense management, financial health
+- **Primary**: #ec4899 (Rose Pink)
+- **Secondary**: #f472b6 (Pink accent)
+- **Light Background**: #fdf2f8 (Light pink background)
+- **Gradient**: linear-gradient(135deg, #ec4899 0%, #f472b6 100%)
+- **Chart Gradient**: linear-gradient(to bottom, #ec4899/20 0%, #f472b6/5 100%)
+- **Usage**: Art investments, collectibles, valuation trends, auction data
 
-### 🟠 Verktøy (Tools) - Utility Orange Theme
+### 📦 Other (Annet) - Emerald Green Theme
 
-- **Primary**: #ea580c (Warm Orange)
-- **Light**: #fed7aa (Light Orange Background)
-- **Hover**: #c2410c (Darker Orange Hover)
-- **Gradient**: linear-gradient(135deg, #ea580c 0%, #f97316 100%)
-- **Usage**: Utility pages, calculators, converters, productivity tools
+- **Primary**: #10b981 (Emerald Green)
+- **Secondary**: #34d399 (Green accent)
+- **Light Background**: #ecfdf5 (Light green background)
+- **Gradient**: linear-gradient(135deg, #10b981 0%, #34d399 100%)
+- **Chart Gradient**: linear-gradient(to bottom, #10b981/20 0%, #34d399/5 100%)
+- **Usage**: Alternative investments, bonds, commodities, misc assets
 
 ### Neutral Foundation (Untitled UI Standard)
 
@@ -65,10 +69,86 @@ LifeDash is now enhanced with professional UI kits - Untitled UI as the primary 
 
 ### Semantic Colors
 
-- **Success**: #10b981 (Matches investments green)
-- **Error**: #ef4444 (Clear red for errors)
-- **Warning**: #f59e0b (Matches hobby orange)
-- **Info**: #3b82f6 (Matches primary blue)
+- **Success**: #22c55e (Chart positive/bullish)
+- **Error**: #ef4444 (Chart negative/bearish)
+- **Warning**: #f59e0b (Chart neutral/amber)
+- **Info**: #3b82f6 (Information and guidance)
+
+## Widget System Specifications
+
+### Widget Container Standards
+
+#### Widget Sizes
+
+- **Hero**: 400px height (main dashboard chart)
+- **Large**: 300-350px height (category charts)
+- **Medium**: 200-250px height (metrics widgets)
+- **Small**: 100-150px height (mini charts)
+
+#### Widget Structure
+
+```typescript
+interface WidgetProps {
+  title: string
+  category?: 'stocks' | 'crypto' | 'art' | 'other'
+  size: 'hero' | 'large' | 'medium' | 'small'
+  refreshable?: boolean
+  exportable?: boolean
+  loading?: boolean
+  error?: string
+}
+```
+
+#### Widget Styling Pattern
+
+```css
+.widget-base {
+  @apply rounded-xl border bg-white shadow-sm;
+  @apply transition-all duration-200;
+  @apply hover:shadow-md;
+}
+
+.widget-hero {
+  @apply min-h-[400px] p-6;
+}
+
+.widget-large {
+  @apply min-h-[300px] p-4;
+}
+
+.widget-medium {
+  @apply min-h-[200px] p-4;
+}
+
+.widget-small {
+  @apply min-h-[100px] p-3;
+}
+```
+
+### Chart Component Standards
+
+#### Chart Color Mapping
+
+- **Category Primary**: Use category primary color for main data lines
+- **Category Secondary**: Use secondary color for supporting elements
+- **Chart Gradient**: Use chart gradient for area fills
+- **Success/Error**: Use semantic colors for positive/negative values
+
+#### Chart Interaction Standards
+
+- **Hover**: Show crosshair and tooltip with exact values
+- **Time Range**: Include 1D, 1W, 1M, 3M, 1Y, ALL buttons
+- **Zoom**: Enable zoom and pan for detailed analysis
+- **Real-time**: Smooth animations for live data updates
+
+### Data Display Standards
+
+#### Norwegian Formatting
+
+- **Currency**: NOK 123.456,78 (Norwegian number format)
+- **Percentage**: +12,3% / -4,5% (Norwegian decimal comma)
+- **Dates**: dd.mm.yyyy (Norwegian date format)
+- **Large Numbers**: 1 234 567 (space thousands separator)
 
 ## Layout System
 

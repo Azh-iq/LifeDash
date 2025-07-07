@@ -271,7 +271,8 @@ const RecentActivity = memo(function RecentActivity({
             // Fetch the complete transaction with joined data to check if it belongs to this portfolio
             const { data: fullTransaction } = await supabase
               .from('transactions')
-              .select(`
+              .select(
+                `
                 *,
                 stocks (
                   symbol,
@@ -285,7 +286,8 @@ const RecentActivity = memo(function RecentActivity({
                   name,
                   portfolio_id
                 )
-              `)
+              `
+              )
               .eq('id', payload.new.id)
               .eq('account.portfolio_id', portfolioId)
               .single()

@@ -36,7 +36,7 @@ export function PlatformSelectionCard({
     >
       <Card
         className={`
-          relative cursor-pointer overflow-hidden transition-all duration-300 min-h-[420px] flex flex-col
+          relative flex min-h-[420px] cursor-pointer flex-col overflow-hidden transition-all duration-300
           ${
             isSelected
               ? 'bg-blue-50 shadow-lg ring-2 ring-blue-500 ring-offset-2'
@@ -89,7 +89,7 @@ export function PlatformSelectionCard({
           </motion.div>
         </div>
 
-        <div className="p-6 pt-12 flex flex-col flex-1">
+        <div className="flex flex-1 flex-col p-6 pt-12">
           {/* Platform Header */}
           <div className="mb-6 text-center">
             <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-50 shadow-sm">
@@ -177,7 +177,7 @@ export function PlatformSelectionCard({
             <div className="flex-1"></div>
 
             {/* Selection Status */}
-            <div className="border-t border-gray-100 pt-4 mt-4">
+            <div className="mt-4 border-t border-gray-100 pt-4">
               <div
                 className={`
                 rounded-lg py-2 text-center transition-colors duration-200

@@ -85,7 +85,7 @@ const getPortfolioNavItems = (portfolioId: string): NavItem[] => {
   if (portfolioNavItemsCache.has(portfolioId)) {
     return portfolioNavItemsCache.get(portfolioId)!
   }
-  
+
   const items = [
     {
       id: 'dashboard',
@@ -132,7 +132,7 @@ const getPortfolioNavItems = (portfolioId: string): NavItem[] => {
       },
     },
   ]
-  
+
   portfolioNavItemsCache.set(portfolioId, items)
   return items
 }
@@ -245,9 +245,7 @@ const MobileNavItemMemo = memo(
 
     // Memoize active state calculation
     const isActive = useMemo(() => {
-      return (
-        pathname === item.href || pathname.startsWith(item.href + '/')
-      )
+      return pathname === item.href || pathname.startsWith(item.href + '/')
     }, [pathname, item.href])
 
     // Memoize click handler

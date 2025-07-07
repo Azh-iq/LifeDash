@@ -330,7 +330,10 @@
 ```tsx
 import { memo, useCallback } from 'react'
 
-const OptimizedComponent = memo(function OptimizedComponent({ data, onUpdate }) {
+const OptimizedComponent = memo(function OptimizedComponent({
+  data,
+  onUpdate,
+}) {
   const handleUpdate = useCallback(() => {
     onUpdate(data.id)
   }, [data.id, onUpdate])
@@ -382,11 +385,11 @@ function PortfolioPage() {
       <ErrorBoundary>
         <PortfolioHeader />
       </ErrorBoundary>
-      
+
       <ErrorBoundary>
         <PortfolioMetrics />
       </ErrorBoundary>
-      
+
       <ErrorBoundary>
         <HoldingsTable />
       </ErrorBoundary>
@@ -401,15 +404,18 @@ function PortfolioPage() {
 const useDebouncedUpdate = (callback: Function, delay: number = 1000) => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  const debouncedCallback = useCallback((...args: any[]) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-    }
+  const debouncedCallback = useCallback(
+    (...args: any[]) => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
 
-    timeoutRef.current = setTimeout(() => {
-      callback(...args)
-    }, delay)
-  }, [callback, delay])
+      timeoutRef.current = setTimeout(() => {
+        callback(...args)
+      }, delay)
+    },
+    [callback, delay]
+  )
 
   useEffect(() => {
     return () => {

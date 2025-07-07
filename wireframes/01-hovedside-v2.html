@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LifeDash - Hovedside Dashboard Wireframe v2</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: rgba(0, 0, 0, 0.05);
+        color: #111827;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      :root {
+        --primary: #6366f1;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+      }
+
+      /* Browser Container */
+      .browser-container {
+        width: 100%;
+        max-width: 1200px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+      }
+
+      /* Browser Header */
+      .browser-header {
+        background: var(--gray-100);
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        position: relative;
+      }
+
+      .browser-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .browser-btn {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+
+      .browser-btn.red {
+        background: #ff5f57;
+      }
+
+      .browser-btn.yellow {
+        background: #ffbd2e;
+      }
+
+      .browser-btn.green {
+        background: #28ca42;
+      }
+
+      .browser-url {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: 6px;
+        padding: 6px 12px;
+        flex: 1;
+        font-size: 14px;
+        color: var(--gray-500);
+      }
+
+      .browser-title {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        font-weight: 600;
+        color: var(--gray-900);
+      }
+
+      /* Breadcrumb Navigation */
+      .breadcrumb-nav {
+        background: white;
+        padding: 12px 24px;
+        border-bottom: 1px solid var(--gray-200);
+        font-size: 14px;
+        color: var(--gray-500);
+      }
+
+      .breadcrumb-current {
+        color: var(--primary);
+        font-weight: 600;
+      }
+
+      /* Main Content */
+      .dashboard-content {
+        padding: 40px;
+        background: white;
+        min-height: 600px;
+      }
+
+      /* Main Header */
+      .main-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--gray-200);
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .page-title {
+        font-size: 32px;
+        font-weight: bold;
+        color: var(--gray-900);
+      }
+
+      .search-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        border-radius: 8px;
+        padding: 8px 12px;
+        min-width: 300px;
+      }
+
+      .search-icon {
+        color: var(--gray-400);
+        font-size: 16px;
+      }
+
+      .search-input {
+        border: none;
+        background: none;
+        outline: none;
+        flex: 1;
+        font-size: 14px;
+        color: var(--gray-700);
+      }
+
+      .search-input::placeholder {
+        color: var(--gray-400);
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .header-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 18px;
+      }
+
+      .header-icon:hover {
+        background: var(--gray-100);
+      }
+
+      /* Welcome Banner */
+      .welcome-banner {
+        background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+        border-radius: 16px;
+        padding: 32px;
+        text-align: center;
+        margin-bottom: 32px;
+        color: white;
+      }
+
+      .welcome-text {
+        font-size: 28px;
+        font-weight: bold;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        letter-spacing: 1px;
+      }
+
+      /* Dashboard Grid */
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+      }
+
+      .dashboard-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid var(--gray-200);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s;
+        overflow: hidden;
+        min-height: 300px;
+      }
+
+      .dashboard-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .card-header {
+        padding: 24px 24px 16px 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-bottom: 1px solid var(--gray-100);
+      }
+
+      .card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+      }
+
+      .card-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--gray-900);
+      }
+
+      .card-content {
+        padding: 24px;
+        height: calc(100% - 80px);
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Investeringer Card (Purple Theme) */
+      .card-investeringer {
+        background: linear-gradient(
+          135deg,
+          rgba(99, 102, 241, 0.05) 0%,
+          rgba(139, 92, 246, 0.05) 100%
+        );
+        border-color: rgba(99, 102, 241, 0.2);
+      }
+
+      .card-investeringer .card-icon {
+        background: rgba(99, 102, 241, 0.1);
+        color: var(--primary);
+      }
+
+      .subcategories {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .subcategory-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid var(--gray-200);
+        transition: all 0.2s;
+      }
+
+      .subcategory-item:hover {
+        background: var(--gray-50);
+      }
+
+      .subcategory-name {
+        font-weight: 500;
+        color: var(--gray-700);
+      }
+
+      .subcategory-value {
+        font-weight: 600;
+        color: var(--primary);
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      .chart-preview {
+        flex: 1;
+        background: var(--gray-50);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray-500);
+        font-size: 14px;
+        margin-top: 12px;
+        min-height: 80px;
+      }
+
+      /* Placeholder Cards (Gray Theme) */
+      .card-placeholder {
+        background: var(--gray-50);
+        border-color: var(--gray-200);
+      }
+
+      .card-placeholder .card-icon {
+        background: var(--gray-200);
+        color: var(--gray-500);
+      }
+
+      .placeholder-content {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .placeholder-text {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--gray-500);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 1024px) {
+        .dashboard-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .main-header {
+          flex-direction: column;
+          gap: 16px;
+          align-items: flex-start;
+        }
+
+        .search-bar {
+          min-width: 100%;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .dashboard-content {
+          padding: 24px;
+        }
+
+        .page-title {
+          font-size: 24px;
+        }
+
+        .welcome-text {
+          font-size: 20px;
+        }
+
+        .dashboard-card {
+          min-height: 250px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Browser Container -->
+    <div class="browser-container">
+      <!-- Browser Header -->
+      <div class="browser-header">
+        <div class="browser-buttons">
+          <div class="browser-btn red"></div>
+          <div class="browser-btn yellow"></div>
+          <div class="browser-btn green"></div>
+        </div>
+        <div class="browser-url">https://lifedash.no/dashboard</div>
+        <div class="browser-title">Dashboard</div>
+      </div>
+
+      <!-- Breadcrumb Navigation -->
+      <div class="breadcrumb-nav">
+        <span class="breadcrumb-current">Dashboard</span>
+      </div>
+
+      <!-- Main Content -->
+      <div class="dashboard-content">
+        <!-- Main Header -->
+        <div class="main-header">
+          <div class="header-left">
+            <h1 class="page-title">Dashboard</h1>
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <input
+                type="text"
+                class="search-input"
+                placeholder="Søk i dashboard..."
+              />
+            </div>
+          </div>
+          <div class="header-actions">
+            <div class="header-icon">🔔</div>
+            <div class="header-icon">👤</div>
+          </div>
+        </div>
+
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+          <div class="welcome-text">WELCOME TO THE DASHBOARD</div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+          <!-- Investeringer Card -->
+          <div class="dashboard-card card-investeringer">
+            <div class="card-header">
+              <div class="card-icon">📈</div>
+              <h2 class="card-title">Investeringer</h2>
+            </div>
+            <div class="card-content">
+              <div class="subcategories">
+                <div class="subcategory-item">
+                  <span class="subcategory-name">Aksjer</span>
+                  <span class="subcategory-value">1,234</span>
+                </div>
+                <div class="subcategory-item">
+                  <span class="subcategory-name">Crypto</span>
+                  <span class="subcategory-value">1,234</span>
+                </div>
+                <div class="subcategory-item">
+                  <span class="subcategory-name">Kunst</span>
+                  <span class="subcategory-value">1,234</span>
+                </div>
+                <div class="subcategory-item">
+                  <span class="subcategory-name">Gull</span>
+                  <span class="subcategory-value">1,234</span>
+                </div>
+              </div>
+              <div class="chart-preview">📊 Chart Preview</div>
+            </div>
+          </div>
+
+          <!-- Økonomi Card -->
+          <div class="dashboard-card card-placeholder">
+            <div class="card-header">
+              <div class="card-icon">💰</div>
+              <h2 class="card-title">Økonomi</h2>
+            </div>
+            <div class="card-content">
+              <div class="placeholder-content">
+                <div class="placeholder-text">KOMMER SENERE!</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Konseptutvikling Card -->
+          <div class="dashboard-card card-placeholder">
+            <div class="card-header">
+              <div class="card-icon">💡</div>
+              <h2 class="card-title">Konseptutvikling</h2>
+            </div>
+            <div class="card-content">
+              <div class="placeholder-content">
+                <div class="placeholder-text">KOMMER SENERE!</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Verktøy Card -->
+          <div class="dashboard-card card-placeholder">
+            <div class="card-header">
+              <div class="card-icon">🔧</div>
+              <h2 class="card-title">Verktøy</h2>
+            </div>
+            <div class="card-content">
+              <div class="placeholder-content">
+                <div class="placeholder-text">KOMMER SENERE!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

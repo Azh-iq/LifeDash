@@ -28,29 +28,74 @@ interface PlatformWizardProps {
 const PlatformLogos = {
   nordnet: (
     <svg viewBox="0 0 100 100" className="h-full w-full">
-      <rect width="100" height="100" rx="20" fill="#00A9CE"/>
-      <text x="50" y="35" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">NORD</text>
-      <text x="50" y="55" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">NET</text>
-      <circle cx="50" cy="70" r="8" fill="white"/>
+      <rect width="100" height="100" rx="20" fill="#00A9CE" />
+      <text
+        x="50"
+        y="35"
+        fontSize="14"
+        fontWeight="bold"
+        fill="white"
+        textAnchor="middle"
+      >
+        NORD
+      </text>
+      <text
+        x="50"
+        y="55"
+        fontSize="14"
+        fontWeight="bold"
+        fill="white"
+        textAnchor="middle"
+      >
+        NET
+      </text>
+      <circle cx="50" cy="70" r="8" fill="white" />
     </svg>
   ),
   dnb: (
     <svg viewBox="0 0 100 100" className="h-full w-full">
-      <rect width="100" height="100" rx="12" fill="#004B87"/>
-      <rect x="20" y="30" width="60" height="8" fill="white"/>
-      <rect x="20" y="45" width="60" height="8" fill="white"/>
-      <rect x="20" y="60" width="60" height="8" fill="white"/>
-      <text x="50" y="85" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">DNB</text>
+      <rect width="100" height="100" rx="12" fill="#004B87" />
+      <rect x="20" y="30" width="60" height="8" fill="white" />
+      <rect x="20" y="45" width="60" height="8" fill="white" />
+      <rect x="20" y="60" width="60" height="8" fill="white" />
+      <text
+        x="50"
+        y="85"
+        fontSize="12"
+        fontWeight="bold"
+        fill="white"
+        textAnchor="middle"
+      >
+        DNB
+      </text>
     </svg>
   ),
   charles_schwab: (
     <svg viewBox="0 0 100 100" className="h-full w-full">
-      <rect width="100" height="100" rx="16" fill="#00A651"/>
-      <text x="50" y="40" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">CHARLES</text>
-      <text x="50" y="60" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">SCHWAB</text>
-      <circle cx="25" cy="75" r="3" fill="white"/>
-      <circle cx="50" cy="75" r="3" fill="white"/>
-      <circle cx="75" cy="75" r="3" fill="white"/>
+      <rect width="100" height="100" rx="16" fill="#00A651" />
+      <text
+        x="50"
+        y="40"
+        fontSize="12"
+        fontWeight="bold"
+        fill="white"
+        textAnchor="middle"
+      >
+        CHARLES
+      </text>
+      <text
+        x="50"
+        y="60"
+        fontSize="12"
+        fontWeight="bold"
+        fill="white"
+        textAnchor="middle"
+      >
+        SCHWAB
+      </text>
+      <circle cx="25" cy="75" r="3" fill="white" />
+      <circle cx="50" cy="75" r="3" fill="white" />
+      <circle cx="75" cy="75" r="3" fill="white" />
     </svg>
   ),
 }
@@ -285,11 +330,18 @@ function PlatformSelectionStep({
               const metadata = platformMetadata[platform.name] || {
                 logo: (
                   <svg viewBox="0 0 100 100" className="h-full w-full">
-                    <rect width="100" height="100" rx="16" fill="#6B7280"/>
-                    <rect x="25" y="35" width="50" height="30" rx="4" fill="white"/>
-                    <rect x="30" y="45" width="15" height="3" fill="#6B7280"/>
-                    <rect x="30" y="52" width="25" height="3" fill="#6B7280"/>
-                    <rect x="30" y="59" width="20" height="3" fill="#6B7280"/>
+                    <rect width="100" height="100" rx="16" fill="#6B7280" />
+                    <rect
+                      x="25"
+                      y="35"
+                      width="50"
+                      height="30"
+                      rx="4"
+                      fill="white"
+                    />
+                    <rect x="30" y="45" width="15" height="3" fill="#6B7280" />
+                    <rect x="30" y="52" width="25" height="3" fill="#6B7280" />
+                    <rect x="30" y="59" width="20" height="3" fill="#6B7280" />
                   </svg>
                 ),
                 description: platform.display_name,
@@ -363,7 +415,7 @@ function PlatformSelectionStep({
         </p>
       </div>
 
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
         {availablePlatforms.map((platform, index) => (
           <motion.div
             key={platform.id}
@@ -382,9 +434,17 @@ function PlatformSelectionStep({
 
       <div className="mx-auto max-w-3xl pt-8">
         {/* Navigation Buttons */}
-        <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:items-center md:justify-between">
-          <Button variant="outline" onClick={onBack} className="px-6 py-3 md:py-2">
-            <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+        <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
+          <Button
+            variant="outline"
+            onClick={onBack}
+            className="px-6 py-3 md:py-2"
+          >
+            <svg
+              className="mr-2 h-4 w-4"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
               <path
                 fillRule="evenodd"
                 d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
@@ -394,33 +454,38 @@ function PlatformSelectionStep({
             Tilbake
           </Button>
 
-          <div className="text-center order-first md:order-none">
+          <div className="order-first text-center md:order-none">
             <p className="text-sm text-gray-600">
               {selectedPlatforms.length} plattformer valgt
             </p>
           </div>
 
-          <div className="flex flex-col space-y-3 md:flex-row md:space-y-0 md:space-x-4">
+          <div className="flex flex-col space-y-3 md:flex-row md:space-x-4 md:space-y-0">
             {/* Skip knapp - mer synlig */}
             {onSkip && (
               <Button
                 variant="outline"
                 size="default"
                 onClick={onSkip}
-                className="text-gray-600 hover:text-gray-800 px-6 py-3 md:py-2 border-gray-300 w-full md:w-auto"
+                className="w-full border-gray-300 px-6 py-3 text-gray-600 hover:text-gray-800 md:w-auto md:py-2"
               >
                 Hopp over oppsett
               </Button>
             )}
-            
+
             {/* Hovedknapp for å fortsette */}
             <Button
               onClick={onNext}
               disabled={selectedPlatforms.length === 0}
-              className="px-8 py-3 md:py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 w-full md:w-auto"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 hover:from-blue-700 hover:to-purple-700 md:w-auto md:py-2"
             >
-              Fortsett med {selectedPlatforms.length} plattform{selectedPlatforms.length !== 1 ? 'er' : ''}
-              <svg className="ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+              Fortsett med {selectedPlatforms.length} plattform
+              {selectedPlatforms.length !== 1 ? 'er' : ''}
+              <svg
+                className="ml-2 h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
                 <path
                   fillRule="evenodd"
                   d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
@@ -463,11 +528,18 @@ function ConnectionStep({
             const metadata = platformMetadata[platform.name] || {
               logo: (
                 <svg viewBox="0 0 100 100" className="h-full w-full">
-                  <rect width="100" height="100" rx="16" fill="#6B7280"/>
-                  <rect x="25" y="35" width="50" height="30" rx="4" fill="white"/>
-                  <rect x="30" y="45" width="15" height="3" fill="#6B7280"/>
-                  <rect x="30" y="52" width="25" height="3" fill="#6B7280"/>
-                  <rect x="30" y="59" width="20" height="3" fill="#6B7280"/>
+                  <rect width="100" height="100" rx="16" fill="#6B7280" />
+                  <rect
+                    x="25"
+                    y="35"
+                    width="50"
+                    height="30"
+                    rx="4"
+                    fill="white"
+                  />
+                  <rect x="30" y="45" width="15" height="3" fill="#6B7280" />
+                  <rect x="30" y="52" width="25" height="3" fill="#6B7280" />
+                  <rect x="30" y="59" width="20" height="3" fill="#6B7280" />
                 </svg>
               ),
               description: platform.display_name,
@@ -609,7 +681,11 @@ function ConnectionStep({
         {/* Navigation Buttons */}
         <div className="flex items-center justify-between">
           <Button variant="outline" onClick={onBack} className="px-6">
-            <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+            <svg
+              className="mr-2 h-4 w-4"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
               <path
                 fillRule="evenodd"
                 d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
@@ -621,7 +697,8 @@ function ConnectionStep({
 
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              {connectedPlatforms.length} av {selectedPlatforms.length} tilkoblet
+              {connectedPlatforms.length} av {selectedPlatforms.length}{' '}
+              tilkoblet
             </p>
           </div>
 
@@ -632,20 +709,24 @@ function ConnectionStep({
                 variant="outline"
                 size="default"
                 onClick={onSkip}
-                className="text-gray-600 hover:text-gray-800 px-6 border-gray-300"
+                className="border-gray-300 px-6 text-gray-600 hover:text-gray-800"
               >
                 Hopp over oppsett
               </Button>
             )}
-            
+
             {/* Hovedknapp for å fortsette */}
-            <Button 
-              onClick={onNext} 
-              disabled={!canProceed} 
-              className="px-8 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            <Button
+              onClick={onNext}
+              disabled={!canProceed}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-2 hover:from-blue-700 hover:to-purple-700"
             >
               {canProceed ? 'Fullfør oppsett' : 'Koble til alle plattformer'}
-              <svg className="ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+              <svg
+                className="ml-2 h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
                 <path
                   fillRule="evenodd"
                   d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"

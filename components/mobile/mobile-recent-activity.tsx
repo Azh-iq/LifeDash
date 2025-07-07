@@ -693,7 +693,8 @@ export default function MobileRecentActivity({
             // Fetch the complete transaction with joined data to check if it belongs to this portfolio
             const { data: fullTransaction } = await supabase
               .from('transactions')
-              .select(`
+              .select(
+                `
                 *,
                 stocks (
                   symbol,
@@ -707,7 +708,8 @@ export default function MobileRecentActivity({
                   name,
                   portfolio_id
                 )
-              `)
+              `
+              )
               .eq('id', payload.new.id)
               .eq('account.portfolio_id', portfolioId)
               .single()

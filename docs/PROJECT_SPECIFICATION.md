@@ -1,55 +1,76 @@
-# Investment Portfolio Tracker Technical Specification
+# LifeDash Investment Portfolio Tracker - Widget-Based Architecture
 
 ## 1. Executive Summary
 
 ### Project Overview
 
-The Investment Portfolio Tracker is a comprehensive financial management system designed to aggregate, track, and analyze investment portfolios across multiple platforms and asset classes. The system prioritizes mobile-first design, real-time portfolio updates, and intelligent data management within free-tier constraints.
+LifeDash is a comprehensive Norwegian investment portfolio management system built on a modern **widget-based architecture**. The application aggregates, tracks, and analyzes investment portfolios across multiple categories (Stocks, Crypto, Art, Other) with a chart-first approach and category-specific theming. The system prioritizes desktop experience with responsive mobile adaptations, real-time portfolio updates, and data-rich visualizations.
 
-### Key Technical Decisions
+### Key Technical Decisions (2025 Widget Architecture)
 
-- **Frontend**: NextJS 14+ with App Router for optimal performance and SEO
-- **Styling**: TailwindCSS with custom design system for consistent mobile-first UI
+- **Frontend**: NextJS 14+ with App Router and widget-based component system
+- **UI Architecture**: Widget-centric design with reusable, self-contained components
+- **Charts**: Recharts with category-specific theming and real-time updates
+- **Styling**: TailwindCSS with custom category themes (Stocks: Amethyst, Crypto: Gold, Art: Rose, Other: Emerald)
+- **Animations**: Framer Motion for widget transitions and chart animations
 - **Backend**: NextJS Server Actions combined with n8n workflows for automation
 - **Database**: Supabase (PostgreSQL) with Row Level Security and real-time subscriptions
 - **Authentication**: Supabase Auth with TOTP 2FA implementation
 - **Deployment**: Vercel (frontend) with self-hosted n8n instance
-- **Data Strategy**: Compressed JSONB storage with smart archiving for free-tier optimization
+- **Data Strategy**: Widget-optimized data fetching with smart caching for performance
 
-### High-Level Architecture
+### Widget-Based Architecture (2025)
 
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│                 │     │                 │     │                 │
-│  NextJS Frontend│────▶│ Server Actions  │────▶│    Supabase     │
-│   (Vercel)      │     │   + Webhooks    │     │   PostgreSQL    │
-│                 │     │                 │     │                 │
-└─────────────────┘     └────────┬────────┘     └─────────────────┘
-                                 │                        ▲
-                                 │                        │
-                                 ▼                        │
-                        ┌─────────────────┐              │
-                        │                 │              │
-                        │  n8n Workflows  │──────────────┘
-                        │  (Self-hosted)  │
-                        │                 │
-                        └────────┬────────┘
-                                 │
-                    ┌────────────┴────────────┐
-                    ▼                         ▼
-            ┌─────────────┐           ┌─────────────┐
-            │Yahoo Finance│           │Currency APIs│
-            └─────────────┘           └─────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                Widget-Based Frontend                    │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐      │
+│  │ Chart       │ │ Data        │ │ Navigation  │      │
+│  │ Widgets     │ │ Widgets     │ │ Widgets     │      │
+│  │ - Hero      │ │ - Rich      │ │ - Enhanced  │      │
+│  │ - Category  │ │   Tables    │ │   TopNav    │      │
+│  │ - Micro     │ │ - Metrics   │ │ - Quick     │      │
+│  │ - Technical │ │ - Activity  │ │   Actions   │      │
+│  └─────────────┘ └─────────────┘ └─────────────┘      │
+└──────────────────┬──────────────────────────────────────┘
+                   │ Real-time Widget Updates
+┌─────────────────┐│     ┌─────────────────┐     ┌─────────────────┐
+│  NextJS Server  ││────▶│ Widget Data     │────▶│    Supabase     │
+│  Actions +      ││     │ Orchestration   │     │   PostgreSQL    │
+│  Category       ││     │ + Caching       │     │   + Realtime    │
+│  Theming        ││     │                 │     │                 │
+└─────────────────┘│     └─────────────────┘     └─────────────────┘
+                   │                                      ▲
+                   ▼                                      │
+          ┌─────────────────┐                            │
+          │  n8n Workflows  │────────────────────────────┘
+          │  - Price Updates│
+          │  - Chart Data   │
+          │  - Notifications│
+          └─────┬───────────┘
+                │
+    ┌───────────┴───────────┐
+    ▼                       ▼
+┌─────────────┐     ┌─────────────┐
+│Yahoo Finance│     │Currency APIs│
+│+ Technical  │     │+ Real-time  │
+│Indicators   │     │Exchange     │
+└─────────────┘     └─────────────┘
 ```
 
-### Technology Stack Summary
+### Technology Stack Summary (Widget Architecture)
 
-- **Frontend**: NextJS 14+, React 18+, TailwindCSS, Framer Motion, Recharts
+- **Frontend**: NextJS 14+, React 18+, Widget-based component system
+- **Styling**: TailwindCSS with category themes, Framer Motion animations
+- **Charts**: Recharts with custom category styling and technical indicators
+- **State**: Optimized hooks for widget data management and real-time updates
 - **Backend**: NextJS Server Actions, n8n 1.0+, Node.js 20+
-- **Database**: Supabase (PostgreSQL 15+), Redis for caching
+- **Database**: Supabase (PostgreSQL 15+) with widget-optimized queries
+- **Caching**: Redis for widget data, intelligent cache invalidation
 - **Authentication**: Supabase Auth, Speakeasy for TOTP
 - **Infrastructure**: Vercel, ngrok/Traefik, Google Drive API
 - **Development**: TypeScript 5+, ESLint, Prettier, Husky
+- **Design**: shadcn/ui base + custom widget library
 
 ## 2. System Architecture
 

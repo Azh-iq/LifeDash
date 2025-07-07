@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LifeDash - Aksjer Wireframe v2</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: rgba(0, 0, 0, 0.05);
+        color: #111827;
+        padding: 20px;
+      }
+
+      :root {
+        --stocks-primary: #6366f1;
+        --stocks-secondary: #a855f7;
+        --stocks-light: #f3f4ff;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-500: #6b7280;
+        --gray-700: #374151;
+        --gray-900: #111827;
+        --success: #22c55e;
+        --error: #ef4444;
+      }
+
+      /* Browser Container */
+      .browser-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+      }
+
+      /* Browser Header */
+      .browser-header {
+        background: var(--gray-100);
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        position: relative;
+      }
+
+      .browser-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .browser-btn {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+
+      .browser-btn.red {
+        background: #ff5f57;
+      }
+      .browser-btn.yellow {
+        background: #ffbd2e;
+      }
+      .browser-btn.green {
+        background: #28ca42;
+      }
+
+      .browser-url {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: 6px;
+        padding: 6px 12px;
+        flex: 1;
+        font-size: 14px;
+        color: var(--gray-500);
+      }
+
+      .browser-title {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        font-weight: 600;
+        color: var(--gray-900);
+      }
+
+      /* Breadcrumb Navigation */
+      .breadcrumb-nav {
+        background: white;
+        padding: 12px 24px;
+        border-bottom: 1px solid var(--gray-200);
+        font-size: 14px;
+        color: var(--gray-500);
+      }
+
+      .breadcrumb-link {
+        color: var(--gray-500);
+        text-decoration: none;
+      }
+
+      .breadcrumb-link:hover {
+        color: var(--stocks-primary);
+      }
+
+      .breadcrumb-current {
+        color: var(--stocks-primary);
+        font-weight: 600;
+      }
+
+      /* Page Header */
+      .page-header {
+        background: white;
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+      }
+
+      .page-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--stocks-primary);
+      }
+
+      .header-menu {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+      }
+
+      .menu-item {
+        padding: 8px 16px;
+        border: 1px solid var(--gray-200);
+        border-radius: 6px;
+        background: white;
+        color: var(--gray-700);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .menu-item:hover {
+        background: var(--stocks-primary);
+        color: white;
+        border-color: var(--stocks-primary);
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+      }
+
+      .header-icon {
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        color: var(--gray-500);
+      }
+
+      /* Main Content */
+      .main-content {
+        display: flex;
+        gap: 24px;
+        padding: 24px;
+        background: var(--gray-50);
+      }
+
+      .content-left {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .content-right {
+        width: 280px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      /* Chart Container */
+      .chart-container {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--gray-200);
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+
+      .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .chart-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--gray-900);
+      }
+
+      .time-range-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .time-btn {
+        padding: 6px 12px;
+        border: 1px solid var(--gray-200);
+        border-radius: 6px;
+        background: white;
+        color: var(--gray-700);
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .time-btn:hover,
+      .time-btn.active {
+        background: var(--stocks-primary);
+        color: white;
+        border-color: var(--stocks-primary);
+      }
+
+      .chart-value {
+        font-size: 28px;
+        font-weight: bold;
+        color: var(--gray-900);
+        margin-bottom: 16px;
+      }
+
+      .chart-area {
+        height: 200px;
+        background: linear-gradient(
+          135deg,
+          var(--stocks-primary) 0%,
+          var(--stocks-secondary) 100%
+        );
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .chart-area::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: linear-gradient(
+          to top,
+          rgba(255, 255, 255, 0.1) 0%,
+          transparent 100%
+        );
+      }
+
+      /* Feed Panel */
+      .feed-panel {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--gray-200);
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+
+      .feed-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-bottom: 20px;
+      }
+
+      .feed-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .feed-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .feed-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-top: 6px;
+        flex-shrink: 0;
+      }
+
+      .feed-dot.green {
+        background: var(--success);
+      }
+      .feed-dot.yellow {
+        background: #f59e0b;
+      }
+      .feed-dot.blue {
+        background: #3b82f6;
+      }
+
+      .feed-content {
+        flex: 1;
+      }
+
+      .feed-text {
+        font-size: 14px;
+        color: var(--gray-900);
+        margin-bottom: 4px;
+      }
+
+      .feed-time {
+        font-size: 12px;
+        color: var(--gray-500);
+      }
+
+      /* KPI Sidebar */
+      .kpi-sidebar {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--gray-200);
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+
+      .kpi-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-bottom: 20px;
+      }
+
+      .kpi-item {
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--gray-100);
+      }
+
+      .kpi-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .kpi-label {
+        font-size: 12px;
+        color: var(--gray-500);
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        font-weight: 600;
+      }
+
+      .kpi-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--gray-900);
+      }
+
+      /* Holdings Table */
+      .holdings-table {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--gray-200);
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .table-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--gray-900);
+      }
+
+      .table-controls {
+        display: flex;
+        gap: 8px;
+      }
+
+      .table-element {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+      }
+
+      .table-element th {
+        text-align: left;
+        padding: 12px 16px;
+        background: var(--stocks-light);
+        border: 1px solid var(--gray-200);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--stocks-primary);
+        text-transform: uppercase;
+      }
+
+      .table-element td {
+        padding: 16px;
+        border: 1px solid var(--gray-200);
+        font-size: 14px;
+      }
+
+      .table-row {
+        transition: background-color 0.2s;
+      }
+
+      .table-row:hover {
+        background: var(--gray-50);
+      }
+
+      .positive {
+        color: var(--success);
+        font-weight: 600;
+      }
+
+      .negative {
+        color: var(--error);
+        font-weight: 600;
+      }
+
+      @media (max-width: 768px) {
+        .main-content {
+          flex-direction: column;
+        }
+
+        .content-right {
+          width: 100%;
+        }
+
+        .table-element {
+          font-size: 12px;
+        }
+
+        .table-element th,
+        .table-element td {
+          padding: 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Browser Container -->
+    <div class="browser-container">
+      <!-- Browser Header -->
+      <div class="browser-header">
+        <div class="browser-buttons">
+          <div class="browser-btn red"></div>
+          <div class="browser-btn yellow"></div>
+          <div class="browser-btn green"></div>
+        </div>
+        <div class="browser-url">https://your-url.com</div>
+        <div class="browser-title">Dashboard</div>
+      </div>
+
+      <!-- Breadcrumb Navigation -->
+      <div class="breadcrumb-nav">
+        <a href="#" class="breadcrumb-link">Dashboard</a>
+        <span> › </span>
+        <a href="#" class="breadcrumb-link">Investeringer</a>
+        <span> › </span>
+        <span class="breadcrumb-current">Aksjer</span>
+      </div>
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="header-left">
+          <h1 class="page-title">Aksjer</h1>
+          <div class="header-menu">
+            <a href="#" class="menu-item">🧙‍♂️ Platform Wizard</a>
+            <a href="#" class="menu-item">📥 Import CSV</a>
+            <a href="#" class="menu-item">📤 Export CSV</a>
+          </div>
+        </div>
+        <div class="header-actions">
+          <div class="header-icon">🔔</div>
+          <div class="header-icon">👤</div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <!-- Left Content -->
+        <div class="content-left">
+          <!-- Chart Container -->
+          <div class="chart-container">
+            <div class="chart-header">
+              <h2 class="chart-title">Revenue Over Time</h2>
+              <div class="time-range-buttons">
+                <button class="time-btn">4h</button>
+                <button class="time-btn">D</button>
+                <button class="time-btn active">W</button>
+                <button class="time-btn">M</button>
+              </div>
+            </div>
+            <div class="chart-value">$89,456</div>
+            <div class="chart-area">Interactive Aksjer Chart</div>
+          </div>
+
+          <!-- Holdings Table -->
+          <div class="holdings-table">
+            <div class="table-header">
+              <h2 class="table-title">Holding</h2>
+              <div class="table-controls">
+                <button class="time-btn">D</button>
+                <button class="time-btn">W</button>
+                <button class="time-btn active">M</button>
+              </div>
+            </div>
+
+            <table class="table-element">
+              <thead>
+                <tr>
+                  <th>Broker</th>
+                  <th>Stock</th>
+                  <th>Qty</th>
+                  <th>Cost</th>
+                  <th>Change</th>
+                  <th>Pnl</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-row">
+                  <td>Nordnet</td>
+                  <td>Apple</td>
+                  <td>200</td>
+                  <td>$ 30000</td>
+                  <td class="positive">3%</td>
+                  <td class="positive">$ 5000</td>
+                </tr>
+                <tr class="table-row">
+                  <td>DNB</td>
+                  <td>Microsoft</td>
+                  <td>14</td>
+                  <td>45678 kr</td>
+                  <td class="positive">3%</td>
+                  <td class="negative">- 4567 kr</td>
+                </tr>
+                <tr class="table-row">
+                  <td>Nordnet</td>
+                  <td>Tesla</td>
+                  <td>50</td>
+                  <td>$ 25000</td>
+                  <td class="negative">-2%</td>
+                  <td class="negative">- $ 500</td>
+                </tr>
+                <tr class="table-row">
+                  <td>DNB</td>
+                  <td>Google</td>
+                  <td>25</td>
+                  <td>67890 kr</td>
+                  <td class="positive">5%</td>
+                  <td class="positive">3400 kr</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right Content -->
+        <div class="content-right">
+          <!-- Feed Panel -->
+          <div class="feed-panel">
+            <h2 class="feed-title">Feed (Patreon)</h2>
+            <div class="feed-item">
+              <div class="feed-dot green"></div>
+              <div class="feed-content">
+                <div class="feed-text">News</div>
+                <div class="feed-time">2 minutes ago</div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-dot yellow"></div>
+              <div class="feed-content">
+                <div class="feed-text">stock buy alert</div>
+                <div class="feed-time">15 minutes ago</div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-dot blue"></div>
+              <div class="feed-content">
+                <div class="feed-text">Stock sell alert</div>
+                <div class="feed-time">1 hour ago</div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-dot green"></div>
+              <div class="feed-content">
+                <div class="feed-text">Markedsrapport publisert</div>
+                <div class="feed-time">2 hours ago</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPI Sidebar -->
+          <div class="kpi-sidebar">
+            <h2 class="kpi-title">KPI</h2>
+            <div class="kpi-item">
+              <div class="kpi-label">Total Verdi</div>
+              <div class="kpi-value">NOK 1.847.250</div>
+            </div>
+            <div class="kpi-item">
+              <div class="kpi-label">Dagens Endring</div>
+              <div class="kpi-value positive">+2.4%</div>
+            </div>
+            <div class="kpi-item">
+              <div class="kpi-label">Antall Aksjer</div>
+              <div class="kpi-value">289</div>
+            </div>
+            <div class="kpi-item">
+              <div class="kpi-label">Årets Avkastning</div>
+              <div class="kpi-value positive">+12.8%</div>
+            </div>
+            <div class="kpi-item">
+              <div class="kpi-label">Risiko Score</div>
+              <div class="kpi-value">Moderat</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

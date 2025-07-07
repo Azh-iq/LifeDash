@@ -29,9 +29,9 @@ interface ToolAction {
   description?: string
 }
 
-export default function TopNavigationMenu({ 
-  portfolioId, 
-  className 
+export default function TopNavigationMenu({
+  portfolioId,
+  className,
 }: TopNavigationMenuProps) {
   const [showToolsDropdown, setShowToolsDropdown] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
@@ -51,11 +51,11 @@ export default function TopNavigationMenu({
   const handleCSVExport = useCallback(async () => {
     setShowToolsDropdown(false)
     setIsExporting(true)
-    
+
     try {
       // TODO: Implement actual CSV export
       await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate export
-      
+
       toast({
         title: 'CSV Eksportert',
         description: 'Portefølje data er eksportert som CSV fil.',
@@ -81,7 +81,7 @@ export default function TopNavigationMenu({
     if (typeof window !== 'undefined' && portfolioId) {
       const shareUrl = `${window.location.origin}/portfolios/${portfolioId}/share`
       navigator.clipboard.writeText(shareUrl)
-      
+
       toast({
         title: 'Lenke Kopiert',
         description: 'Delingslenke er kopiert til utklippstavlen.',
@@ -118,34 +118,34 @@ export default function TopNavigationMenu({
 
   return (
     <>
-      <nav className={cn(
-        'sticky top-0 z-50 w-full border-b border-blue-200/30 bg-gradient-to-r from-blue-900/95 to-blue-800/95 backdrop-blur-sm',
-        className
-      )}>
+      <nav
+        className={cn(
+          'sticky top-0 z-50 w-full border-b border-blue-200/30 bg-gradient-to-r from-blue-900/95 to-blue-800/95 backdrop-blur-sm',
+          className
+        )}
+      >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             {/* Logo/Brand */}
             <div className="flex items-center">
-              <h1 className="text-lg font-semibold text-white">
-                LifeDash
-              </h1>
+              <h1 className="text-lg font-semibold text-white">LifeDash</h1>
             </div>
 
             {/* Center Navigation */}
-            <div className="hidden md:flex items-center space-x-6">
+            <div className="hidden items-center space-x-6 md:flex">
               {/* Tools Dropdown */}
               <div className="relative">
                 <Button
                   variant="ghost"
                   onClick={() => setShowToolsDropdown(!showToolsDropdown)}
-                  className="flex items-center space-x-1 text-white/90 hover:text-white hover:bg-white/10"
+                  className="flex items-center space-x-1 text-white/90 hover:bg-white/10 hover:text-white"
                 >
                   <span>Verktøy</span>
-                  <ChevronDownIcon 
+                  <ChevronDownIcon
                     className={cn(
                       'h-4 w-4 transition-transform duration-200',
                       showToolsDropdown && 'rotate-180'
-                    )} 
+                    )}
                   />
                 </Button>
 
@@ -159,17 +159,17 @@ export default function TopNavigationMenu({
                       className="absolute right-0 mt-2 w-64 rounded-lg border border-gray-200 bg-white shadow-lg"
                     >
                       <div className="p-2">
-                        {toolActions.map((tool) => (
+                        {toolActions.map(tool => (
                           <button
                             key={tool.id}
                             onClick={tool.action}
                             disabled={isExporting && tool.id === 'csv-export'}
-                            className="flex w-full items-start space-x-3 rounded-md p-3 text-left hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex w-full items-start space-x-3 rounded-md p-3 text-left transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             <div className="flex-shrink-0 text-gray-500">
                               {tool.icon}
                             </div>
-                            <div className="flex-1 min-w-0">
+                            <div className="min-w-0 flex-1">
                               <p className="text-sm font-medium text-gray-900">
                                 {tool.label}
                                 {isExporting && tool.id === 'csv-export' && (
@@ -179,7 +179,7 @@ export default function TopNavigationMenu({
                                 )}
                               </p>
                               {tool.description && (
-                                <p className="text-xs text-gray-500 mt-1">
+                                <p className="mt-1 text-xs text-gray-500">
                                   {tool.description}
                                 </p>
                               )}
@@ -199,7 +199,7 @@ export default function TopNavigationMenu({
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowToolsDropdown(!showToolsDropdown)}
-                className="text-white/90 hover:text-white hover:bg-white/10"
+                className="text-white/90 hover:bg-white/10 hover:text-white"
               >
                 <Bars3Icon className="h-5 w-5" />
               </Button>
@@ -214,18 +214,16 @@ export default function TopNavigationMenu({
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.2 }}
-                className="md:hidden border-t border-gray-200 py-2"
+                className="border-t border-gray-200 py-2 md:hidden"
               >
-                {toolActions.map((tool) => (
+                {toolActions.map(tool => (
                   <button
                     key={tool.id}
                     onClick={tool.action}
                     disabled={isExporting && tool.id === 'csv-export'}
-                    className="flex w-full items-center space-x-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors disabled:opacity-50"
+                    className="flex w-full items-center space-x-3 px-4 py-3 text-left transition-colors hover:bg-gray-50 disabled:opacity-50"
                   >
-                    <div className="text-gray-500">
-                      {tool.icon}
-                    </div>
+                    <div className="text-gray-500">{tool.icon}</div>
                     <div>
                       <p className="text-sm font-medium text-gray-900">
                         {tool.label}
@@ -236,7 +234,7 @@ export default function TopNavigationMenu({
                         )}
                       </p>
                       {tool.description && (
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="mt-1 text-xs text-gray-500">
                           {tool.description}
                         </p>
                       )}
@@ -250,8 +248,8 @@ export default function TopNavigationMenu({
 
         {/* Click outside to close dropdown */}
         {showToolsDropdown && (
-          <div 
-            className="fixed inset-0 z-10" 
+          <div
+            className="fixed inset-0 z-10"
             onClick={() => setShowToolsDropdown(false)}
           />
         )}

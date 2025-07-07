@@ -2,34 +2,71 @@
 
 ## Project Overview
 
-LifeDash is a Norwegian investment portfolio management application built with Next.js, TypeScript, and Supabase. The application provides comprehensive portfolio tracking with real-time updates, charts, and transaction management.
+LifeDash is a Norwegian investment portfolio management application built with Next.js, TypeScript, and Supabase. The application provides comprehensive portfolio tracking with real-time updates, charts, and transaction management using a modern **widget-based architecture** with category-specific theming.
 
-## Architecture
+## 🎯 **Current Implementation Status (January 2025)**
 
-### Frontend
+### **Design Wireframes - FINAL AUTHORITY**
+
+All implementation MUST follow the wireframes located in `/wireframes/` directory:
+
+- **00-login-v2.html** - Login/registration page (Sign up form)
+- **01-hovedside-v2.html** - Main dashboard with 2x2 grid (Investeringer focus)
+- **02-investeringer-v2.html** - Investments overview with charts and KPIs
+- **03-aksjer-v2.html** - Stocks page with holdings table and feed
+- **04-aksjekort-v2.html** - Stock detail modal with tabs
+
+**⚠️ CRITICAL: These wireframes are the DEFINITIVE specification. All new development must match these designs exactly.**
+
+### **Key Implementation Requirements**
+
+1. **Wireframe Compliance**: Every page MUST match the corresponding wireframe pixel-perfect
+2. **shadcn/ui Integration**: Use shadcn/ui components for all UI elements with proper icons and animations
+3. **Norwegian Localization**: All text must be in Norwegian as shown in wireframes
+4. **Breadcrumb Navigation**: All pages must include breadcrumb navigation at top
+5. **Top Menu on Aksjer**: Include Platform Wizard, Import, Export CSV tools in menu
+6. **No URL Bar Implementation**: Browser URL bar is just visual in wireframes - use browser's native bar
+
+## Widget-Based Architecture (2025 Redesign)
+
+### Design Philosophy
+
+- **Widget-Centric**: All UI components are built as reusable, self-contained widgets
+- **Chart-First**: Charts are the primary focus with data tables as secondary support
+- **Category Theming**: Each investment category (Stocks, Crypto, Art, Other) has distinct color themes
+- **Innovation Forward**: Modern, unique design that stands out from traditional fintech apps
+- **Data Dense**: Rich information display optimized for desktop with mobile adaptations
+
+### Frontend Stack
 
 - **Framework**: Next.js 14 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS with custom components
-- **Animations**: Framer Motion
-- **UI Components**: Custom component library with shadcn/ui patterns
-- **State Management**: React hooks with custom portfolio state management
+- **Language**: TypeScript with strict mode
+- **Styling**: Tailwind CSS with custom category themes
+- **UI Library**: shadcn/ui (New York style) with custom purple theme integration
+- **Icons**: shadcn/ui icons with additional Norwegian-specific elements
+- **Charts**: Recharts with custom category-specific styling
+- **Animations**: Framer Motion for widget transitions and chart animations
+- **Components**: shadcn/ui base components extended with widget functionality
+- **State Management**: React hooks with optimized portfolio state management
 
 ### Backend
 
 - **Database**: Supabase (PostgreSQL)
 - **Authentication**: Supabase Auth
-- **Real-time**: Supabase Realtime subscriptions
+- **Real-time**: Supabase Realtime subscriptions for live price updates
 - **File Storage**: Supabase Storage
 
 ### Key Features
 
-- Portfolio management across multiple accounts and platforms
-- Real-time stock price updates
-- Interactive charts and analytics
-- CSV import for transactions
-- Mobile-responsive design
-- Platform integrations (Nordnet, Schwab)
+- **Widget-based dashboard** with hero charts and category mini-charts
+- **Real-time portfolio tracking** with live price updates and smooth animations
+- **Category-specific investment tracking** (Stocks, Crypto, Art, Other)
+- **Interactive charts** with technical indicators and time range selectors
+- **Rich data tables** with in-cell micro-charts and real-time updates
+- **Advanced filtering** and sorting across all investment categories
+- **CSV import/export** with intelligent field mapping
+- **Mobile-responsive widgets** that adapt to different screen sizes
+- **Platform integrations** (Nordnet, Schwab)
 
 ## Recent Development
 
@@ -43,7 +80,7 @@ Successfully resolved critical 400 errors and infinite loop issues that were pre
    - **Issue**: `transactions.portfolio_id` column doesn't exist in database
    - **Root Cause**: Transactions table uses `account_id` with relationship through accounts table
    - **Solution**: Updated queries to use proper `account.portfolio_id` joins
-   - **Files Fixed**: 
+   - **Files Fixed**:
      - `components/portfolio/recent-activity.tsx`
      - `components/mobile/mobile-recent-activity.tsx`
 
@@ -90,6 +127,7 @@ user_profiles → portfolios → accounts → transactions
 ```
 
 **Correct Query Pattern:**
+
 ```sql
 SELECT t.*, s.*, a.portfolio_id
 FROM transactions t
@@ -192,6 +230,110 @@ HoldingsSection row click → handleStockClick → setSelectedStock → StockDet
 - Compatible with real-time data updates
 - Properly typed for Norwegian currency (NOK)
 
+## Widget System Architecture (2025)
+
+### Widget Component Hierarchy
+
+```
+BaseWidget (container + theming)
+├── ChartWidget (chart-specific features)
+│   ├── HeroPortfolioChart (main dashboard chart)
+│   ├── CategoryMiniChart (category overview charts)
+│   ├── StockPerformanceChart (detailed stock charts)
+│   └── TechnicalIndicatorChart (RSI, MACD overlays)
+├── DataWidget (data display features)
+│   ├── HoldingsTableRich (enhanced table with micro-charts)
+│   ├── MetricsGrid (key performance metrics)
+│   ├── ActivityFeed (recent transactions/changes)
+│   └── InsightsPanel (AI-generated insights)
+└── NavigationWidget (navigation features)
+    ├── TopNavigationEnhanced (main navigation)
+    ├── CategorySelector (investment type switching)
+    └── QuickActions (import/export/actions)
+```
+
+### Category Theme System
+
+```typescript
+export const categoryThemes = {
+  stocks: {
+    primary: '#6366f1', // Deep Amethyst
+    secondary: '#a855f7', // Purple accent
+    gradient: 'from-purple-50 to-indigo-100',
+    chartGradient: 'from-purple-500/20 to-indigo-500/5',
+  },
+  crypto: {
+    primary: '#f59e0b', // Bitcoin Gold
+    secondary: '#fbbf24', // Gold accent
+    gradient: 'from-amber-50 to-yellow-100',
+    chartGradient: 'from-amber-500/20 to-yellow-500/5',
+  },
+  art: {
+    primary: '#ec4899', // Rose Pink
+    secondary: '#f472b6', // Pink accent
+    gradient: 'from-pink-50 to-rose-100',
+    chartGradient: 'from-pink-500/20 to-rose-500/5',
+  },
+  other: {
+    primary: '#10b981', // Emerald Green
+    secondary: '#34d399', // Green accent
+    gradient: 'from-emerald-50 to-green-100',
+    chartGradient: 'from-emerald-500/20 to-green-500/5',
+  },
+}
+```
+
+### Chart Strategy & Placement
+
+#### Chart Hierarchy:
+
+1. **Hero Charts** (400px height): Main dashboard portfolio performance
+2. **Secondary Charts** (300-350px height): Category-specific performance
+3. **Mini Charts** (50-100px height): In-table trend indicators
+4. **Micro Charts** (20-30px height): Inline metrics and badges
+
+#### Chart Positioning:
+
+- **Main Dashboard**: Hero chart → Category mini-charts → Metrics
+- **Stocks Page**: Stock portfolio chart → Holdings table with micro-charts
+- **Individual Stock**: Advanced chart with technical indicators
+- **Other Categories**: Category-specific chart layouts
+
+#### Interactive Features:
+
+- **Time Range Selection**: 1D, 1W, 1M, 3M, 1Y, ALL buttons
+- **Hover Interactions**: Crosshair, tooltips, value highlighting
+- **Zoom & Pan**: Chart navigation for detailed analysis
+- **Technical Indicators**: RSI, MACD, Bollinger Bands overlays
+- **Real-time Updates**: Smooth animations for live price changes
+
+### Widget Implementation Pattern
+
+```typescript
+// Base Widget Interface
+interface BaseWidgetProps {
+  title: string;
+  category?: CategoryType;
+  size: 'small' | 'medium' | 'large' | 'hero';
+  refreshable?: boolean;
+  exportable?: boolean;
+  loading?: boolean;
+  error?: string;
+  children: React.ReactNode;
+}
+
+// Widget Usage Example
+<Widget
+  title="Portfolio Performance"
+  category="stocks"
+  size="hero"
+  refreshable
+  exportable
+>
+  <HeroPortfolioChart data={portfolioData} />
+</Widget>
+```
+
 ## Development Commands
 
 ### Testing
@@ -210,35 +352,96 @@ npm run dev            # Start development server
 npm run format         # Format code with Prettier
 ```
 
-## File Structure
+## MCP Integration
+
+### Frame0 MCP Server for Wireframe Design
+
+The project includes Frame0 MCP server integration for creating wireframes during the design phase.
+
+**Configuration**: `.mcp-config.json`
+
+```json
+{
+  "mcpServers": {
+    "frame0-mcp-server": {
+      "command": "npx",
+      "args": ["-y", "frame0-mcp-server"]
+    }
+  }
+}
+```
+
+**Usage**: Used for generating detailed wireframes for widget-based layouts:
+
+- Main Investment Dashboard wireframes
+- Category-specific page layouts (Stocks, Crypto, Art, Other)
+- Widget component specifications
+- Responsive design mockups
+
+## File Structure (Widget-Based Architecture)
 
 ```
 /app/
   /investments/
+    page.tsx                   # Main investment dashboard with hero chart
     /stocks/
-      page.tsx                 # Main stocks page
+      page.tsx                 # Stocks page with category-specific widgets
+    /crypto/
+      page.tsx                 # Crypto page with gold theme
+    /art/
+      page.tsx                 # Art investments with rose theme
+    /other/
+      page.tsx                 # Other investments with green theme
+
 /components/
+  /widgets/                    # Widget-based component system
+    /base/
+      widget-container.tsx     # Base widget wrapper with theming
+      widget-header.tsx        # Standard widget header
+      widget-loader.tsx        # Loading states for widgets
+    /charts/
+      hero-portfolio-chart.tsx # Main dashboard chart (400px)
+      category-mini-chart.tsx  # Category overview charts (100px)
+      stock-performance-chart.tsx # Detailed stock charts (350px)
+      technical-indicators.tsx # RSI, MACD overlay components
+      micro-chart.tsx         # In-table trend charts (50px)
+    /data/
+      holdings-table-rich.tsx  # Enhanced table with micro-charts
+      metrics-grid.tsx         # Key metrics display widget
+      activity-feed.tsx        # Recent activity widget
+      insights-panel.tsx       # AI insights widget
+    /navigation/
+      top-nav-enhanced.tsx     # Enhanced navigation widget
+      category-selector.tsx    # Investment type switcher
+      quick-actions.tsx        # Import/export actions widget
+
   /stocks/
-    stock-detail-modal.tsx     # Stock detail modal
-  /portfolio/
-    holdings-section.tsx       # Holdings table
+    stock-detail-modal.tsx     # Enhanced stock detail with advanced charts
+  /portfolio/ (legacy)
+    holdings-section.tsx       # Legacy holdings (being replaced)
   /mobile/
-    mobile-holdings-section.tsx # Mobile holdings
-  /ui/                         # Reusable UI components
+    mobile-portfolio-dashboard.tsx # Mobile-responsive widgets
+  /ui/                         # Base UI components
     error-boundary.tsx         # Error boundary with retry functionality
-  /charts/                     # Chart components
+  /charts/ (legacy)            # Legacy chart components
+
 /lib/
-  /actions/
-    /stocks/
-      crud.ts                  # Stock data operations
   /hooks/
-    use-portfolio-state.ts     # Portfolio state management (optimized)
-    use-realtime-updates.ts    # Real-time data with connection monitoring
-    use-smart-refresh.ts       # Intelligent caching and retry logic
+    use-portfolio-state.ts     # Portfolio state with widget support
+    use-realtime-updates.ts    # Real-time data for widgets
+    use-smart-refresh.ts       # Intelligent caching
+    use-category-theme.ts      # Category theming hook
+  /utils/
+    category-themes.ts         # Category color definitions
+    chart-utils.ts            # Chart helper functions
+    widget-utils.ts           # Widget utility functions
+    format.ts                 # Norwegian formatting utilities
+  /actions/
+    /widgets/
+      chart-data.ts           # Chart data fetching
+      metrics-data.ts         # Metrics calculation
   /cache/
     portfolio-cache.ts         # TTL-based cache manager
-  /utils/
-    format.ts                  # Formatting utilities
 ```
 
 ## Code Patterns
@@ -291,6 +494,7 @@ npm run format         # Format code with Prettier
 ### Technical Debt
 
 #### Resolved (January 2025)
+
 - ✅ **Database Schema Issues**: Fixed transactions API 400 errors with proper account.portfolio_id joins
 - ✅ **Infinite Loop Issues**: Fixed useEffect dependency cycles and subscription loops
 - ✅ **Memory Leaks**: Implemented proper cleanup patterns and abort controllers
@@ -300,6 +504,7 @@ npm run format         # Format code with Prettier
 - ✅ **Real-time Subscriptions**: Fixed subscription filters to work with account relationships
 
 #### Remaining
+
 - Holding period calculations need proper date handling
 - Mobile layout optimizations for tablet sizes
 - Icon library consolidation (Heroicons vs Lucide React)

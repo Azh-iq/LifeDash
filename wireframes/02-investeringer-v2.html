@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeDash - Investments Wireframe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        /* Browser Container */
+        .browser-container {
+            max-width: 1440px;
+            margin: 20px auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Browser Header */
+        .browser-header {
+            background: #f1f5f9;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .browser-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .browser-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .browser-dot.red { background: #ef4444; }
+        .browser-dot.yellow { background: #eab308; }
+        .browser-dot.green { background: #22c55e; }
+
+        .browser-title {
+            margin-left: 16px;
+            font-weight: 600;
+            color: #475569;
+            font-size: 14px;
+        }
+
+        /* Main Layout */
+        .main-layout {
+            min-height: 100vh;
+            background: #f8fafc;
+        }
+
+        /* Breadcrumb Navigation */
+        .breadcrumb-nav {
+            background: white;
+            padding: 12px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .breadcrumb-link {
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .breadcrumb-link:hover {
+            color: #8b5cf6;
+        }
+
+        .breadcrumb-current {
+            color: #8b5cf6;
+            font-weight: 600;
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: 24px 32px;
+            background: #f8fafc;
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .notification-icon, .user-icon {
+            width: 24px;
+            height: 24px;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .notification-icon {
+            background: currentColor;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 17h5l-5-5h5l-5-5-5 5h5l-5 5h5z'/%3E%3C/svg%3E") no-repeat center;
+        }
+
+        .user-icon {
+            background: currentColor;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'/%3E%3C/svg%3E") no-repeat center;
+        }
+
+        /* Main Content Grid */
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        /* Chart Section */
+        .chart-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .chart-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .chart-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #8b5cf6;
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .chart-line {
+            position: absolute;
+            top: 20%;
+            left: 10%;
+            right: 10%;
+            height: 60%;
+            background: linear-gradient(90deg, transparent 0%, #8b5cf6 20%, #a855f7 40%, #9333ea 60%, #7c3aed 80%, #8b5cf6 100%);
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'%3E%3Cpath d='M0,180 Q50,120 100,140 T200,100 T300,80 T400,60' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E") no-repeat;
+            mask-size: 100% 100%;
+        }
+
+        .chart-dots {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .chart-dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-dot:nth-child(1) { top: 60%; left: 15%; }
+        .chart-dot:nth-child(2) { top: 45%; left: 30%; }
+        .chart-dot:nth-child(3) { top: 35%; left: 50%; }
+        .chart-dot:nth-child(4) { top: 25%; left: 70%; }
+        .chart-dot:nth-child(5) { top: 20%; left: 85%; }
+
+        /* Activity Panel */
+        .activity-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .activity-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .activity-dot.green { background: #22c55e; }
+        .activity-dot.yellow { background: #eab308; }
+        .activity-dot.blue { background: #3b82f6; }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            font-size: 14px;
+            color: #475569;
+            margin-bottom: 4px;
+        }
+
+        .activity-time {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #8b5cf6;
+        }
+
+        .kpi-label {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .kpi-change {
+            font-size: 12px;
+            color: #22c55e;
+            margin-top: 4px;
+        }
+
+        /* KPI Sidebar */
+        .kpi-sidebar {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .kpi-sidebar-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+
+        .kpi-sidebar-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .kpi-sidebar-item:last-child {
+            border-bottom: none;
+        }
+
+        .kpi-sidebar-label {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .kpi-sidebar-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Recent News */
+        .recent-news {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .recent-news-header {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+
+        .news-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .news-table th {
+            text-align: left;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .news-table td {
+            padding: 12px;
+            font-size: 14px;
+            color: #475569;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .news-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-badge.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .kpi-cards {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-area {
+                padding: 16px;
+            }
+            
+            .kpi-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="browser-container">
+        <!-- Browser Header -->
+        <div class="browser-header">
+            <div class="browser-dots">
+                <div class="browser-dot red"></div>
+                <div class="browser-dot yellow"></div>
+                <div class="browser-dot green"></div>
+            </div>
+            <div class="browser-title">Dashboard</div>
+        </div>
+
+        <!-- Breadcrumb Navigation -->
+        <div class="breadcrumb-nav">
+            <a href="#" class="breadcrumb-link">Dashboard</a>
+            <span> › </span>
+            <span class="breadcrumb-current">Investeringer</span>
+        </div>
+
+        <!-- Main Layout -->
+        <div class="main-layout">
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1 class="page-title">Investments</h1>
+                    <div class="header-actions">
+                        <div class="notification-icon"></div>
+                        <div class="user-icon"></div>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="main-content">
+                    <!-- Chart Section -->
+                    <div class="chart-section">
+                        <div class="chart-header">
+                            <h2 class="chart-title">Revenue Over Time</h2>
+                            <div class="chart-value">$89,456</div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-line"></div>
+                            <div class="chart-dots">
+                                <div class="chart-dot"></div>
+                                <div class="chart-dot"></div>
+                                <div class="chart-dot"></div>
+                                <div class="chart-dot"></div>
+                                <div class="chart-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activity Panel -->
+                    <div class="activity-panel">
+                        <h3 class="activity-header">Recent Activity</h3>
+                        <div class="activity-item">
+                            <div class="activity-dot green"></div>
+                            <div class="activity-content">
+                                <div class="activity-text">New user registered</div>
+                                <div class="activity-time">2 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-dot yellow"></div>
+                            <div class="activity-content">
+                                <div class="activity-text">Order completed</div>
+                                <div class="activity-time">5 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-dot blue"></div>
+                            <div class="activity-content">
+                                <div class="activity-text">Payment received</div>
+                                <div class="activity-time">8 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-dot green"></div>
+                            <div class="activity-content">
+                                <div class="activity-text">New portfolio created</div>
+                                <div class="activity-time">12 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-dot yellow"></div>
+                            <div class="activity-content">
+                                <div class="activity-text">Stock price alert</div>
+                                <div class="activity-time">15 minutes ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Section -->
+                <div class="kpi-grid">
+                    <div class="kpi-cards">
+                        <div class="kpi-card">
+                            <div class="kpi-label">Aksjer</div>
+                            <div class="kpi-value">$89,456</div>
+                            <div class="kpi-change">+5.2%</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">Crypto</div>
+                            <div class="kpi-value">$89,456</div>
+                            <div class="kpi-change">+12.8%</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">Kunst</div>
+                            <div class="kpi-value">$89,456</div>
+                            <div class="kpi-change">+3.1%</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">Annet</div>
+                            <div class="kpi-value">$89,456</div>
+                            <div class="kpi-change">+7.5%</div>
+                        </div>
+                    </div>
+
+                    <!-- KPI Sidebar -->
+                    <div class="kpi-sidebar">
+                        <h3 class="kpi-sidebar-header">Key Metrics</h3>
+                        <div class="kpi-sidebar-item">
+                            <span class="kpi-sidebar-label">Total Return</span>
+                            <span class="kpi-sidebar-value">+8.2%</span>
+                        </div>
+                        <div class="kpi-sidebar-item">
+                            <span class="kpi-sidebar-label">Risk Score</span>
+                            <span class="kpi-sidebar-value">Medium</span>
+                        </div>
+                        <div class="kpi-sidebar-item">
+                            <span class="kpi-sidebar-label">Diversification</span>
+                            <span class="kpi-sidebar-value">Good</span>
+                        </div>
+                        <div class="kpi-sidebar-item">
+                            <span class="kpi-sidebar-label">Holdings</span>
+                            <span class="kpi-sidebar-value">47</span>
+                        </div>
+                        <div class="kpi-sidebar-item">
+                            <span class="kpi-sidebar-label">Cash</span>
+                            <span class="kpi-sidebar-value">$12,340</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent News -->
+                <div class="recent-news">
+                    <h3 class="recent-news-header">Recent News</h3>
+                    <table class="news-table">
+                        <thead>
+                            <tr>
+                                <th>Date/Time</th>
+                                <th>Source</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2025-01-07 14:30</td>
+                                <td>E24 Nyheter</td>
+                                <td>$1,250</td>
+                                <td><span class="status-badge active">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>2025-01-07 13:45</td>
+                                <td>Finansavisen</td>
+                                <td>$2,100</td>
+                                <td><span class="status-badge pending">Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td>2025-01-07 12:15</td>
+                                <td>DN Børs</td>
+                                <td>$850</td>
+                                <td><span class="status-badge active">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>2025-01-07 11:30</td>
+                                <td>Kapital</td>
+                                <td>$3,200</td>
+                                <td><span class="status-badge inactive">Inactive</span></td>
+                            </tr>
+                            <tr>
+                                <td>2025-01-07 10:45</td>
+                                <td>Hegnar Online</td>
+                                <td>$1,800</td>
+                                <td><span class="status-badge active">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>2025-01-07 09:20</td>
+                                <td>TDN Finans</td>
+                                <td>$950</td>
+                                <td><span class="status-badge pending">Pending</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+    </div>
+</body>
+</html>

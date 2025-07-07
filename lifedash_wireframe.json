@@ -1,0 +1,965 @@
+{
+  "type": "wireframe",
+  "name": "LifeDash_Main_Dashboard",
+  "description": "Desktop-optimized investment dashboard with widget-based layout",
+  "canvas": {
+    "width": 1200,
+    "height": 1400,
+    "backgroundColor": "#f8fafc"
+  },
+  "elements": [
+    {
+      "type": "rectangle",
+      "x": 0,
+      "y": 0,
+      "width": 1200,
+      "height": 60,
+      "fill": "#ffffff",
+      "stroke": "#e5e7eb",
+      "strokeWidth": 1,
+      "name": "Navigation Bar"
+    },
+    {
+      "type": "text",
+      "x": 20,
+      "y": 35,
+      "text": "LifeDash",
+      "fontSize": 20,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "text",
+      "x": 150,
+      "y": 35,
+      "text": "Dashboard",
+      "fontSize": 14,
+      "fill": "#6366f1",
+      "fontWeight": "bold"
+    },
+    {
+      "type": "text",
+      "x": 230,
+      "y": 35,
+      "text": "Aksjer",
+      "fontSize": 14,
+      "fill": "#6b7280"
+    },
+    {
+      "type": "text",
+      "x": 290,
+      "y": 35,
+      "text": "Krypto",
+      "fontSize": 14,
+      "fill": "#6b7280"
+    },
+    {
+      "type": "text",
+      "x": 350,
+      "y": 35,
+      "text": "Kunst",
+      "fontSize": 14,
+      "fill": "#6b7280"
+    },
+    {
+      "type": "text",
+      "x": 410,
+      "y": 35,
+      "text": "Andre",
+      "fontSize": 14,
+      "fill": "#6b7280"
+    },
+    {
+      "type": "circle",
+      "x": 1150,
+      "y": 30,
+      "r": 20,
+      "fill": "#6366f1",
+      "stroke": "#ffffff",
+      "strokeWidth": 2
+    },
+    {
+      "type": "text",
+      "x": 1150,
+      "y": 35,
+      "text": "AH",
+      "fontSize": 12,
+      "fill": "#ffffff",
+      "textAnchor": "middle"
+    },
+    {
+      "type": "rectangle",
+      "x": 20,
+      "y": 80,
+      "width": 1160,
+      "height": 400,
+      "fill": "#ffffff",
+      "stroke": "#e5e7eb",
+      "strokeWidth": 1,
+      "rx": 8,
+      "name": "Hero Portfolio Chart"
+    },
+    {
+      "type": "text",
+      "x": 40,
+      "y": 110,
+      "text": "Total Porteføljesverdi",
+      "fontSize": 18,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "text",
+      "x": 1160,
+      "y": 110,
+      "text": "2,450,000 NOK",
+      "fontSize": 24,
+      "fontWeight": "bold",
+      "fill": "#1f2937",
+      "textAnchor": "end"
+    },
+    {
+      "type": "text",
+      "x": 1160,
+      "y": 135,
+      "text": "+24,500 NOK (+1.01%)",
+      "fontSize": 14,
+      "fill": "#10b981",
+      "textAnchor": "end"
+    },
+    {
+      "type": "rectangle",
+      "x": 40,
+      "y": 150,
+      "width": 1120,
+      "height": 250,
+      "fill": "#f8fafc",
+      "stroke": "#e5e7eb",
+      "strokeWidth": 1,
+      "rx": 4
+    },
+    {
+      "type": "path",
+      "x": 50,
+      "y": 160,
+      "path": "M 0 200 Q 200 180 400 160 T 800 140 T 1100 120",
+      "stroke": "#6366f1",
+      "strokeWidth": 3,
+      "fill": "none"
+    },
+    {
+      "type": "path",
+      "x": 50,
+      "y": 160,
+      "path": "M 0 210 Q 200 190 400 170 T 800 150 T 1100 130",
+      "stroke": "#f59e0b",
+      "strokeWidth": 2,
+      "fill": "none"
+    },
+    {
+      "type": "path",
+      "x": 50,
+      "y": 160,
+      "path": "M 0 220 Q 200 200 400 180 T 800 160 T 1100 140",
+      "stroke": "#ec4899",
+      "strokeWidth": 2,
+      "fill": "none"
+    },
+    {
+      "type": "path",
+      "x": 50,
+      "y": 160,
+      "path": "M 0 230 Q 200 210 400 190 T 800 170 T 1100 150",
+      "stroke": "#10b981",
+      "strokeWidth": 2,
+      "fill": "none"
+    },
+    {
+      "type": "rectangle",
+      "x": 40,
+      "y": 420,
+      "width": 50,
+      "height": 25,
+      "fill": "#f3f4f6",
+      "stroke": "#d1d5db",
+      "strokeWidth": 1,
+      "rx": 4
+    },
+    {
+      "type": "text",
+      "x": 65,
+      "y": 435,
+      "text": "1D",
+      "fontSize": 12,
+      "fill": "#374151",
+      "textAnchor": "middle"
+    },
+    {
+      "type": "rectangle",
+      "x": 100,
+      "y": 420,
+      "width": 50,
+      "height": 25,
+      "fill": "#f3f4f6",
+      "stroke": "#d1d5db",
+      "strokeWidth": 1,
+      "rx": 4
+    },
+    {
+      "type": "text",
+      "x": 125,
+      "y": 435,
+      "text": "1W",
+      "fontSize": 12,
+      "fill": "#374151",
+      "textAnchor": "middle"
+    },
+    {
+      "type": "rectangle",
+      "x": 160,
+      "y": 420,
+      "width": 50,
+      "height": 25,
+      "fill": "#6366f1",
+      "stroke": "#6366f1",
+      "strokeWidth": 1,
+      "rx": 4
+    },
+    {
+      "type": "text",
+      "x": 185,
+      "y": 435,
+      "text": "1M",
+      "fontSize": 12,
+      "fill": "#ffffff",
+      "textAnchor": "middle"
+    },
+    {
+      "type": "rectangle",
+      "x": 220,
+      "y": 420,
+      "width": 50,
+      "height": 25,
+      "fill": "#f3f4f6",
+      "stroke": "#d1d5db",
+      "strokeWidth": 1,
+      "rx": 4
+    },
+    {
+      "type": "text",
+      "x": 245,
+      "y": 435,
+      "text": "3M",
+      "fontSize": 12,
+      "fill": "#374151",
+      "textAnchor": "middle"
+    },
+    {
+      "type": "rectangle",
+      "x": 280,
+      "y": 420,
+      "width": 50,
+      "height": 25,
+      "fill": "#f3f4f6",
+      "stroke": "#d1d5db",
+      "strokeWidth": 1,
+      "rx": 4
+    },
+    {
+      "type": "text",
+      "x": 305,
+      "y": 435,
+      "text": "1Y",
+      "fontSize": 12,
+      "fill": "#374151",
+      "textAnchor": "middle"
+    },
+    {
+      "type": "rectangle",
+      "x": 340,
+      "y": 420,
+      "width": 50,
+      "height": 25,
+      "fill": "#f3f4f6",
+      "stroke": "#d1d5db",
+      "strokeWidth": 1,
+      "rx": 4
+    },
+    {
+      "type": "text",
+      "x": 365,
+      "y": 435,
+      "text": "ALL",
+      "fontSize": 12,
+      "fill": "#374151",
+      "textAnchor": "middle"
+    },
+    {
+      "type": "rectangle",
+      "x": 20,
+      "y": 500,
+      "width": 275,
+      "height": 250,
+      "fill": "#ffffff",
+      "stroke": "#e5e7eb",
+      "strokeWidth": 1,
+      "rx": 8,
+      "name": "Stocks Widget"
+    },
+    {
+      "type": "rectangle",
+      "x": 20,
+      "y": 500,
+      "width": 275,
+      "height": 4,
+      "fill": "#6366f1",
+      "rx": 8
+    },
+    {
+      "type": "text",
+      "x": 35,
+      "y": 535,
+      "text": "📈 Aksjer",
+      "fontSize": 16,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "text",
+      "x": 280,
+      "y": 535,
+      "text": "60%",
+      "fontSize": 14,
+      "fill": "#6b7280",
+      "textAnchor": "end"
+    },
+    {
+      "type": "text",
+      "x": 35,
+      "y": 560,
+      "text": "1,470,000 NOK",
+      "fontSize": 18,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "text",
+      "x": 35,
+      "y": 580,
+      "text": "+18,500 NOK (+1.27%)",
+      "fontSize": 12,
+      "fill": "#10b981"
+    },
+    {
+      "type": "rectangle",
+      "x": 35,
+      "y": 600,
+      "width": 245,
+      "height": 80,
+      "fill": "#f8fafc",
+      "stroke": "#e5e7eb",
+      "strokeWidth": 1
+    },
+    {
+      "type": "path",
+      "x": 35,
+      "y": 600,
+      "path": "M 0 40 Q 61 30 122 35 T 245 25",
+      "stroke": "#6366f1",
+      "strokeWidth": 2,
+      "fill": "none"
+    },
+    {
+      "type": "rectangle",
+      "x": 305,
+      "y": 500,
+      "width": 275,
+      "height": 250,
+      "fill": "#ffffff",
+      "stroke": "#e5e7eb",
+      "strokeWidth": 1,
+      "rx": 8,
+      "name": "Crypto Widget"
+    },
+    {
+      "type": "rectangle",
+      "x": 305,
+      "y": 500,
+      "width": 275,
+      "height": 4,
+      "fill": "#f59e0b",
+      "rx": 8
+    },
+    {
+      "type": "text",
+      "x": 320,
+      "y": 535,
+      "text": "₿ Krypto",
+      "fontSize": 16,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "text",
+      "x": 565,
+      "y": 535,
+      "text": "25%",
+      "fontSize": 14,
+      "fill": "#6b7280",
+      "textAnchor": "end"
+    },
+    {
+      "type": "text",
+      "x": 320,
+      "y": 560,
+      "text": "612,500 NOK",
+      "fontSize": 18,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "text",
+      "x": 320,
+      "y": 580,
+      "text": "+4,200 NOK (+0.69%)",
+      "fontSize": 12,
+      "fill": "#10b981"
+    },
+    {
+      "type": "rectangle",
+      "x": 320,
+      "y": 600,
+      "width": 245,
+      "height": 80,
+      "fill": "#f8fafc",
+      "stroke": "#e5e7eb",
+      "strokeWidth": 1
+    },
+    {
+      "type": "path",
+      "x": 320,
+      "y": 600,
+      "path": "M 0 40 Q 61 30 122 35 T 245 25",
+      "stroke": "#f59e0b",
+      "strokeWidth": 2,
+      "fill": "none"
+    },
+    {
+      "type": "rectangle",
+      "x": 590,
+      "y": 500,
+      "width": 275,
+      "height": 250,
+      "fill": "#ffffff",
+      "stroke": "#e5e7eb",
+      "strokeWidth": 1,
+      "rx": 8,
+      "name": "Art Widget"
+    },
+    {
+      "type": "rectangle",
+      "x": 590,
+      "y": 500,
+      "width": 275,
+      "height": 4,
+      "fill": "#ec4899",
+      "rx": 8
+    },
+    {
+      "type": "text",
+      "x": 605,
+      "y": 535,
+      "text": "🎨 Kunst",
+      "fontSize": 16,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "text",
+      "x": 850,
+      "y": 535,
+      "text": "10%",
+      "fontSize": 14,
+      "fill": "#6b7280",
+      "textAnchor": "end"
+    },
+    {
+      "type": "text",
+      "x": 605,
+      "y": 560,
+      "text": "245,000 NOK",
+      "fontSize": 18,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "text",
+      "x": 605,
+      "y": 580,
+      "text": "+1,200 NOK (+0.49%)",
+      "fontSize": 12,
+      "fill": "#10b981"
+    },
+    {
+      "type": "rectangle",
+      "x": 605,
+      "y": 600,
+      "width": 245,
+      "height": 80,
+      "fill": "#f8fafc",
+      "stroke": "#e5e7eb",
+      "strokeWidth": 1
+    },
+    {
+      "type": "path",
+      "x": 605,
+      "y": 600,
+      "path": "M 0 40 Q 61 30 122 35 T 245 25",
+      "stroke": "#ec4899",
+      "strokeWidth": 2,
+      "fill": "none"
+    },
+    {
+      "type": "rectangle",
+      "x": 875,
+      "y": 500,
+      "width": 305,
+      "height": 250,
+      "fill": "#ffffff",
+      "stroke": "#e5e7eb",
+      "strokeWidth": 1,
+      "rx": 8,
+      "name": "Other Widget"
+    },
+    {
+      "type": "rectangle",
+      "x": 875,
+      "y": 500,
+      "width": 305,
+      "height": 4,
+      "fill": "#10b981",
+      "rx": 8
+    },
+    {
+      "type": "text",
+      "x": 890,
+      "y": 535,
+      "text": "📦 Andre",
+      "fontSize": 16,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "text",
+      "x": 1165,
+      "y": 535,
+      "text": "5%",
+      "fontSize": 14,
+      "fill": "#6b7280",
+      "textAnchor": "end"
+    },
+    {
+      "type": "text",
+      "x": 890,
+      "y": 560,
+      "text": "122,500 NOK",
+      "fontSize": 18,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "text",
+      "x": 890,
+      "y": 580,
+      "text": "+600 NOK (+0.49%)",
+      "fontSize": 12,
+      "fill": "#10b981"
+    },
+    {
+      "type": "rectangle",
+      "x": 890,
+      "y": 600,
+      "width": 275,
+      "height": 80,
+      "fill": "#f8fafc",
+      "stroke": "#e5e7eb",
+      "strokeWidth": 1
+    },
+    {
+      "type": "path",
+      "x": 890,
+      "y": 600,
+      "path": "M 0 40 Q 69 30 137 35 T 275 25",
+      "stroke": "#10b981",
+      "strokeWidth": 2,
+      "fill": "none"
+    },
+    {
+      "type": "rectangle",
+      "x": 20,
+      "y": 770,
+      "width": 1160,
+      "height": 80,
+      "fill": "#f9fafb",
+      "stroke": "#e5e7eb",
+      "strokeWidth": 1,
+      "rx": 8,
+      "name": "Quick Actions Bar"
+    },
+    {
+      "type": "rectangle",
+      "x": 370,
+      "y": 790,
+      "width": 180,
+      "height": 40,
+      "fill": "#6366f1",
+      "stroke": "#6366f1",
+      "strokeWidth": 1,
+      "rx": 6
+    },
+    {
+      "type": "text",
+      "x": 460,
+      "y": 815,
+      "text": "📤 Importer CSV",
+      "fontSize": 14,
+      "fill": "#ffffff",
+      "textAnchor": "middle"
+    },
+    {
+      "type": "rectangle",
+      "x": 570,
+      "y": 790,
+      "width": 180,
+      "height": 40,
+      "fill": "#ffffff",
+      "stroke": "#6366f1",
+      "strokeWidth": 1,
+      "rx": 6
+    },
+    {
+      "type": "text",
+      "x": 660,
+      "y": 815,
+      "text": "➕ Legg til Transaksjon",
+      "fontSize": 14,
+      "fill": "#6366f1",
+      "textAnchor": "middle"
+    },
+    {
+      "type": "rectangle",
+      "x": 770,
+      "y": 790,
+      "width": 180,
+      "height": 40,
+      "fill": "#ffffff",
+      "stroke": "#6366f1",
+      "strokeWidth": 1,
+      "rx": 6
+    },
+    {
+      "type": "text",
+      "x": 860,
+      "y": 815,
+      "text": "📥 Eksporter Rapport",
+      "fontSize": 14,
+      "fill": "#6366f1",
+      "textAnchor": "middle"
+    },
+    {
+      "type": "rectangle",
+      "x": 20,
+      "y": 870,
+      "width": 1160,
+      "height": 120,
+      "fill": "#ffffff",
+      "stroke": "#e5e7eb",
+      "strokeWidth": 1,
+      "rx": 8,
+      "name": "Performance Metrics"
+    },
+    {
+      "type": "text",
+      "x": 40,
+      "y": 900,
+      "text": "I dag",
+      "fontSize": 14,
+      "fill": "#6b7280"
+    },
+    {
+      "type": "text",
+      "x": 40,
+      "y": 925,
+      "text": "+24,500 NOK",
+      "fontSize": 18,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "text",
+      "x": 40,
+      "y": 945,
+      "text": "+1.01% ↗",
+      "fontSize": 14,
+      "fill": "#10b981"
+    },
+    {
+      "type": "text",
+      "x": 330,
+      "y": 900,
+      "text": "7 dager",
+      "fontSize": 14,
+      "fill": "#6b7280"
+    },
+    {
+      "type": "text",
+      "x": 330,
+      "y": 925,
+      "text": "+67,800 NOK",
+      "fontSize": 18,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "text",
+      "x": 330,
+      "y": 945,
+      "text": "+2.84% ↗",
+      "fontSize": 14,
+      "fill": "#10b981"
+    },
+    {
+      "type": "text",
+      "x": 620,
+      "y": 900,
+      "text": "30 dager",
+      "fontSize": 14,
+      "fill": "#6b7280"
+    },
+    {
+      "type": "text",
+      "x": 620,
+      "y": 925,
+      "text": "+156,300 NOK",
+      "fontSize": 18,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "text",
+      "x": 620,
+      "y": 945,
+      "text": "+6.81% ↗",
+      "fontSize": 14,
+      "fill": "#10b981"
+    },
+    {
+      "type": "text",
+      "x": 910,
+      "y": 900,
+      "text": "Hittil i år",
+      "fontSize": 14,
+      "fill": "#6b7280"
+    },
+    {
+      "type": "text",
+      "x": 910,
+      "y": 925,
+      "text": "+289,400 NOK",
+      "fontSize": 18,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "text",
+      "x": 910,
+      "y": 945,
+      "text": "+13.38% ↗",
+      "fontSize": 14,
+      "fill": "#10b981"
+    },
+    {
+      "type": "rectangle",
+      "x": 20,
+      "y": 1010,
+      "width": 1160,
+      "height": 300,
+      "fill": "#ffffff",
+      "stroke": "#e5e7eb",
+      "strokeWidth": 1,
+      "rx": 8,
+      "name": "Recent Activity Feed"
+    },
+    {
+      "type": "text",
+      "x": 40,
+      "y": 1040,
+      "text": "Nylige Aktiviteter",
+      "fontSize": 18,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "circle",
+      "x": 60,
+      "y": 1075,
+      "r": 6,
+      "fill": "#10b981"
+    },
+    {
+      "type": "text",
+      "x": 80,
+      "y": 1075,
+      "text": "KJØP AAPL",
+      "fontSize": 14,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "text",
+      "x": 80,
+      "y": 1095,
+      "text": "25,000 NOK",
+      "fontSize": 12,
+      "fill": "#6b7280"
+    },
+    {
+      "type": "text",
+      "x": 1160,
+      "y": 1080,
+      "text": "2 timer siden",
+      "fontSize": 12,
+      "fill": "#9ca3af",
+      "textAnchor": "end"
+    },
+    {
+      "type": "circle",
+      "x": 60,
+      "y": 1125,
+      "r": 6,
+      "fill": "#ef4444"
+    },
+    {
+      "type": "text",
+      "x": 80,
+      "y": 1125,
+      "text": "SALG TSLA",
+      "fontSize": 14,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "text",
+      "x": 80,
+      "y": 1145,
+      "text": "18,500 NOK",
+      "fontSize": 12,
+      "fill": "#6b7280"
+    },
+    {
+      "type": "text",
+      "x": 1160,
+      "y": 1130,
+      "text": "5 timer siden",
+      "fontSize": 12,
+      "fill": "#9ca3af",
+      "textAnchor": "end"
+    },
+    {
+      "type": "circle",
+      "x": 60,
+      "y": 1175,
+      "r": 6,
+      "fill": "#6366f1"
+    },
+    {
+      "type": "text",
+      "x": 80,
+      "y": 1175,
+      "text": "UTBYTTE MSFT",
+      "fontSize": 14,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "text",
+      "x": 80,
+      "y": 1195,
+      "text": "1,200 NOK",
+      "fontSize": 12,
+      "fill": "#6b7280"
+    },
+    {
+      "type": "text",
+      "x": 1160,
+      "y": 1180,
+      "text": "1 dag siden",
+      "fontSize": 12,
+      "fill": "#9ca3af",
+      "textAnchor": "end"
+    },
+    {
+      "type": "circle",
+      "x": 60,
+      "y": 1225,
+      "r": 6,
+      "fill": "#f59e0b"
+    },
+    {
+      "type": "text",
+      "x": 80,
+      "y": 1225,
+      "text": "KJØP BTC",
+      "fontSize": 14,
+      "fontWeight": "bold",
+      "fill": "#1f2937"
+    },
+    {
+      "type": "text",
+      "x": 80,
+      "y": 1245,
+      "text": "50,000 NOK",
+      "fontSize": 12,
+      "fill": "#6b7280"
+    },
+    {
+      "type": "text",
+      "x": 1160,
+      "y": 1230,
+      "text": "3 dager siden",
+      "fontSize": 12,
+      "fill": "#9ca3af",
+      "textAnchor": "end"
+    },
+    {
+      "type": "circle",
+      "x": 1160,
+      "y": 1280,
+      "r": 3,
+      "fill": "#d1d5db"
+    },
+    {
+      "type": "circle",
+      "x": 1130,
+      "y": 1280,
+      "r": 3,
+      "fill": "#d1d5db"
+    },
+    {
+      "type": "circle",
+      "x": 1100,
+      "y": 1280,
+      "r": 3,
+      "fill": "#6366f1"
+    },
+    {
+      "type": "text",
+      "x": 40,
+      "y": 1285,
+      "text": "Se alle aktiviteter →",
+      "fontSize": 14,
+      "fill": "#6366f1",
+      "textDecoration": "underline"
+    }
+  ]
+}

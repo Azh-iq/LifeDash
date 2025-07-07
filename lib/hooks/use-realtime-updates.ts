@@ -762,10 +762,7 @@ export function useRealtimeUpdates(
         unsubscribeFromPortfolio(portfolioId)
       }
     }
-  }, [
-    portfolioId,
-    connectionState.isConnected,
-  ]) // Remove function dependencies to prevent infinite loops
+  }, [portfolioId, connectionState.isConnected]) // Remove function dependencies to prevent infinite loops
 
   // Connection monitoring - use stable refs to avoid dependency issues
   useEffect(() => {

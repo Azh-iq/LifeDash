@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LifeDash - Login Wireframe v2</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: rgba(0, 0, 0, 0.05);
+        color: #111827;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      :root {
+        --primary: #6366f1;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-500: #6b7280;
+        --gray-900: #111827;
+      }
+
+      /* Browser Container */
+      .browser-container {
+        width: 100%;
+        max-width: 800px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+      }
+
+      /* Browser Header */
+      .browser-header {
+        background: var(--gray-100);
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .browser-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .browser-btn {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+
+      .browser-btn.red {
+        background: #ff5f57;
+      }
+
+      .browser-btn.yellow {
+        background: #ffbd2e;
+      }
+
+      .browser-btn.green {
+        background: #28ca42;
+      }
+
+      .browser-url {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: 6px;
+        padding: 6px 12px;
+        flex: 1;
+        font-size: 14px;
+        color: var(--gray-500);
+      }
+
+      .browser-title {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        font-weight: 600;
+        color: var(--gray-900);
+      }
+
+      /* Main Content */
+      .login-content {
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: white;
+      }
+
+      /* Logo Section */
+      .logo-section {
+        margin-bottom: 40px;
+        text-align: center;
+      }
+
+      .logo-placeholder {
+        width: 80px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px auto;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .logo-label {
+        font-size: 14px;
+        color: var(--gray-500);
+        margin-bottom: 16px;
+      }
+
+      .page-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: var(--gray-900);
+      }
+
+      /* Form Section */
+      .form-container {
+        width: 100%;
+        max-width: 320px;
+      }
+
+      .form-group {
+        margin-bottom: 24px;
+      }
+
+      .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-bottom: 8px;
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid var(--gray-200);
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.2s;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      }
+
+      .form-input::placeholder {
+        color: var(--gray-500);
+      }
+
+      /* Buttons */
+      .btn {
+        width: 100%;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #5856eb;
+      }
+
+      .btn-secondary {
+        background: var(--gray-100);
+        color: var(--gray-700);
+        border: 1px solid var(--gray-200);
+      }
+
+      .btn-secondary:hover {
+        background: var(--gray-200);
+      }
+
+      /* Divider */
+      .divider {
+        display: flex;
+        align-items: center;
+        margin: 24px 0;
+        gap: 16px;
+      }
+
+      .divider-line {
+        flex: 1;
+        height: 1px;
+        background: var(--gray-200);
+      }
+
+      .divider-text {
+        color: var(--gray-500);
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      /* Social Buttons */
+      .social-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 32px;
+      }
+
+      /* Footer */
+      .login-footer {
+        text-align: center;
+        font-size: 14px;
+        color: var(--gray-500);
+      }
+
+      .login-link {
+        color: var(--primary);
+        text-decoration: underline;
+        font-weight: 600;
+      }
+
+      .login-link:hover {
+        color: #5856eb;
+      }
+
+      @media (max-width: 640px) {
+        .login-content {
+          padding: 40px 20px;
+        }
+
+        .form-container {
+          max-width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Browser Container -->
+    <div class="browser-container">
+      <!-- Browser Header -->
+      <div class="browser-header">
+        <div class="browser-buttons">
+          <div class="browser-btn red"></div>
+          <div class="browser-btn yellow"></div>
+          <div class="browser-btn green"></div>
+        </div>
+        <div class="browser-url">https://your-url.com</div>
+        <div class="browser-title">Sign up</div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="login-content">
+        <!-- Logo Section -->
+        <div class="logo-section">
+          <div class="logo-placeholder">L</div>
+          <div class="logo-label">Logo</div>
+          <h1 class="page-title">Sign up</h1>
+        </div>
+
+        <!-- Form -->
+        <div class="form-container">
+          <form>
+            <!-- Email -->
+            <div class="form-group">
+              <label class="form-label" for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                class="form-input"
+                placeholder="din@email.com"
+              />
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+              <label class="form-label" for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                class="form-input"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-group">
+              <label class="form-label" for="confirm-password"
+                >Confirm Password</label
+              >
+              <input
+                type="password"
+                id="confirm-password"
+                class="form-input"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary">
+                Create Account
+              </button>
+            </div>
+          </form>
+
+          <!-- Divider -->
+          <div class="divider">
+            <div class="divider-line"></div>
+            <div class="divider-text">OR</div>
+            <div class="divider-line"></div>
+          </div>
+
+          <!-- Social Login -->
+          <div class="social-buttons">
+            <button type="button" class="btn btn-secondary">
+              Sign up with Google
+            </button>
+            <button type="button" class="btn btn-secondary">
+              Sign up with Twitter
+            </button>
+          </div>
+
+          <!-- Footer -->
+          <div class="login-footer">
+            Already a member?
+            <a href="#" class="login-link">Login</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
