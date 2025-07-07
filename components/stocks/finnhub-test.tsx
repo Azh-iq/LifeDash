@@ -4,12 +4,12 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { 
-  fetchRealStockPrices, 
+import {
+  fetchRealStockPrices,
   testFinnhubConnection,
   getNorwegianStockSymbols,
   getUSStockSymbols,
-  type StockPrice 
+  type StockPrice,
 } from '@/lib/utils/finnhub-api'
 
 export default function FinnhubTest() {
@@ -30,8 +30,8 @@ export default function FinnhubTest() {
         ...prev,
         connection: {
           success: false,
-          message: `Connection test failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-        }
+          message: `Connection test failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        },
       }))
     }
     setIsLoading(false)
@@ -49,11 +49,13 @@ export default function FinnhubTest() {
         norwegianStocks: {
           success: false,
           data: [],
-          errors: [{
-            code: 'TEST_ERROR',
-            message: error instanceof Error ? error.message : 'Unknown error'
-          }]
-        }
+          errors: [
+            {
+              code: 'TEST_ERROR',
+              message: error instanceof Error ? error.message : 'Unknown error',
+            },
+          ],
+        },
       }))
     }
     setIsLoading(false)
@@ -71,11 +73,13 @@ export default function FinnhubTest() {
         usStocks: {
           success: false,
           data: [],
-          errors: [{
-            code: 'TEST_ERROR',
-            message: error instanceof Error ? error.message : 'Unknown error'
-          }]
-        }
+          errors: [
+            {
+              code: 'TEST_ERROR',
+              message: error instanceof Error ? error.message : 'Unknown error',
+            },
+          ],
+        },
       }))
     }
     setIsLoading(false)
@@ -89,7 +93,9 @@ export default function FinnhubTest() {
     const isPositive = change >= 0
     return (
       <span className={isPositive ? 'text-green-600' : 'text-red-600'}>
-        {isPositive ? '+' : ''}{change.toFixed(2)} ({isPositive ? '+' : ''}{changePercent.toFixed(2)}%)
+        {isPositive ? '+' : ''}
+        {change.toFixed(2)} ({isPositive ? '+' : ''}
+        {changePercent.toFixed(2)}%)
       </span>
     )
   }
@@ -105,8 +111,8 @@ export default function FinnhubTest() {
       <CardContent className="space-y-4">
         {/* Connection Test */}
         <div className="space-y-2">
-          <Button 
-            onClick={testConnection} 
+          <Button
+            onClick={testConnection}
             disabled={isLoading}
             variant="outline"
             size="sm"
@@ -114,17 +120,37 @@ export default function FinnhubTest() {
             Test API Connection
           </Button>
           {testResults.connection && (
-            <div className={`p-3 rounded border ${
-              testResults.connection.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
-            }`}>
+            <div
+              className={`rounded border p-3 ${
+                testResults.connection.success
+                  ? 'border-green-200 bg-green-50'
+                  : 'border-red-200 bg-red-50'
+              }`}
+            >
               <p className="text-sm font-medium">
-                {testResults.connection.success ? '✅' : '❌'} {testResults.connection.message}
+                {testResults.connection.success ? '✅' : '❌'}{' '}
+                {testResults.connection.message}
               </p>
               {testResults.connection.testData && (
                 <div className="mt-2 text-xs">
-                  <p><strong>AAPL:</strong> {formatPrice(testResults.connection.testData.price, testResults.connection.testData.currency)}</p>
-                  <p><strong>Change:</strong> {formatChange(testResults.connection.testData.change, testResults.connection.testData.changePercent)}</p>
-                  <p><strong>Market:</strong> {testResults.connection.testData.marketState}</p>
+                  <p>
+                    <strong>AAPL:</strong>{' '}
+                    {formatPrice(
+                      testResults.connection.testData.price,
+                      testResults.connection.testData.currency
+                    )}
+                  </p>
+                  <p>
+                    <strong>Change:</strong>{' '}
+                    {formatChange(
+                      testResults.connection.testData.change,
+                      testResults.connection.testData.changePercent
+                    )}
+                  </p>
+                  <p>
+                    <strong>Market:</strong>{' '}
+                    {testResults.connection.testData.marketState}
+                  </p>
                 </div>
               )}
             </div>
@@ -133,8 +159,8 @@ export default function FinnhubTest() {
 
         {/* Norwegian Stocks Test */}
         <div className="space-y-2">
-          <Button 
-            onClick={testNorwegianStocks} 
+          <Button
+            onClick={testNorwegianStocks}
             disabled={isLoading}
             variant="outline"
             size="sm"
@@ -142,20 +168,30 @@ export default function FinnhubTest() {
             Test Norske Aksjer (EQNR.OL, DNB.OL)
           </Button>
           {testResults.norwegianStocks && (
-            <div className={`p-3 rounded border ${
-              testResults.norwegianStocks.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
-            }`}>
-              <p className="text-sm font-medium mb-2">
-                {testResults.norwegianStocks.success ? '✅' : '❌'} Norske Aksjer
+            <div
+              className={`rounded border p-3 ${
+                testResults.norwegianStocks.success
+                  ? 'border-green-200 bg-green-50'
+                  : 'border-red-200 bg-red-50'
+              }`}
+            >
+              <p className="mb-2 text-sm font-medium">
+                {testResults.norwegianStocks.success ? '✅' : '❌'} Norske
+                Aksjer
               </p>
               {testResults.norwegianStocks.data.map(stock => (
-                <div key={stock.symbol} className="text-xs mb-1">
-                  <strong>{stock.symbol}:</strong> {formatPrice(stock.price, stock.currency)} - {formatChange(stock.change, stock.changePercent)}
+                <div key={stock.symbol} className="mb-1 text-xs">
+                  <strong>{stock.symbol}:</strong>{' '}
+                  {formatPrice(stock.price, stock.currency)} -{' '}
+                  {formatChange(stock.change, stock.changePercent)}
                 </div>
               ))}
               {testResults.norwegianStocks.errors.length > 0 && (
-                <p className="text-xs text-red-600 mt-2">
-                  Errors: {testResults.norwegianStocks.errors.map(e => e.message).join(', ')}
+                <p className="mt-2 text-xs text-red-600">
+                  Errors:{' '}
+                  {testResults.norwegianStocks.errors
+                    .map(e => e.message)
+                    .join(', ')}
                 </p>
               )}
             </div>
@@ -164,8 +200,8 @@ export default function FinnhubTest() {
 
         {/* US Stocks Test */}
         <div className="space-y-2">
-          <Button 
-            onClick={testUSStocks} 
+          <Button
+            onClick={testUSStocks}
             disabled={isLoading}
             variant="outline"
             size="sm"
@@ -173,30 +209,45 @@ export default function FinnhubTest() {
             Test Amerikanske Aksjer (AAPL, TSLA)
           </Button>
           {testResults.usStocks && (
-            <div className={`p-3 rounded border ${
-              testResults.usStocks.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
-            }`}>
-              <p className="text-sm font-medium mb-2">
+            <div
+              className={`rounded border p-3 ${
+                testResults.usStocks.success
+                  ? 'border-green-200 bg-green-50'
+                  : 'border-red-200 bg-red-50'
+              }`}
+            >
+              <p className="mb-2 text-sm font-medium">
                 {testResults.usStocks.success ? '✅' : '❌'} Amerikanske Aksjer
               </p>
               {testResults.usStocks.data.map(stock => (
-                <div key={stock.symbol} className="text-xs mb-1">
-                  <strong>{stock.symbol}:</strong> {formatPrice(stock.price, stock.currency)} - {formatChange(stock.change, stock.changePercent)}
+                <div key={stock.symbol} className="mb-1 text-xs">
+                  <strong>{stock.symbol}:</strong>{' '}
+                  {formatPrice(stock.price, stock.currency)} -{' '}
+                  {formatChange(stock.change, stock.changePercent)}
                 </div>
               ))}
               {testResults.usStocks.errors.length > 0 && (
-                <p className="text-xs text-red-600 mt-2">
-                  Errors: {testResults.usStocks.errors.map(e => e.message).join(', ')}
+                <p className="mt-2 text-xs text-red-600">
+                  Errors:{' '}
+                  {testResults.usStocks.errors.map(e => e.message).join(', ')}
                 </p>
               )}
             </div>
           )}
         </div>
 
-        <div className="pt-2 border-t text-xs text-gray-500">
-          <p><strong>API Info:</strong> Finnhub.io free tier (60 calls/minute)</p>
-          <p><strong>Norwegian Support:</strong> {getNorwegianStockSymbols().join(', ')}</p>
-          <p><strong>US Support:</strong> {getUSStockSymbols().slice(0, 4).join(', ')}...</p>
+        <div className="border-t pt-2 text-xs text-gray-500">
+          <p>
+            <strong>API Info:</strong> Finnhub.io free tier (60 calls/minute)
+          </p>
+          <p>
+            <strong>Norwegian Support:</strong>{' '}
+            {getNorwegianStockSymbols().join(', ')}
+          </p>
+          <p>
+            <strong>US Support:</strong>{' '}
+            {getUSStockSymbols().slice(0, 4).join(', ')}...
+          </p>
         </div>
       </CardContent>
     </Card>

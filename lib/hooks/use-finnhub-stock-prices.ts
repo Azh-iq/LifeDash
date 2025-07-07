@@ -1,11 +1,18 @@
 'use client'
 
 import { useEffect, useState, useCallback, useRef } from 'react'
-import {
-  fetchRealStockPrices,
-  StockPrice,
-  FinnhubError,
-} from '@/lib/utils/finnhub-api'
+
+export interface StockPrice {
+  symbol: string
+  price: number
+  change: number
+  changePercent: number
+  volume: number
+  timestamp: string
+  currency: string
+  marketState: 'REGULAR' | 'CLOSED' | 'PRE' | 'POST'
+  source: string
+}
 
 export interface StockPricesState {
   [symbol: string]: StockPrice
@@ -21,7 +28,7 @@ export interface UseFinnhubStockPricesOptions {
   // Callback when prices update
   onPricesUpdate?: (prices: StockPricesState) => void
   // Callback when errors occur
-  onError?: (errors: FinnhubError[]) => void
+  onError?: (errors: any[]) => void
   // Max symbols per batch (default: 10 to respect rate limits)
   maxBatchSize?: number
 }
@@ -34,7 +41,7 @@ export interface UseFinnhubStockPricesReturn {
   // Error state
   error: string | null
   // All errors from API
-  errors: FinnhubError[]
+  errors: any[]
   // Whether data is from cache
   fromCache: boolean
   // Last update timestamp
@@ -62,16 +69,18 @@ class FinnhubQueueManager {
   private failed = new Set<string>()
   private isProcessing = false
   private lastRequestTime = 0
-  
-  // Rate limiting: 60 calls per minute = 1 call per second
-  private readonly MIN_DELAY = 1000 // 1 second between calls
-  private readonly MAX_CONCURRENT = 3 // Max concurrent requests
+
+  // Rate limiting: 60 calls per minute (free tier)
+  private readonly MIN_DELAY = 1000 // 1 second between calls for free tier
+  private readonly MAX_CONCURRENT = 1 // Max concurrent requests (sequential for free tier)
 
   addToQueue(symbols: string[]): void {
     symbols.forEach(symbol => {
-      if (!this.queue.includes(symbol) && 
-          !this.processing.has(symbol) && 
-          !this.completed.has(symbol)) {
+      if (
+        !this.queue.includes(symbol) &&
+        !this.processing.has(symbol) &&
+        !this.completed.has(symbol)
+      ) {
         this.queue.push(symbol)
       }
     })
@@ -92,13 +101,13 @@ class FinnhubQueueManager {
       total: this.queue.length + this.processing.size + this.completed.size,
       processing: this.processing.size,
       completed: this.completed.size,
-      failed: this.failed.size
+      failed: this.failed.size,
     }
   }
 
   async processQueue(
     onUpdate: (symbol: string, price: StockPrice) => void,
-    onError: (symbol: string, error: FinnhubError) => void
+    onError: (symbol: string, error: any) => void
   ): Promise<void> {
     if (this.isProcessing || this.queue.length === 0) {
       return
@@ -106,7 +115,10 @@ class FinnhubQueueManager {
 
     this.isProcessing = true
 
-    while (this.queue.length > 0 && this.processing.size < this.MAX_CONCURRENT) {
+    while (
+      this.queue.length > 0 &&
+      this.processing.size < this.MAX_CONCURRENT
+    ) {
       const symbol = this.queue.shift()
       if (!symbol) continue
 
@@ -116,7 +128,7 @@ class FinnhubQueueManager {
       const now = Date.now()
       const timeSinceLastRequest = now - this.lastRequestTime
       if (timeSinceLastRequest < this.MIN_DELAY) {
-        await new Promise(resolve => 
+        await new Promise(resolve =>
           setTimeout(resolve, this.MIN_DELAY - timeSinceLastRequest)
         )
       }
@@ -133,23 +145,48 @@ class FinnhubQueueManager {
   private async processSingleSymbol(
     symbol: string,
     onUpdate: (symbol: string, price: StockPrice) => void,
-    onError: (symbol: string, error: FinnhubError) => void
+    onError: (symbol: string, error: any) => void
   ): Promise<void> {
     try {
-      const result = await fetchRealStockPrices([symbol], { useCache: true })
+      // Use real Finnhub API call
+      const { fetchRealStockPrice } = await import('@/lib/utils/finnhub-api')
       
-      if (result.success && result.data.length > 0) {
-        onUpdate(symbol, result.data[0])
+      const result = await fetchRealStockPrice(symbol, {
+        useCache: true,
+        bypassRateLimit: false,
+      })
+
+      if (result.success && result.data) {
+        const realPrice: StockPrice = {
+          symbol: result.data.symbol,
+          price: result.data.price,
+          change: result.data.change,
+          changePercent: result.data.changePercent,
+          volume: result.data.volume,
+          timestamp: result.data.timestamp,
+          currency: result.data.currency,
+          marketState: result.data.marketState,
+          source: 'finnhub',
+        }
+
+        onUpdate(symbol, realPrice)
         this.completed.add(symbol)
-      } else if (result.errors.length > 0) {
-        onError(symbol, result.errors[0])
+      } else {
+        // Handle API errors
+        const error = result.errors[0] || {
+          code: 'NO_DATA',
+          message: 'No data available for symbol',
+          timestamp: new Date().toISOString(),
+        }
+        
+        onError(symbol, error)
         this.failed.add(symbol)
       }
     } catch (error) {
       onError(symbol, {
         code: 'QUEUE_ERROR',
         message: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       })
       this.failed.add(symbol)
     } finally {
@@ -174,7 +211,7 @@ export function useFinnhubStockPrices(
   options: UseFinnhubStockPricesOptions = {}
 ): UseFinnhubStockPricesReturn {
   const opts = {
-    refreshInterval: 60, // 60 seconds for Finnhub rate limits
+    refreshInterval: 60, // 1 minute for Finnhub rate limits
     useCache: true,
     enabled: true,
     maxBatchSize: 10,
@@ -186,7 +223,7 @@ export function useFinnhubStockPrices(
   const [prices, setPrices] = useState<StockPricesState>({})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [errors, setErrors] = useState<FinnhubError[]>([])
+  const [errors, setErrors] = useState<any[]>([])
   const [fromCache, setFromCache] = useState(false)
   const [lastUpdate, setLastUpdate] = useState<string | null>(null)
   const [queueStatus, setQueueStatus] = useState(globalQueue.getStatus())
@@ -216,7 +253,7 @@ export function useFinnhubStockPrices(
         opts.onPricesUpdate?.(updated)
         return updated
       })
-      
+
       setLastUpdate(new Date().toISOString())
       updateQueueStatus()
     },
@@ -227,7 +264,7 @@ export function useFinnhubStockPrices(
    * Handle errors from queue
    */
   const handleError = useCallback(
-    (symbol: string, error: FinnhubError) => {
+    (symbol: string, error: any) => {
       if (!mountedRef.current) return
 
       setErrors(prev => [...prev, error])
@@ -240,26 +277,32 @@ export function useFinnhubStockPrices(
   /**
    * Add symbols to fetch queue
    */
-  const addSymbols = useCallback((newSymbols: string[]) => {
-    setSymbols(prev => {
-      const uniqueSymbols = [...new Set([...prev, ...newSymbols])]
-      globalQueue.addToQueue(newSymbols)
-      updateQueueStatus()
-      return uniqueSymbols
-    })
-  }, [updateQueueStatus])
+  const addSymbols = useCallback(
+    (newSymbols: string[]) => {
+      setSymbols(prev => {
+        const uniqueSymbols = [...new Set([...prev, ...newSymbols])]
+        globalQueue.addToQueue(newSymbols)
+        updateQueueStatus()
+        return uniqueSymbols
+      })
+    },
+    [updateQueueStatus]
+  )
 
   /**
    * Remove symbols from queue
    */
-  const removeSymbols = useCallback((symbolsToRemove: string[]) => {
-    setSymbols(prev => {
-      const filtered = prev.filter(s => !symbolsToRemove.includes(s))
-      globalQueue.removeFromQueue(symbolsToRemove)
-      updateQueueStatus()
-      return filtered
-    })
-  }, [updateQueueStatus])
+  const removeSymbols = useCallback(
+    (symbolsToRemove: string[]) => {
+      setSymbols(prev => {
+        const filtered = prev.filter(s => !symbolsToRemove.includes(s))
+        globalQueue.removeFromQueue(symbolsToRemove)
+        updateQueueStatus()
+        return filtered
+      })
+    },
+    [updateQueueStatus]
+  )
 
   /**
    * Process the queue
@@ -270,7 +313,7 @@ export function useFinnhubStockPrices(
     try {
       setLoading(true)
       setError(null)
-      
+
       await globalQueue.processQueue(handlePriceUpdate, handleError)
     } catch (err) {
       if (mountedRef.current) {

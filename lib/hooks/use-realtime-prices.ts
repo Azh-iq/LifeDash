@@ -78,40 +78,42 @@ export function useRealtimePrices(symbols: string[]) {
           throw new Error('Failed to fetch stock data')
         }
 
-        // Process fetched prices
+        // Use Finnhub API to get real prices
+        const { fetchRealStockPrices } = await import('@/lib/utils/finnhub-api')
+        
+        const finnhubResult = await fetchRealStockPrices(symbols, {
+          useCache: true,
+          bypassRateLimit: false,
+        })
+
         const latestPrices: PriceState = {}
 
-        if (stocks && stocks.length > 0) {
-          stocks.forEach(stock => {
-            // Calculate a mock change for demo (in real app, this would come from price history)
-            const change = (Math.random() - 0.5) * 10 // Random change between -5 and +5
-            const changePercent = stock.current_price
-              ? (change / stock.current_price) * 100
-              : 0
-
-            latestPrices[stock.symbol] = {
-              price: stock.current_price || 0,
-              change,
-              changePercent,
-              timestamp: stock.last_updated || new Date().toISOString(),
+        if (finnhubResult.success && finnhubResult.data.length > 0) {
+          // Use real Finnhub data
+          finnhubResult.data.forEach(stockPrice => {
+            latestPrices[stockPrice.symbol] = {
+              price: stockPrice.price,
+              change: stockPrice.change,
+              changePercent: stockPrice.changePercent,
+              volume: stockPrice.volume,
+              timestamp: stockPrice.timestamp,
             }
           })
         }
 
-        // For symbols not found in database, use mock data
-        symbols.forEach(symbol => {
-          if (!latestPrices[symbol]) {
-            const mockPrice = 180 + Math.random() * 40
-            const change = (Math.random() - 0.5) * 10
-
-            latestPrices[symbol] = {
-              price: mockPrice,
-              change,
-              changePercent: (change / mockPrice) * 100,
-              timestamp: new Date().toISOString(),
+        // For symbols not found in Finnhub, try database fallback
+        if (stocks && stocks.length > 0) {
+          stocks.forEach(stock => {
+            if (!latestPrices[stock.symbol]) {
+              latestPrices[stock.symbol] = {
+                price: stock.current_price || 0,
+                change: 0, // No historical data available
+                changePercent: 0,
+                timestamp: stock.last_updated || new Date().toISOString(),
+              }
             }
-          }
-        })
+          })
+        }
 
         setPrices(latestPrices)
 

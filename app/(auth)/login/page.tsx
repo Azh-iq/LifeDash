@@ -197,7 +197,9 @@ export default function LoginPage() {
               </svg>
             </div>
             <div>
-              <h3 className="mb-1 font-semibold text-purple-900">Demo Tilgang</h3>
+              <h3 className="mb-1 font-semibold text-purple-900">
+                Demo Tilgang
+              </h3>
               <p className="text-sm leading-relaxed text-purple-800">
                 Du kan bruke hvilken som helst e-post og passord for å teste
                 systemet. Alle funksjoner er tilgjengelige i demo-modus.

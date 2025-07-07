@@ -1,14 +1,14 @@
 'use client'
 
 export interface FinnhubQuote {
-  c: number  // Current price
-  d: number  // Change
+  c: number // Current price
+  d: number // Change
   dp: number // Percent change
-  h: number  // High price
-  l: number  // Low price
-  o: number  // Open price
+  h: number // High price
+  l: number // Low price
+  o: number // Open price
   pc: number // Previous close price
-  t: number  // Timestamp
+  t: number // Timestamp
 }
 
 export interface StockPrice {
@@ -29,6 +29,113 @@ export interface FinnhubError {
   timestamp: string
 }
 
+export interface CompanyProfile {
+  country: string
+  currency: string
+  exchange: string
+  finnhubIndustry: string
+  ipo: string
+  logo: string
+  marketCapitalization: number
+  name: string
+  phone: string
+  shareOutstanding: number
+  ticker: string
+  weburl: string
+}
+
+export interface BasicFinancials {
+  metric: {
+    '10DayAverageTradingVolume': number
+    '13WeekPriceReturnDaily': number
+    '26WeekPriceReturnDaily': number
+    '3MonthAverageTradingVolume': number
+    '52WeekHigh': number
+    '52WeekHighDate': string
+    '52WeekLow': number
+    '52WeekLowDate': string
+    '52WeekPriceReturnDaily': number
+    '5DayPriceReturnDaily': number
+    beta: number
+    currentRatio: number
+    epsInclExtraItemsAnnual: number
+    epsInclExtraItemsTTM: number
+    epsNormalizedAnnual: number
+    grossMarginAnnual: number
+    grossMarginTTM: number
+    marketCapitalization: number
+    netIncomeEmployeeAnnual: number
+    netIncomeEmployeeTTM: number
+    netInterestIncomeAnnual: number
+    netInterestIncomeTTM: number
+    netMarginAnnual: number
+    netMarginTTM: number
+    operatingMarginAnnual: number
+    operatingMarginTTM: number
+    payoutRatioAnnual: number
+    payoutRatioTTM: number
+    peBasicExclExtraTTM: number
+    peBasicInclExtraTTM: number
+    peNormalizedAnnual: number
+    pfcfShareAnnual: number
+    pfcfShareTTM: number
+    pretaxMarginAnnual: number
+    pretaxMarginTTM: number
+    psAnnual: number
+    psTTM: number
+    ptbvAnnual: number
+    ptbvQuarterly: number
+    quickRatio: number
+    receivablesTurnoverAnnual: number
+    receivablesTurnoverTTM: number
+    revenueEmployeeAnnual: number
+    revenueEmployeeTTM: number
+    revenueGrowthAnnual: number
+    revenueGrowthTTM: number
+    revenuePerShareAnnual: number
+    revenuePerShareTTM: number
+    roaAnnual: number
+    roaTTM: number
+    roceAnnual: number
+    roceTTM: number
+    roeAnnual: number
+    roeTTM: number
+    roiAnnual: number
+    roiTTM: number
+    tangibleBookValuePerShareAnnual: number
+    tangibleBookValuePerShareQuarterly: number
+    tbvCagr5Y: number
+    totalDebtToEquityAnnual: number
+    totalDebtToEquityQuarterly: number
+    totalDebtToTotalCapitalAnnual: number
+    totalDebtToTotalCapitalQuarterly: number
+  }
+  series: {
+    annual: {
+      currentRatio: Array<{ period: string; v: number }>
+      salesPerShare: Array<{ period: string; v: number }>
+      netMargin: Array<{ period: string; v: number }>
+    }
+    quarterly: {
+      currentRatio: Array<{ period: string; v: number }>
+      salesPerShare: Array<{ period: string; v: number }>
+      netMargin: Array<{ period: string; v: number }>
+    }
+  }
+}
+
+export interface CompanyNews {
+  category: string
+  datetime: number
+  headline: string
+  id: number
+  image: string
+  related: string
+  source: string
+  summary: string
+  url: string
+}
+
 // Rate limiting configuration for Finnhub (60 calls/minute free tier)
 const RATE_LIMIT_CONFIG = {
   requestsPerMinute: 60,
@@ -42,11 +149,14 @@ const RATE_LIMIT_CONFIG = {
 const CACHE_CONFIG = {
   ttl: 60 * 1000, // 1 minute for real-time data
   maxSize: 100,
+  companyProfileTTL: 24 * 60 * 60 * 1000, // 24 hours for company profiles
+  basicFinancialsTTL: 6 * 60 * 60 * 1000, // 6 hours for basic financials
+  companyNewsTTL: 60 * 60 * 1000, // 1 hour for company news
 } as const
 
-// In-memory cache for stock prices
-interface CacheEntry {
-  data: StockPrice[]
+// In-memory cache for Finnhub data
+interface CacheEntry<T = any> {
+  data: T
   timestamp: number
   expiresAt: number
 }
@@ -54,7 +164,7 @@ interface CacheEntry {
 class FinnhubCache {
   private cache = new Map<string, CacheEntry>()
 
-  set(key: string, data: StockPrice[], ttl: number = CACHE_CONFIG.ttl): void {
+  set<T>(key: string, data: T, ttl: number = CACHE_CONFIG.ttl): void {
     const now = Date.now()
     this.cache.set(key, {
       data,
@@ -64,13 +174,13 @@ class FinnhubCache {
     this.cleanup()
   }
 
-  get(key: string): StockPrice[] | null {
+  get<T>(key: string): T | null {
     const entry = this.cache.get(key)
     if (!entry || Date.now() > entry.expiresAt) {
       this.cache.delete(key)
       return null
     }
-    return entry.data
+    return entry.data as T
   }
 
   has(key: string): boolean {
@@ -158,9 +268,12 @@ const rateLimiter = new FinnhubRateLimiter()
  * Get Finnhub API key from environment
  */
 function getFinnhubApiKey(): string {
-  const apiKey = process.env.NEXT_PUBLIC_FINNHUB_API_KEY || process.env.FINNHUB_API_KEY
+  const apiKey =
+    process.env.NEXT_PUBLIC_FINNHUB_API_KEY || process.env.FINNHUB_API_KEY
   if (!apiKey) {
-    throw new Error('Finnhub API key not found. Please set FINNHUB_API_KEY in environment variables.')
+    throw new Error(
+      'Finnhub API key not found. Please set FINNHUB_API_KEY in environment variables.'
+    )
   }
   return apiKey
 }
@@ -190,15 +303,15 @@ function getCurrencyFromSymbol(symbol: string): string {
 function getMarketState(symbol: string): 'REGULAR' | 'CLOSED' | 'PRE' | 'POST' {
   const now = new Date()
   const currency = getCurrencyFromSymbol(symbol)
-  
+
   if (currency === 'NOK') {
     // Oslo Stock Exchange: 9:00-16:30 CET
     const hour = now.getHours()
-    return (hour >= 9 && hour < 17) ? 'REGULAR' : 'CLOSED'
+    return hour >= 9 && hour < 17 ? 'REGULAR' : 'CLOSED'
   } else {
     // US markets: 9:30-16:00 EST (rough approximation)
     const hour = now.getHours()
-    return (hour >= 15 && hour < 22) ? 'REGULAR' : 'CLOSED'
+    return hour >= 15 && hour < 22 ? 'REGULAR' : 'CLOSED'
   }
 }
 
@@ -301,11 +414,11 @@ export async function fetchRealStockPrices(
       try {
         const fetchFn = async () => {
           const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`
-          
+
           const response = await fetchWithRetry(url, {
             method: 'GET',
             headers: {
-              'Accept': 'application/json',
+              Accept: 'application/json',
               'User-Agent': 'LifeDash/1.0',
             },
           })
@@ -399,7 +512,7 @@ export async function testFinnhubConnection(): Promise<{
 }> {
   try {
     const result = await fetchRealStockPrice('AAPL', { useCache: false })
-    
+
     if (result.success && result.data) {
       return {
         success: true,
@@ -425,14 +538,14 @@ export async function testFinnhubConnection(): Promise<{
  */
 export function getNorwegianStockSymbols(): string[] {
   return [
-    'EQNR.OL',   // Equinor
-    'DNB.OL',    // DNB Bank
-    'TEL.OL',    // Telenor
-    'NHY.OL',    // Norsk Hydro
-    'SALM.OL',   // SalMar
-    'MOWI.OL',   // Mowi
-    'YAR.OL',    // Yara
-    'AKER.OL',   // Aker
+    'EQNR.OL', // Equinor
+    'DNB.OL', // DNB Bank
+    'TEL.OL', // Telenor
+    'NHY.OL', // Norsk Hydro
+    'SALM.OL', // SalMar
+    'MOWI.OL', // Mowi
+    'YAR.OL', // Yara
+    'AKER.OL', // Aker
   ]
 }
 
@@ -441,15 +554,250 @@ export function getNorwegianStockSymbols(): string[] {
  */
 export function getUSStockSymbols(): string[] {
   return [
-    'AAPL',   // Apple
-    'TSLA',   // Tesla
-    'MSFT',   // Microsoft
-    'GOOGL',  // Google
-    'AMZN',   // Amazon
-    'NVDA',   // NVIDIA
-    'META',   // Meta
-    'NFLX',   // Netflix
+    'AAPL', // Apple
+    'TSLA', // Tesla
+    'MSFT', // Microsoft
+    'GOOGL', // Google
+    'AMZN', // Amazon
+    'NVDA', // NVIDIA
+    'META', // Meta
+    'NFLX', // Netflix
   ]
+}
+
+/**
+ * Fetch company profile from Finnhub API
+ */
+export async function fetchCompanyProfile(symbol: string): Promise<{
+  success: boolean
+  data: CompanyProfile | null
+  error: FinnhubError | null
+}> {
+  const normalizedSymbol = normalizeSymbolForFinnhub(symbol)
+  const cacheKey = `profile:${normalizedSymbol}`
+
+  try {
+    // Check cache first
+    if (cache.has(cacheKey)) {
+      const cachedData = cache.get<CompanyProfile>(cacheKey)
+      if (cachedData) {
+        return {
+          success: true,
+          data: cachedData,
+          error: null,
+        }
+      }
+    }
+
+    const apiKey = getFinnhubApiKey()
+
+    const fetchFn = async () => {
+      const url = `https://finnhub.io/api/v1/stock/profile2?symbol=${normalizedSymbol}&token=${apiKey}`
+
+      const response = await fetchWithRetry(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'User-Agent': 'LifeDash/1.0',
+        },
+      })
+
+      const profile: CompanyProfile = await response.json()
+      return profile
+    }
+
+    const profile = await rateLimiter.throttle(fetchFn)
+
+    // Check if we got valid data
+    if (profile.name && profile.ticker) {
+      // Cache the result
+      cache.set(cacheKey, profile, CACHE_CONFIG.companyProfileTTL)
+
+      return {
+        success: true,
+        data: profile,
+        error: null,
+      }
+    } else {
+      return {
+        success: false,
+        data: null,
+        error: {
+          code: 'NO_DATA',
+          message: `No company profile found for symbol: ${symbol}`,
+          timestamp: new Date().toISOString(),
+        },
+      }
+    }
+  } catch (error) {
+    return {
+      success: false,
+      data: null,
+      error: {
+        code: 'FETCH_ERROR',
+        message: `Failed to fetch company profile for ${symbol}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        timestamp: new Date().toISOString(),
+      },
+    }
+  }
+}
+
+/**
+ * Fetch basic financials from Finnhub API
+ */
+export async function fetchBasicFinancials(symbol: string): Promise<{
+  success: boolean
+  data: BasicFinancials | null
+  error: FinnhubError | null
+}> {
+  const normalizedSymbol = normalizeSymbolForFinnhub(symbol)
+  const cacheKey = `financials:${normalizedSymbol}`
+
+  try {
+    // Check cache first
+    if (cache.has(cacheKey)) {
+      const cachedData = cache.get<BasicFinancials>(cacheKey)
+      if (cachedData) {
+        return {
+          success: true,
+          data: cachedData,
+          error: null,
+        }
+      }
+    }
+
+    const apiKey = getFinnhubApiKey()
+
+    const fetchFn = async () => {
+      const url = `https://finnhub.io/api/v1/stock/metric?symbol=${normalizedSymbol}&metric=all&token=${apiKey}`
+
+      const response = await fetchWithRetry(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'User-Agent': 'LifeDash/1.0',
+        },
+      })
+
+      const financials: BasicFinancials = await response.json()
+      return financials
+    }
+
+    const financials = await rateLimiter.throttle(fetchFn)
+
+    // Check if we got valid data
+    if (financials.metric && Object.keys(financials.metric).length > 0) {
+      // Cache the result
+      cache.set(cacheKey, financials, CACHE_CONFIG.basicFinancialsTTL)
+
+      return {
+        success: true,
+        data: financials,
+        error: null,
+      }
+    } else {
+      return {
+        success: false,
+        data: null,
+        error: {
+          code: 'NO_DATA',
+          message: `No financial data found for symbol: ${symbol}`,
+          timestamp: new Date().toISOString(),
+        },
+      }
+    }
+  } catch (error) {
+    return {
+      success: false,
+      data: null,
+      error: {
+        code: 'FETCH_ERROR',
+        message: `Failed to fetch financial data for ${symbol}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        timestamp: new Date().toISOString(),
+      },
+    }
+  }
+}
+
+/**
+ * Fetch company news from Finnhub API
+ */
+export async function fetchCompanyNews(
+  symbol: string,
+  from: string,
+  to: string
+): Promise<{
+  success: boolean
+  data: CompanyNews[] | null
+  error: FinnhubError | null
+}> {
+  const normalizedSymbol = normalizeSymbolForFinnhub(symbol)
+  const cacheKey = `news:${normalizedSymbol}:${from}:${to}`
+
+  try {
+    // Check cache first
+    if (cache.has(cacheKey)) {
+      const cachedData = cache.get<CompanyNews[]>(cacheKey)
+      if (cachedData) {
+        return {
+          success: true,
+          data: cachedData,
+          error: null,
+        }
+      }
+    }
+
+    const apiKey = getFinnhubApiKey()
+
+    const fetchFn = async () => {
+      const url = `https://finnhub.io/api/v1/company-news?symbol=${normalizedSymbol}&from=${from}&to=${to}&token=${apiKey}`
+
+      const response = await fetchWithRetry(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'User-Agent': 'LifeDash/1.0',
+        },
+      })
+
+      const news: CompanyNews[] = await response.json()
+      return news
+    }
+
+    const news = await rateLimiter.throttle(fetchFn)
+
+    // Check if we got valid data
+    if (Array.isArray(news) && news.length > 0) {
+      // Cache the result
+      cache.set(cacheKey, news, CACHE_CONFIG.companyNewsTTL)
+
+      return {
+        success: true,
+        data: news,
+        error: null,
+      }
+    } else {
+      return {
+        success: false,
+        data: null,
+        error: {
+          code: 'NO_DATA',
+          message: `No news found for symbol: ${symbol}`,
+          timestamp: new Date().toISOString(),
+        },
+      }
+    }
+  } catch (error) {
+    return {
+      success: false,
+      data: null,
+      error: {
+        code: 'FETCH_ERROR',
+        message: `Failed to fetch news for ${symbol}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        timestamp: new Date().toISOString(),
+      },
+    }
+  }
 }
 
 /**
@@ -464,4 +812,7 @@ export type {
   FinnhubQuote,
   StockPrice,
   FinnhubError,
+  CompanyProfile,
+  BasicFinancials,
+  CompanyNews,
 }

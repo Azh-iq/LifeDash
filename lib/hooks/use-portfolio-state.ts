@@ -7,8 +7,6 @@ import {
   getPortfolioById,
   type PortfolioResult,
 } from '@/lib/actions/portfolio/crud'
-import { useRealtimePrices } from '@/lib/hooks/use-realtime-prices'
-import { useStockPrices, StockPrice } from '@/lib/hooks/use-stock-prices'
 import { useFinnhubStockPrices } from '@/lib/hooks/use-finnhub-stock-prices'
 
 // Extended Portfolio interface with calculated metrics
@@ -173,40 +171,30 @@ export function usePortfolioState(
 
   // Extract symbols for real-time price updates
   const symbols = useMemo(() => {
-    return holdings.map(holding => holding.symbol)
+    const holdingSymbols = holdings.map(holding => holding.symbol)
+    // Always include demo symbols for testing real prices
+    const demoSymbols = ['AAPL', 'MSFT', 'EQNR.OL']
+    const allSymbols = [...new Set([...holdingSymbols, ...demoSymbols])]
+    return allSymbols
   }, [holdings])
 
-  // Real-time price updates
-  const { prices: realtimePrices, loading: pricesLoading } = useRealtimePrices(
-    enableRealtime ? symbols : []
+  // Use Finnhub for real-time price updates
+  const { prices: realtimePrices, loading: pricesLoading } = useFinnhubStockPrices(
+    enableRealtime ? symbols : [],
+    {
+      refreshInterval: 60, // 1 minute for Finnhub rate limits
+      enabled: enableRealtime,
+      useCache: true,
+    }
   )
 
-  // Real stock prices from Finnhub API with intelligent queuing
-  const { 
-    prices: finnhubPrices, 
-    queueStatus,
-    addSymbols: addFinnhubSymbols 
-  } = useFinnhubStockPrices(symbols, {
-    enabled: enableRealtime,
-    refreshInterval: 60, // 60 seconds for rate limiting
-    onPricesUpdate: (prices) => {
-      console.log('📈 Finnhub prices updated:', Object.keys(prices).length, 'stocks')
-    },
-    onError: (errors) => {
-      console.warn('⚠️ Finnhub API errors:', errors)
-    }
-  })
-
   const isPricesConnected = useMemo(() => {
-    return (
-      Object.keys(realtimePrices).length > 0 ||
-      Object.keys(finnhubPrices).length > 0
-    )
-  }, [realtimePrices, finnhubPrices])
+    return Object.keys(realtimePrices).length > 0
+  }, [realtimePrices])
 
   // Fetch portfolio data
   const fetchPortfolio = useCallback(async () => {
-    if (!portfolioId) return
+    if (!portfolioId || portfolioId === 'empty') return
 
     try {
       setLoading(true)
@@ -224,12 +212,12 @@ export function usePortfolioState(
         const totalGainLossPercent =
           totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0
 
-        // Mock performance data (in production, fetch from historical data)
-        const dailyChange = totalValue * (Math.random() - 0.5) * 0.02
-        const dailyChangePercent =
-          totalValue > 0 ? (dailyChange / totalValue) * 100 : 0
-        const weeklyChange = totalValue * (Math.random() - 0.5) * 0.05
-        const monthlyChange = totalValue * (Math.random() - 0.5) * 0.1
+        // Calculate performance data based on actual price movements
+        // For now, use zero values until we have historical data
+        const dailyChange = 0
+        const dailyChangePercent = 0
+        const weeklyChange = 0
+        const monthlyChange = 0
 
         const enhancedPortfolio: PortfolioWithMetrics = {
           ...portfolioData,
@@ -267,7 +255,7 @@ export function usePortfolioState(
 
   // Fetch holdings
   const fetchHoldings = useCallback(async () => {
-    if (!portfolioId || !includeHoldings) return
+    if (!portfolioId || !includeHoldings || portfolioId === 'empty') return
 
     try {
       setHoldingsLoading(true)
@@ -321,8 +309,8 @@ export function usePortfolioState(
               gain_loss: gainLoss,
               gain_loss_percent: gainLossPercent,
               weight: 0, // Weight will be calculated separately
-              daily_change: currentValue * (Math.random() - 0.5) * 0.03,
-              daily_change_percent: (Math.random() - 0.5) * 3,
+              daily_change: 0, // Will be updated with real prices from Finnhub
+              daily_change_percent: 0, // Will be updated with real prices from Finnhub
             }
           }
         )
@@ -344,41 +332,27 @@ export function usePortfolioState(
 
   // Stable refs for avoiding dependency cycles
   const realtimePricesRef = useRef(realtimePrices)
-  const finnhubPricesRef = useRef(finnhubPrices)
 
   // Update refs when prices change
   useEffect(() => {
     realtimePricesRef.current = realtimePrices
   }, [realtimePrices])
 
-  useEffect(() => {
-    finnhubPricesRef.current = finnhubPrices
-  }, [finnhubPrices])
-
   // Debounced update function for price changes (stabilized with refs)
   const updateHoldingsWithPrices = useCallback(() => {
     const currentHoldings = holdingsRef.current
     const currentRealtimePrices = realtimePricesRef.current
-    const currentFinnhubPrices = finnhubPricesRef.current
 
-    if (
-      !currentHoldings.length ||
-      (!Object.keys(currentRealtimePrices).length &&
-        !Object.keys(currentFinnhubPrices).length)
-    ) {
+    if (!currentHoldings.length || !Object.keys(currentRealtimePrices).length) {
       return
     }
 
     const updatedHoldings = currentHoldings.map(holding => {
       const symbol = holding.symbol
       const realtimePrice = currentRealtimePrices[symbol]
-      const finnhubPrice = currentFinnhubPrices[symbol]
 
-      // Use realtime price if available, otherwise use Finnhub price
-      const priceData = realtimePrice || finnhubPrice
-
-      if (priceData) {
-        const newCurrentPrice = priceData.price
+      if (realtimePrice) {
+        const newCurrentPrice = realtimePrice.price
         const newCurrentValue = holding.quantity * newCurrentPrice
         const newGainLoss =
           newCurrentValue - holding.quantity * holding.cost_basis
@@ -393,9 +367,9 @@ export function usePortfolioState(
           current_value: newCurrentValue,
           gain_loss: newGainLoss,
           gain_loss_percent: newGainLossPercent,
-          daily_change: priceData.change || holding.daily_change,
+          daily_change: realtimePrice.change || holding.daily_change,
           daily_change_percent:
-            priceData.changePercent || holding.daily_change_percent,
+            realtimePrice.changePercent || holding.daily_change_percent,
         }
       }
 
@@ -431,7 +405,7 @@ export function usePortfolioState(
         clearTimeout(updateTimeoutRef.current)
       }
     }
-  }, [realtimePrices, yahooFinancePrices]) // Removed updateHoldingsWithPrices since it's now stable
+  }, [realtimePrices]) // Removed updateHoldingsWithPrices since it's now stable
 
   // Calculate portfolio weights separately
   const holdingsWithWeights = useMemo(() => {
@@ -488,8 +462,8 @@ export function usePortfolioState(
     )
     const dailyChangePercent =
       totalValue > 0 ? (dailyChange / totalValue) * 100 : 0
-    const weeklyChange = totalValue * (Math.random() - 0.5) * 0.05
-    const monthlyChange = totalValue * (Math.random() - 0.5) * 0.1
+    const weeklyChange = 0 // Will be calculated from historical data
+    const monthlyChange = 0 // Will be calculated from historical data
 
     return {
       totalValue,
@@ -693,9 +667,6 @@ export function usePortfolioState(
     holdingsError,
     refreshHoldings,
     realtimePrices,
-    finnhubPrices,
-    queueStatus,
-    addFinnhubSymbols,
     pricesLoading,
     isPricesConnected,
     metrics,
@@ -734,10 +705,10 @@ export function usePortfoliosState() {
                     portfolio.total_cost) *
                   100
                 : 0,
-            daily_change: portfolio.total_value * (Math.random() - 0.5) * 0.02,
-            daily_change_percent: (Math.random() - 0.5) * 2,
-            weekly_change: portfolio.total_value * (Math.random() - 0.5) * 0.05,
-            monthly_change: portfolio.total_value * (Math.random() - 0.5) * 0.1,
+            daily_change: 0, // Will be calculated from real price data
+            daily_change_percent: 0, // Will be calculated from real price data
+            weekly_change: 0, // Will be calculated from historical data
+            monthly_change: 0, // Will be calculated from historical data
             currency: 'NOK',
             last_updated: new Date().toISOString(),
           })

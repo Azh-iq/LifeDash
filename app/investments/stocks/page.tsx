@@ -13,19 +13,28 @@ import { useSmartRefresh } from '@/lib/hooks/use-smart-refresh'
 import { getUserPortfolios } from '@/lib/actions/portfolio/crud'
 import StockDetailModalV2 from '@/components/stocks/stock-detail-modal-v2'
 import CSVImportModal from '@/components/stocks/csv-import-modal'
-import FinnhubTest from '@/components/stocks/finnhub-test'
+import AddTransactionModal, {
+  TransactionData,
+} from '@/components/stocks/add-transaction-modal'
 import FinnhubQueueStatus from '@/components/stocks/finnhub-queue-status'
-import { calculatePortfolioMetrics, generatePortfolioHistoryData } from '@/lib/utils/portfolio-calculations'
+import {
+  calculatePortfolioMetrics,
+  generatePortfolioHistoryData,
+} from '@/lib/utils/portfolio-calculations'
 import MobilePortfolioDashboard from '@/components/mobile/mobile-portfolio-dashboard'
 import { StockChartWidget } from '@/components/stocks/stock-chart-widget'
 import { NorwegianHoldingsTable } from '@/components/stocks/norwegian-holdings-table'
 import { NorwegianBreadcrumb } from '@/components/ui/norwegian-breadcrumb'
 import { Button } from '@/components/ui/button'
-import {
-  ErrorPortfolioState,
-} from '@/components/states'
+import { ErrorPortfolioState } from '@/components/states'
 import { checkSetupStatus } from '@/lib/actions/platforms/setup'
+import {
+  addTransaction,
+  getPortfolioAccounts,
+} from '@/lib/actions/transactions/add-transaction'
+import { createDefaultPortfolio } from '@/lib/actions/portfolio/create-default'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
+import { EmptyStocksPage } from '@/components/stocks/empty-stocks-page'
 
 // Simple responsive hook
 const useResponsive = () => {
@@ -53,9 +62,17 @@ export default function StocksPage() {
     null
   )
   const [isStockModalOpen, setIsStockModalOpen] = useState(false)
-  
+
   // CSV import modal state
   const [isCSVModalOpen, setIsCSVModalOpen] = useState(false)
+
+  // Add transaction modal state
+  const [isAddTransactionModalOpen, setIsAddTransactionModalOpen] =
+    useState(false)
+  const [accounts, setAccounts] = useState<
+    Array<{ id: string; name: string; platform: string }>
+  >([])
+  const [loadingAccounts, setLoadingAccounts] = useState(false)
 
   // Chart and table state (handlers)
   const setChartTimeRange = () => {} // Placeholder for chart time range changes
@@ -131,6 +148,45 @@ export default function StocksPage() {
     setSelectedStock(null)
   }, [])
 
+  // Handle transaction modal
+  const handleOpenTransactionModal = useCallback(async () => {
+    setLoadingAccounts(true)
+    if (safePortfolioId) {
+      const result = await getPortfolioAccounts(safePortfolioId)
+      if (result.success) {
+        setAccounts(result.data)
+      }
+    }
+    setLoadingAccounts(false)
+    setIsAddTransactionModalOpen(true)
+  }, [safePortfolioId])
+
+  const handleCloseTransactionModal = useCallback(() => {
+    setIsAddTransactionModalOpen(false)
+  }, [])
+
+  const handleSubmitTransaction = useCallback(
+    async (transactionData: TransactionData) => {
+      if (!safePortfolioId) {
+        throw new Error('Portfolio ID is required')
+      }
+
+      const result = await addTransaction(transactionData, safePortfolioId)
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to add transaction')
+      }
+
+      // Refresh portfolio data to show updated holdings
+      if (portfolioState.refresh) {
+        await portfolioState.refresh()
+      }
+
+      return result
+    },
+    [safePortfolioId, portfolioState]
+  )
+
   // Memoize component props to prevent unnecessary re-renders
 
   // Authentication and setup check
@@ -167,22 +223,44 @@ export default function StocksPage() {
 
       // Fetch user's portfolios
       const portfoliosResult = await getUserPortfolios()
-      if (portfoliosResult.success && portfoliosResult.data) {
-        const portfolios = portfoliosResult.data
+
+      // Handle successful response
+      if (portfoliosResult.success) {
+        const portfolios = portfoliosResult.data || []
 
         if (portfolios.length === 0) {
-          // No portfolios found - redirect to setup
-          router.replace('/investments/stocks/setup')
-          return
+          // No portfolios found
+          if (isSetupSkipped) {
+            // User skipped setup - show empty page for manual entry
+            setPortfolioId('empty') // Special ID to indicate empty state
+            setIsInitialLoading(false)
+            return
+          } else {
+            // User didn't skip setup - redirect to setup
+            router.replace('/investments/stocks/setup')
+            return
+          }
         }
 
         // Select the first portfolio (or you could add logic to select a default one)
         const firstPortfolio = portfolios[0]
         setPortfolioId(firstPortfolio.id)
       } else {
-        setError('Kunne ikke hente porteføljer. Prøv igjen.')
-        setIsInitialLoading(false)
-        return
+        // API error occurred
+        console.log('Portfolio fetch error:', portfoliosResult.error)
+
+        if (isSetupSkipped) {
+          // For skip flow users, if there's an API error, assume no portfolios and show empty page
+          console.log('Skip flow user with API error - showing empty page')
+          setPortfolioId('empty')
+          setIsInitialLoading(false)
+          return
+        } else {
+          // For normal flow users, show the error
+          setError('Kunne ikke hente porteføljer. Prøv igjen.')
+          setIsInitialLoading(false)
+          return
+        }
       }
 
       setIsInitialLoading(false)
@@ -221,7 +299,7 @@ export default function StocksPage() {
 
   // DEMO MODE: Skip loading/empty states for FASE 3-6 demonstration
   // Uncomment the below code blocks to restore original portfolio-dependent behavior
-  
+
   /*
   // Loading states - show loading if we don't have a portfolio ID yet or if portfolio is loading
   if (
@@ -254,6 +332,37 @@ export default function StocksPage() {
   }
   */
 
+  // Handle empty state for users who skipped setup
+  if (portfolioId === 'empty') {
+    const handleTransactionAdded = async (transactionData: TransactionData) => {
+      // Create default portfolio when first transaction is added
+      const defaultResult = await createDefaultPortfolio()
+      if (defaultResult.success && defaultResult.data) {
+        // Add the transaction to the new portfolio
+        const result = await addTransaction(
+          transactionData,
+          defaultResult.data.portfolioId
+        )
+        if (result.success) {
+          // Update the portfolioId to show the real portfolio
+          setPortfolioId(defaultResult.data.portfolioId)
+        }
+      }
+    }
+
+    return (
+      <ErrorBoundary>
+        <EmptyStocksPage
+          onTransactionAdded={handleTransactionAdded}
+          onImportComplete={result => {
+            console.log('CSV import completed:', result)
+            // TODO: Handle CSV import for empty state
+          }}
+        />
+      </ErrorBoundary>
+    )
+  }
+
   // Mobile view
   if (isMobile) {
     return (
@@ -268,35 +377,38 @@ export default function StocksPage() {
     )
   }
 
-  // Calculate real portfolio metrics using live prices (prioritize Finnhub over realtime)
+  // Calculate real portfolio metrics using live prices
   const allPrices = {
     ...portfolioState.realtimePrices,
-    ...portfolioState.finnhubPrices  // Finnhub prices override realtime if available
   }
-  
+
   const realTimeMetrics = calculatePortfolioMetrics(
     portfolioState.holdings || [],
     allPrices
   )
-  
+
   const portfolioChartData = generatePortfolioHistoryData(
     portfolioState.holdings || [],
     allPrices,
     30
   )
-  
-  const currentValue = realTimeMetrics.totalValue || portfolioState.portfolio?.total_value || 1847250
-  const changePercent = realTimeMetrics.dailyChangePercent || portfolioState.portfolio?.daily_change_percent || 0
 
-  // Debug Finnhub API integration
-  console.log('Portfolio Debug Info (Finnhub API):', {
+  const currentValue =
+    realTimeMetrics.totalValue ||
+    portfolioState.portfolio?.total_value ||
+    1847250
+  const changePercent =
+    realTimeMetrics.dailyChangePercent ||
+    portfolioState.portfolio?.daily_change_percent ||
+    0
+
+  // Debug portfolio integration
+  console.log('Portfolio Debug Info:', {
     loading: portfolioState.loading,
     holdingsCount: portfolioState.holdings?.length || 0,
     pricesConnected: portfolioState.isPricesConnected,
-    finnhubPricesCount: Object.keys(portfolioState.finnhubPrices || {}).length,
-    realTimePricesCount: Object.keys(portfolioState.realtimePrices || {}).length,
-    finnhubPrices: portfolioState.finnhubPrices,
-    queueStatus: portfolioState.queueStatus,
+    realTimePricesCount: Object.keys(portfolioState.realtimePrices || {})
+      .length,
     portfolioValue: portfolioState.portfolio?.total_value,
     calculatedValue: realTimeMetrics.totalValue,
     calculatedChange: realTimeMetrics.dailyChangePercent,
@@ -308,8 +420,7 @@ export default function StocksPage() {
       currentPrice: h.current_price,
       currentValue: h.current_value,
       dailyChange: h.daily_change,
-      hasFinHubPrice: h.symbol in (portfolioState.finnhubPrices || {})
-    }))
+    })),
   })
 
   // Desktop view - Main portfolio view with new Norwegian components
@@ -332,6 +443,15 @@ export default function StocksPage() {
                 className="border-purple-200 text-purple-600 hover:bg-purple-50"
               >
                 🧙‍♂️ Platform Wizard
+              </Button>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={handleOpenTransactionModal}
+                disabled={loadingAccounts}
+                className="bg-purple-600 text-white hover:bg-purple-700"
+              >
+                ➕ {loadingAccounts ? 'Laster...' : 'Legg til transaksjon'}
               </Button>
               <Button
                 variant="outline"
@@ -420,19 +540,35 @@ export default function StocksPage() {
                   <div className="space-y-1">
                     <p className="text-sm text-gray-600">Total Verdi</p>
                     <p className="text-lg font-bold text-gray-900">
-                      NOK {(currentValue).toLocaleString('no-NO', { maximumFractionDigits: 0 })}
+                      NOK{' '}
+                      {currentValue.toLocaleString('no-NO', {
+                        maximumFractionDigits: 0,
+                      })}
                     </p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-gray-600">Dagens Endring</p>
-                    <p className={`text-lg font-bold ${changePercent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {changePercent >= 0 ? '+' : ''}{changePercent.toFixed(1)}%
+                    <p
+                      className={`text-lg font-bold ${changePercent >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                    >
+                      {changePercent >= 0 ? '+' : ''}
+                      {changePercent.toFixed(1)}%
                     </p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-gray-600">Total Avkastning</p>
-                    <p className={`text-lg font-bold ${(portfolioState.portfolio?.total_gain_loss_percent || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {(portfolioState.portfolio?.total_gain_loss_percent || 0) >= 0 ? '+' : ''}{(portfolioState.portfolio?.total_gain_loss_percent || 15.8).toFixed(1)}%
+                    <p
+                      className={`text-lg font-bold ${(portfolioState.portfolio?.total_gain_loss_percent || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                    >
+                      {(portfolioState.portfolio?.total_gain_loss_percent ||
+                        0) >= 0
+                        ? '+'
+                        : ''}
+                      {(
+                        portfolioState.portfolio?.total_gain_loss_percent ||
+                        15.8
+                      ).toFixed(1)}
+                      %
                     </p>
                   </div>
                   <div className="space-y-1">
@@ -444,18 +580,19 @@ export default function StocksPage() {
                 </div>
               </div>
 
-              {/* Finnhub Queue Status */}
-              <FinnhubQueueStatus 
-                queueStatus={portfolioState.queueStatus || { total: 0, processing: 0, completed: 0, failed: 0 }}
-                pricesCount={Object.keys(portfolioState.finnhubPrices || {}).length}
+              {/* Real-time Price Status */}
+              <FinnhubQueueStatus
+                queueStatus={{
+                  total: 0,
+                  processing: 0,
+                  completed: Object.keys(portfolioState.realtimePrices || {})
+                    .length,
+                  failed: 0,
+                }}
+                pricesCount={
+                  Object.keys(portfolioState.realtimePrices || {}).length
+                }
               />
-
-              {/* Finnhub API Test (Development Only) */}
-              {process.env.NODE_ENV === 'development' && (
-                <div className="mt-6">
-                  <FinnhubTest />
-                </div>
-              )}
             </div>
           </div>
         </main>
@@ -476,13 +613,21 @@ export default function StocksPage() {
       <CSVImportModal
         isOpen={isCSVModalOpen}
         onClose={() => setIsCSVModalOpen(false)}
-        onImportComplete={(result) => {
+        onImportComplete={result => {
           console.log('CSV import completed:', result)
           // Here you would refresh the portfolio data
           if (portfolioState.refresh) {
             portfolioState.refresh()
           }
         }}
+      />
+
+      {/* Add Transaction Modal */}
+      <AddTransactionModal
+        isOpen={isAddTransactionModalOpen}
+        onClose={handleCloseTransactionModal}
+        onSubmit={handleSubmitTransaction}
+        accounts={accounts}
       />
     </ErrorBoundary>
   )

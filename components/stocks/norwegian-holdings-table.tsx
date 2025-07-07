@@ -160,14 +160,20 @@ const SAMPLE_HOLDINGS: NorwegianHolding[] = [
 ]
 
 // Convert HoldingWithMetrics to NorwegianHolding format
-const convertToNorwegianHolding = (holding: HoldingWithMetrics): NorwegianHolding => {
+const convertToNorwegianHolding = (
+  holding: HoldingWithMetrics
+): NorwegianHolding => {
+  // Determine country based on symbol
+  const country = holding.symbol.includes('.OL') ? 'NO' : 'US'
+  
   console.log('Converting holding to Norwegian format:', {
     symbol: holding.symbol,
     currentPrice: holding.current_price,
     dailyChange: holding.daily_change,
-    dailyChangePercent: holding.daily_change_percent
+    dailyChangePercent: holding.daily_change_percent,
+    country,
   })
-  
+
   return {
     id: holding.id,
     broker: 'Nordnet', // Default broker, could be extracted from account data
@@ -181,7 +187,7 @@ const convertToNorwegianHolding = (holding: HoldingWithMetrics): NorwegianHoldin
     pnl: holding.gain_loss,
     pnlPercent: holding.gain_loss_percent,
     marketValue: holding.current_value,
-    country: 'NO' as const,
+    country: country as 'NO' | 'US' | 'EU' | 'OTHER',
   }
 }
 
@@ -211,11 +217,14 @@ export function NorwegianHoldingsTable({
     }
   }
 
-  // Use converted holdings or sample data
+  // Use real holdings data when available
   const displayHoldings = useMemo(() => {
     if (holdings && holdings.length > 0) {
+      console.log('Using real holdings data:', holdings.length, 'holdings')
       return holdings.map(convertToNorwegianHolding)
     }
+    // Only use sample data if no real holdings exist (for demo/empty state)
+    console.log('No real holdings found, using sample data for demo')
     return SAMPLE_HOLDINGS
   }, [holdings])
 
@@ -307,7 +316,7 @@ export function NorwegianHoldingsTable({
               Totalt antall
             </p>
             <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-              {formatNumber(holdings.length)}
+              {formatNumber(displayHoldings.length)}
             </p>
           </div>
           <div className="space-y-1">
@@ -316,7 +325,7 @@ export function NorwegianHoldingsTable({
             </p>
             <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
               {formatCurrency(
-                holdings.reduce((sum, h) => sum + h.marketValue, 0),
+                displayHoldings.reduce((sum, h) => sum + h.marketValue, 0),
                 'NOK'
               )}
             </p>
@@ -328,13 +337,13 @@ export function NorwegianHoldingsTable({
             <p
               className={cn(
                 'text-lg font-bold',
-                holdings.reduce((sum, h) => sum + h.pnl, 0) > 0
+                displayHoldings.reduce((sum, h) => sum + h.pnl, 0) > 0
                   ? 'text-green-600 dark:text-green-400'
                   : 'text-red-600 dark:text-red-400'
               )}
             >
               {formatCurrency(
-                holdings.reduce((sum, h) => sum + h.pnl, 0),
+                displayHoldings.reduce((sum, h) => sum + h.pnl, 0),
                 'NOK'
               )}
             </p>
@@ -346,16 +355,16 @@ export function NorwegianHoldingsTable({
             <p
               className={cn(
                 'text-lg font-bold',
-                holdings.reduce((sum, h) => sum + h.changePercent, 0) /
-                  holdings.length >
+                displayHoldings.reduce((sum, h) => sum + h.changePercent, 0) /
+                  displayHoldings.length >
                   0
                   ? 'text-green-600 dark:text-green-400'
                   : 'text-red-600 dark:text-red-400'
               )}
             >
               {formatPercentage(
-                holdings.reduce((sum, h) => sum + h.changePercent, 0) /
-                  holdings.length
+                displayHoldings.reduce((sum, h) => sum + h.changePercent, 0) /
+                  displayHoldings.length
               )}
             </p>
           </div>
@@ -432,125 +441,134 @@ export function NorwegianHoldingsTable({
               <AnimatePresence>
                 {sortedHoldings.map((holding, index) => {
                   // Find original holding if available
-                  const originalHolding = holdings?.find(h => h.id === holding.id)
+                  const originalHolding = holdings?.find(
+                    h => h.id === holding.id
+                  )
                   return (
-                  <motion.tr
-                    key={holding.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2, delay: index * 0.03 }}
-                    className={cn(
-                      'cursor-pointer border-b border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800/50',
-                      onHoldingClick &&
-                        'hover:bg-purple-50 dark:hover:bg-purple-900/20'
-                    )}
-                    onClick={() => {
-                      if (originalHolding) {
-                        onHoldingClick?.(originalHolding)
-                      }
-                    }}
-                  >
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">
-                          {NORWEGIAN_BROKERS[
-                            holding.broker as keyof typeof NORWEGIAN_BROKERS
-                          ]?.logo || '🏛️'}
-                        </span>
-                        <span className="font-medium">{holding.broker}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
+                    <motion.tr
+                      key={holding.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2, delay: index * 0.03 }}
+                      className={cn(
+                        'cursor-pointer border-b border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800/50',
+                        onHoldingClick &&
+                          'hover:bg-purple-50 dark:hover:bg-purple-900/20'
+                      )}
+                      onClick={() => {
+                        if (originalHolding) {
+                          onHoldingClick?.(originalHolding)
+                        }
+                      }}
+                    >
+                      <TableCell>
                         <div className="flex items-center gap-2">
-                          <span className="font-medium">{holding.stock}</span>
-                          <span>{getCountryFlag(holding.country)}</span>
+                          <span className="text-lg">
+                            {NORWEGIAN_BROKERS[
+                              holding.broker as keyof typeof NORWEGIAN_BROKERS
+                            ]?.logo || '🏛️'}
+                          </span>
+                          <span className="font-medium">{holding.broker}</span>
                         </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                          {holding.stockSymbol}
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{holding.stock}</span>
+                            <span>{getCountryFlag(holding.country)}</span>
+                          </div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {holding.stockSymbol}
+                          </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="space-y-1">
-                        <div className="font-medium">
-                          {formatNumber(holding.quantity)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="space-y-1">
+                          <div className="font-medium">
+                            {formatNumber(holding.quantity)}
+                          </div>
+                          <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                            {formatCurrency(holding.currentPrice, 'NOK')}
+                            {holding.currentPrice > 0 && (
+                              <div
+                                className="h-2 w-2 animate-pulse rounded-full bg-green-500"
+                                title="Live price"
+                              />
+                            )}
+                          </div>
                         </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                          {formatCurrency(holding.currentPrice, 'NOK')}
-                          {holding.currentPrice > 0 && (
-                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" title="Live price" />
-                          )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="space-y-1">
+                          <div className="font-medium">
+                            {formatCurrency(holding.costBasis, 'NOK')}
+                          </div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {formatCurrency(
+                              holding.costBasis * holding.quantity,
+                              'NOK',
+                              { compact: true }
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="space-y-1">
-                        <div className="font-medium">
-                          {formatCurrency(holding.costBasis, 'NOK')}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          {getTrendIcon(holding.changePercent)}
+                          <div className="space-y-1">
+                            <div
+                              className={cn(
+                                'font-medium',
+                                holding.changePercent > 0
+                                  ? 'text-green-600 dark:text-green-400'
+                                  : holding.changePercent < 0
+                                    ? 'text-red-600 dark:text-red-400'
+                                    : 'text-gray-600 dark:text-gray-400'
+                              )}
+                            >
+                              {formatPercentage(holding.changePercent)}
+                            </div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                              {formatCurrency(holding.change, 'NOK')}
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                          {formatCurrency(
-                            holding.costBasis * holding.quantity,
-                            'NOK',
-                            { compact: true }
-                          )}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        {getTrendIcon(holding.changePercent)}
+                      </TableCell>
+                      <TableCell className="text-right">
                         <div className="space-y-1">
                           <div
                             className={cn(
                               'font-medium',
-                              holding.changePercent > 0
+                              holding.pnl > 0
                                 ? 'text-green-600 dark:text-green-400'
-                                : holding.changePercent < 0
+                                : holding.pnl < 0
                                   ? 'text-red-600 dark:text-red-400'
                                   : 'text-gray-600 dark:text-gray-400'
                             )}
                           >
-                            {formatPercentage(holding.changePercent)}
+                            {formatCurrency(holding.pnl, 'NOK')}
                           </div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">
-                            {formatCurrency(holding.change, 'NOK')}
-                          </div>
+                          <Badge
+                            variant={
+                              holding.pnlPercent > 0 ? 'default' : 'destructive'
+                            }
+                            className="text-xs"
+                          >
+                            {formatPercentage(holding.pnlPercent)}
+                          </Badge>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="space-y-1">
-                        <div
-                          className={cn(
-                            'font-medium',
-                            holding.pnl > 0
-                              ? 'text-green-600 dark:text-green-400'
-                              : holding.pnl < 0
-                                ? 'text-red-600 dark:text-red-400'
-                                : 'text-gray-600 dark:text-gray-400'
-                          )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
                         >
-                          {formatCurrency(holding.pnl, 'NOK')}
-                        </div>
-                        <Badge
-                          variant={
-                            holding.pnlPercent > 0 ? 'default' : 'destructive'
-                          }
-                          className="text-xs"
-                        >
-                          {formatPercentage(holding.pnlPercent)}
-                        </Badge>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </motion.tr>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </motion.tr>
                   )
                 })}
               </AnimatePresence>

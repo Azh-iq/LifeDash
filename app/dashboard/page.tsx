@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { NorwegianBreadcrumb } from '@/components/ui/norwegian-breadcrumb'
 import { Widget, WidgetContainer } from '@/components/ui/widget'
 import { LoadingState } from '@/components/ui/loading-states'
-import { TrendingUp, Heart, DollarSign, Wrench, LogOut, User } from 'lucide-react'
+import { TrendingUp, Heart, DollarSign, Wrench, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export default function DashboardPage() {
@@ -39,9 +39,9 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
         <div className="flex min-h-screen items-center justify-center">
-          <LoadingState 
-            variant="widget" 
-            size="lg" 
+          <LoadingState
+            variant="widget"
+            size="lg"
             text="Laster LifeDash..."
             className="text-center"
           />
@@ -109,7 +109,9 @@ export default function DashboardPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">LifeDash</h1>
-              <p className="text-sm text-gray-600">Din personlige kontrollpanel</p>
+              <p className="text-sm text-gray-600">
+                Din personlige kontrollpanel
+              </p>
             </div>
           </div>
 
@@ -132,7 +134,7 @@ export default function DashboardPage() {
               }}
               className="border-purple-200 text-purple-600 hover:bg-purple-50"
             >
-              <LogOut className="h-4 w-4 mr-2" />
+              <LogOut className="mr-2 h-4 w-4" />
               Logg ut
             </Button>
           </div>
@@ -147,14 +149,14 @@ export default function DashboardPage() {
             Velkommen til LifeDash
           </h2>
           <p className="mx-auto max-w-3xl text-lg text-gray-600">
-            Din personlige kontrollpanel for å holde oversikt over investeringer, 
-            hobby prosjekter, økonomi og nyttige verktøy.
+            Din personlige kontrollpanel for å holde oversikt over
+            investeringer, hobby prosjekter, økonomi og nyttige verktøy.
           </p>
         </div>
 
         {/* Dashboard Cards */}
         <WidgetContainer columns={2} gap="lg" className="mb-8">
-          {dashboardCards.map((card) => (
+          {dashboardCards.map(card => (
             <Widget
               key={card.id}
               title={card.title}
@@ -174,10 +176,10 @@ export default function DashboardPage() {
                   </div>
                   <div
                     className={`text-sm font-semibold ${
-                      card.change.startsWith('+') 
-                        ? 'text-green-600' 
-                        : card.change.startsWith('-') 
-                          ? 'text-red-600' 
+                      card.change.startsWith('+')
+                        ? 'text-green-600'
+                        : card.change.startsWith('-')
+                          ? 'text-red-600'
                           : 'text-gray-600'
                     }`}
                   >
@@ -191,33 +193,21 @@ export default function DashboardPage() {
 
         {/* Quick Stats */}
         <WidgetContainer columns={3} gap="md">
-          <Widget
-            title="Total Verdi"
-            size="small"
-            category="stocks"
-          >
+          <Widget title="Total Verdi" size="small" category="stocks">
             <div className="text-center">
               <p className="text-3xl font-bold text-gray-900">NOK 569,230</p>
               <p className="text-sm text-green-600">+4.2% denne måneden</p>
             </div>
           </Widget>
 
-          <Widget
-            title="Aktive Prosjekter"
-            size="small"
-            category="art"
-          >
+          <Widget title="Aktive Prosjekter" size="small" category="art">
             <div className="text-center">
               <p className="text-3xl font-bold text-gray-900">12</p>
               <p className="text-sm text-blue-600">2 nye denne uken</p>
             </div>
           </Widget>
 
-          <Widget
-            title="Verktøy Brukt"
-            size="small"
-            category="other"
-          >
+          <Widget title="Verktøy Brukt" size="small" category="other">
             <div className="text-center">
               <p className="text-3xl font-bold text-gray-900">8</p>
               <p className="text-sm text-purple-600">Sist brukt i dag</p>

@@ -34,29 +34,29 @@ const feedItems = [
     type: 'news',
     color: 'green',
     text: 'Q3 earnings report released',
-    time: '2 minutes ago'
+    time: '2 minutes ago',
   },
   {
     id: 2,
     type: 'alert',
-    color: 'yellow', 
+    color: 'yellow',
     text: 'Stock buy alert triggered',
-    time: '15 minutes ago'
+    time: '15 minutes ago',
   },
   {
     id: 3,
     type: 'alert',
     color: 'blue',
     text: 'Price target updated',
-    time: '1 hour ago'
+    time: '1 hour ago',
   },
   {
     id: 4,
     type: 'news',
     color: 'green',
     text: 'Market analysis update',
-    time: '2 hours ago'
-  }
+    time: '2 hours ago',
+  },
 ]
 
 // Holdings table data for this specific stock across brokers
@@ -70,7 +70,7 @@ const getHoldingsForStock = (stockSymbol: string) => [
     change: 2.4,
     pnlPercent: 12.3,
     pnlAmount: 5612,
-    pnlCurrency: 'NOK'
+    pnlCurrency: 'NOK',
   },
   {
     broker: 'DNB',
@@ -81,49 +81,56 @@ const getHoldingsForStock = (stockSymbol: string) => [
     change: 2.4,
     pnlPercent: -3.2,
     pnlAmount: -720,
-    pnlCurrency: 'NOK'
-  }
+    pnlCurrency: 'NOK',
+  },
 ]
 
-// Generate sample price data for chart
-const generateChartData = (symbol: string) => {
-  const basePrice = symbol === 'EQUINOR' ? 280 : symbol === 'DNB' ? 185 : 150
+// Generate chart data based on actual stock price
+const generateChartData = (symbol: string, currentPrice: number) => {
   const data = []
   const now = new Date()
   
+  // Use current price as baseline instead of hardcoded values
+  const basePrice = currentPrice > 0 ? currentPrice : 150
+
   for (let i = 29; i >= 0; i--) {
     const timestamp = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
-    const variation = (Math.random() - 0.5) * 20
-    const price = basePrice + variation
+    // Generate smaller, more realistic variations around current price
+    const variation = (Math.random() - 0.5) * (basePrice * 0.05) // 5% max variation
+    const price = Math.max(basePrice + variation, 0.01) // Ensure positive price
     data.push({
       timestamp: timestamp.toISOString(),
       price: price,
       change: variation,
-      changePercent: (variation / basePrice) * 100
+      changePercent: (variation / basePrice) * 100,
     })
   }
-  
+
   return data
 }
 
-export default function StockDetailModalV2({ isOpen, onClose, stockData }: StockDetailModalV2Props) {
+export default function StockDetailModalV2({
+  isOpen,
+  onClose,
+  stockData,
+}: StockDetailModalV2Props) {
   const [activeTab, setActiveTab] = useState('overview')
   const [activeTimeRange, setActiveTimeRange] = useState('D')
-  
+
   const stock = stockData.stocks
   const symbol = stock?.symbol || 'N/A'
   const currentPrice = stockData.current_price || 0
   const dailyChange = stockData.daily_change || 0
   const dailyChangePercent = stockData.daily_change_percent || 0
   const isPositive = dailyChange >= 0
-  
+
   // Get holdings data for this stock
   const holdings = getHoldingsForStock(symbol)
-  
-  // Get chart data
-  const chartData = generateChartData(symbol)
+
+  // Get chart data based on actual current price
+  const chartData = generateChartData(symbol, currentPrice)
   const latestPrice = chartData[chartData.length - 1]?.price || currentPrice
-  
+
   // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
@@ -131,7 +138,7 @@ export default function StockDetailModalV2({ isOpen, onClose, stockData }: Stock
     } else {
       document.body.style.overflow = 'unset'
     }
-    
+
     return () => {
       document.body.style.overflow = 'unset'
     }
@@ -142,21 +149,21 @@ export default function StockDetailModalV2({ isOpen, onClose, stockData }: Stock
   const OverviewTab = () => (
     <div className="p-6">
       {/* Main Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px]">
         {/* Chart Container */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-6">
-          <div className="flex justify-between items-center mb-6">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6">
+          <div className="mb-6 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">Price</h3>
             <div className="flex gap-2">
-              {timeRanges.map((range) => (
+              {timeRanges.map(range => (
                 <button
                   key={range.id}
                   onClick={() => setActiveTimeRange(range.id)}
                   className={cn(
-                    'px-4 py-2 border rounded-lg text-sm font-semibold transition-all',
+                    'rounded-lg border px-4 py-2 text-sm font-semibold transition-all',
                     activeTimeRange === range.id
-                      ? 'bg-purple-600 text-white border-purple-600'
-                      : 'bg-white text-gray-600 border-gray-300 hover:border-purple-600 hover:text-purple-600'
+                      ? 'border-purple-600 bg-purple-600 text-white'
+                      : 'border-gray-300 bg-white text-gray-600 hover:border-purple-600 hover:text-purple-600'
                   )}
                 >
                   {range.label}
@@ -164,40 +171,55 @@ export default function StockDetailModalV2({ isOpen, onClose, stockData }: Stock
               ))}
             </div>
           </div>
-          
+
           {/* Chart Area */}
-          <div className="h-[300px] bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl flex flex-col justify-center items-center text-white relative">
-            <div className="text-5xl font-bold font-mono mb-2">
+          <div className="relative flex h-[300px] flex-col items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-purple-700 text-white">
+            <div className="mb-2 font-mono text-5xl font-bold">
               {formatCurrency(latestPrice, stock?.currency || 'NOK')}
             </div>
-            <div className="text-lg opacity-80">Interactive Chart kommer snart</div>
-            
+            <div className="text-lg opacity-80">
+              Interactive Chart kommer snart
+            </div>
+
             {/* Price change indicator */}
-            <div className={cn(
-              'absolute top-4 right-4 flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold',
-              isPositive ? 'bg-green-500/20 text-green-100' : 'bg-red-500/20 text-red-100'
-            )}>
-              {isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-              {isPositive ? '+' : ''}{formatPercentage(dailyChangePercent)}
+            <div
+              className={cn(
+                'absolute right-4 top-4 flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold',
+                isPositive
+                  ? 'bg-green-500/20 text-green-100'
+                  : 'bg-red-500/20 text-red-100'
+              )}
+            >
+              {isPositive ? (
+                <TrendingUp className="h-4 w-4" />
+              ) : (
+                <TrendingDown className="h-4 w-4" />
+              )}
+              {isPositive ? '+' : ''}
+              {formatPercentage(dailyChangePercent)}
             </div>
           </div>
         </div>
 
         {/* Feed Panel */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 max-h-[400px] overflow-y-auto">
-          <h3 className="text-lg font-semibold text-gray-900 mb-5">Feed (Patreon)</h3>
-          
+        <div className="max-h-[400px] overflow-y-auto rounded-2xl border border-gray-200 bg-white p-6">
+          <h3 className="mb-5 text-lg font-semibold text-gray-900">
+            Feed (Patreon)
+          </h3>
+
           <div className="space-y-5">
-            {feedItems.map((item) => (
+            {feedItems.map(item => (
               <div key={item.id} className="flex items-start gap-3">
-                <div className={cn(
-                  'w-2 h-2 rounded-full mt-2 flex-shrink-0',
-                  item.color === 'green' && 'bg-green-500',
-                  item.color === 'yellow' && 'bg-yellow-500',
-                  item.color === 'blue' && 'bg-blue-500'
-                )} />
+                <div
+                  className={cn(
+                    'mt-2 h-2 w-2 flex-shrink-0 rounded-full',
+                    item.color === 'green' && 'bg-green-500',
+                    item.color === 'yellow' && 'bg-yellow-500',
+                    item.color === 'blue' && 'bg-blue-500'
+                  )}
+                />
                 <div className="flex-1">
-                  <div className="text-sm text-gray-900 mb-1">{item.text}</div>
+                  <div className="mb-1 text-sm text-gray-900">{item.text}</div>
                   <div className="text-xs text-gray-500">{item.time}</div>
                 </div>
               </div>
@@ -207,48 +229,80 @@ export default function StockDetailModalV2({ isOpen, onClose, stockData }: Stock
       </div>
 
       {/* Holdings Table */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-5">Holdings</h3>
-        
+      <div className="rounded-2xl border border-gray-200 bg-white p-6">
+        <h3 className="mb-5 text-lg font-semibold text-gray-900">Holdings</h3>
+
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Broker</th>
-                <th className="text-left py-3 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Stock</th>
-                <th className="text-left py-3 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Qty</th>
-                <th className="text-left py-3 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Cost</th>
-                <th className="text-left py-3 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Change</th>
-                <th className="text-left py-3 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">P&L %</th>
-                <th className="text-left py-3 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">P&L</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Broker
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Stock
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Qty
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Cost
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Change
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  P&L %
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  P&L
+                </th>
               </tr>
             </thead>
             <tbody>
               {holdings.map((holding, index) => (
-                <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-4 px-3 font-semibold text-gray-900">{holding.broker}</td>
-                  <td className="py-4 px-3 text-gray-700">{holding.stock}</td>
-                  <td className="py-4 px-3 font-mono font-semibold">{holding.quantity.toLocaleString()}</td>
-                  <td className="py-4 px-3 font-mono font-semibold">
+                <tr
+                  key={index}
+                  className="border-b border-gray-100 hover:bg-gray-50"
+                >
+                  <td className="px-3 py-4 font-semibold text-gray-900">
+                    {holding.broker}
+                  </td>
+                  <td className="px-3 py-4 text-gray-700">{holding.stock}</td>
+                  <td className="px-3 py-4 font-mono font-semibold">
+                    {holding.quantity.toLocaleString()}
+                  </td>
+                  <td className="px-3 py-4 font-mono font-semibold">
                     {formatCurrency(holding.cost, holding.costCurrency)}
                   </td>
-                  <td className={cn(
-                    'py-4 px-3 font-mono font-semibold',
-                    holding.change >= 0 ? 'text-green-600' : 'text-red-600'
-                  )}>
-                    {holding.change >= 0 ? '+' : ''}{holding.change}%
+                  <td
+                    className={cn(
+                      'px-3 py-4 font-mono font-semibold',
+                      holding.change >= 0 ? 'text-green-600' : 'text-red-600'
+                    )}
+                  >
+                    {holding.change >= 0 ? '+' : ''}
+                    {holding.change}%
                   </td>
-                  <td className={cn(
-                    'py-4 px-3 font-mono font-semibold',
-                    holding.pnlPercent >= 0 ? 'text-green-600' : 'text-red-600'
-                  )}>
-                    {holding.pnlPercent >= 0 ? '+' : ''}{holding.pnlPercent}%
+                  <td
+                    className={cn(
+                      'px-3 py-4 font-mono font-semibold',
+                      holding.pnlPercent >= 0
+                        ? 'text-green-600'
+                        : 'text-red-600'
+                    )}
+                  >
+                    {holding.pnlPercent >= 0 ? '+' : ''}
+                    {holding.pnlPercent}%
                   </td>
-                  <td className={cn(
-                    'py-4 px-3 font-mono font-semibold',
-                    holding.pnlAmount >= 0 ? 'text-green-600' : 'text-red-600'
-                  )}>
-                    {holding.pnlAmount >= 0 ? '+' : ''}{formatCurrency(holding.pnlAmount, holding.pnlCurrency)}
+                  <td
+                    className={cn(
+                      'px-3 py-4 font-mono font-semibold',
+                      holding.pnlAmount >= 0 ? 'text-green-600' : 'text-red-600'
+                    )}
+                  >
+                    {holding.pnlAmount >= 0 ? '+' : ''}
+                    {formatCurrency(holding.pnlAmount, holding.pnlCurrency)}
                   </td>
                 </tr>
               ))}
@@ -261,20 +315,27 @@ export default function StockDetailModalV2({ isOpen, onClose, stockData }: Stock
 
   const FeedTab = () => (
     <div className="p-6">
-      <div className="bg-white border border-gray-200 rounded-2xl p-6 max-h-[500px] overflow-y-auto">
-        <h3 className="text-lg font-semibold text-gray-900 mb-5">Feed (Patreon)</h3>
-        
+      <div className="max-h-[500px] overflow-y-auto rounded-2xl border border-gray-200 bg-white p-6">
+        <h3 className="mb-5 text-lg font-semibold text-gray-900">
+          Feed (Patreon)
+        </h3>
+
         <div className="space-y-5">
           {feedItems.concat(feedItems).map((item, index) => (
-            <div key={`${item.id}-${index}`} className="flex items-start gap-3 pb-4 border-b border-gray-100 last:border-b-0">
-              <div className={cn(
-                'w-2 h-2 rounded-full mt-2 flex-shrink-0',
-                item.color === 'green' && 'bg-green-500',
-                item.color === 'yellow' && 'bg-yellow-500',
-                item.color === 'blue' && 'bg-blue-500'
-              )} />
+            <div
+              key={`${item.id}-${index}`}
+              className="flex items-start gap-3 border-b border-gray-100 pb-4 last:border-b-0"
+            >
+              <div
+                className={cn(
+                  'mt-2 h-2 w-2 flex-shrink-0 rounded-full',
+                  item.color === 'green' && 'bg-green-500',
+                  item.color === 'yellow' && 'bg-yellow-500',
+                  item.color === 'blue' && 'bg-blue-500'
+                )}
+              />
               <div className="flex-1">
-                <div className="text-sm text-gray-900 mb-1">{item.text}</div>
+                <div className="mb-1 text-sm text-gray-900">{item.text}</div>
                 <div className="text-xs text-gray-500">{item.time}</div>
               </div>
             </div>
@@ -286,8 +347,10 @@ export default function StockDetailModalV2({ isOpen, onClose, stockData }: Stock
 
   const TransactionsTab = () => (
     <div className="p-6">
-      <div className="text-center py-20 text-gray-500">
-        <h3 className="text-xl font-semibold mb-2">Transaksjoner kommer snart</h3>
+      <div className="py-20 text-center text-gray-500">
+        <h3 className="mb-2 text-xl font-semibold">
+          Transaksjoner kommer snart
+        </h3>
         <p>Detaljert transaksjonshistorikk for denne aksjen.</p>
       </div>
     </div>
@@ -300,41 +363,41 @@ export default function StockDetailModalV2({ isOpen, onClose, stockData }: Stock
   ]
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-5">
-      <div className="w-full max-w-7xl max-h-[90vh] bg-white rounded-3xl overflow-hidden flex flex-col shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-5">
+      <div className="flex max-h-[90vh] w-full max-w-7xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
         {/* Modal Header */}
-        <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-6 flex justify-between items-center">
-          <div className="text-4xl font-bold font-mono">{symbol}</div>
+        <div className="flex items-center justify-between bg-gradient-to-r from-purple-600 to-purple-700 p-6 text-white">
+          <div className="font-mono text-4xl font-bold">{symbol}</div>
           <button
             onClick={onClose}
-            className="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center text-white transition-colors"
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-white transition-colors hover:bg-white/30"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Breadcrumb */}
-        <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white/80 px-6 py-2 text-sm border-t border-white/20">
-          <span className="hover:text-white cursor-pointer">Dashboard</span>
+        <div className="border-t border-white/20 bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-2 text-sm text-white/80">
+          <span className="cursor-pointer hover:text-white">Dashboard</span>
           <span className="mx-2">›</span>
-          <span className="hover:text-white cursor-pointer">Investeringer</span>
+          <span className="cursor-pointer hover:text-white">Investeringer</span>
           <span className="mx-2">›</span>
-          <span className="hover:text-white cursor-pointer">Aksjer</span>
+          <span className="cursor-pointer hover:text-white">Aksjer</span>
           <span className="mx-2">›</span>
-          <span className="text-white font-semibold">{symbol}</span>
+          <span className="font-semibold text-white">{symbol}</span>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex bg-gray-50 border-b border-gray-200">
-          {tabs.map((tab) => (
+        <div className="flex border-b border-gray-200 bg-gray-50">
+          {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                'flex-1 py-4 px-6 text-base font-semibold transition-all border-b-3',
+                'border-b-3 flex-1 px-6 py-4 text-base font-semibold transition-all',
                 activeTab === tab.id
-                  ? 'text-purple-600 bg-white border-purple-600'
-                  : 'text-gray-500 bg-gray-50 border-transparent hover:text-gray-700 hover:bg-gray-100'
+                  ? 'border-purple-600 bg-white text-purple-600'
+                  : 'border-transparent bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-700'
               )}
             >
               {tab.label}

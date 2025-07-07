@@ -68,54 +68,6 @@ export function CSVUploadZone({
     validationResult: null,
   })
 
-  const handleDragEnter = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-      if (!disabled) {
-        setUploadState(prev => ({ ...prev, isDragOver: true }))
-      }
-    },
-    [disabled]
-  )
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setUploadState(prev => ({ ...prev, isDragOver: false }))
-  }, [])
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-  }, [])
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-      setUploadState(prev => ({ ...prev, isDragOver: false }))
-
-      if (disabled) return
-
-      const files = Array.from(e.dataTransfer.files)
-      if (files.length > 0) {
-        handleFileSelection(files[0])
-      }
-    },
-    [disabled, handleFileSelection]
-  )
-
-  const handleFileInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files
-      if (files && files.length > 0) {
-        handleFileSelection(files[0])
-      }
-    },
-    [handleFileSelection]
-  )
-
   const handleFileSelection = useCallback(
     async (file: File) => {
       setUploadState(prev => ({
@@ -174,6 +126,54 @@ export function CSVUploadZone({
       }
     },
     [onFileSelect, onError]
+  )
+
+  const handleDragEnter = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      if (!disabled) {
+        setUploadState(prev => ({ ...prev, isDragOver: true }))
+      }
+    },
+    [disabled]
+  )
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setUploadState(prev => ({ ...prev, isDragOver: false }))
+  }, [])
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }, [])
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setUploadState(prev => ({ ...prev, isDragOver: false }))
+
+      if (disabled) return
+
+      const files = Array.from(e.dataTransfer.files)
+      if (files.length > 0) {
+        handleFileSelection(files[0])
+      }
+    },
+    [disabled, handleFileSelection]
+  )
+
+  const handleFileInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files
+      if (files && files.length > 0) {
+        handleFileSelection(files[0])
+      }
+    },
+    [handleFileSelection]
   )
 
   const handleRemoveFile = useCallback(() => {

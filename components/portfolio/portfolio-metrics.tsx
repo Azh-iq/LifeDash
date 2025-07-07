@@ -224,14 +224,13 @@ const PortfolioMetrics = memo(function PortfolioMetrics({
       totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0
     const holdingsCount = portfolio?.holdings_count || 0
 
-    // Mock daily change (in real app, this would come from historical data)
-    const dailyChange = totalValue * (Math.random() - 0.5) * 0.02 // ±1% daily change
-    const dailyChangePercent =
-      totalValue > 0 ? (dailyChange / totalValue) * 100 : 0
+    // Use actual daily change from portfolio data (calculated from real stock prices)
+    const dailyChange = portfolio?.daily_change || 0
+    const dailyChangePercent = portfolio?.daily_change_percent || 0
 
-    // Mock weekly/monthly performance
-    const weeklyChange = totalValue * (Math.random() - 0.5) * 0.05 // ±2.5% weekly change
-    const monthlyChange = totalValue * (Math.random() - 0.5) * 0.1 // ±5% monthly change
+    // Use actual weekly/monthly performance from portfolio data
+    const weeklyChange = portfolio?.weekly_change || 0
+    const monthlyChange = portfolio?.monthly_change || 0
 
     const result = {
       totalValue,

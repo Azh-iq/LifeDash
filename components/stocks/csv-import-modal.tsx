@@ -12,9 +12,15 @@ interface CSVImportModalProps {
   onImportComplete?: (result: NordnetParseResult) => void
 }
 
-export default function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportModalProps) {
+export default function CSVImportModal({
+  isOpen,
+  onClose,
+  onImportComplete,
+}: CSVImportModalProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [parseResult, setParseResult] = useState<NordnetParseResult | null>(null)
+  const [parseResult, setParseResult] = useState<NordnetParseResult | null>(
+    null
+  )
   const [isImporting, setIsImporting] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
 
@@ -40,10 +46,10 @@ export default function CSVImportModal({ isOpen, onClose, onImportComplete }: CS
       // Here you would normally save the data to your database
       // For now we'll just simulate the import
       await new Promise(resolve => setTimeout(resolve, 2000))
-      
+
       onImportComplete?.(parseResult)
       onClose()
-      
+
       // Reset state
       setSelectedFile(null)
       setParseResult(null)
@@ -65,10 +71,10 @@ export default function CSVImportModal({ isOpen, onClose, onImportComplete }: CS
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-6 flex justify-between items-center">
+        <div className="flex items-center justify-between bg-gradient-to-r from-purple-600 to-purple-700 p-6 text-white">
           <div className="flex items-center gap-3">
             <FileUp className="h-6 w-6" />
             <h2 className="text-xl font-semibold">Import CSV</h2>
@@ -76,19 +82,21 @@ export default function CSVImportModal({ isOpen, onClose, onImportComplete }: CS
           <button
             onClick={handleClose}
             disabled={isImporting}
-            className="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center text-white transition-colors disabled:opacity-50"
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30 disabled:opacity-50"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+        <div className="max-h-[calc(90vh-80px)] overflow-y-auto p-6">
           <div className="space-y-6">
             {/* Instructions */}
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-              <h3 className="font-medium text-purple-900 mb-2">Støttede formater:</h3>
-              <ul className="text-sm text-purple-700 space-y-1">
+            <div className="rounded-lg border border-purple-200 bg-purple-50 p-4">
+              <h3 className="mb-2 font-medium text-purple-900">
+                Støttede formater:
+              </h3>
+              <ul className="space-y-1 text-sm text-purple-700">
                 <li>• Nordnet CSV eksport</li>
                 <li>• DNB CSV eksport (kommer snart)</li>
                 <li>• Generisk CSV format</li>
@@ -104,14 +112,14 @@ export default function CSVImportModal({ isOpen, onClose, onImportComplete }: CS
 
             {/* Error Display */}
             {importError && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-red-800 text-sm">{importError}</p>
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                <p className="text-sm text-red-800">{importError}</p>
               </div>
             )}
 
             {/* Import Actions */}
             {parseResult && (
-              <div className="flex justify-end gap-3 pt-4 border-t">
+              <div className="flex justify-end gap-3 border-t pt-4">
                 <Button
                   variant="outline"
                   onClick={handleClose}
@@ -126,12 +134,12 @@ export default function CSVImportModal({ isOpen, onClose, onImportComplete }: CS
                 >
                   {isImporting ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                       Importerer...
                     </>
                   ) : (
                     <>
-                      <Check className="h-4 w-4 mr-2" />
+                      <Check className="mr-2 h-4 w-4" />
                       Importer {parseResult.totalRows} transaksjoner
                     </>
                   )}

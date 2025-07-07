@@ -7,13 +7,13 @@ import { NorwegianBreadcrumb } from '@/components/ui/norwegian-breadcrumb'
 import { Widget, WidgetContainer } from '@/components/ui/widget'
 import { LoadingState } from '@/components/ui/loading-states'
 import { Button } from '@/components/ui/button'
-import { 
-  TrendingUp, 
-  DollarSign, 
-  Heart, 
-  PieChart, 
+import {
+  TrendingUp,
+  DollarSign,
+  Heart,
+  PieChart,
   LogOut,
-  ArrowLeft 
+  ArrowLeft,
 } from 'lucide-react'
 import {
   PageErrorBoundary,
@@ -110,9 +110,9 @@ export default function InvestmentsPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
         <div className="flex min-h-screen items-center justify-center">
-          <LoadingState 
-            variant="widget" 
-            size="lg" 
+          <LoadingState
+            variant="widget"
+            size="lg"
             text="Laster investeringer..."
             className="text-center"
           />
@@ -139,12 +139,16 @@ export default function InvestmentsPage() {
                 onClick={() => router.back()}
                 className="border-purple-200 text-purple-600 hover:bg-purple-50"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
+                <ArrowLeft className="mr-2 h-4 w-4" />
                 Tilbake
               </Button>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Investeringer</h1>
-                <p className="text-gray-600">Oversikt over alle dine investeringer</p>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Investeringer
+                </h1>
+                <p className="text-gray-600">
+                  Oversikt over alle dine investeringer
+                </p>
               </div>
             </div>
 
@@ -167,7 +171,7 @@ export default function InvestmentsPage() {
                 }}
                 className="border-purple-200 text-purple-600 hover:bg-purple-50"
               >
-                <LogOut className="h-4 w-4 mr-2" />
+                <LogOut className="mr-2 h-4 w-4" />
                 Logg ut
               </Button>
             </div>
@@ -183,19 +187,21 @@ export default function InvestmentsPage() {
             category="stocks"
             className="mb-8"
           >
-            <div className="text-center space-y-4">
+            <div className="space-y-4 text-center">
               <h2 className="text-5xl font-bold text-gray-900">
                 NOK {totalValue.toLocaleString('no-NO')}
               </h2>
               <div className="flex items-center justify-center gap-4">
                 <div
                   className={`flex items-center gap-2 rounded-full px-4 py-2 ${
-                    totalChangePercent >= 0 
-                      ? 'bg-green-50 text-green-600' 
+                    totalChangePercent >= 0
+                      ? 'bg-green-50 text-green-600'
                       : 'bg-red-50 text-red-600'
                   }`}
                 >
-                  <TrendingUp className={`h-4 w-4 ${totalChangePercent < 0 ? 'rotate-180' : ''}`} />
+                  <TrendingUp
+                    className={`h-4 w-4 ${totalChangePercent < 0 ? 'rotate-180' : ''}`}
+                  />
                   <span className="font-semibold">
                     {totalChangePercent >= 0 ? '+' : ''}
                     {totalChangePercent.toFixed(1)}%
@@ -221,7 +227,7 @@ export default function InvestmentsPage() {
           {/* Investment Categories */}
           <RenderErrorBoundary>
             <WidgetContainer columns={4} gap="lg" className="mb-8">
-              {categories.map((category) => (
+              {categories.map(category => (
                 <Widget
                   key={category.id}
                   title={category.title}
@@ -241,7 +247,9 @@ export default function InvestmentsPage() {
                       </div>
                       <div
                         className={`text-sm font-semibold ${
-                          category.change >= 0 ? 'text-green-600' : 'text-red-600'
+                          category.change >= 0
+                            ? 'text-green-600'
+                            : 'text-red-600'
                         }`}
                       >
                         {category.change >= 0 ? '+' : ''}
@@ -276,9 +284,14 @@ export default function InvestmentsPage() {
             >
               <div className="text-center">
                 <p className="text-2xl font-bold text-gray-900">
-                  {Object.values(investments).reduce((sum, cat) => sum + cat.count, 0)}
+                  {Object.values(investments).reduce(
+                    (sum, cat) => sum + cat.count,
+                    0
+                  )}
                 </p>
-                <p className="text-sm text-gray-600">På tvers av alle kategorier</p>
+                <p className="text-sm text-gray-600">
+                  På tvers av alle kategorier
+                </p>
               </div>
             </Widget>
 

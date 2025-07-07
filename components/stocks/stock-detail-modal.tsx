@@ -23,6 +23,10 @@ import {
   ArrowDownRight,
   Activity,
   Building,
+  Globe,
+  BarChart3,
+  Newspaper,
+  ExternalLink,
 } from 'lucide-react'
 import { formatCurrency, formatPercentage } from '@/lib/utils/format'
 import { cn } from '@/lib/utils/cn'
@@ -31,6 +35,14 @@ import {
   APIErrorBoundary,
   RenderErrorBoundary,
 } from '@/components/ui/error-boundaries'
+import {
+  fetchCompanyProfile,
+  fetchBasicFinancials,
+  fetchCompanyNews,
+  CompanyProfile,
+  BasicFinancials,
+  CompanyNews,
+} from '@/lib/utils/finnhub-api'
 
 // Types
 interface StockDetailModalProps {
@@ -60,7 +72,13 @@ interface Transaction {
 }
 
 // Stock Header Component
-const StockHeader = ({ stockData }: { stockData: HoldingWithMetrics }) => {
+const StockHeader = ({
+  stockData,
+  companyProfile,
+}: {
+  stockData: HoldingWithMetrics
+  companyProfile: CompanyProfile | null
+}) => {
   const stock = stockData.stocks
   const currentPrice = stockData.current_price || 0
   const dayChange = stockData.daily_change || 0
@@ -71,27 +89,57 @@ const StockHeader = ({ stockData }: { stockData: HoldingWithMetrics }) => {
     <div className="flex items-start justify-between">
       <div className="flex-1">
         <div className="mb-2 flex items-center gap-3">
+          {companyProfile?.logo && (
+            <img
+              src={companyProfile.logo}
+              alt={`${companyProfile.name} logo`}
+              className="h-8 w-8 rounded object-contain"
+              onError={e => {
+                ;(e.target as HTMLImageElement).style.display = 'none'
+              }}
+            />
+          )}
           <h2 className="text-2xl font-bold text-gray-900">
             {stock?.symbol || 'N/A'}
           </h2>
-          <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
-            {stock?.currency || 'NOK'}
+          <Badge
+            variant="secondary"
+            className="bg-purple-100 text-xs text-purple-700"
+          >
+            {companyProfile?.currency || stock?.currency || 'NOK'}
           </Badge>
+          {companyProfile?.exchange && (
+            <Badge
+              variant="outline"
+              className="border-purple-200 text-xs text-purple-600"
+            >
+              {companyProfile.exchange}
+            </Badge>
+          )}
         </div>
         <p className="mb-1 text-sm text-purple-600">
-          {stock?.name || 'Unknown Company'}
+          {companyProfile?.name || stock?.name || 'Unknown Company'}
         </p>
-        {stock?.sector && (
+        {(companyProfile?.finnhubIndustry || stock?.sector) && (
           <p className="flex items-center gap-1 text-xs text-purple-600">
             <Building className="h-3 w-3" />
-            {stock.sector}
+            {companyProfile?.finnhubIndustry || stock.sector}
+          </p>
+        )}
+        {companyProfile?.country && (
+          <p className="flex items-center gap-1 text-xs text-purple-500">
+            <Globe className="h-3 w-3" />
+            {companyProfile.country}
           </p>
         )}
       </div>
       <div className="text-right">
         <div className="mb-1 text-2xl font-bold text-gray-900">
           {currentPrice > 0
-            ? formatCurrency(currentPrice, stock?.currency || 'NOK')
+            ? formatCurrency(
+                currentPrice,
+                companyProfile?.currency || stock?.currency || 'NOK'
+              )
             : '—'}
         </div>
         <div
@@ -106,7 +154,10 @@ const StockHeader = ({ stockData }: { stockData: HoldingWithMetrics }) => {
             <ArrowDownRight className="h-4 w-4" />
           )}
           <span>
-            {formatCurrency(Math.abs(dayChange), stock?.currency || 'NOK')}
+            {formatCurrency(
+              Math.abs(dayChange),
+              companyProfile?.currency || stock?.currency || 'NOK'
+            )}
           </span>
           <span>({formatPercentage(dayChangePercent)})</span>
         </div>
@@ -116,7 +167,15 @@ const StockHeader = ({ stockData }: { stockData: HoldingWithMetrics }) => {
 }
 
 // Overview Tab Component
-const OverviewTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
+const OverviewTab = ({
+  stockData,
+  companyProfile,
+  basicFinancials,
+}: {
+  stockData: HoldingWithMetrics
+  companyProfile: CompanyProfile | null
+  basicFinancials: BasicFinancials | null
+}) => {
   const currentPrice = stockData.current_price || 0
   const marketValue =
     stockData.current_value || stockData.quantity * currentPrice
@@ -124,6 +183,18 @@ const OverviewTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
   const unrealizedPnlPercent = stockData.gain_loss_percent || 0
 
   const isPositive = unrealizedPnl >= 0
+
+  // Format large numbers for display
+  const formatLargeNumber = (num: number, currency = 'NOK') => {
+    if (num >= 1e9) {
+      return `${(num / 1e9).toFixed(1)}B ${currency}`
+    } else if (num >= 1e6) {
+      return `${(num / 1e6).toFixed(1)}M ${currency}`
+    } else if (num >= 1e3) {
+      return `${(num / 1e3).toFixed(1)}K ${currency}`
+    }
+    return formatCurrency(num, currency)
+  }
 
   return (
     <div className="space-y-6">
@@ -153,7 +224,7 @@ const OverviewTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
             <div className="text-2xl font-bold">
               {formatCurrency(
                 stockData.cost_basis,
-                stockData.stocks?.currency || 'NOK'
+                companyProfile?.currency || stockData.stocks?.currency || 'NOK'
               )}
             </div>
             <p className="mt-1 text-xs text-purple-500">per aksje</p>
@@ -168,7 +239,10 @@ const OverviewTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
           </CardHeader>
           <CardContent className="pt-0">
             <div className="text-2xl font-bold">
-              {formatCurrency(marketValue, stockData.stocks?.currency || 'NOK')}
+              {formatCurrency(
+                marketValue,
+                companyProfile?.currency || stockData.stocks?.currency || 'NOK'
+              )}
             </div>
             <p className="mt-1 text-xs text-purple-500">nåværende verdi</p>
           </CardContent>
@@ -184,7 +258,7 @@ const OverviewTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
             <div className="text-2xl font-bold">
               {formatCurrency(
                 stockData.cost_basis * stockData.quantity,
-                stockData.stocks?.currency || 'NOK'
+                companyProfile?.currency || stockData.stocks?.currency || 'NOK'
               )}
             </div>
             <p className="mt-1 text-xs text-purple-500">totalt investert</p>
@@ -212,7 +286,9 @@ const OverviewTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
                 {isPositive ? '+' : ''}
                 {formatCurrency(
                   unrealizedPnl,
-                  stockData.stocks?.currency || 'NOK'
+                  companyProfile?.currency ||
+                    stockData.stocks?.currency ||
+                    'NOK'
                 )}
               </div>
               <div
@@ -240,35 +316,66 @@ const OverviewTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
         </CardContent>
       </Card>
 
-      {/* Stock Info */}
+      {/* Company Info */}
       <Card className="border-purple-200">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-purple-700">
-            <Activity className="h-5 w-5 text-purple-600" />
-            Aksjeinformasjon
+            <Building className="h-5 w-5 text-purple-600" />
+            Selskapsinfo
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
+          {companyProfile?.weburl && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">Nettside</span>
+              <a
+                href={companyProfile.weburl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-sm font-medium text-purple-700 hover:text-purple-900"
+              >
+                <span className="max-w-[200px] truncate">
+                  {companyProfile.weburl.replace(/^https?:\/\//, '')}
+                </span>
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
+          )}
           <div className="flex items-center justify-between">
-            <span className="text-sm text-purple-600">Sektor</span>
+            <span className="text-sm text-purple-600">Bransje</span>
             <span className="text-sm font-medium">
-              {stockData.stocks?.sector || 'N/A'}
+              {companyProfile?.finnhubIndustry ||
+                stockData.stocks?.sector ||
+                'N/A'}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-purple-600">Aktivaklasse</span>
+            <span className="text-sm text-purple-600">Børs</span>
             <span className="text-sm font-medium">
-              {stockData.stocks?.asset_type || 'N/A'}
+              {companyProfile?.exchange || 'N/A'}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-purple-600">Markedsverdi</span>
             <span className="text-sm font-medium">
-              {stockData.stocks?.market_cap
-                ? formatCurrency(
-                    stockData.stocks.market_cap,
-                    stockData.stocks.currency
+              {companyProfile?.marketCapitalization
+                ? formatLargeNumber(
+                    companyProfile.marketCapitalization * 1e6,
+                    companyProfile.currency
                   )
+                : basicFinancials?.metric?.marketCapitalization
+                  ? formatLargeNumber(
+                      basicFinancials.metric.marketCapitalization * 1e6,
+                      companyProfile?.currency || 'USD'
+                    )
+                  : 'N/A'}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-purple-600">Aksjer utestående</span>
+            <span className="text-sm font-medium">
+              {companyProfile?.shareOutstanding
+                ? `${(companyProfile.shareOutstanding / 1e6).toFixed(1)}M`
                 : 'N/A'}
             </span>
           </div>
@@ -280,6 +387,66 @@ const OverviewTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Key Financial Metrics */}
+      {basicFinancials?.metric && (
+        <Card className="border-purple-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-purple-700">
+              <BarChart3 className="h-5 w-5 text-purple-600" />
+              Nøkkeltall
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {basicFinancials.metric.peBasicExclExtraTTM && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-purple-600">P/E-forhold</span>
+                <span className="text-sm font-medium">
+                  {basicFinancials.metric.peBasicExclExtraTTM.toFixed(1)}
+                </span>
+              </div>
+            )}
+            {basicFinancials.metric.ptbvAnnual && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-purple-600">P/B-forhold</span>
+                <span className="text-sm font-medium">
+                  {basicFinancials.metric.ptbvAnnual.toFixed(1)}
+                </span>
+              </div>
+            )}
+            {basicFinancials.metric['52WeekHigh'] && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-purple-600">52-ukers høy</span>
+                <span className="text-sm font-medium">
+                  {formatCurrency(
+                    basicFinancials.metric['52WeekHigh'],
+                    companyProfile?.currency || 'USD'
+                  )}
+                </span>
+              </div>
+            )}
+            {basicFinancials.metric['52WeekLow'] && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-purple-600">52-ukers lav</span>
+                <span className="text-sm font-medium">
+                  {formatCurrency(
+                    basicFinancials.metric['52WeekLow'],
+                    companyProfile?.currency || 'USD'
+                  )}
+                </span>
+              </div>
+            )}
+            {basicFinancials.metric.beta && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-purple-600">Beta</span>
+                <span className="text-sm font-medium">
+                  {basicFinancials.metric.beta.toFixed(2)}
+                </span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Placeholder for Chart */}
       <Card className="border-purple-200">
@@ -420,8 +587,385 @@ const TransactionsTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
   )
 }
 
+// Fundamentals Tab Component
+const FundamentalsTab = ({
+  stockData,
+  companyProfile,
+  basicFinancials,
+}: {
+  stockData: HoldingWithMetrics
+  companyProfile: CompanyProfile | null
+  basicFinancials: BasicFinancials | null
+}) => {
+  if (!basicFinancials?.metric) {
+    return (
+      <div className="py-8 text-center">
+        <BarChart3 className="mx-auto mb-4 h-12 w-12 text-purple-400" />
+        <p className="text-purple-600">Fundamentale data ikke tilgjengelig</p>
+      </div>
+    )
+  }
+
+  const metric = basicFinancials.metric
+
+  return (
+    <div className="space-y-6">
+      {/* Valuation Metrics */}
+      <Card className="border-purple-200">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-purple-700">
+            <BarChart3 className="h-5 w-5 text-purple-600" />
+            Verdsettelse
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {metric.peBasicExclExtraTTM && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">P/E-forhold (TTM)</span>
+              <span className="text-sm font-medium">
+                {metric.peBasicExclExtraTTM.toFixed(1)}
+              </span>
+            </div>
+          )}
+          {metric.ptbvAnnual && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">P/B-forhold</span>
+              <span className="text-sm font-medium">
+                {metric.ptbvAnnual.toFixed(1)}
+              </span>
+            </div>
+          )}
+          {metric.psAnnual && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">P/S-forhold</span>
+              <span className="text-sm font-medium">
+                {metric.psAnnual.toFixed(1)}
+              </span>
+            </div>
+          )}
+          {metric.pfcfShareTTM && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">P/FCF-forhold</span>
+              <span className="text-sm font-medium">
+                {metric.pfcfShareTTM.toFixed(1)}
+              </span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Profitability Metrics */}
+      <Card className="border-purple-200">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-purple-700">
+            <TrendingUp className="h-5 w-5 text-purple-600" />
+            Lønnsomhet
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {metric.roeAnnual && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">ROE (Årlig)</span>
+              <span className="text-sm font-medium">
+                {formatPercentage(metric.roeAnnual)}
+              </span>
+            </div>
+          )}
+          {metric.roaAnnual && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">ROA (Årlig)</span>
+              <span className="text-sm font-medium">
+                {formatPercentage(metric.roaAnnual)}
+              </span>
+            </div>
+          )}
+          {metric.roiAnnual && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">ROI (Årlig)</span>
+              <span className="text-sm font-medium">
+                {formatPercentage(metric.roiAnnual)}
+              </span>
+            </div>
+          )}
+          {metric.netMarginTTM && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">
+                Netto margin (TTM)
+              </span>
+              <span className="text-sm font-medium">
+                {formatPercentage(metric.netMarginTTM)}
+              </span>
+            </div>
+          )}
+          {metric.grossMarginTTM && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">
+                Brutto margin (TTM)
+              </span>
+              <span className="text-sm font-medium">
+                {formatPercentage(metric.grossMarginTTM)}
+              </span>
+            </div>
+          )}
+          {metric.operatingMarginTTM && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">
+                Driftsmargin (TTM)
+              </span>
+              <span className="text-sm font-medium">
+                {formatPercentage(metric.operatingMarginTTM)}
+              </span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Growth Metrics */}
+      <Card className="border-purple-200">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-purple-700">
+            <Activity className="h-5 w-5 text-purple-600" />
+            Vekst
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {metric.revenueGrowthTTM && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">
+                Inntektsvekst (TTM)
+              </span>
+              <span className="text-sm font-medium">
+                {formatPercentage(metric.revenueGrowthTTM)}
+              </span>
+            </div>
+          )}
+          {metric['52WeekPriceReturnDaily'] && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">
+                52-ukers avkastning
+              </span>
+              <span className="text-sm font-medium">
+                {formatPercentage(metric['52WeekPriceReturnDaily'])}
+              </span>
+            </div>
+          )}
+          {metric['13WeekPriceReturnDaily'] && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">
+                13-ukers avkastning
+              </span>
+              <span className="text-sm font-medium">
+                {formatPercentage(metric['13WeekPriceReturnDaily'])}
+              </span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Financial Health */}
+      <Card className="border-purple-200">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-purple-700">
+            <DollarSign className="h-5 w-5 text-purple-600" />
+            Finansiell helse
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {metric.currentRatio && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">Likviditetsgrad</span>
+              <span className="text-sm font-medium">
+                {metric.currentRatio.toFixed(2)}
+              </span>
+            </div>
+          )}
+          {metric.quickRatio && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">Hurtiggrad</span>
+              <span className="text-sm font-medium">
+                {metric.quickRatio.toFixed(2)}
+              </span>
+            </div>
+          )}
+          {metric.totalDebtToEquityAnnual && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">Gjeldsgrad</span>
+              <span className="text-sm font-medium">
+                {metric.totalDebtToEquityAnnual.toFixed(2)}
+              </span>
+            </div>
+          )}
+          {metric.beta && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">Beta</span>
+              <span className="text-sm font-medium">
+                {metric.beta.toFixed(2)}
+              </span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Price Range */}
+      <Card className="border-purple-200">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-purple-700">
+            <PieChart className="h-5 w-5 text-purple-600" />
+            Prisområde
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {metric['52WeekHigh'] && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">52-ukers høy</span>
+              <span className="text-sm font-medium">
+                {formatCurrency(
+                  metric['52WeekHigh'],
+                  companyProfile?.currency || 'USD'
+                )}
+              </span>
+            </div>
+          )}
+          {metric['52WeekLow'] && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">52-ukers lav</span>
+              <span className="text-sm font-medium">
+                {formatCurrency(
+                  metric['52WeekLow'],
+                  companyProfile?.currency || 'USD'
+                )}
+              </span>
+            </div>
+          )}
+          {metric['52WeekHigh'] && metric['52WeekLow'] && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-purple-600">52-ukers område</span>
+              <span className="text-sm font-medium">
+                {(
+                  ((metric['52WeekHigh'] - metric['52WeekLow']) /
+                    metric['52WeekLow']) *
+                  100
+                ).toFixed(1)}
+                %
+              </span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+// News Tab Component
+const NewsTab = ({
+  stockData,
+  companyNews,
+  newsLoading,
+}: {
+  stockData: HoldingWithMetrics
+  companyNews: CompanyNews[] | null
+  newsLoading: boolean
+}) => {
+  if (newsLoading) {
+    return (
+      <div className="space-y-4">
+        {[...Array(5)].map((_, i) => (
+          <Card key={i} className="border-purple-200">
+            <CardContent className="p-4">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-2/3" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    )
+  }
+
+  if (!companyNews || companyNews.length === 0) {
+    return (
+      <div className="py-8 text-center">
+        <Newspaper className="mx-auto mb-4 h-12 w-12 text-purple-400" />
+        <p className="text-purple-600">Ingen nyheter funnet</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      {companyNews.map((news, index) => (
+        <Card key={news.id || index} className="border-purple-200">
+          <CardContent className="p-4">
+            <div className="flex gap-4">
+              {news.image && (
+                <div className="flex-shrink-0">
+                  <img
+                    src={news.image}
+                    alt={news.headline}
+                    className="h-16 w-16 rounded object-cover"
+                    onError={e => {
+                      ;(e.target as HTMLImageElement).style.display = 'none'
+                    }}
+                  />
+                </div>
+              )}
+              <div className="flex-1">
+                <div className="mb-2 flex items-start justify-between">
+                  <h3 className="line-clamp-2 font-semibold text-purple-900">
+                    {news.headline}
+                  </h3>
+                  <Badge
+                    variant="outline"
+                    className="ml-2 flex-shrink-0 border-purple-200 text-xs text-purple-600"
+                  >
+                    {news.source}
+                  </Badge>
+                </div>
+                <p className="mb-3 line-clamp-3 text-sm text-purple-700">
+                  {news.summary}
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-purple-500">
+                    {new Date(news.datetime * 1000).toLocaleString('nb-NO', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                  <a
+                    href={news.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800"
+                  >
+                    Les mer
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  )
+}
+
 // Performance Tab Component
-const PerformanceTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
+const PerformanceTab = ({
+  stockData,
+  companyProfile,
+  basicFinancials,
+}: {
+  stockData: HoldingWithMetrics
+  companyProfile: CompanyProfile | null
+  basicFinancials: BasicFinancials | null
+}) => {
   const currentPrice = stockData.current_price || 0
   const marketValue =
     stockData.current_value || stockData.quantity * currentPrice
@@ -448,13 +992,19 @@ const PerformanceTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
           <div className="flex items-center justify-between">
             <span className="text-sm text-purple-600">Totalt investert</span>
             <span className="text-sm font-medium">
-              {formatCurrency(totalCost, stockData.stocks?.currency || 'NOK')}
+              {formatCurrency(
+                totalCost,
+                companyProfile?.currency || stockData.stocks?.currency || 'NOK'
+              )}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-purple-600">Nåværende verdi</span>
             <span className="text-sm font-medium">
-              {formatCurrency(marketValue, stockData.stocks?.currency || 'NOK')}
+              {formatCurrency(
+                marketValue,
+                companyProfile?.currency || stockData.stocks?.currency || 'NOK'
+              )}
             </span>
           </div>
           <div className="flex items-center justify-between">
@@ -468,7 +1018,7 @@ const PerformanceTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
               {unrealizedPnl >= 0 ? '+' : ''}
               {formatCurrency(
                 unrealizedPnl,
-                stockData.stocks?.currency || 'NOK'
+                companyProfile?.currency || stockData.stocks?.currency || 'NOK'
               )}
             </span>
           </div>
@@ -485,6 +1035,96 @@ const PerformanceTab = ({ stockData }: { stockData: HoldingWithMetrics }) => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Market Performance */}
+      {basicFinancials?.metric && (
+        <Card className="border-purple-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-purple-700">
+              <TrendingUp className="h-5 w-5 text-purple-600" />
+              Markedsytelse
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {basicFinancials.metric['52WeekPriceReturnDaily'] && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-purple-600">
+                  52-ukers avkastning
+                </span>
+                <span
+                  className={cn(
+                    'text-sm font-medium',
+                    basicFinancials.metric['52WeekPriceReturnDaily'] >= 0
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                  )}
+                >
+                  {formatPercentage(
+                    basicFinancials.metric['52WeekPriceReturnDaily']
+                  )}
+                </span>
+              </div>
+            )}
+            {basicFinancials.metric['26WeekPriceReturnDaily'] && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-purple-600">
+                  26-ukers avkastning
+                </span>
+                <span
+                  className={cn(
+                    'text-sm font-medium',
+                    basicFinancials.metric['26WeekPriceReturnDaily'] >= 0
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                  )}
+                >
+                  {formatPercentage(
+                    basicFinancials.metric['26WeekPriceReturnDaily']
+                  )}
+                </span>
+              </div>
+            )}
+            {basicFinancials.metric['13WeekPriceReturnDaily'] && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-purple-600">
+                  13-ukers avkastning
+                </span>
+                <span
+                  className={cn(
+                    'text-sm font-medium',
+                    basicFinancials.metric['13WeekPriceReturnDaily'] >= 0
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                  )}
+                >
+                  {formatPercentage(
+                    basicFinancials.metric['13WeekPriceReturnDaily']
+                  )}
+                </span>
+              </div>
+            )}
+            {basicFinancials.metric['5DayPriceReturnDaily'] && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-purple-600">
+                  5-dagers avkastning
+                </span>
+                <span
+                  className={cn(
+                    'text-sm font-medium',
+                    basicFinancials.metric['5DayPriceReturnDaily'] >= 0
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                  )}
+                >
+                  {formatPercentage(
+                    basicFinancials.metric['5DayPriceReturnDaily']
+                  )}
+                </span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Holding Period */}
       <Card className="border-purple-200">
@@ -544,17 +1184,88 @@ export default function StockDetailModal({
 }: StockDetailModalProps) {
   const [activeTab, setActiveTab] = useState('overview')
   const [isLoading, setIsLoading] = useState(true)
+  const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(
+    null
+  )
+  const [basicFinancials, setBasicFinancials] =
+    useState<BasicFinancials | null>(null)
+  const [companyNews, setCompanyNews] = useState<CompanyNews[] | null>(null)
+  const [profileLoading, setProfileLoading] = useState(false)
+  const [financialsLoading, setFinancialsLoading] = useState(false)
+  const [newsLoading, setNewsLoading] = useState(false)
 
-  // Reset tab when modal opens
+  // Fetch company data when modal opens
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && stockData?.stocks?.symbol) {
       setActiveTab('overview')
       setIsLoading(true)
-      // Simulate data loading
+
+      // Clear previous data
+      setCompanyProfile(null)
+      setBasicFinancials(null)
+      setCompanyNews(null)
+
+      const symbol = stockData.stocks.symbol
+
+      // Fetch company profile
+      const fetchProfile = async () => {
+        setProfileLoading(true)
+        try {
+          const result = await fetchCompanyProfile(symbol)
+          if (result.success && result.data) {
+            setCompanyProfile(result.data)
+          }
+        } catch (error) {
+          console.error('Error fetching company profile:', error)
+        } finally {
+          setProfileLoading(false)
+        }
+      }
+
+      // Fetch basic financials
+      const fetchFinancials = async () => {
+        setFinancialsLoading(true)
+        try {
+          const result = await fetchBasicFinancials(symbol)
+          if (result.success && result.data) {
+            setBasicFinancials(result.data)
+          }
+        } catch (error) {
+          console.error('Error fetching basic financials:', error)
+        } finally {
+          setFinancialsLoading(false)
+        }
+      }
+
+      // Fetch company news (last 7 days)
+      const fetchNews = async () => {
+        setNewsLoading(true)
+        try {
+          const to = new Date().toISOString().split('T')[0]
+          const from = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split('T')[0]
+          const result = await fetchCompanyNews(symbol, from, to)
+          if (result.success && result.data) {
+            setCompanyNews(result.data)
+          }
+        } catch (error) {
+          console.error('Error fetching company news:', error)
+        } finally {
+          setNewsLoading(false)
+        }
+      }
+
+      // Start fetching all data
+      fetchProfile()
+      fetchFinancials()
+      fetchNews()
+
+      // Simulate loading for UI
       const timer = setTimeout(() => setIsLoading(false), 300)
       return () => clearTimeout(timer)
     }
-  }, [isOpen])
+  }, [isOpen, stockData?.stocks?.symbol])
 
   if (!stockData) {
     return null
@@ -567,7 +1278,7 @@ export default function StockDetailModal({
         className="max-h-[90vh] overflow-hidden"
       >
         <ModalHeader className="pb-4">
-          <StockHeader stockData={stockData} />
+          <StockHeader stockData={stockData} companyProfile={companyProfile} />
         </ModalHeader>
 
         <div className="flex-1 overflow-auto">
@@ -590,16 +1301,77 @@ export default function StockDetailModal({
             </div>
           ) : (
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-3 bg-purple-50 border-purple-200">
-                <TabsTrigger value="overview" className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700">Oversikt</TabsTrigger>
-                <TabsTrigger value="transactions" className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700">Transaksjoner</TabsTrigger>
-                <TabsTrigger value="performance" className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700">Ytelse</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-5 border-purple-200 bg-purple-50">
+                <TabsTrigger
+                  value="overview"
+                  className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700"
+                >
+                  Oversikt
+                </TabsTrigger>
+                <TabsTrigger
+                  value="fundamentals"
+                  className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700"
+                >
+                  Fundamentalt
+                </TabsTrigger>
+                <TabsTrigger
+                  value="news"
+                  className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700"
+                >
+                  Nyheter
+                </TabsTrigger>
+                <TabsTrigger
+                  value="performance"
+                  className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700"
+                >
+                  Ytelse
+                </TabsTrigger>
+                <TabsTrigger
+                  value="transactions"
+                  className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700"
+                >
+                  Transaksjoner
+                </TabsTrigger>
               </TabsList>
 
               <div className="mt-6">
                 <TabsContent value="overview" className="space-y-4">
                   <RenderErrorBoundary>
-                    <OverviewTab stockData={stockData} />
+                    <OverviewTab
+                      stockData={stockData}
+                      companyProfile={companyProfile}
+                      basicFinancials={basicFinancials}
+                    />
+                  </RenderErrorBoundary>
+                </TabsContent>
+
+                <TabsContent value="fundamentals" className="space-y-4">
+                  <RenderErrorBoundary>
+                    <FundamentalsTab
+                      stockData={stockData}
+                      companyProfile={companyProfile}
+                      basicFinancials={basicFinancials}
+                    />
+                  </RenderErrorBoundary>
+                </TabsContent>
+
+                <TabsContent value="news" className="space-y-4">
+                  <APIErrorBoundary>
+                    <NewsTab
+                      stockData={stockData}
+                      companyNews={companyNews}
+                      newsLoading={newsLoading}
+                    />
+                  </APIErrorBoundary>
+                </TabsContent>
+
+                <TabsContent value="performance" className="space-y-4">
+                  <RenderErrorBoundary>
+                    <PerformanceTab
+                      stockData={stockData}
+                      companyProfile={companyProfile}
+                      basicFinancials={basicFinancials}
+                    />
                   </RenderErrorBoundary>
                 </TabsContent>
 
@@ -607,12 +1379,6 @@ export default function StockDetailModal({
                   <APIErrorBoundary>
                     <TransactionsTab stockData={stockData} />
                   </APIErrorBoundary>
-                </TabsContent>
-
-                <TabsContent value="performance" className="space-y-4">
-                  <RenderErrorBoundary>
-                    <PerformanceTab stockData={stockData} />
-                  </RenderErrorBoundary>
                 </TabsContent>
               </div>
             </Tabs>
