@@ -14,6 +14,7 @@ import { getUserPortfolios } from '@/lib/actions/portfolio/crud'
 import StockDetailModalV2 from '@/components/stocks/stock-detail-modal-v2'
 import CSVImportModal from '@/components/stocks/csv-import-modal'
 import FinnhubTest from '@/components/stocks/finnhub-test'
+import FinnhubQueueStatus from '@/components/stocks/finnhub-queue-status'
 import { calculatePortfolioMetrics, generatePortfolioHistoryData } from '@/lib/utils/portfolio-calculations'
 import MobilePortfolioDashboard from '@/components/mobile/mobile-portfolio-dashboard'
 import { StockChartWidget } from '@/components/stocks/stock-chart-widget'
@@ -21,9 +22,7 @@ import { NorwegianHoldingsTable } from '@/components/stocks/norwegian-holdings-t
 import { NorwegianBreadcrumb } from '@/components/ui/norwegian-breadcrumb'
 import { Button } from '@/components/ui/button'
 import {
-  EmptyPortfolioState,
   ErrorPortfolioState,
-  LoadingPortfolioState,
 } from '@/components/states'
 import { checkSetupStatus } from '@/lib/actions/platforms/setup'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
@@ -46,7 +45,7 @@ export default function StocksPage() {
   const router = useRouter()
   const [portfolioId, setPortfolioId] = useState<string | null>(null)
   const [user, setUser] = useState<User | null>(null)
-  const [isInitialLoading, setIsInitialLoading] = useState(true)
+  const [, setIsInitialLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   // Stock detail modal state
@@ -134,16 +133,6 @@ export default function StocksPage() {
 
   // Memoize component props to prevent unnecessary re-renders
 
-  const stockModalProps = useMemo(
-    () => ({
-      isOpen: isStockModalOpen,
-      onClose: handleCloseStockModal,
-      stockData: selectedStock,
-      isMobile,
-    }),
-    [isStockModalOpen, handleCloseStockModal, selectedStock, isMobile]
-  )
-
   // Authentication and setup check
   const initializeApp = useCallback(async () => {
     try {
@@ -214,9 +203,6 @@ export default function StocksPage() {
 
   // State initialization guards
   const isValidPortfolioId = portfolioId && portfolioId.trim().length > 0
-  const hasPortfolioData = portfolioState.portfolio && !portfolioState.loading
-  const hasHoldingsData =
-    portfolioState.holdings && portfolioState.holdings.length > 0
 
   // Error handling with proper state checks
   if (error || (isValidPortfolioId && portfolioState.error)) {
@@ -282,39 +268,47 @@ export default function StocksPage() {
     )
   }
 
-  // Calculate real portfolio metrics using live prices
+  // Calculate real portfolio metrics using live prices (prioritize Finnhub over realtime)
+  const allPrices = {
+    ...portfolioState.realtimePrices,
+    ...portfolioState.finnhubPrices  // Finnhub prices override realtime if available
+  }
   
   const realTimeMetrics = calculatePortfolioMetrics(
     portfolioState.holdings || [],
-    portfolioState.realtimePrices || {}
+    allPrices
   )
   
   const portfolioChartData = generatePortfolioHistoryData(
     portfolioState.holdings || [],
-    portfolioState.realtimePrices || {},
+    allPrices,
     30
   )
   
   const currentValue = realTimeMetrics.totalValue || portfolioState.portfolio?.total_value || 1847250
   const changePercent = realTimeMetrics.dailyChangePercent || portfolioState.portfolio?.daily_change_percent || 0
 
-  // Debug Yahoo Finance prices
-  console.log('Portfolio Debug Info:', {
+  // Debug Finnhub API integration
+  console.log('Portfolio Debug Info (Finnhub API):', {
     loading: portfolioState.loading,
     holdingsCount: portfolioState.holdings?.length || 0,
     pricesConnected: portfolioState.isPricesConnected,
+    finnhubPricesCount: Object.keys(portfolioState.finnhubPrices || {}).length,
     realTimePricesCount: Object.keys(portfolioState.realtimePrices || {}).length,
-    realTimePrices: portfolioState.realtimePrices,
+    finnhubPrices: portfolioState.finnhubPrices,
+    queueStatus: portfolioState.queueStatus,
     portfolioValue: portfolioState.portfolio?.total_value,
     calculatedValue: realTimeMetrics.totalValue,
     calculatedChange: realTimeMetrics.dailyChangePercent,
+    allPricesCount: Object.keys(allPrices).length,
     holdings: portfolioState.holdings?.map(h => ({
       symbol: h.symbol,
       quantity: h.quantity,
       costBasis: h.cost_basis,
       currentPrice: h.current_price,
       currentValue: h.current_value,
-      dailyChange: h.daily_change
+      dailyChange: h.daily_change,
+      hasFinHubPrice: h.symbol in (portfolioState.finnhubPrices || {})
     }))
   })
 
@@ -449,6 +443,12 @@ export default function StocksPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Finnhub Queue Status */}
+              <FinnhubQueueStatus 
+                queueStatus={portfolioState.queueStatus || { total: 0, processing: 0, completed: 0, failed: 0 }}
+                pricesCount={Object.keys(portfolioState.finnhubPrices || {}).length}
+              />
 
               {/* Finnhub API Test (Development Only) */}
               {process.env.NODE_ENV === 'development' && (

@@ -9,6 +9,7 @@ import {
 } from '@/lib/actions/portfolio/crud'
 import { useRealtimePrices } from '@/lib/hooks/use-realtime-prices'
 import { useStockPrices, StockPrice } from '@/lib/hooks/use-stock-prices'
+import { useFinnhubStockPrices } from '@/lib/hooks/use-finnhub-stock-prices'
 
 // Extended Portfolio interface with calculated metrics
 export interface PortfolioWithMetrics {
@@ -180,18 +181,28 @@ export function usePortfolioState(
     enableRealtime ? symbols : []
   )
 
-  // Fallback to Yahoo Finance for additional price data
-  const { prices: yahooFinancePrices } = useStockPrices(symbols, {
+  // Real stock prices from Finnhub API with intelligent queuing
+  const { 
+    prices: finnhubPrices, 
+    queueStatus,
+    addSymbols: addFinnhubSymbols 
+  } = useFinnhubStockPrices(symbols, {
     enabled: enableRealtime,
-    refreshInterval: refreshInterval / 1000,
+    refreshInterval: 60, // 60 seconds for rate limiting
+    onPricesUpdate: (prices) => {
+      console.log('📈 Finnhub prices updated:', Object.keys(prices).length, 'stocks')
+    },
+    onError: (errors) => {
+      console.warn('⚠️ Finnhub API errors:', errors)
+    }
   })
 
   const isPricesConnected = useMemo(() => {
     return (
       Object.keys(realtimePrices).length > 0 ||
-      Object.keys(yahooFinancePrices).length > 0
+      Object.keys(finnhubPrices).length > 0
     )
-  }, [realtimePrices, yahooFinancePrices])
+  }, [realtimePrices, finnhubPrices])
 
   // Fetch portfolio data
   const fetchPortfolio = useCallback(async () => {
@@ -333,7 +344,7 @@ export function usePortfolioState(
 
   // Stable refs for avoiding dependency cycles
   const realtimePricesRef = useRef(realtimePrices)
-  const yahooFinancePricesRef = useRef(yahooFinancePrices)
+  const finnhubPricesRef = useRef(finnhubPrices)
 
   // Update refs when prices change
   useEffect(() => {
@@ -341,19 +352,19 @@ export function usePortfolioState(
   }, [realtimePrices])
 
   useEffect(() => {
-    yahooFinancePricesRef.current = yahooFinancePrices
-  }, [yahooFinancePrices])
+    finnhubPricesRef.current = finnhubPrices
+  }, [finnhubPrices])
 
   // Debounced update function for price changes (stabilized with refs)
   const updateHoldingsWithPrices = useCallback(() => {
     const currentHoldings = holdingsRef.current
     const currentRealtimePrices = realtimePricesRef.current
-    const currentYahooPrices = yahooFinancePricesRef.current
+    const currentFinnhubPrices = finnhubPricesRef.current
 
     if (
       !currentHoldings.length ||
       (!Object.keys(currentRealtimePrices).length &&
-        !Object.keys(currentYahooPrices).length)
+        !Object.keys(currentFinnhubPrices).length)
     ) {
       return
     }
@@ -361,10 +372,10 @@ export function usePortfolioState(
     const updatedHoldings = currentHoldings.map(holding => {
       const symbol = holding.symbol
       const realtimePrice = currentRealtimePrices[symbol]
-      const yahooPrice = currentYahooPrices[symbol]
+      const finnhubPrice = currentFinnhubPrices[symbol]
 
-      // Use realtime price if available, otherwise use Yahoo Finance price
-      const priceData = realtimePrice || yahooPrice
+      // Use realtime price if available, otherwise use Finnhub price
+      const priceData = realtimePrice || finnhubPrice
 
       if (priceData) {
         const newCurrentPrice = priceData.price
@@ -682,6 +693,9 @@ export function usePortfolioState(
     holdingsError,
     refreshHoldings,
     realtimePrices,
+    finnhubPrices,
+    queueStatus,
+    addFinnhubSymbols,
     pricesLoading,
     isPricesConnected,
     metrics,
