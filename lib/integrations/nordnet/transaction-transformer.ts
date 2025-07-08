@@ -7,8 +7,9 @@ import {
   NordnetPortfolioMapping,
   NordnetImportConfig,
 } from './types'
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 import { v4 as uuidv4 } from 'uuid'
+import type { Database } from '@/lib/types/database.types'
 
 interface TransactionRecord {
   id: string
@@ -43,14 +44,19 @@ interface AccountRecord {
 }
 
 export class NordnetTransactionTransformer {
-  private supabase = createClient()
+  private supabase: ReturnType<typeof createClient<Database>>
   private importBatchId: string
   private userId: string
   private platformId: string
 
-  constructor(userId: string, platformId: string) {
+  constructor(
+    userId: string, 
+    platformId: string, 
+    supabaseClient: ReturnType<typeof createClient<Database>>
+  ) {
     this.userId = userId
     this.platformId = platformId
+    this.supabase = supabaseClient
     this.importBatchId = uuidv4()
   }
 

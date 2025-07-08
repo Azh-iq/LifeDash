@@ -87,11 +87,14 @@ const NORWEGIAN_BROKERS = {
 const convertToNorwegianHolding = (
   holding: HoldingWithMetrics
 ): NorwegianHolding => {
+  // Safe symbol check - provide fallback if symbol is undefined
+  const symbol = holding.symbol || ''
+  
   // Determine country based on symbol
-  const country = holding.symbol.includes('.OL') ? 'NO' : 'US'
+  const country = symbol.includes('.OL') ? 'NO' : 'US'
 
   console.log('Converting holding to Norwegian format:', {
-    symbol: holding.symbol,
+    symbol,
     currentPrice: holding.current_price,
     dailyChange: holding.daily_change,
     dailyChangePercent: holding.daily_change_percent,
@@ -101,16 +104,16 @@ const convertToNorwegianHolding = (
   return {
     id: holding.id,
     broker: 'Nordnet', // Default broker, could be extracted from account data
-    stock: holding.stocks?.name || holding.symbol,
-    stockSymbol: holding.symbol,
-    quantity: holding.quantity,
-    costBasis: holding.cost_basis,
-    currentPrice: holding.current_price,
+    stock: holding.stocks?.name || symbol || 'Unknown',
+    stockSymbol: symbol,
+    quantity: holding.quantity || 0,
+    costBasis: holding.cost_basis || 0,
+    currentPrice: holding.current_price || 0,
     change: holding.daily_change || 0,
     changePercent: holding.daily_change_percent || 0,
-    pnl: holding.gain_loss,
-    pnlPercent: holding.gain_loss_percent,
-    marketValue: holding.current_value,
+    pnl: holding.gain_loss || 0,
+    pnlPercent: holding.gain_loss_percent || 0,
+    marketValue: holding.current_value || 0,
     country: country as 'NO' | 'US' | 'EU' | 'OTHER',
   }
 }

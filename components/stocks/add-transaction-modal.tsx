@@ -18,11 +18,15 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
 import { StockSearch, StockSearchResult } from './stock-search'
 import AdvancedFeesInput, { AdvancedFees } from './advanced-fees-input'
+import { AnimatedTransactionButtons } from '@/components/ui/animated-transaction-buttons'
+import { EnhancedInput, FinancialInput, DateInput } from '@/components/ui/enhanced-input'
+import { ModernTransactionSummary } from '@/components/ui/modern-transaction-summary'
+import { FinancialIcon } from '@/components/ui/financial-icons'
+import { cn } from '@/lib/utils'
 
 export interface TransactionData {
   type: 'BUY' | 'SELL'
@@ -241,17 +245,24 @@ export default function AddTransactionModal({
     }
   }, [])
 
+  // Theme variant - revert to light theme for stability
+  const themeVariant = 'light' as const
+
   return (
     <Dialog open={isOpen} onOpenChange={() => !isSubmitting && onClose()}>
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {type === 'BUY' ? '📈' : '📉'} Legg til{' '}
-            {type === 'BUY' ? 'kjøp' : 'salg'}
+            <FinancialIcon 
+              name={type === 'BUY' ? 'buy' : 'sell'} 
+              size={20} 
+            />
+            Legg til {type === 'BUY' ? 'kjøp' : 'salg'}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Transaction Type */}
           {/* Transaction Type */}
           <div className="space-y-2">
             <Label>Transaksjonstype</Label>
@@ -265,7 +276,8 @@ export default function AddTransactionModal({
                   type === 'BUY' ? 'bg-green-600 hover:bg-green-700' : ''
                 }
               >
-                📈 Kjøp
+                <FinancialIcon name="buy" size={16} className="mr-1" />
+                Kjøp
               </Button>
               <Button
                 type="button"
@@ -274,7 +286,8 @@ export default function AddTransactionModal({
                 onClick={() => setType('SELL')}
                 className={type === 'SELL' ? 'bg-red-600 hover:bg-red-700' : ''}
               >
-                📉 Salg
+                <FinancialIcon name="sell" size={16} className="mr-1" />
+                Salg
               </Button>
             </div>
           </div>
@@ -371,7 +384,15 @@ export default function AddTransactionModal({
 
           {/* Additional Details */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="space-y-2"></div>
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notater (valgfritt)</Label>
+              <Input
+                id="notes"
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                placeholder="Tilleggsinfo om transaksjonen..."
+              />
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="date">Dato *</Label>
@@ -390,79 +411,53 @@ export default function AddTransactionModal({
 
           {/* Account Selection */}
           {accounts.length > 0 && (
-            <div className="space-y-2">
-              <Label htmlFor="accountId">Konto</Label>
+            <div className="space-y-3">
+              <Label className="text-base font-semibold text-stone-200 flex items-center gap-2">
+                <FinancialIcon name="building" size={18} className="text-orange-400" />
+                Konto
+              </Label>
               <Select value={accountId} onValueChange={setAccountId}>
                 <SelectTrigger
-                  className={errors.accountId ? 'border-red-500' : ''}
+                  className={cn(
+                    "h-12 bg-stone-900 border-2 border-stone-700 hover:border-orange-600 focus:border-orange-500 transition-colors text-stone-200",
+                    errors.accountId && "border-red-500"
+                  )}
                 >
                   <SelectValue placeholder="Velg konto" />
                 </SelectTrigger>
                 <SelectContent>
                   {accounts.map(account => (
                     <SelectItem key={account.id} value={account.id}>
-                      {account.name} ({account.platform})
+                      <div className="flex items-center gap-2">
+                        <FinancialIcon name="wallet" size={16} />
+                        {account.name} ({account.platform})
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               {errors.accountId && (
-                <p className="text-sm text-red-600">{errors.accountId}</p>
+                <p className="text-sm text-red-600 animate-in slide-in-from-left-2 duration-300">
+                  {errors.accountId}
+                </p>
               )}
             </div>
           )}
 
-          {/* Notes */}
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notater (valgfritt)</Label>
-            <Input
-              id="notes"
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              placeholder="Tilleggsinfo om transaksjonen..."
-            />
-          </div>
+          <Separator className="bg-gradient-to-r from-transparent via-purple-300 to-transparent h-px" />
 
-          <Separator />
-
-          {/* Transaction Summary */}
-          <Card className="border-purple-200 bg-purple-50">
-            <CardContent className="pt-4">
-              <h4 className="mb-3 font-semibold text-purple-900">Sammendrag</h4>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <span className="text-gray-600">Type:</span>
-                <Badge
-                  variant={type === 'BUY' ? 'default' : 'destructive'}
-                  className="w-fit"
-                >
-                  {type === 'BUY' ? 'Kjøp' : 'Salg'}
-                </Badge>
-
-                <span className="text-gray-600">Symbol:</span>
-                <span className="font-mono">{symbol || '—'}</span>
-
-                <span className="text-gray-600">Antall:</span>
-                <span>{quantity || '0'} aksjer</span>
-
-                <span className="text-gray-600">Pris per aksje:</span>
-                <span>
-                  {pricePerShare || '0'} {currency}
-                </span>
-
-                <span className="text-gray-600">Gebyrer:</span>
-                <span>
-                  {feesNum.toFixed(2)} {currency}
-                </span>
-
-                <span className="font-semibold text-gray-600">
-                  Total beløp:
-                </span>
-                <span className="font-semibold">
-                  {totalAmount.toFixed(2)} {currency}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Modern Transaction Summary */}
+          <ModernTransactionSummary
+            type={type}
+            symbol={symbol}
+            stockName={stockName}
+            quantity={quantity}
+            pricePerShare={pricePerShare}
+            fees={feesNum}
+            totalAmount={totalAmount}
+            currency={currency}
+            variant={themeVariant}
+          />
 
           {/* Error Message */}
           {errors.submit && (
@@ -472,13 +467,15 @@ export default function AddTransactionModal({
           )}
 
           {/* Form Actions */}
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-end gap-4 pt-4">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
+              className="px-6 py-3 h-12 border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-800 hover:bg-gray-50 transition-all duration-200"
             >
+              <FinancialIcon name="minus" size={16} className="mr-2" />
               Avbryt
             </Button>
             <Button
@@ -490,11 +487,31 @@ export default function AddTransactionModal({
                 !quantity ||
                 !pricePerShare
               }
-              className="bg-purple-600 hover:bg-purple-700"
+              className={cn(
+                "px-8 py-3 h-12 font-bold text-white transition-all duration-300 transform-gpu",
+                "bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-700",
+                "hover:from-purple-500 hover:via-purple-600 hover:to-indigo-600",
+                "hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25",
+                "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none",
+                "border-2 border-purple-500 hover:border-purple-400",
+                "focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+              )}
             >
-              {isSubmitting
-                ? 'Lagrer...'
-                : `Legg til ${type === 'BUY' ? 'kjøp' : 'salg'}`}
+              {isSubmitting ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Lagrer...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <FinancialIcon 
+                    name={type === 'BUY' ? 'plus' : 'minus'} 
+                    size={16} 
+                    className="text-white"
+                  />
+                  Legg til {type === 'BUY' ? 'kjøp' : 'salg'}
+                </div>
+              )}
             </Button>
           </div>
         </form>

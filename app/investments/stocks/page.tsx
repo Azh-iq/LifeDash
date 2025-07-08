@@ -25,7 +25,8 @@ import MobilePortfolioDashboard from '@/components/mobile/mobile-portfolio-dashb
 import { StockChartWidget } from '@/components/stocks/stock-chart-widget'
 import { NorwegianHoldingsTable } from '@/components/stocks/norwegian-holdings-table'
 import { NorwegianBreadcrumb } from '@/components/ui/norwegian-breadcrumb'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/button-system'
+import { FinancialIcon } from '@/components/ui/financial-icons'
 import { ErrorPortfolioState } from '@/components/states'
 import { checkSetupStatus } from '@/lib/actions/platforms/setup'
 import {
@@ -442,10 +443,10 @@ export default function StocksPage() {
     })),
   })
 
-  // Desktop view - Main portfolio view with new Norwegian components
+  // Desktop view - Light theme with better proportions
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
+      <div className="min-h-screen bg-gray-50">
         {/* Top Navigation Menu */}
         <TopNavigationMenu
           portfolioId={safePortfolioId}
@@ -457,7 +458,7 @@ export default function StocksPage() {
           <NorwegianBreadcrumb />
         </div>
 
-        {/* Page Header with Actions */}
+        {/* Page Header with Actions - Original Layout */}
         <div className="border-b border-gray-200 bg-white px-4 py-3">
           <div className="mx-auto flex max-w-7xl items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900">Aksjer</h1>
@@ -465,91 +466,96 @@ export default function StocksPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-purple-200 text-purple-600 hover:bg-purple-50"
               >
-                🧙‍♂️ Platform Wizard
+                <FinancialIcon name="building" size={16} className="mr-2" />
+                Platform Wizard
               </Button>
               <Button
                 variant="default"
                 size="sm"
                 onClick={handleOpenTransactionModal}
                 disabled={loadingAccounts}
-                className="bg-purple-600 text-white hover:bg-purple-700"
               >
-                ➕ {loadingAccounts ? 'Laster...' : 'Legg til transaksjon'}
+                <FinancialIcon name="plus" size={16} className="mr-2" />
+                {loadingAccounts ? 'Laster...' : 'Legg til transaksjon'}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setIsCSVModalOpen(true)}
-                className="border-purple-200 text-purple-600 hover:bg-purple-50"
               >
-                📥 Import CSV
+                <FinancialIcon name="receipt" size={16} className="mr-2" />
+                Import CSV
               </Button>
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
-                className="border-purple-200 text-purple-600 hover:bg-purple-50"
               >
-                📤 Export CSV
+                <FinancialIcon name="calculator" size={16} className="mr-2" />
+                Export CSV
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Main Content */}
+        {/* Main Content - Light theme with adjusted proportions */}
         <main className="mx-auto max-w-7xl px-4 py-6">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-            {/* Left Column - Chart and Holdings */}
+            {/* Left Column - Chart and Holdings with new proportions */}
             <div className="space-y-6 lg:col-span-3">
-              {/* Stock Chart Widget */}
+              {/* Stock Chart Widget - Smaller height */}
               <ErrorBoundary>
-                <StockChartWidget
-                  title="Portefølje Utvikling"
-                  data={portfolioChartData}
-                  currentValue={currentValue}
-                  changePercent={changePercent}
-                  onTimeRangeChange={setChartTimeRange}
-                  loading={portfolioState.loading}
-                  error={portfolioState.error}
-                />
+                <div className="h-80">
+                  <StockChartWidget
+                    title="Portefølje Utvikling"
+                    data={portfolioChartData}
+                    currentValue={currentValue}
+                    changePercent={changePercent}
+                    onTimeRangeChange={setChartTimeRange}
+                    loading={portfolioState.loading}
+                    error={portfolioState.error}
+                  />
+                </div>
               </ErrorBoundary>
 
-              {/* Norwegian Holdings Table */}
+              {/* Norwegian Holdings Table - Takes more space */}
               <ErrorBoundary>
-                <NorwegianHoldingsTable
-                  holdings={portfolioState.holdings}
-                  loading={portfolioState.loading}
-                  error={portfolioState.error}
-                  onHoldingClick={handleStockClick}
-                  onTimeRangeChange={setTableTimeRange}
-                />
+                <div className="flex-1">
+                  <NorwegianHoldingsTable
+                    holdings={portfolioState.holdings}
+                    loading={portfolioState.loading}
+                    error={portfolioState.error}
+                    onHoldingClick={handleStockClick}
+                    onTimeRangeChange={setTableTimeRange}
+                  />
+                </div>
               </ErrorBoundary>
             </div>
 
             {/* Right Column - Feed and KPI */}
             <div className="space-y-6 lg:col-span-1">
               {/* Feed Panel */}
-              <div className="rounded-lg border border-gray-200 bg-white p-6">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900">
+              <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
+                  <FinancialIcon name="info" className="text-blue-600" size={18} />
                   Feed (Patreon)
                 </h3>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-gray-700">
                       Tesla Q3 resultater
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-gray-700">
                       Equinor dividend
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="h-2 w-2 rounded-full bg-purple-500"></div>
-                    <span className="text-sm text-gray-600">
+                    <div className="h-2 w-2 rounded-full bg-orange-500"></div>
+                    <span className="text-sm text-gray-700">
                       DNB banknotater
                     </span>
                   </div>
@@ -557,8 +563,9 @@ export default function StocksPage() {
               </div>
 
               {/* KPI Panel */}
-              <div className="rounded-lg border border-gray-200 bg-white p-6">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900">
+              <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
+                  <FinancialIcon name="pieChart" className="text-blue-600" size={18} />
                   Nøkkeltall
                 </h3>
                 <div className="space-y-4">
