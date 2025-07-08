@@ -81,7 +81,6 @@ export default function StocksPage() {
   const [isProcessingTransaction, setIsProcessingTransaction] = useState(false)
   const [transactionSuccess, setTransactionSuccess] = useState(false)
   const [transactionError, setTransactionError] = useState<string | null>(null)
-  const [optimisticHoldings, setOptimisticHoldings] = useState<HoldingWithMetrics[]>([])
 
   // Chart and table state (handlers)
   const setChartTimeRange = () => {} // Placeholder for chart time range changes
@@ -152,6 +151,19 @@ export default function StocksPage() {
     setIsStockModalOpen(true)
   }, [])
 
+  // Handle transaction modal
+  const handleOpenTransactionModal = useCallback(async () => {
+    setLoadingAccounts(true)
+    if (safePortfolioId) {
+      const result = await getPortfolioAccounts(safePortfolioId)
+      if (result.success) {
+        setAccounts(result.data)
+      }
+    }
+    setLoadingAccounts(false)
+    setIsAddTransactionModalOpen(true)
+  }, [safePortfolioId])
+
   // Holdings actions handlers
   const handleBuyMore = useCallback(
     (holding: HoldingWithMetrics) => {
@@ -216,19 +228,6 @@ export default function StocksPage() {
     setIsStockModalOpen(false)
     setSelectedStock(null)
   }, [])
-
-  // Handle transaction modal
-  const handleOpenTransactionModal = useCallback(async () => {
-    setLoadingAccounts(true)
-    if (safePortfolioId) {
-      const result = await getPortfolioAccounts(safePortfolioId)
-      if (result.success) {
-        setAccounts(result.data)
-      }
-    }
-    setLoadingAccounts(false)
-    setIsAddTransactionModalOpen(true)
-  }, [safePortfolioId])
 
   const handleCloseTransactionModal = useCallback(() => {
     setIsAddTransactionModalOpen(false)
