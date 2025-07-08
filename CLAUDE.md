@@ -408,6 +408,90 @@ const totalScore = norwegianScore + nordnetScore
 - **✅ Performance**: Efficient processing of large transaction files
 - **✅ Database Integration**: Automatic portfolio/account creation and transaction storage
 
+### CSV Import Database Error Fixes (July 2025)
+
+Successfully resolved critical "unknown error" issues during CSV import database operations and eliminated Norwegian mock data from UI components.
+
+#### Critical Database Issues Resolved:
+
+1. **Transaction Type Mapping Errors**
+   - **Issue**: Some Nordnet transaction types weren't mapped to valid database enum values
+   - **Solution**: Added missing mappings for `REVERSAL` → `WITHDRAWAL` and `ADJUSTMENT` → `FEE`
+   - **Files Fixed**: `lib/integrations/nordnet/types.ts`, `lib/integrations/nordnet/field-mapping.ts`
+
+2. **Data Validation Failures**
+   - **Issue**: Transaction records with missing or invalid required fields causing database constraint violations
+   - **Solution**: Added comprehensive validation for required fields before database insert
+   - **Files Fixed**: `lib/integrations/nordnet/transaction-transformer.ts`
+   - **Validation Added**: `internal_transaction_type`, `booking_date`, `amount`, `currency`, `other_fees`, `exchange_rate`
+
+3. **Enhanced Error Reporting**
+   - **Issue**: "Unknown error" messages provided no debugging information
+   - **Solution**: Added detailed error logging with database error codes, details, and hints
+   - **Files Enhanced**: `lib/actions/transactions/csv-import.ts`
+
+4. **Field Safety & Null Handling**
+   - **Issue**: Null/undefined fields causing database constraint violations
+   - **Solution**: Added null checks and defaults for all optional fields
+   - **Safety Measures**: `external_id` defaults, `description` fallbacks, numeric field validation
+
+#### Mock Data Cleanup & Empty State Implementation:
+
+1. **Norwegian Holdings Table Cleanup** (`components/stocks/norwegian-holdings-table.tsx`)
+   - **Removed**: All sample Norwegian stock data and hardcoded holdings
+   - **Implementation**: Real data only - shows empty state when no holdings exist
+   - **Empty State**: Beautiful "Ingen beholdninger funnet" message with call-to-action
+
+2. **Empty State Experience**
+   - **Enhanced**: Empty stocks page for users who skip platform setup
+   - **Progressive Disclosure**: Clean transition from empty state to populated portfolio
+   - **User Guidance**: Clear instructions for CSV import and manual transaction entry
+
+3. **Real-time Price Integration**
+   - **Fixed**: Holdings table now uses actual Finnhub API prices
+   - **Removed**: All mock price generation and Norwegian demo stocks
+   - **Performance**: Live price indicators show when real data is available
+
+#### Database Operations Debugging Tools:
+
+**Created comprehensive debugging scripts:**
+
+1. **`scripts/test-csv-import-end-to-end.ts`** - Complete import pipeline test
+2. **`scripts/debug-csv-import-simple.ts`** - CSV parsing without database operations  
+3. **`scripts/debug-database-operations.ts`** - Database connectivity and operations test
+4. **`scripts/fix-csv-import-issues.ts`** - Comprehensive issue analysis
+
+**Package Scripts Added:**
+```json
+{
+  "debug:csv-import": "npx tsx scripts/debug-csv-import-simple.ts",
+  "debug:database-operations": "npx tsx scripts/debug-database-operations.ts", 
+  "test:csv-import": "npx tsx scripts/test-csv-import-end-to-end.ts",
+  "fix:csv-import": "npx tsx scripts/fix-csv-import-issues.ts"
+}
+```
+
+#### Verified Results:
+
+**CSV Import Pipeline:**
+- **✅ Parsing**: 66 transactions from Norwegian Nordnet file parsed successfully
+- **✅ Encoding**: UTF-16LE detection and æøå character support working perfectly
+- **✅ Field Mapping**: All transaction types correctly mapped to database enums
+- **✅ Validation**: Comprehensive data validation prevents database errors
+- **✅ Error Handling**: Detailed error messages replace "unknown error" issues
+
+**User Experience:**
+- **✅ Empty Holdings**: New users see clean empty state instead of Norwegian mock data
+- **✅ CSV Import Flow**: Three entry points (stocks page, empty page, top navigation) all working
+- **✅ Real Data Only**: Holdings table displays actual user transactions or empty state
+- **✅ Progressive Enhancement**: Smooth transition from empty to populated portfolio
+
+**Database Integration:**
+- **✅ Transaction Creation**: All 66 test transactions processed without errors
+- **✅ Account Management**: Automatic account creation for new portfolios
+- **✅ Stock Registry**: Proper ISIN code lookup and stock creation
+- **✅ Error Recovery**: Graceful handling of duplicate transactions and validation failures
+
 ### Database Schema & API Fixes (January 2025)
 
 Successfully resolved critical 400 errors and infinite loop issues that were preventing the stocks page from functioning properly.

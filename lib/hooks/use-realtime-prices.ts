@@ -165,15 +165,9 @@ export function useRealtimePortfolio(portfolioId: string | null) {
         setLoading(true)
         setError(null)
 
-        // For demo purposes, use mock portfolio data
-        const mockPortfolio: PortfolioUpdate = {
-          portfolioId: portfolioId,
-          totalValue: 150000 + Math.random() * 50000,
-          totalPnl: (Math.random() - 0.5) * 20000,
-          totalPnlPercent: (Math.random() - 0.5) * 20,
-          lastUpdated: new Date().toISOString(),
-        }
-        setPortfolio(mockPortfolio)
+        // Mock portfolio data removed - real portfolio data should come from usePortfolioState hook
+        // This hook is deprecated and should not be used for displaying portfolio data
+        setPortfolio(null)
 
         // Note: Real-time subscriptions disabled for demo
         // unsubscribe = realtimeService.subscribeToPortfolio(
@@ -225,36 +219,9 @@ export function useRealtimeHoldings(portfolioId: string | null) {
         setLoading(true)
         setError(null)
 
-        // For demo purposes, use mock holdings data
-        const mockHoldings = [
-          {
-            id: '1',
-            symbol: 'AAPL',
-            quantity: 100,
-            cost_basis: 185.5,
-            current_value: 190.25,
-            stocks: {
-              symbol: 'AAPL',
-              name: 'Apple Inc.',
-              currency: 'USD',
-              asset_type: 'STOCK',
-            },
-          },
-          {
-            id: '2',
-            symbol: 'MSFT',
-            quantity: 50,
-            cost_basis: 320.8,
-            current_value: 330.15,
-            stocks: {
-              symbol: 'MSFT',
-              name: 'Microsoft Corp.',
-              currency: 'USD',
-              asset_type: 'STOCK',
-            },
-          },
-        ]
-        setHoldings(mockHoldings)
+        // Mock holdings data removed - real holdings data should come from usePortfolioState hook
+        // This hook is deprecated and should not be used for displaying holdings data
+        setHoldings([])
 
         // Note: Real-time subscriptions disabled for demo
         // unsubscribe = realtimeService.subscribeToHoldings(

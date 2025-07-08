@@ -91,10 +91,31 @@ export async function importNordnetTransactions(
     }
   } catch (error) {
     console.error('CSV Import Error:', error)
+    
+    // Enhanced error logging
+    let errorDetails = 'Failed to import CSV data'
+    
+    if (error instanceof Error) {
+      errorDetails = error.message
+      console.error('Error stack:', error.stack)
+      
+      // Log additional error details for debugging
+      if ('code' in error) {
+        console.error('Error code:', (error as any).code)
+      }
+      if ('details' in error) {
+        console.error('Error details:', (error as any).details)
+      }
+      if ('hint' in error) {
+        console.error('Error hint:', (error as any).hint)
+      }
+    } else {
+      console.error('Non-Error object thrown:', typeof error, error)
+    }
+    
     return {
       success: false,
-      error:
-        error instanceof Error ? error.message : 'Failed to import CSV data',
+      error: errorDetails,
     }
   }
 }

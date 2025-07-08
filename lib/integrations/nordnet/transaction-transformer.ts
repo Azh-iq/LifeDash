@@ -103,9 +103,26 @@ export class NordnetTransactionTransformer {
       result.success = result.errors.length === 0
       result.transformedRows = transformedTransactions.length
     } catch (error) {
-      result.errors.push(
-        `Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-      )
+      console.error('Transaction Transformer Error:', error)
+      
+      let errorMessage = 'Import failed: Unknown error'
+      if (error instanceof Error) {
+        errorMessage = `Import failed: ${error.message}`
+        console.error('Error stack:', error.stack)
+        
+        // Log additional error details for debugging
+        if ('code' in error) {
+          console.error('Error code:', (error as any).code)
+        }
+        if ('details' in error) {
+          console.error('Error details:', (error as any).details)
+        }
+        if ('hint' in error) {
+          console.error('Error hint:', (error as any).hint)
+        }
+      }
+      
+      result.errors.push(errorMessage)
       result.success = false
     }
 
@@ -172,6 +189,8 @@ export class NordnetTransactionTransformer {
           .single()
 
         if (createError) {
+          console.error('Account creation error:', createError)
+          console.error('Account data:', accountRecord)
           throw createError
         }
 
@@ -216,6 +235,13 @@ export class NordnetTransactionTransformer {
       .single()
 
     if (createError) {
+      console.error('Portfolio creation error:', createError)
+      console.error('Portfolio data:', {
+        user_id: this.userId,
+        name: portfolioName,
+        description: `Imported from Nordnet CSV`,
+        currency: 'NOK',
+      })
       throw createError
     }
 
@@ -289,6 +315,8 @@ export class NordnetTransactionTransformer {
             .single()
 
           if (createError) {
+            console.error('Stock creation error:', createError)
+            console.error('Stock data:', stockRecord)
             throw createError
           }
 
@@ -351,12 +379,37 @@ export class NordnetTransactionTransformer {
           }
         }
 
+        // Validate required fields before creating transaction record
+        if (!transaction.internal_transaction_type) {
+          result.skippedRows++
+          result.errors.push(`Transaction ${transaction.id}: Missing internal transaction type`)
+          continue
+        }
+        
+        if (!transaction.booking_date) {
+          result.skippedRows++
+          result.errors.push(`Transaction ${transaction.id}: Missing booking date`)
+          continue
+        }
+        
+        if (transaction.amount === null || transaction.amount === undefined) {
+          result.skippedRows++
+          result.errors.push(`Transaction ${transaction.id}: Missing amount`)
+          continue
+        }
+        
+        if (!transaction.currency) {
+          result.skippedRows++
+          result.errors.push(`Transaction ${transaction.id}: Missing currency`)
+          continue
+        }
+
         const transformedTransaction: TransactionRecord = {
           id: uuidv4(),
           user_id: this.userId,
           account_id: accountId,
           stock_id: stockId,
-          external_id: transaction.id,
+          external_id: transaction.id || '',
           transaction_type: transaction.internal_transaction_type,
           date: transaction.booking_date,
           settlement_date: transaction.settlement_date || undefined,
@@ -364,12 +417,12 @@ export class NordnetTransactionTransformer {
           price: transaction.price || undefined,
           total_amount: transaction.amount,
           commission: transaction.commission || 0,
-          other_fees:
-            (transaction.total_fees || 0) - (transaction.commission || 0),
+          other_fees: Math.max(0,
+            (transaction.total_fees || 0) - (transaction.commission || 0)),
           currency: transaction.currency,
-          exchange_rate: transaction.exchange_rate || 1.0,
+          exchange_rate: Math.max(0.0001, transaction.exchange_rate || 1.0), // Ensure positive
           description:
-            transaction.transaction_text || transaction.security_name,
+            transaction.transaction_text || transaction.security_name || 'CSV Import',
           notes: this.generateNotes(transaction),
           data_source: 'CSV_IMPORT',
           import_batch_id: this.importBatchId,
@@ -410,14 +463,22 @@ export class NordnetTransactionTransformer {
             .from('transactions')
             .insert(filteredBatch)
 
-          if (error) throw error
+          if (error) {
+            console.error('Transaction batch insert error:', error)
+            console.error('Batch data (first 3):', filteredBatch.slice(0, 3))
+            throw error
+          }
           result.createdTransactions += filteredBatch.length
         } else {
           const { error } = await this.supabase
             .from('transactions')
             .insert(batch)
 
-          if (error) throw error
+          if (error) {
+            console.error('Transaction batch insert error (no duplicate filtering):', error)
+            console.error('Batch data (first 3):', batch.slice(0, 3))
+            throw error
+          }
           result.createdTransactions += batch.length
         }
       } catch (error) {

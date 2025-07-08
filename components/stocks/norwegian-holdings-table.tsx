@@ -81,83 +81,7 @@ const NORWEGIAN_BROKERS = {
   'Interactive Brokers': { logo: '🌐', country: 'US' },
 }
 
-const SAMPLE_HOLDINGS: NorwegianHolding[] = [
-  {
-    id: '1',
-    broker: 'Nordnet',
-    stock: 'Equinor ASA',
-    stockSymbol: 'EQNR.OL',
-    quantity: 500,
-    costBasis: 280.5,
-    currentPrice: 295.75,
-    change: 2.25,
-    changePercent: 0.77,
-    pnl: 7625,
-    pnlPercent: 5.44,
-    marketValue: 147875,
-    country: 'NO',
-  },
-  {
-    id: '2',
-    broker: 'DNB',
-    stock: 'DNB ASA',
-    stockSymbol: 'DNB.OL',
-    quantity: 200,
-    costBasis: 185.2,
-    currentPrice: 192.3,
-    change: -1.45,
-    changePercent: -0.75,
-    pnl: 1420,
-    pnlPercent: 3.83,
-    marketValue: 38460,
-    country: 'NO',
-  },
-  {
-    id: '3',
-    broker: 'Schwab',
-    stock: 'Apple Inc.',
-    stockSymbol: 'AAPL',
-    quantity: 50,
-    costBasis: 180.25,
-    currentPrice: 189.7,
-    change: 1.25,
-    changePercent: 0.66,
-    pnl: 472.5,
-    pnlPercent: 5.24,
-    marketValue: 9485,
-    country: 'US',
-  },
-  {
-    id: '4',
-    broker: 'Nordnet',
-    stock: 'Telenor ASA',
-    stockSymbol: 'TEL.OL',
-    quantity: 300,
-    costBasis: 165.8,
-    currentPrice: 171.25,
-    change: 0.85,
-    changePercent: 0.5,
-    pnl: 1635,
-    pnlPercent: 3.29,
-    marketValue: 51375,
-    country: 'NO',
-  },
-  {
-    id: '5',
-    broker: 'DNB',
-    stock: 'Norsk Hydro ASA',
-    stockSymbol: 'NHY.OL',
-    quantity: 800,
-    costBasis: 58.5,
-    currentPrice: 61.75,
-    change: -0.25,
-    changePercent: -0.4,
-    pnl: 2600,
-    pnlPercent: 5.56,
-    marketValue: 49400,
-    country: 'NO',
-  },
-]
+// Sample holdings removed - all data now comes from actual user portfolio
 
 // Convert HoldingWithMetrics to NorwegianHolding format
 const convertToNorwegianHolding = (
@@ -217,15 +141,15 @@ export function NorwegianHoldingsTable({
     }
   }
 
-  // Use real holdings data when available
+  // Use real holdings data only - no fallback to sample data
   const displayHoldings = useMemo(() => {
     if (holdings && holdings.length > 0) {
       console.log('Using real holdings data:', holdings.length, 'holdings')
       return holdings.map(convertToNorwegianHolding)
     }
-    // Only use sample data if no real holdings exist (for demo/empty state)
-    console.log('No real holdings found, using sample data for demo')
-    return SAMPLE_HOLDINGS
+    // Return empty array if no real holdings exist
+    console.log('No real holdings found - showing empty state')
+    return []
   }, [holdings])
 
   const sortedHoldings = useMemo(() => {
@@ -439,7 +363,26 @@ export function NorwegianHoldingsTable({
             </TableHeader>
             <TableBody>
               <AnimatePresence>
-                {sortedHoldings.map((holding, index) => {
+                {sortedHoldings.length === 0 ? (
+                  <motion.tr
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                  >
+                    <TableCell colSpan={7} className="text-center py-8">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="text-gray-400 text-4xl">📊</div>
+                        <p className="text-gray-600 dark:text-gray-400 font-medium">
+                          Ingen beholdninger funnet
+                        </p>
+                        <p className="text-gray-500 dark:text-gray-500 text-sm">
+                          Legg til transaksjon for å se dine aksjer her
+                        </p>
+                      </div>
+                    </TableCell>
+                  </motion.tr>
+                ) : (
+                  sortedHoldings.map((holding, index) => {
                   // Find original holding if available
                   const originalHolding = holdings?.find(
                     h => h.id === holding.id
@@ -570,7 +513,8 @@ export function NorwegianHoldingsTable({
                       </TableCell>
                     </motion.tr>
                   )
-                })}
+                  })
+                )}
               </AnimatePresence>
             </TableBody>
           </Table>

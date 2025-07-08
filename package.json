@@ -27,6 +27,11 @@
     "test:e2e:debug": "playwright test --debug",
     "test:all": "npm run test:coverage && npm run test:e2e",
     "analyze": "ANALYZE=true npm run build",
+    "debug:csv-import": "tsx scripts/debug-csv-import-simple.ts",
+    "debug:csv-import-full": "tsx scripts/debug-csv-import.ts",
+    "debug:database-operations": "tsx scripts/debug-database-operations.ts",
+    "test:csv-import": "tsx scripts/test-csv-import-end-to-end.ts",
+    "fix:csv-import": "tsx scripts/fix-csv-import-issues.ts",
     "analyze:server": "BUNDLE_ANALYZE=server npm run build",
     "analyze:browser": "BUNDLE_ANALYZE=browser npm run build"
   },

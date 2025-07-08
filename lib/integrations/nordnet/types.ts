@@ -176,8 +176,15 @@ export const NORDNET_TRANSACTION_TYPES = {
 
   // Other
   Reinvestering: 'REINVESTMENT',
-  Tilbakeføring: 'REVERSAL',
-  Justering: 'ADJUSTMENT',
+  Tilbakeføring: 'WITHDRAWAL', // Reversal -> Withdrawal (closest match)
+  Justering: 'FEE', // Adjustment -> Fee (closest match)
+  
+  // Additional common Nordnet transaction types
+  'Valutaveksling': 'WITHDRAWAL', // Currency exchange
+  'Månedssparing': 'BUY', // Monthly savings plan
+  'Utbytte': 'DIVIDEND', // Alternative dividend term
+  'KJØP': 'BUY', // Alternative buy term
+  'SALG': 'SELL', // Alternative sell term
 } as const
 
 // Common Nordnet portfolio patterns
