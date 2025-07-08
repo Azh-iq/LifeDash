@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Search, Building2, TrendingUp } from 'lucide-react'
+import { Search, Building2, TrendingUp, Loader2, Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export interface StockSearchResult {
@@ -37,22 +37,58 @@ export function StockSearch({
 }: StockSearchProps) {
   const [searchTerm, setSearchTerm] = useState(value)
   const [results, setResults] = useState<StockSearchResult[]>([])
+  const [popularStocks, setPopularStocks] = useState<StockSearchResult[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(-1)
+  const [showPopular, setShowPopular] = useState(false)
 
   const inputRef = useRef<HTMLInputElement>(null)
   const resultsRef = useRef<HTMLDivElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout>()
+
+  // Fetch popular stocks
+  const fetchPopularStocks = useCallback(async () => {
+    try {
+      const supabase = createClient()
+      let query = supabase
+        .from('stock_registry')
+        .select('id, symbol, name, company_name, exchange, currency, sector, industry, country, is_popular')
+        .eq('is_popular', true)
+        .eq('is_active', true)
+        .order('country', { ascending: true }) // Norwegian stocks first
+        .order('market_cap', { ascending: false, nullsFirst: false })
+        .limit(12)
+
+      // Apply exchange filter if provided
+      if (exchangeFilter) {
+        query = query.eq('exchange', exchangeFilter)
+      }
+
+      const { data, error } = await query
+
+      if (error) {
+        console.error('Popular stocks error:', error)
+        setPopularStocks([])
+      } else {
+        setPopularStocks(data || [])
+      }
+    } catch (error) {
+      console.error('Popular stocks error:', error)
+      setPopularStocks([])
+    }
+  }, [exchangeFilter])
 
   // Search stocks function
   const searchStocks = useCallback(
     async (term: string) => {
       if (term.trim().length < 1) {
         setResults([])
+        setShowPopular(true)
         return
       }
 
+      setShowPopular(false)
       setIsLoading(true)
       try {
         const supabase = createClient()
@@ -78,7 +114,12 @@ export function StockSearch({
     [exchangeFilter]
   )
 
-  // Debounced search
+  // Load popular stocks on mount
+  useEffect(() => {
+    fetchPopularStocks()
+  }, [fetchPopularStocks])
+
+  // Debounced search (faster response time)
   useEffect(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
@@ -86,7 +127,7 @@ export function StockSearch({
 
     timeoutRef.current = setTimeout(() => {
       searchStocks(searchTerm)
-    }, 300)
+    }, 200) // Reduced from 300ms to 200ms
 
     return () => {
       if (timeoutRef.current) {
@@ -101,6 +142,12 @@ export function StockSearch({
     setSearchTerm(newValue)
     setIsOpen(true)
     setSelectedIndex(-1)
+    
+    // Show popular stocks when input is empty or very short
+    if (newValue.trim().length === 0) {
+      setShowPopular(true)
+      setResults([])
+    }
   }
 
   // Handle result selection
@@ -115,24 +162,28 @@ export function StockSearch({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen) return
 
+    const currentResults = showPopular ? popularStocks : results
+    const maxIndex = currentResults.length - 1
+
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault()
-        setSelectedIndex(prev => (prev < results.length - 1 ? prev + 1 : 0))
+        setSelectedIndex(prev => (prev < maxIndex ? prev + 1 : 0))
         break
       case 'ArrowUp':
         e.preventDefault()
-        setSelectedIndex(prev => (prev > 0 ? prev - 1 : results.length - 1))
+        setSelectedIndex(prev => (prev > 0 ? prev - 1 : maxIndex))
         break
       case 'Enter':
         e.preventDefault()
-        if (selectedIndex >= 0 && results[selectedIndex]) {
-          handleSelect(results[selectedIndex])
+        if (selectedIndex >= 0 && currentResults[selectedIndex]) {
+          handleSelect(currentResults[selectedIndex])
         }
         break
       case 'Escape':
         setIsOpen(false)
         setSelectedIndex(-1)
+        setShowPopular(false)
         inputRef.current?.blur()
         break
     }
@@ -170,6 +221,28 @@ export function StockSearch({
     return flags[country] || '🌍'
   }
 
+  // Highlight matching text in search results
+  const highlightMatch = (text: string, searchTerm: string) => {
+    if (!searchTerm.trim()) return text
+    
+    const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
+    const parts = text.split(regex)
+    
+    return (
+      <span>
+        {parts.map((part, index) => 
+          regex.test(part) ? (
+            <span key={index} className="bg-yellow-100 text-yellow-800 font-medium">
+              {part}
+            </span>
+          ) : (
+            part
+          )
+        )}
+      </span>
+    )
+  }
+
   return (
     <div className={cn('relative w-full', className)}>
       {/* Search Input */}
@@ -181,7 +254,12 @@ export function StockSearch({
           value={searchTerm}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          onFocus={() => setIsOpen(true)}
+          onFocus={() => {
+          setIsOpen(true)
+          if (searchTerm.trim().length === 0) {
+            setShowPopular(true)
+          }
+        }}
           placeholder={placeholder}
           disabled={disabled}
           className={cn(
@@ -193,13 +271,13 @@ export function StockSearch({
         />
         {isLoading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-purple-600"></div>
+            <Loader2 className="h-4 w-4 animate-spin text-purple-600" />
           </div>
         )}
       </div>
 
       {/* Results Dropdown */}
-      {isOpen && searchTerm.length >= 1 && (
+      {isOpen && (
         <div
           ref={resultsRef}
           className={cn(
@@ -208,7 +286,61 @@ export function StockSearch({
             'animate-in fade-in-0 zoom-in-95'
           )}
         >
-          {results.length > 0 ? (
+          {showPopular && popularStocks.length > 0 ? (
+            <div>
+              <div className="border-b border-gray-100 px-4 py-2">
+                <div className="flex items-center gap-2 text-xs font-medium text-gray-600">
+                  <Star className="h-3 w-3 text-yellow-500" />
+                  Populære aksjer
+                </div>
+              </div>
+              <div className="py-1">
+                {popularStocks.map((stock, index) => (
+                  <button
+                    key={stock.id}
+                    onClick={() => handleSelect(stock)}
+                    className={cn(
+                      'w-full px-4 py-3 text-left transition-colors',
+                      'hover:bg-purple-50 focus:bg-purple-50 focus:outline-none',
+                      selectedIndex === index && 'bg-purple-100',
+                      'border-b border-gray-50 last:border-b-0'
+                    )}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-1 flex items-center gap-2">
+                          <span className="text-sm font-semibold text-gray-900">
+                            {stock.symbol}
+                          </span>
+                          <TrendingUp className="h-3 w-3 text-green-500" />
+                          <span className="text-xs text-gray-500">
+                            {getCountryFlag(stock.country || '')} {stock.exchange}
+                          </span>
+                        </div>
+                        <div className="truncate text-sm text-gray-700">
+                          {stock.name}
+                        </div>
+                        {stock.sector && (
+                          <div className="mt-1 flex items-center gap-1">
+                            <Building2 className="h-3 w-3 text-gray-400" />
+                            <span className="text-xs text-gray-500">
+                              {stock.sector}
+                              {stock.industry && ` • ${stock.industry}`}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs font-medium text-gray-600">
+                          {stock.currency}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : results.length > 0 ? (
             <div className="py-1">
               {results.map((stock, index) => (
                 <button
@@ -216,16 +348,16 @@ export function StockSearch({
                   onClick={() => handleSelect(stock)}
                   className={cn(
                     'w-full px-4 py-3 text-left transition-colors',
-                    'hover:bg-gray-50 focus:bg-gray-50 focus:outline-none',
-                    selectedIndex === index && 'bg-purple-50',
-                    'border-b border-gray-100 last:border-b-0'
+                    'hover:bg-purple-50 focus:bg-purple-50 focus:outline-none',
+                    selectedIndex === index && 'bg-purple-100',
+                    'border-b border-gray-50 last:border-b-0'
                   )}
                 >
                   <div className="flex items-start justify-between">
                     <div className="min-w-0 flex-1">
                       <div className="mb-1 flex items-center gap-2">
                         <span className="text-sm font-semibold text-gray-900">
-                          {stock.symbol}
+                          {highlightMatch(stock.symbol, searchTerm)}
                         </span>
                         {stock.is_popular && (
                           <TrendingUp className="h-3 w-3 text-green-500" />
@@ -235,7 +367,7 @@ export function StockSearch({
                         </span>
                       </div>
                       <div className="truncate text-sm text-gray-700">
-                        {stock.name}
+                        {highlightMatch(stock.name, searchTerm)}
                       </div>
                       {stock.sector && (
                         <div className="mt-1 flex items-center gap-1">
@@ -257,8 +389,20 @@ export function StockSearch({
               ))}
             </div>
           ) : !isLoading && searchTerm.length >= 1 ? (
-            <div className="px-4 py-3 text-center text-sm text-gray-500">
-              Ingen aksjer funnet for "{searchTerm}"
+            <div className="px-4 py-6 text-center">
+              <div className="text-sm text-gray-500 mb-2">
+                Ingen aksjer funnet for "{searchTerm}"
+              </div>
+              <div className="text-xs text-gray-400">
+                Prøv søk på symbol (f.eks. AAPL) eller bedriftsnavn (f.eks. Apple)
+              </div>
+            </div>
+          ) : isLoading ? (
+            <div className="px-4 py-6 text-center">
+              <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Søker...
+              </div>
             </div>
           ) : null}
         </div>

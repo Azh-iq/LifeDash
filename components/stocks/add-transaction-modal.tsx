@@ -22,6 +22,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
 import { StockSearch, StockSearchResult } from './stock-search'
+import AdvancedFeesInput, { AdvancedFees } from './advanced-fees-input'
 
 export interface TransactionData {
   type: 'BUY' | 'SELL'
@@ -31,6 +32,7 @@ export interface TransactionData {
   pricePerShare: number
   totalAmount: number
   fees: number
+  advancedFees: AdvancedFees
   currency: string
   date: string
   accountId?: string
@@ -59,6 +61,12 @@ export default function AddTransactionModal({
   const [quantity, setQuantity] = useState('')
   const [pricePerShare, setPricePerShare] = useState('')
   const [fees, setFees] = useState('0')
+  const [advancedFees, setAdvancedFees] = useState<AdvancedFees>({
+    commission: 0,
+    currencyExchange: 0,
+    otherFees: 0,
+    total: 0,
+  })
   const [currency, setCurrency] = useState('NOK')
   const [date, setDate] = useState(new Date().toISOString().split('T')[0])
   const [accountId, setAccountId] = useState('')
@@ -71,7 +79,7 @@ export default function AddTransactionModal({
   // Calculated values
   const quantityNum = parseFloat(quantity) || 0
   const priceNum = parseFloat(pricePerShare) || 0
-  const feesNum = parseFloat(fees) || 0
+  const feesNum = advancedFees.total || parseFloat(fees) || 0
   const totalAmount =
     quantityNum * priceNum + (type === 'BUY' ? feesNum : -feesNum)
 
@@ -97,6 +105,12 @@ export default function AddTransactionModal({
       setQuantity('')
       setPricePerShare('')
       setFees('0')
+      setAdvancedFees({
+        commission: 0,
+        currencyExchange: 0,
+        otherFees: 0,
+        total: 0,
+      })
       setCurrency('NOK')
       setDate(new Date().toISOString().split('T')[0])
       setAccountId(accounts.length > 0 ? accounts[0].id : '')
@@ -126,6 +140,10 @@ export default function AddTransactionModal({
     }
 
     if (feesNum < 0) {
+      newErrors.fees = 'Gebyrer kan ikke være negative'
+    }
+
+    if (advancedFees.commission < 0 || advancedFees.currencyExchange < 0 || advancedFees.otherFees < 0) {
       newErrors.fees = 'Gebyrer kan ikke være negative'
     }
 
@@ -172,6 +190,7 @@ export default function AddTransactionModal({
           pricePerShare: priceNum,
           totalAmount,
           fees: feesNum,
+          advancedFees,
           currency,
           date,
           accountId: accountId || undefined,
@@ -336,24 +355,23 @@ export default function AddTransactionModal({
             </div>
           </div>
 
+          {/* Advanced Fees */}
+          <div className="space-y-4">
+            <AdvancedFeesInput
+              fees={advancedFees}
+              onChange={setAdvancedFees}
+              currency={currency}
+              symbol={symbol}
+              disabled={isSubmitting}
+            />
+            {errors.fees && (
+              <p className="text-sm text-red-600">{errors.fees}</p>
+            )}
+          </div>
+
           {/* Additional Details */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="fees">Gebyrer</Label>
-              <Input
-                id="fees"
-                type="number"
-                min="0"
-                step="0.01"
-                value={fees}
-                onChange={e => setFees(e.target.value)}
-                placeholder="29.00"
-                className={errors.fees ? 'border-red-500' : ''}
-              />
-              {errors.fees && (
-                <p className="text-sm text-red-600">{errors.fees}</p>
-              )}
-            </div>
+            <div className="space-y-2"></div>
 
             <div className="space-y-2">
               <Label htmlFor="date">Dato *</Label>
@@ -433,7 +451,7 @@ export default function AddTransactionModal({
 
                 <span className="text-gray-600">Gebyrer:</span>
                 <span>
-                  {fees || '0'} {currency}
+                  {feesNum.toFixed(2)} {currency}
                 </span>
 
                 <span className="font-semibold text-gray-600">

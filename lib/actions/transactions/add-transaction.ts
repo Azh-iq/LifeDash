@@ -121,7 +121,7 @@ export async function addTransaction(
       }
     }
 
-    // Insert the transaction
+    // Insert the transaction with advanced fees
     const { data: transaction, error: transactionError } = await supabase
       .from('transactions')
       .insert({
@@ -133,10 +133,14 @@ export async function addTransaction(
         quantity: transactionData.quantity,
         price: transactionData.pricePerShare,
         total_amount: transactionData.totalAmount,
-        commission: transactionData.fees,
+        // Advanced fees breakdown
+        commission: transactionData.advancedFees?.commission || transactionData.fees || 0,
+        sec_fees: transactionData.advancedFees?.currencyExchange || 0, // Currency exchange fees
+        other_fees: transactionData.advancedFees?.otherFees || 0,
+        // Note: total_fees is automatically calculated by the database
         currency: transactionData.currency,
         notes: transactionData.notes,
-        source: 'MANUAL',
+        data_source: 'MANUAL',
       })
       .select('id')
       .single()
