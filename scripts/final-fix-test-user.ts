@@ -5,16 +5,17 @@
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = 'http://127.0.0.1:54321'
-const supabaseServiceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU'
+const supabaseServiceKey =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU'
 
 async function finalFixTestUser() {
   console.log('🔧 Final fix for test user...')
-  
+
   const supabase = createClient(supabaseUrl, supabaseServiceKey, {
     auth: {
       autoRefreshToken: false,
-      persistSession: false
-    }
+      persistSession: false,
+    },
   })
 
   try {
@@ -27,7 +28,7 @@ async function finalFixTestUser() {
 
     if (!platforms) {
       console.log('❌ No platforms found, creating manual platform...')
-      
+
       // Create a manual platform
       const { data: newPlatform } = await supabase
         .from('platforms')
@@ -38,7 +39,7 @@ async function finalFixTestUser() {
           country: 'NO',
           is_active: true,
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .select('id')
         .single()
@@ -63,19 +64,17 @@ async function finalFixTestUser() {
     console.log('📦 Using platform ID:', platform.id)
 
     // Create account
-    const { error } = await supabase
-      .from('accounts')
-      .insert({
-        user_id: 'ad4bf17b-6571-4699-ab40-4da6e41090cd',
-        portfolio_id: '9b5b3c81-ca3c-453b-b7b2-16042fe20694',
-        platform_id: platform.id,
-        name: 'Test Konto',
-        account_type: 'TAXABLE',
-        currency: 'NOK',
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
+    const { error } = await supabase.from('accounts').insert({
+      user_id: 'ad4bf17b-6571-4699-ab40-4da6e41090cd',
+      portfolio_id: '9b5b3c81-ca3c-453b-b7b2-16042fe20694',
+      platform_id: platform.id,
+      name: 'Test Konto',
+      account_type: 'TAXABLE',
+      currency: 'NOK',
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
 
     if (error) {
       console.error('❌ Account error:', error.message)
@@ -92,7 +91,6 @@ async function finalFixTestUser() {
       console.log('3. Type "micro" in stock search → see Microsoft!')
       console.log('4. Click "Avanserte gebyrer" → see separate fee fields!')
     }
-
   } catch (error) {
     console.error('❌ Unexpected error:', error)
   }

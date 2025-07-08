@@ -6,29 +6,31 @@
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = 'http://127.0.0.1:54321'
-const supabaseServiceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU'
+const supabaseServiceKey =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU'
 
 async function createTestUser() {
   console.log('🔧 Creating test user for LifeDash...')
-  
+
   const supabase = createClient(supabaseUrl, supabaseServiceKey, {
     auth: {
       autoRefreshToken: false,
-      persistSession: false
-    }
+      persistSession: false,
+    },
   })
 
   try {
     // Create test user
     console.log('📧 Creating user: test@test.no')
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email: 'test@test.no',
-      password: '123456',
-      email_confirm: true,
-      user_metadata: {
-        full_name: 'Test User'
-      }
-    })
+    const { data: authData, error: authError } =
+      await supabase.auth.admin.createUser({
+        email: 'test@test.no',
+        password: '123456',
+        email_confirm: true,
+        user_metadata: {
+          full_name: 'Test User',
+        },
+      })
 
     if (authError) {
       console.error('❌ Auth error:', authError.message)
@@ -51,7 +53,7 @@ async function createTestUser() {
         email: 'test@test.no',
         full_name: 'Test User',
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
 
     if (profileError) {
@@ -72,7 +74,7 @@ async function createTestUser() {
         currency: 'NOK',
         is_default: true,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .select('id')
       .single()
@@ -91,19 +93,17 @@ async function createTestUser() {
 
     // Create default account
     console.log('🏦 Creating default account...')
-    const { error: accountError } = await supabase
-      .from('accounts')
-      .insert({
-        user_id: authData.user.id,
-        portfolio_id: portfolioData.id,
-        platform_id: null, // Manual account
-        name: 'Manuell Konto',
-        account_type: 'INVESTMENT',
-        currency: 'NOK',
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
+    const { error: accountError } = await supabase.from('accounts').insert({
+      user_id: authData.user.id,
+      portfolio_id: portfolioData.id,
+      platform_id: null, // Manual account
+      name: 'Manuell Konto',
+      account_type: 'INVESTMENT',
+      currency: 'NOK',
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
 
     if (accountError) {
       console.error('❌ Account error:', accountError.message)
@@ -116,7 +116,6 @@ async function createTestUser() {
     console.log('📧 Email: test@test.no')
     console.log('🔑 Password: 123456')
     console.log('🚀 Ready to test the new stock search and fees system!')
-
   } catch (error) {
     console.error('❌ Unexpected error:', error)
   }

@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Search, Building2, TrendingUp, Loader2, Star } from 'lucide-react'
+import { Search, Building2, TrendingUp, Loader2, Star, Package, Wallet } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { fetchUserHoldingsForSale, type HoldingForSale } from '@/lib/actions/holdings/fetch-holdings'
 
 export interface StockSearchResult {
   id: string
@@ -16,6 +17,15 @@ export interface StockSearchResult {
   industry?: string
   country?: string
   is_popular: boolean
+  // Holdings-specific data (when in holdings mode)
+  quantity?: number
+  average_cost?: number
+  total_cost?: number
+  current_price?: number
+  market_value?: number
+  account_id?: string
+  account_name?: string
+  account_platform?: string
 }
 
 interface StockSearchProps {
@@ -25,6 +35,8 @@ interface StockSearchProps {
   className?: string
   disabled?: boolean
   exchangeFilter?: string // Filter by specific exchange (e.g., 'OSLO', 'NASDAQ')
+  holdingsOnly?: boolean // Only show stocks from user's holdings
+  portfolioId?: string // Filter holdings by portfolio
 }
 
 export function StockSearch({
@@ -34,18 +46,39 @@ export function StockSearch({
   className,
   disabled = false,
   exchangeFilter,
+  holdingsOnly = false,
+  portfolioId,
 }: StockSearchProps) {
   const [searchTerm, setSearchTerm] = useState(value)
   const [results, setResults] = useState<StockSearchResult[]>([])
   const [popularStocks, setPopularStocks] = useState<StockSearchResult[]>([])
+  const [userHoldings, setUserHoldings] = useState<StockSearchResult[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(-1)
   const [showPopular, setShowPopular] = useState(false)
+  const [showHoldings, setShowHoldings] = useState(false)
 
   const inputRef = useRef<HTMLInputElement>(null)
   const resultsRef = useRef<HTMLDivElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout>()
+
+  // Fetch user holdings for sale
+  const fetchUserHoldings = useCallback(async () => {
+    if (!holdingsOnly) return
+
+    try {
+      const result = await fetchUserHoldingsForSale(portfolioId)
+      if (result.success && result.data) {
+        setUserHoldings(result.data)
+      } else {
+        setUserHoldings([])
+      }
+    } catch (error) {
+      console.error('User holdings error:', error)
+      setUserHoldings([])
+    }
+  }, [holdingsOnly, portfolioId])
 
   // Fetch popular stocks
   const fetchPopularStocks = useCallback(async () => {
@@ -53,7 +86,9 @@ export function StockSearch({
       const supabase = createClient()
       let query = supabase
         .from('stock_registry')
-        .select('id, symbol, name, company_name, exchange, currency, sector, industry, country, is_popular')
+        .select(
+          'id, symbol, name, company_name, exchange, currency, sector, industry, country, is_popular'
+        )
         .eq('is_popular', true)
         .eq('is_active', true)
         .order('country', { ascending: true }) // Norwegian stocks first
@@ -84,25 +119,44 @@ export function StockSearch({
     async (term: string) => {
       if (term.trim().length < 1) {
         setResults([])
-        setShowPopular(true)
+        if (holdingsOnly) {
+          setShowHoldings(true)
+          setShowPopular(false)
+        } else {
+          setShowPopular(true)
+          setShowHoldings(false)
+        }
         return
       }
 
       setShowPopular(false)
+      setShowHoldings(false)
       setIsLoading(true)
+      
       try {
-        const supabase = createClient()
-        const { data, error } = await supabase.rpc('search_stocks', {
-          search_term: term,
-          limit_count: 10,
-          exchange_filter: exchangeFilter || null,
-        })
-
-        if (error) {
-          console.error('Stock search error:', error)
-          setResults([])
+        if (holdingsOnly) {
+          // Filter holdings by search term
+          const filtered = userHoldings.filter(holding => 
+            holding.symbol.toLowerCase().includes(term.toLowerCase()) ||
+            holding.name.toLowerCase().includes(term.toLowerCase()) ||
+            holding.company_name.toLowerCase().includes(term.toLowerCase())
+          )
+          setResults(filtered)
         } else {
-          setResults(data || [])
+          // Regular stock search
+          const supabase = createClient()
+          const { data, error } = await supabase.rpc('search_stocks', {
+            search_term: term,
+            limit_count: 10,
+            exchange_filter: exchangeFilter || null,
+          })
+
+          if (error) {
+            console.error('Stock search error:', error)
+            setResults([])
+          } else {
+            setResults(data || [])
+          }
         }
       } catch (error) {
         console.error('Stock search error:', error)
@@ -111,13 +165,17 @@ export function StockSearch({
         setIsLoading(false)
       }
     },
-    [exchangeFilter]
+    [exchangeFilter, holdingsOnly, userHoldings]
   )
 
-  // Load popular stocks on mount
+  // Load popular stocks and holdings on mount
   useEffect(() => {
-    fetchPopularStocks()
-  }, [fetchPopularStocks])
+    if (holdingsOnly) {
+      fetchUserHoldings()
+    } else {
+      fetchPopularStocks()
+    }
+  }, [fetchUserHoldings, fetchPopularStocks, holdingsOnly])
 
   // Debounced search (faster response time)
   useEffect(() => {
@@ -142,11 +200,20 @@ export function StockSearch({
     setSearchTerm(newValue)
     setIsOpen(true)
     setSelectedIndex(-1)
-    
-    // Show popular stocks when input is empty or very short
+
+    // Show appropriate default list when input is empty
     if (newValue.trim().length === 0) {
-      setShowPopular(true)
+      if (holdingsOnly) {
+        setShowHoldings(true)
+        setShowPopular(false)
+      } else {
+        setShowPopular(true)
+        setShowHoldings(false)
+      }
       setResults([])
+    } else {
+      setShowPopular(false)
+      setShowHoldings(false)
     }
   }
 
@@ -162,7 +229,7 @@ export function StockSearch({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen) return
 
-    const currentResults = showPopular ? popularStocks : results
+    const currentResults = showPopular ? popularStocks : showHoldings ? userHoldings : results
     const maxIndex = currentResults.length - 1
 
     switch (e.key) {
@@ -184,6 +251,7 @@ export function StockSearch({
         setIsOpen(false)
         setSelectedIndex(-1)
         setShowPopular(false)
+        setShowHoldings(false)
         inputRef.current?.blur()
         break
     }
@@ -224,15 +292,21 @@ export function StockSearch({
   // Highlight matching text in search results
   const highlightMatch = (text: string, searchTerm: string) => {
     if (!searchTerm.trim()) return text
-    
-    const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
+
+    const regex = new RegExp(
+      `(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`,
+      'gi'
+    )
     const parts = text.split(regex)
-    
+
     return (
       <span>
-        {parts.map((part, index) => 
+        {parts.map((part, index) =>
           regex.test(part) ? (
-            <span key={index} className="bg-yellow-100 text-yellow-800 font-medium">
+            <span
+              key={index}
+              className="bg-yellow-100 font-medium text-yellow-800"
+            >
               {part}
             </span>
           ) : (
@@ -255,11 +329,15 @@ export function StockSearch({
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={() => {
-          setIsOpen(true)
-          if (searchTerm.trim().length === 0) {
-            setShowPopular(true)
-          }
-        }}
+            setIsOpen(true)
+            if (searchTerm.trim().length === 0) {
+              if (holdingsOnly) {
+                setShowHoldings(true)
+              } else {
+                setShowPopular(true)
+              }
+            }
+          }}
           placeholder={placeholder}
           disabled={disabled}
           className={cn(
@@ -314,7 +392,8 @@ export function StockSearch({
                           </span>
                           <TrendingUp className="h-3 w-3 text-green-500" />
                           <span className="text-xs text-gray-500">
-                            {getCountryFlag(stock.country || '')} {stock.exchange}
+                            {getCountryFlag(stock.country || '')}{' '}
+                            {stock.exchange}
                           </span>
                         </div>
                         <div className="truncate text-sm text-gray-700">
@@ -333,6 +412,64 @@ export function StockSearch({
                       <div className="text-right">
                         <div className="text-xs font-medium text-gray-600">
                           {stock.currency}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : showHoldings && userHoldings.length > 0 ? (
+            <div>
+              <div className="border-b border-gray-100 px-4 py-2">
+                <div className="flex items-center gap-2 text-xs font-medium text-gray-600">
+                  <Package className="h-3 w-3 text-blue-500" />
+                  Dine beholdninger
+                </div>
+              </div>
+              <div className="py-1">
+                {userHoldings.map((holding, index) => (
+                  <button
+                    key={holding.id}
+                    onClick={() => handleSelect(holding)}
+                    className={cn(
+                      'w-full px-4 py-3 text-left transition-colors',
+                      'hover:bg-purple-50 focus:bg-purple-50 focus:outline-none',
+                      selectedIndex === index && 'bg-purple-100',
+                      'border-b border-gray-50 last:border-b-0'
+                    )}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-1 flex items-center gap-2">
+                          <span className="text-sm font-semibold text-gray-900">
+                            {holding.symbol}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {getCountryFlag(holding.country || '')}{' '}
+                            {holding.exchange}
+                          </span>
+                        </div>
+                        <div className="truncate text-sm text-gray-700">
+                          {holding.name}
+                        </div>
+                        <div className="mt-1 flex items-center gap-3 text-xs text-gray-500">
+                          <div className="flex items-center gap-1">
+                            <Package className="h-3 w-3" />
+                            <span>{holding.quantity} aksjer</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Wallet className="h-3 w-3" />
+                            <span>{holding.account_name}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs font-medium text-gray-600">
+                          {holding.currency}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Snitt: {holding.average_cost?.toFixed(2)}
                         </div>
                       </div>
                     </div>
@@ -390,18 +527,33 @@ export function StockSearch({
             </div>
           ) : !isLoading && searchTerm.length >= 1 ? (
             <div className="px-4 py-6 text-center">
-              <div className="text-sm text-gray-500 mb-2">
-                Ingen aksjer funnet for "{searchTerm}"
+              <div className="mb-2 text-sm text-gray-500">
+                {holdingsOnly 
+                  ? `Ingen beholdninger funnet for "${searchTerm}"` 
+                  : `Ingen aksjer funnet for "${searchTerm}"`
+                }
               </div>
               <div className="text-xs text-gray-400">
-                Prøv søk på symbol (f.eks. AAPL) eller bedriftsnavn (f.eks. Apple)
+                {holdingsOnly
+                  ? 'Prøv å søke på symbol eller navn på aksjer du eier'
+                  : 'Prøv søk på symbol (f.eks. AAPL) eller bedriftsnavn (f.eks. Apple)'
+                }
               </div>
             </div>
           ) : isLoading ? (
             <div className="px-4 py-6 text-center">
               <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Søker...
+                {holdingsOnly ? 'Laster beholdninger...' : 'Søker...'}
+              </div>
+            </div>
+          ) : showHoldings && userHoldings.length === 0 ? (
+            <div className="px-4 py-6 text-center">
+              <div className="mb-2 text-sm text-gray-500">
+                Ingen beholdninger funnet
+              </div>
+              <div className="text-xs text-gray-400">
+                Du har ikke noen aksjer å selge i denne porteføljen
               </div>
             </div>
           ) : null}

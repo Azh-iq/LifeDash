@@ -37,29 +37,29 @@ export interface BrokerDefaults {
 
 // Norwegian broker defaults
 const BROKER_DEFAULTS: BrokerDefaults = {
-  'nordnet_nok': {
+  nordnet_nok: {
     commission: 99,
     description: 'Nordnet - Norske aksjer (Fast kurtasje)',
   },
-  'nordnet_usd': {
+  nordnet_usd: {
     commission: 0.99,
     currencyExchange: 25,
     description: 'Nordnet - Utenlandske aksjer (+ valutaveksling)',
   },
-  'dnb_nok': {
+  dnb_nok: {
     commission: 149,
     description: 'DNB - Norske aksjer',
   },
-  'dnb_usd': {
+  dnb_usd: {
     commission: 149,
     currencyExchange: 50,
     description: 'DNB - Utenlandske aksjer',
   },
-  'handelsbanken_nok': {
+  handelsbanken_nok: {
     commission: 199,
     description: 'Handelsbanken - Norske aksjer',
   },
-  'handelsbanken_usd': {
+  handelsbanken_usd: {
     commission: 199,
     currencyExchange: 35,
     description: 'Handelsbanken - Utenlandske aksjer',
@@ -92,13 +92,19 @@ export default function AdvancedFeesInput({
     if (total !== fees.total) {
       onChange({ ...fees, total })
     }
-  }, [fees.commission, fees.currencyExchange, fees.otherFees, fees.total, onChange])
+  }, [
+    fees.commission,
+    fees.currencyExchange,
+    fees.otherFees,
+    fees.total,
+    onChange,
+  ])
 
   // Get broker defaults based on currency
   const getBrokerDefaults = () => {
     const isNorwegian = currency === 'NOK' || symbol.includes('.OL')
     const defaultKey = isNorwegian ? '_nok' : '_usd'
-    
+
     return Object.entries(BROKER_DEFAULTS)
       .filter(([key]) => key.includes(defaultKey))
       .map(([key, value]) => ({
@@ -183,7 +189,9 @@ export default function AdvancedFeesInput({
               min="0"
               step="0.01"
               value={fees.total.toString()}
-              onChange={e => onChange({ ...fees, total: parseFloat(e.target.value) || 0 })}
+              onChange={e =>
+                onChange({ ...fees, total: parseFloat(e.target.value) || 0 })
+              }
               placeholder="0.00"
               className="font-mono"
               disabled={disabled}
@@ -218,7 +226,9 @@ export default function AdvancedFeesInput({
                       min="0"
                       step="0.01"
                       value={fees.commission.toString()}
-                      onChange={e => handleIndividualFeeChange('commission', e.target.value)}
+                      onChange={e =>
+                        handleIndividualFeeChange('commission', e.target.value)
+                      }
                       placeholder="99.00"
                       className="font-mono"
                       disabled={disabled}
@@ -251,13 +261,20 @@ export default function AdvancedFeesInput({
                       min="0"
                       step="0.01"
                       value={fees.currencyExchange.toString()}
-                      onChange={e => handleIndividualFeeChange('currencyExchange', e.target.value)}
+                      onChange={e =>
+                        handleIndividualFeeChange(
+                          'currencyExchange',
+                          e.target.value
+                        )
+                      }
                       placeholder="25.00"
                       className="font-mono"
                       disabled={disabled}
                     />
                     <p className="text-xs text-gray-500">
-                      {isNorwegianStock ? 'Gjelder ikke norske aksjer' : 'Typisk: 25-50 NOK'}
+                      {isNorwegianStock
+                        ? 'Gjelder ikke norske aksjer'
+                        : 'Typisk: 25-50 NOK'}
                     </p>
                   </div>
 
@@ -284,7 +301,9 @@ export default function AdvancedFeesInput({
                       min="0"
                       step="0.01"
                       value={fees.otherFees.toString()}
-                      onChange={e => handleIndividualFeeChange('otherFees', e.target.value)}
+                      onChange={e =>
+                        handleIndividualFeeChange('otherFees', e.target.value)
+                      }
                       placeholder="0.00"
                       className="font-mono"
                       disabled={disabled}
@@ -318,7 +337,7 @@ export default function AdvancedFeesInput({
                 className="text-xs"
                 disabled={disabled}
               >
-                <Calculator className="h-3 w-3 mr-1" />
+                <Calculator className="mr-1 h-3 w-3" />
                 Megler-standarder
               </Button>
               <Button
@@ -339,13 +358,14 @@ export default function AdvancedFeesInput({
                 <AlertDescription>
                   <div className="space-y-2">
                     <p className="text-sm font-medium">
-                      Vanlige gebyrer for {isNorwegianStock ? 'norske' : 'utenlandske'} aksjer:
+                      Vanlige gebyrer for{' '}
+                      {isNorwegianStock ? 'norske' : 'utenlandske'} aksjer:
                     </p>
                     <div className="grid grid-cols-1 gap-2">
                       {getBrokerDefaults().map(broker => (
                         <div
                           key={broker.key}
-                          className="flex items-center justify-between p-2 rounded border bg-white"
+                          className="flex items-center justify-between rounded border bg-white p-2"
                         >
                           <div className="flex-1">
                             <p className="text-sm font-medium capitalize">
@@ -354,9 +374,8 @@ export default function AdvancedFeesInput({
                             <p className="text-xs text-gray-600">
                               Kurtasje: {broker.commission}{' '}
                               {isNorwegianStock ? 'NOK' : 'USD'}
-                              {broker.currencyExchange && 
-                                ` + ${broker.currencyExchange} NOK valutaveksling`
-                              }
+                              {broker.currencyExchange &&
+                                ` + ${broker.currencyExchange} NOK valutaveksling`}
                             </p>
                           </div>
                           <Button

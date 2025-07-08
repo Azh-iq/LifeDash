@@ -274,7 +274,10 @@ export function getTheme(variant: ThemeVariant): ThemeConfig {
   return themes[variant] || defaultTheme
 }
 
-export function getInvestmentTheme(variant: ThemeVariant, category: keyof ThemeConfig['investment']) {
+export function getInvestmentTheme(
+  variant: ThemeVariant,
+  category: keyof ThemeConfig['investment']
+) {
   const theme = getTheme(variant)
   return theme.investment[category]
 }

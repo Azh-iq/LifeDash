@@ -109,19 +109,22 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ 
-    className, 
-    variant, 
-    size, 
-    fullWidth,
-    asChild = false, 
-    loading = false,
-    icon,
-    iconPosition = 'left',
-    disabled,
-    children,
-    ...props 
-  }, ref) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      fullWidth,
+      asChild = false,
+      loading = false,
+      icon,
+      iconPosition = 'left',
+      disabled,
+      children,
+      ...props
+    },
+    ref
+  ) => {
     const Comp = asChild ? Slot : 'button'
     const isDisabled = disabled || loading
 
@@ -133,17 +136,23 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {loading && (
-          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
         )}
-        
+
         {!loading && icon && iconPosition === 'left' && (
-          <FinancialIcon name={icon} size={size === 'sm' ? 14 : size === 'lg' || size === 'xl' ? 18 : 16} />
+          <FinancialIcon
+            name={icon}
+            size={size === 'sm' ? 14 : size === 'lg' || size === 'xl' ? 18 : 16}
+          />
         )}
-        
+
         {!loading && children}
-        
+
         {!loading && icon && iconPosition === 'right' && (
-          <FinancialIcon name={icon} size={size === 'sm' ? 14 : size === 'lg' || size === 'xl' ? 18 : 16} />
+          <FinancialIcon
+            name={icon}
+            size={size === 'sm' ? 14 : size === 'lg' || size === 'xl' ? 18 : 16}
+          />
         )}
       </Comp>
     )
@@ -153,29 +162,32 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button'
 
 // Specialized button components for common use cases
-export const PrimaryActionButton = React.forwardRef<HTMLButtonElement, Omit<ButtonProps, 'variant'>>(
-  ({ children, ...props }, ref) => (
-    <Button ref={ref} variant="primary" size="lg" {...props}>
-      {children}
-    </Button>
-  )
-)
+export const PrimaryActionButton = React.forwardRef<
+  HTMLButtonElement,
+  Omit<ButtonProps, 'variant'>
+>(({ children, ...props }, ref) => (
+  <Button ref={ref} variant="primary" size="lg" {...props}>
+    {children}
+  </Button>
+))
 
-export const SecondaryActionButton = React.forwardRef<HTMLButtonElement, Omit<ButtonProps, 'variant'>>(
-  ({ children, ...props }, ref) => (
-    <Button ref={ref} variant="secondary" size="md" {...props}>
-      {children}
-    </Button>
-  )
-)
+export const SecondaryActionButton = React.forwardRef<
+  HTMLButtonElement,
+  Omit<ButtonProps, 'variant'>
+>(({ children, ...props }, ref) => (
+  <Button ref={ref} variant="secondary" size="md" {...props}>
+    {children}
+  </Button>
+))
 
-export const IconButton = React.forwardRef<HTMLButtonElement, Omit<ButtonProps, 'size'>>(
-  ({ children, icon, ...props }, ref) => (
-    <Button ref={ref} size="icon" icon={icon} {...props}>
-      {children}
-    </Button>
-  )
-)
+export const IconButton = React.forwardRef<
+  HTMLButtonElement,
+  Omit<ButtonProps, 'size'>
+>(({ children, icon, ...props }, ref) => (
+  <Button ref={ref} size="icon" icon={icon} {...props}>
+    {children}
+  </Button>
+))
 
 // Button group component for proper visual grouping
 interface ButtonGroupProps {
@@ -185,11 +197,11 @@ interface ButtonGroupProps {
   className?: string
 }
 
-export function ButtonGroup({ 
-  children, 
-  orientation = 'horizontal', 
+export function ButtonGroup({
+  children,
+  orientation = 'horizontal',
   spacing = 'md',
-  className 
+  className,
 }: ButtonGroupProps) {
   const spacingClasses = {
     sm: orientation === 'horizontal' ? 'gap-2' : 'gap-2',
@@ -198,7 +210,7 @@ export function ButtonGroup({
   }
 
   return (
-    <div 
+    <div
       className={cn(
         'flex',
         orientation === 'horizontal' ? 'flex-row items-center' : 'flex-col',
@@ -220,40 +232,38 @@ interface ActionBarProps {
   className?: string
 }
 
-export function ActionBar({ 
-  title, 
-  description, 
-  primaryAction, 
+export function ActionBar({
+  title,
+  description,
+  primaryAction,
   secondaryActions = [],
-  className 
+  className,
 }: ActionBarProps) {
   return (
-    <div className={cn(
-      'flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between',
-      'p-4 bg-stone-900/50 border border-stone-700 rounded-xl',
-      'backdrop-blur-sm',
-      className
-    )}>
+    <div
+      className={cn(
+        'flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between',
+        'rounded-xl border border-stone-700 bg-stone-900/50 p-4',
+        'backdrop-blur-sm',
+        className
+      )}
+    >
       {(title || description) && (
         <div className="min-w-0 flex-1">
           {title && (
-            <h3 className="text-lg font-semibold text-stone-100 truncate">
+            <h3 className="truncate text-lg font-semibold text-stone-100">
               {title}
             </h3>
           )}
           {description && (
-            <p className="text-sm text-stone-400 mt-1">
-              {description}
-            </p>
+            <p className="mt-1 text-sm text-stone-400">{description}</p>
           )}
         </div>
       )}
-      
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         {secondaryActions.length > 0 && (
-          <ButtonGroup spacing="sm">
-            {secondaryActions}
-          </ButtonGroup>
+          <ButtonGroup spacing="sm">{secondaryActions}</ButtonGroup>
         )}
         {primaryAction}
       </div>

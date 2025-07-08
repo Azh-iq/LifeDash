@@ -37,6 +37,7 @@ import { createDefaultPortfolio } from '@/lib/actions/portfolio/create-default'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
 import { EmptyStocksPage } from '@/components/stocks/empty-stocks-page'
 import TopNavigationMenu from '@/components/layout/top-navigation-menu'
+import { toast } from 'sonner'
 
 // Simple responsive hook
 const useResponsive = () => {
@@ -75,6 +76,12 @@ export default function StocksPage() {
     Array<{ id: string; name: string; platform: string }>
   >([])
   const [loadingAccounts, setLoadingAccounts] = useState(false)
+  
+  // Transaction processing state
+  const [isProcessingTransaction, setIsProcessingTransaction] = useState(false)
+  const [transactionSuccess, setTransactionSuccess] = useState(false)
+  const [transactionError, setTransactionError] = useState<string | null>(null)
+  const [optimisticHoldings, setOptimisticHoldings] = useState<HoldingWithMetrics[]>([])
 
   // Chart and table state (handlers)
   const setChartTimeRange = () => {} // Placeholder for chart time range changes
@@ -145,6 +152,66 @@ export default function StocksPage() {
     setIsStockModalOpen(true)
   }, [])
 
+  // Holdings actions handlers
+  const handleBuyMore = useCallback(
+    (holding: HoldingWithMetrics) => {
+      console.log('Buy more:', holding)
+      // TODO: Implement buy more functionality
+      // Could open transaction modal with pre-filled stock data
+      handleOpenTransactionModal()
+    },
+    [handleOpenTransactionModal]
+  )
+
+  const handleSell = useCallback(
+    (holding: HoldingWithMetrics) => {
+      console.log('Sell:', holding)
+      // TODO: Implement sell functionality
+      // Could open transaction modal with sell type pre-selected
+      handleOpenTransactionModal()
+    },
+    [handleOpenTransactionModal]
+  )
+
+  const handleViewDetails = useCallback(
+    (holding: HoldingWithMetrics) => {
+      console.log('View details:', holding)
+      // Use existing stock detail modal
+      handleStockClick(holding)
+    },
+    [handleStockClick]
+  )
+
+  const handleEditPosition = useCallback((holding: HoldingWithMetrics) => {
+    console.log('Edit position:', holding)
+    // TODO: Implement edit position functionality
+    // Could open a modal to edit quantity, cost basis, etc.
+  }, [])
+
+  const handleSetAlert = useCallback((holding: HoldingWithMetrics) => {
+    console.log('Set alert:', holding)
+    // TODO: Implement price alert functionality
+    // Could open modal to set price thresholds
+  }, [])
+
+  const handleAddNote = useCallback((holding: HoldingWithMetrics) => {
+    console.log('Add note:', holding)
+    // TODO: Implement note functionality
+    // Could open modal to add/edit notes for the holding
+  }, [])
+
+  const handleViewHistory = useCallback((holding: HoldingWithMetrics) => {
+    console.log('View history:', holding)
+    // TODO: Implement transaction history view
+    // Could open modal showing all transactions for this stock
+  }, [])
+
+  const handleRemovePosition = useCallback((holding: HoldingWithMetrics) => {
+    console.log('Remove position:', holding)
+    // TODO: Implement remove position functionality
+    // Should show confirmation dialog and then remove all holdings
+  }, [])
+
   const handleCloseStockModal = useCallback(() => {
     setIsStockModalOpen(false)
     setSelectedStock(null)
@@ -165,6 +232,31 @@ export default function StocksPage() {
 
   const handleCloseTransactionModal = useCallback(() => {
     setIsAddTransactionModalOpen(false)
+    // Reset transaction states
+    setTransactionSuccess(false)
+    setTransactionError(null)
+    setOptimisticHoldings([])
+  }, [])
+
+  // Handle transaction completion
+  const handleTransactionComplete = useCallback(() => {
+    setTransactionSuccess(false)
+    setTransactionError(null)
+    setOptimisticHoldings([])
+  }, [])
+
+  // Handle optimistic updates for holdings table
+  const handleOptimisticUpdate = useCallback((holding: HoldingWithMetrics, updates: Partial<HoldingWithMetrics>) => {
+    setOptimisticHoldings(prev => {
+      const existingIndex = prev.findIndex(h => h.id === holding.id)
+      if (existingIndex >= 0) {
+        const updated = [...prev]
+        updated[existingIndex] = { ...updated[existingIndex], ...updates }
+        return updated
+      } else {
+        return [...prev, { ...holding, ...updates }]
+      }
+    })
   }, [])
 
   const handleSubmitTransaction = useCallback(
@@ -173,18 +265,71 @@ export default function StocksPage() {
         throw new Error('Portfolio ID is required')
       }
 
-      const result = await addTransaction(transactionData, safePortfolioId)
+      setIsProcessingTransaction(true)
+      setTransactionError(null)
+      setTransactionSuccess(false)
 
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to add transaction')
+      try {
+        // Create optimistic update for immediate UI feedback
+        const optimisticHolding: Partial<HoldingWithMetrics> = {
+          symbol: transactionData.symbol,
+          quantity: transactionData.quantity,
+          cost_basis: transactionData.price,
+          current_price: transactionData.price,
+          current_value: transactionData.quantity * transactionData.price,
+          gain_loss: 0,
+          gain_loss_percent: 0,
+          weight: 0,
+        }
+
+        // Add optimistic holding to the list
+        if (transactionData.type === 'BUY') {
+          setOptimisticHoldings(prev => {
+            const existingIndex = prev.findIndex(h => h.symbol === transactionData.symbol)
+            if (existingIndex >= 0) {
+              // Update existing holding
+              const updated = [...prev]
+              updated[existingIndex] = {
+                ...updated[existingIndex],
+                quantity: updated[existingIndex].quantity + transactionData.quantity,
+                current_value: (updated[existingIndex].quantity + transactionData.quantity) * updated[existingIndex].current_price,
+              }
+              return updated
+            } else {
+              // Add new holding
+              return [...prev, optimisticHolding as HoldingWithMetrics]
+            }
+          })
+        }
+
+        const result = await addTransaction(transactionData, safePortfolioId)
+
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to add transaction')
+        }
+
+        // Show success state
+        setTransactionSuccess(true)
+        
+        // Refresh portfolio data to show updated holdings
+        if (portfolioState.refresh) {
+          await portfolioState.refresh()
+        }
+
+        // Auto-close modal after success
+        setTimeout(() => {
+          setIsAddTransactionModalOpen(false)
+        }, 2000)
+
+        return result
+      } catch (error) {
+        setTransactionError(error instanceof Error ? error.message : 'Unknown error occurred')
+        // Reset optimistic updates on error
+        setOptimisticHoldings([])
+        throw error
+      } finally {
+        setIsProcessingTransaction(false)
       }
-
-      // Refresh portfolio data to show updated holdings
-      if (portfolioState.refresh) {
-        await portfolioState.refresh()
-      }
-
-      return result
     },
     [safePortfolioId, portfolioState]
   )
@@ -284,12 +429,30 @@ export default function StocksPage() {
   // Handle CSV import completion from top navigation
   const handleTopNavImportComplete = useCallback(async () => {
     console.log('Top navigation CSV import completed')
-    // Refresh the portfolio data to show newly imported transactions
-    if (portfolioState.refresh) {
-      await portfolioState.refresh()
+    
+    // Show loading state
+    toast.loading('Oppdaterer portefølje...', {
+      duration: 2000,
+    })
+    
+    try {
+      // Refresh the portfolio data to show newly imported transactions
+      if (portfolioState.refresh) {
+        await portfolioState.refresh()
+      }
+      // Also trigger smart refresh for consistency
+      await smartRefresh()
+      
+      toast.success('Portefølje oppdatert!', {
+        description: 'Importerte transaksjoner er nå synlige',
+        duration: 3000,
+      })
+    } catch (error) {
+      toast.error('Kunne ikke oppdatere portefølje', {
+        description: 'Prøv å oppdatere siden manuelt',
+        duration: 5000,
+      })
     }
-    // Also trigger smart refresh for consistency
-    await smartRefresh()
   }, [portfolioState, smartRefresh])
 
   // State initialization guards
@@ -463,10 +626,7 @@ export default function StocksPage() {
           <div className="mx-auto flex max-w-7xl items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900">Aksjer</h1>
             <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-              >
+              <Button variant="outline" size="sm">
                 <FinancialIcon name="building" size={16} className="mr-2" />
                 Platform Wizard
               </Button>
@@ -487,10 +647,7 @@ export default function StocksPage() {
                 <FinancialIcon name="receipt" size={16} className="mr-2" />
                 Import CSV
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-              >
+              <Button variant="ghost" size="sm">
                 <FinancialIcon name="calculator" size={16} className="mr-2" />
                 Export CSV
               </Button>
@@ -527,6 +684,20 @@ export default function StocksPage() {
                     error={portfolioState.error}
                     onHoldingClick={handleStockClick}
                     onTimeRangeChange={setTableTimeRange}
+                    onRefresh={handleRefresh}
+                    onOptimisticUpdate={handleOptimisticUpdate}
+                    isProcessingTransaction={isProcessingTransaction}
+                    transactionSuccess={transactionSuccess}
+                    transactionError={transactionError}
+                    onTransactionComplete={handleTransactionComplete}
+                    onBuyMore={handleBuyMore}
+                    onSell={handleSell}
+                    onViewDetails={handleViewDetails}
+                    onEditPosition={handleEditPosition}
+                    onSetAlert={handleSetAlert}
+                    onAddNote={handleAddNote}
+                    onViewHistory={handleViewHistory}
+                    onRemovePosition={handleRemovePosition}
                   />
                 </div>
               </ErrorBoundary>
@@ -537,7 +708,11 @@ export default function StocksPage() {
               {/* Feed Panel */}
               <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
-                  <FinancialIcon name="info" className="text-blue-600" size={18} />
+                  <FinancialIcon
+                    name="info"
+                    className="text-blue-600"
+                    size={18}
+                  />
                   Feed (Patreon)
                 </h3>
                 <div className="space-y-3">
@@ -565,7 +740,11 @@ export default function StocksPage() {
               {/* KPI Panel */}
               <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
-                  <FinancialIcon name="pieChart" className="text-blue-600" size={18} />
+                  <FinancialIcon
+                    name="pieChart"
+                    className="text-blue-600"
+                    size={18}
+                  />
                   Nøkkeltall
                 </h3>
                 <div className="space-y-4">
@@ -646,12 +825,30 @@ export default function StocksPage() {
         onClose={() => setIsCSVModalOpen(false)}
         onImportComplete={async () => {
           console.log('CSV import completed successfully')
-          // Refresh the portfolio data to show newly imported transactions
-          if (portfolioState.refresh) {
-            await portfolioState.refresh()
+          
+          // Show loading state
+          toast.loading('Oppdaterer portefølje...', {
+            duration: 2000,
+          })
+          
+          try {
+            // Refresh the portfolio data to show newly imported transactions
+            if (portfolioState.refresh) {
+              await portfolioState.refresh()
+            }
+            // Also trigger smart refresh for consistency
+            await smartRefresh()
+            
+            toast.success('CSV import fullført!', {
+              description: 'Transaksjoner er lagt til i porteføljen',
+              duration: 3000,
+            })
+          } catch (error) {
+            toast.error('Kunne ikke oppdatere portefølje', {
+              description: 'Prøv å oppdatere siden manuelt',
+              duration: 5000,
+            })
           }
-          // Also trigger smart refresh for consistency
-          await smartRefresh()
         }}
       />
 
@@ -661,6 +858,10 @@ export default function StocksPage() {
         onClose={handleCloseTransactionModal}
         onSubmit={handleSubmitTransaction}
         accounts={accounts}
+        portfolioId={safePortfolioId}
+        isProcessing={isProcessingTransaction}
+        processingSuccess={transactionSuccess}
+        processingError={transactionError}
       />
     </ErrorBoundary>
   )

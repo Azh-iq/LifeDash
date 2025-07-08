@@ -34,49 +34,49 @@ export async function importNordnetTransactions(
     hasAccessToken: !!userAccessToken,
     tokenLength: userAccessToken?.length,
     hasUserId: !!userId,
-    userId: userId
+    userId: userId,
   })
-  
+
   try {
     // Validate environment variables first
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    
+
     console.log('Environment check:', {
       hasUrl: !!supabaseUrl,
       hasKey: !!supabaseKey,
       urlLength: supabaseUrl?.length,
-      keyLength: supabaseKey?.length
+      keyLength: supabaseKey?.length,
     })
-    
+
     if (!supabaseUrl) {
       console.error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
       return {
         success: false,
-        error: 'Configuration error: Supabase URL not configured. Please check server configuration.',
+        error:
+          'Configuration error: Supabase URL not configured. Please check server configuration.',
       }
     }
-    
+
     if (!supabaseKey) {
-      console.error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable')
+      console.error(
+        'Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable'
+      )
       return {
         success: false,
-        error: 'Configuration error: Supabase key not configured. Please check server configuration.',
+        error:
+          'Configuration error: Supabase key not configured. Please check server configuration.',
       }
     }
-    
+
     // Create Supabase client with provided access token
-    const supabase = createClient<Database>(
-      supabaseUrl,
-      supabaseKey,
-      {
-        global: {
-          headers: {
-            Authorization: `Bearer ${userAccessToken}`,
-          },
+    const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${userAccessToken}`,
         },
-      }
-    )
+      },
+    })
 
     // Verify the user is authenticated
     const {
@@ -86,25 +86,36 @@ export async function importNordnetTransactions(
 
     if (authError || !user || user.id !== userId) {
       console.error('Authentication error in CSV import:', authError)
-      let authErrorMessage = 'Authentication failed. Please log in and try again.'
-      
+      let authErrorMessage =
+        'Authentication failed. Please log in and try again.'
+
       if (authError) {
         // Provide more specific error messages based on auth error
         if (authError.message.includes('JWT') || authError.code === 'bad_jwt') {
-          authErrorMessage = 'Session expired. Please refresh the page and try again.'
-        } else if (authError.message.includes('invalid') || authError.message.includes('malformed')) {
-          authErrorMessage = 'Invalid authentication. Please log out and log back in.'
-        } else if (authError.code === 'no_authorization' || authError.message.includes('Bearer token')) {
-          authErrorMessage = 'Authentication token missing. Please refresh the page and try again.'
+          authErrorMessage =
+            'Session expired. Please refresh the page and try again.'
+        } else if (
+          authError.message.includes('invalid') ||
+          authError.message.includes('malformed')
+        ) {
+          authErrorMessage =
+            'Invalid authentication. Please log out and log back in.'
+        } else if (
+          authError.code === 'no_authorization' ||
+          authError.message.includes('Bearer token')
+        ) {
+          authErrorMessage =
+            'Authentication token missing. Please refresh the page and try again.'
         } else {
           authErrorMessage = `Authentication error: ${authError.message}`
         }
       } else if (!user) {
         authErrorMessage = 'No user session found. Please log in and try again.'
       } else if (user.id !== userId) {
-        authErrorMessage = 'User ID mismatch. Please refresh the page and try again.'
+        authErrorMessage =
+          'User ID mismatch. Please refresh the page and try again.'
       }
-      
+
       return {
         success: false,
         error: authErrorMessage,
@@ -165,14 +176,14 @@ export async function importNordnetTransactions(
     }
   } catch (error) {
     console.error('CSV Import Error:', error)
-    
+
     // Enhanced error logging
     let errorDetails = 'Failed to import CSV data'
-    
+
     if (error instanceof Error) {
       errorDetails = error.message
       console.error('Error stack:', error.stack)
-      
+
       // Log additional error details for debugging
       if ('code' in error) {
         console.error('Error code:', (error as any).code)
@@ -186,7 +197,7 @@ export async function importNordnetTransactions(
     } else {
       console.error('Non-Error object thrown:', typeof error, error)
     }
-    
+
     return {
       success: false,
       error: errorDetails,

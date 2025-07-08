@@ -5,39 +5,39 @@ export type ThemeMode = 'light' | 'dark-orange'
 
 // Base design tokens
 export const spacing = {
-  xs: '0.25rem',    // 4px
-  sm: '0.5rem',     // 8px  
-  md: '0.75rem',    // 12px
-  lg: '1rem',       // 16px
-  xl: '1.25rem',    // 20px
-  '2xl': '1.5rem',  // 24px
-  '3xl': '2rem',    // 32px
-  '4xl': '2.5rem',  // 40px
-  '5xl': '3rem',    // 48px
-  '6xl': '4rem',    // 64px
+  xs: '0.25rem', // 4px
+  sm: '0.5rem', // 8px
+  md: '0.75rem', // 12px
+  lg: '1rem', // 16px
+  xl: '1.25rem', // 20px
+  '2xl': '1.5rem', // 24px
+  '3xl': '2rem', // 32px
+  '4xl': '2.5rem', // 40px
+  '5xl': '3rem', // 48px
+  '6xl': '4rem', // 64px
 } as const
 
 export const borderRadius = {
   none: '0',
-  sm: '0.25rem',    // 4px
-  md: '0.375rem',   // 6px
-  lg: '0.5rem',     // 8px
-  xl: '0.75rem',    // 12px
-  '2xl': '1rem',    // 16px
-  '3xl': '1.5rem',  // 24px
+  sm: '0.25rem', // 4px
+  md: '0.375rem', // 6px
+  lg: '0.5rem', // 8px
+  xl: '0.75rem', // 12px
+  '2xl': '1rem', // 16px
+  '3xl': '1.5rem', // 24px
   full: '9999px',
 } as const
 
 export const fontSize = {
-  xs: '0.75rem',    // 12px
-  sm: '0.875rem',   // 14px
-  base: '1rem',     // 16px
-  lg: '1.125rem',   // 18px
-  xl: '1.25rem',    // 20px
-  '2xl': '1.5rem',  // 24px
+  xs: '0.75rem', // 12px
+  sm: '0.875rem', // 14px
+  base: '1rem', // 16px
+  lg: '1.125rem', // 18px
+  xl: '1.25rem', // 20px
+  '2xl': '1.5rem', // 24px
   '3xl': '1.875rem', // 30px
   '4xl': '2.25rem', // 36px
-  '5xl': '3rem',    // 48px
+  '5xl': '3rem', // 48px
 } as const
 
 export const fontWeight = {
@@ -106,45 +106,45 @@ export const colorTokens = {
   'dark-orange': {
     // Surface colors - Deep blacks with subtle warmth
     background: {
-      primary: '#0c0a09',      // stone-950
-      secondary: '#1c1917',    // stone-900
-      tertiary: '#292524',     // stone-800
-      elevated: '#1c1917',     // stone-900
+      primary: '#0c0a09', // stone-950
+      secondary: '#1c1917', // stone-900
+      tertiary: '#292524', // stone-800
+      elevated: '#1c1917', // stone-900
     },
     // Text colors - Warm whites and grays
     text: {
-      primary: '#fafaf9',      // stone-50
-      secondary: '#e7e5e4',    // stone-200
-      tertiary: '#a8a29e',     // stone-400
-      inverse: '#0c0a09',      // stone-950
-      disabled: '#78716c',     // stone-500
+      primary: '#fafaf9', // stone-50
+      secondary: '#e7e5e4', // stone-200
+      tertiary: '#a8a29e', // stone-400
+      inverse: '#0c0a09', // stone-950
+      disabled: '#78716c', // stone-500
     },
     // Border colors with orange accents
     border: {
-      primary: '#44403c',      // stone-600
-      secondary: '#57534e',    // stone-500
-      focused: '#ea580c',      // orange-600
-      error: '#dc2626',        // red-600
-      success: '#16a34a',      // green-600
+      primary: '#44403c', // stone-600
+      secondary: '#57534e', // stone-500
+      focused: '#ea580c', // orange-600
+      error: '#dc2626', // red-600
+      success: '#16a34a', // green-600
     },
     // Brand colors - Orange-focused palette
     brand: {
-      primary: '#ea580c',      // orange-600
-      secondary: '#fb923c',    // orange-400
-      tertiary: '#fed7aa',     // orange-200
+      primary: '#ea580c', // orange-600
+      secondary: '#fb923c', // orange-400
+      tertiary: '#fed7aa', // orange-200
     },
     // Status colors adapted for dark theme
     status: {
-      success: '#16a34a',      // green-600
-      warning: '#eab308',      // yellow-500
-      error: '#dc2626',        // red-600
-      info: '#2563eb',         // blue-600
+      success: '#16a34a', // green-600
+      warning: '#eab308', // yellow-500
+      error: '#dc2626', // red-600
+      info: '#2563eb', // blue-600
     },
     // Interactive states
     interactive: {
-      hover: '#292524',        // stone-800
-      pressed: '#44403c',      // stone-600
-      disabled: '#1c1917',     // stone-900
+      hover: '#292524', // stone-800
+      pressed: '#44403c', // stone-600
+      disabled: '#1c1917', // stone-900
     },
   },
 } as const
@@ -153,10 +153,10 @@ export const colorTokens = {
 export const components = {
   button: {
     height: {
-      sm: '2rem',      // 32px
-      md: '2.5rem',    // 40px
-      lg: '3rem',      // 48px
-      xl: '3.5rem',    // 56px
+      sm: '2rem', // 32px
+      md: '2.5rem', // 40px
+      lg: '3rem', // 48px
+      xl: '3.5rem', // 56px
     },
     padding: {
       sm: '0.5rem 0.75rem',
@@ -173,9 +173,9 @@ export const components = {
   },
   input: {
     height: {
-      sm: '2.25rem',   // 36px
-      md: '2.75rem',   // 44px
-      lg: '3rem',      // 48px
+      sm: '2.25rem', // 36px
+      md: '2.75rem', // 44px
+      lg: '3rem', // 48px
     },
     padding: {
       sm: '0.5rem 0.75rem',
@@ -223,7 +223,7 @@ export const layout = {
     lg: '1024px',
     xl: '1280px',
     '2xl': '1536px',
-    '7xl': '80rem',    // 1280px (for content areas)
+    '7xl': '80rem', // 1280px (for content areas)
   },
   breakpoints: {
     sm: '640px',

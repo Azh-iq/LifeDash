@@ -3,6 +3,7 @@
 ## Problem Summary
 
 The original stock search function was returning "Ingen aksjer funnet" (No stocks found) for common partial search terms like:
+
 - "aa" (should find Apple)
 - "micro" (should find Microsoft, Micron, Microchip)
 - "app" (should find Apple)
@@ -89,12 +90,12 @@ Added additional popular stocks to improve search results:
 
 ### Before vs After Comparison
 
-| Search Term | Before | After |
-|-------------|---------|--------|
-| "aa" | ❌ Ingen aksjer funnet | ✅ Apple, American Airlines, etc. |
-| "micro" | ❌ Ingen aksjer funnet | ✅ Microsoft, Micron, Microchip |
-| "app" | ❌ Ingen aksjer funnet | ✅ Apple, Applied Materials, etc. |
-| "soft" | ❌ Ingen aksjer funnet | ✅ Microsoft, software companies |
+| Search Term | Before                 | After                             |
+| ----------- | ---------------------- | --------------------------------- |
+| "aa"        | ❌ Ingen aksjer funnet | ✅ Apple, American Airlines, etc. |
+| "micro"     | ❌ Ingen aksjer funnet | ✅ Microsoft, Micron, Microchip   |
+| "app"       | ❌ Ingen aksjer funnet | ✅ Apple, Applied Materials, etc. |
+| "soft"      | ❌ Ingen aksjer funnet | ✅ Microsoft, software companies  |
 
 ### Comprehensive Test Results
 
@@ -102,7 +103,7 @@ Added additional popular stocks to improve search results:
 
 1. ✅ "micro" → Microsoft, Micron, Microchip
 2. ✅ "app" → Apple
-3. ✅ "goog" → Google/Alphabet  
+3. ✅ "goog" → Google/Alphabet
 4. ✅ "tesla" → Tesla
 5. ✅ "eqnr" → Equinor (Norwegian stock)
 6. ✅ "AAPL" → Apple (exact match)
@@ -150,7 +151,7 @@ The improved function maintains the same interface:
 const { data, error } = await supabase.rpc('search_stocks', {
   search_term: 'micro',
   limit_count: 10,
-  exchange_filter: null // Optional: 'OSLO', 'NASDAQ', etc.
+  exchange_filter: null, // Optional: 'OSLO', 'NASDAQ', etc.
 })
 ```
 

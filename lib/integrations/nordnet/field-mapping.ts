@@ -427,29 +427,36 @@ export class NordnetFieldMapper {
    * Determines the internal transaction type from Nordnet transaction type
    */
   private static determineInternalTransactionType(nordnetType: string): string {
-    const mapped = NORDNET_TRANSACTION_TYPES[
-      nordnetType as keyof typeof NORDNET_TRANSACTION_TYPES
-    ]
-    
+    const mapped =
+      NORDNET_TRANSACTION_TYPES[
+        nordnetType as keyof typeof NORDNET_TRANSACTION_TYPES
+      ]
+
     if (mapped) {
       return mapped
     }
-    
+
     // Fallback logic for unmapped transaction types
     const typeLower = nordnetType.toLowerCase()
-    
+
     // Check for common patterns
     if (typeLower.includes('kjøp') || typeLower.includes('buy')) return 'BUY'
     if (typeLower.includes('salg') || typeLower.includes('sell')) return 'SELL'
-    if (typeLower.includes('utbytte') || typeLower.includes('dividend')) return 'DIVIDEND'
-    if (typeLower.includes('rente') || typeLower.includes('interest')) return 'INTEREST'
+    if (typeLower.includes('utbytte') || typeLower.includes('dividend'))
+      return 'DIVIDEND'
+    if (typeLower.includes('rente') || typeLower.includes('interest'))
+      return 'INTEREST'
     if (typeLower.includes('avgift') || typeLower.includes('fee')) return 'FEE'
     if (typeLower.includes('skatt') || typeLower.includes('tax')) return 'TAX'
-    if (typeLower.includes('innskudd') || typeLower.includes('deposit')) return 'DEPOSIT'
-    if (typeLower.includes('uttak') || typeLower.includes('withdrawal')) return 'WITHDRAWAL'
-    
+    if (typeLower.includes('innskudd') || typeLower.includes('deposit'))
+      return 'DEPOSIT'
+    if (typeLower.includes('uttak') || typeLower.includes('withdrawal'))
+      return 'WITHDRAWAL'
+
     // Default fallback - treat as fee/adjustment
-    console.warn(`Unknown transaction type: "${nordnetType}", defaulting to FEE`)
+    console.warn(
+      `Unknown transaction type: "${nordnetType}", defaulting to FEE`
+    )
     return 'FEE'
   }
 

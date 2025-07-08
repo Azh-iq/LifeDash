@@ -64,8 +64,8 @@ export default function CSVImportModal({
       } = await supabase.auth.getSession()
 
       if (authError || !session) {
-        const authErrorMsg = authError 
-          ? `Authentication error: ${authError.message}` 
+        const authErrorMsg = authError
+          ? `Authentication error: ${authError.message}`
           : 'No active session found. Please log in and try again.'
         console.error('CSV Import Modal - Auth Error:', authError)
         setImportError(authErrorMsg)
@@ -78,12 +78,14 @@ export default function CSVImportModal({
         tokenLength: session.access_token?.length,
         userId: session.user.id,
         userEmail: session.user.email,
-        expiresAt: session.expires_at
+        expiresAt: session.expires_at,
       })
 
       // Check if session is expired
       if (session.expires_at && Date.now() / 1000 > session.expires_at) {
-        setImportError('Session expired. Please refresh the page and try again.')
+        setImportError(
+          'Session expired. Please refresh the page and try again.'
+        )
         return
       }
 
@@ -94,11 +96,11 @@ export default function CSVImportModal({
         session.access_token,
         session.user.id
       )
-      
+
       console.log('CSV Import result:', {
         success: result.success,
         hasData: !!result.data,
-        error: result.error
+        error: result.error,
       })
 
       if (result.success && result.data) {
@@ -133,7 +135,10 @@ export default function CSVImportModal({
       }
     } catch (error) {
       console.error('CSV Import Exception:', error)
-      const errorMsg = error instanceof Error ? error.message : 'Import failed with unknown error'
+      const errorMsg =
+        error instanceof Error
+          ? error.message
+          : 'Import failed with unknown error'
       setImportError(errorMsg)
     } finally {
       setIsImporting(false)

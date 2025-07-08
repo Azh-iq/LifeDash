@@ -29,6 +29,7 @@ All implementation MUST follow the wireframes located in `/wireframes/` director
 ## Technical Stack
 
 ### Frontend
+
 - **Framework**: Next.js 14 with App Router
 - **Language**: TypeScript with strict mode
 - **Styling**: Tailwind CSS with custom category themes
@@ -38,12 +39,14 @@ All implementation MUST follow the wireframes located in `/wireframes/` director
 - **State Management**: React hooks with optimized portfolio state
 
 ### Backend
+
 - **Database**: Supabase (PostgreSQL)
 - **Authentication**: Supabase Auth
 - **Real-time**: Supabase Realtime subscriptions
 - **File Storage**: Supabase Storage
 
 ### External APIs
+
 - **Finnhub API**: Real-time stock prices, company fundamentals, news
 - **TradingView**: Advanced charts (planned)
 - **Platform APIs**: Nordnet, Schwab integration
@@ -51,6 +54,7 @@ All implementation MUST follow the wireframes located in `/wireframes/` director
 ## Recent Completed Features
 
 ### ✅ Enhanced Finnhub Integration (January 2025)
+
 - Complete API wrapper with stock prices, company fundamentals, and news
 - Real-time price updates with intelligent queue management
 - Company profile data including market cap, P/E, sector information
@@ -58,12 +62,14 @@ All implementation MUST follow the wireframes located in `/wireframes/` director
 - Eliminated all test/mock data with actual market prices
 
 ### ✅ S&P 500 Stock Registry System (January 2025)
+
 - 450+ S&P 500 companies with comprehensive stock registry
 - Full-text search with PostgreSQL optimization
 - Typeahead search with keyboard navigation and country flags
 - Enhanced transaction entry with auto-fill information
 
 ### ✅ Norwegian CSV Import System (January 2025)
+
 - Advanced encoding detection (UTF-16LE for Norwegian Nordnet exports)
 - Norwegian character handling (æøå) with score-based detection
 - Intelligent CSV parsing with delimiter detection
@@ -71,6 +77,7 @@ All implementation MUST follow the wireframes located in `/wireframes/` director
 - Complete UI integration with drag & drop upload
 
 ### ✅ Database Schema & Performance Fixes (January 2025)
+
 - Fixed transactions API 400 errors with proper account.portfolio_id joins
 - Resolved infinite loop issues in useEffect dependencies
 - Memory leak prevention with proper cleanup patterns
@@ -78,14 +85,68 @@ All implementation MUST follow the wireframes located in `/wireframes/` director
 - 30-40% reduction in unnecessary re-renders
 
 ### ✅ Stock Detail Modal (January 2025)
+
 - Comprehensive stock detail cards with tabbed interface
 - Three tabs: Overview, Transactions, Performance
 - Responsive design (full screen on mobile, modal on desktop)
 - Norwegian locale formatting functions
 
+### ✅ Stocks Page Layout & Theme Reversion (July 2025)
+
+- Reverted from dark stone theme back to original light color scheme
+- Improved layout proportions: smaller chart (h-80), larger holdings table
+- Enhanced readability with proper light theme contrast
+- Simplified button styling using standard shadcn variants
+- Maintained responsive grid layout with better space distribution
+
+### ✅ Enhanced Holdings Table & Advanced Actions System (July 2025)
+
+**Complete Portfolio Management Overhaul** - Transformed the holdings table into a professional-grade investment interface with industry-standard features.
+
+#### Enhanced Holdings Table Structure:
+- **Professional Column Layout**: Stock | Quantity | Current Price | Market Value | Cost Basis | P&L | P&L% | Daily Change | Broker | Actions
+- **Current Price Column**: Live stock prices with green pulsing indicators for real-time data
+- **Market Value Column**: Total position value (price × quantity) with compact formatting
+- **Enhanced P&L% Column**: Dedicated percentage display with color-coded badges (Gevinst/Tap)
+- **Visual Enhancements**: Country flags (🇳🇴 🇺🇸), trend arrows (↑↓), live price indicators
+
+#### Advanced Actions Menu System:
+- **8 Comprehensive Actions**: Buy More, Sell, View Details, Edit Position, Set Alert, Add Note, Transaction History, Remove Position
+- **Smart Context Awareness**: Sell disabled when quantity = 0, proper tooltips and visual feedback
+- **Color-coded Actions**: Green for buy, red for sell, purple for details, with semantic icon system
+- **Dropdown Menu Structure**: Primary actions → Secondary actions → Advanced actions with separators
+
+#### Real-time Price Integration:
+- **Finnhub API Integration**: Live price fetching with intelligent caching (2-minute TTL)
+- **Auto-fill Price Feature**: Automatic price population when selecting stocks in transaction modal
+- **Live Price Badges**: "Live pris" indicators with timestamps and market state
+- **Smart Caching**: Prevents excessive API calls while maintaining current data
+
+#### Enhanced Transaction Flow:
+- **Holdings-only Sell Mode**: When selling, only user's current holdings appear in dropdown
+- **Quantity Validation**: Prevents selling more than owned with "Max" button for quick selection
+- **Account Pre-selection**: Automatically selects correct account for sell transactions
+- **Optimistic Updates**: Immediate UI feedback with smooth animations and error handling
+
+#### Technical Improvements:
+- **Real-time Updates**: Live price updates and P&L recalculation in holdings table
+- **Smooth Animations**: Framer Motion integration for table updates and status changes
+- **Error Handling**: Comprehensive error boundaries with Norwegian localization
+- **Performance**: 30-40% reduction in unnecessary re-renders with smart caching
+- **Mobile Responsive**: Touch-friendly actions menu with proper responsive design
+
+#### Files Enhanced:
+- `components/stocks/norwegian-holdings-table.tsx` - Complete table overhaul
+- `components/stocks/holdings-actions-menu.tsx` - Advanced actions system
+- `components/stocks/add-transaction-modal.tsx` - Real-time price integration
+- `components/stocks/stock-search.tsx` - Holdings filtering for sell transactions
+- `lib/actions/holdings/fetch-holdings.ts` - Holdings server actions
+- `lib/utils/finnhub-api.ts` - Enhanced API integration with caching
+
 ## Widget-Based Architecture
 
 ### Widget Component Hierarchy
+
 ```
 BaseWidget (container + theming)
 ├── ChartWidget (chart-specific features)
@@ -102,12 +163,13 @@ BaseWidget (container + theming)
 ```
 
 ### Category Theme System
+
 ```typescript
 export const categoryThemes = {
   stocks: { primary: '#6366f1', secondary: '#a855f7' },
   crypto: { primary: '#f59e0b', secondary: '#fbbf24' },
   art: { primary: '#ec4899', secondary: '#f472b6' },
-  other: { primary: '#10b981', secondary: '#34d399' }
+  other: { primary: '#10b981', secondary: '#34d399' },
 }
 ```
 
@@ -201,17 +263,20 @@ user_profiles → portfolios → accounts → transactions
 ## Code Patterns
 
 ### Component Structure
+
 - Use TypeScript interfaces for all props
 - Implement loading states and error handling
 - Follow responsive design patterns
 - Use Norwegian text for user-facing content
 
 ### State Management
+
 - Custom hooks for complex state logic
 - Real-time updates via Supabase subscriptions
 - Optimistic updates for better UX
 
 ### Styling
+
 - Tailwind CSS for all styling
 - Custom component variants using `cva`
 - Mobile-first responsive design

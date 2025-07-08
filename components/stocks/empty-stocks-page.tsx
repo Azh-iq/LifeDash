@@ -244,6 +244,7 @@ export function EmptyStocksPage({
         onClose={() => setIsAddTransactionModalOpen(false)}
         onSubmit={handleTransactionSubmit}
         accounts={[]} // Empty since we don't have a portfolio yet
+        portfolioId={undefined} // No portfolio yet
       />
 
       <CSVImportModal

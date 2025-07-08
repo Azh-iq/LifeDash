@@ -31,7 +31,7 @@ export function ModernTransactionSummary({
   className,
 }: TransactionSummaryProps) {
   const isBuy = type === 'BUY'
-  
+
   const getThemeClasses = () => {
     switch (variant) {
       case 'dark':
@@ -70,29 +70,31 @@ export function ModernTransactionSummary({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
       className={cn(
-        "relative overflow-hidden rounded-xl border-2 p-6",
+        'relative overflow-hidden rounded-xl border-2 p-6',
         theme.card,
         theme.glow,
-        "backdrop-blur-sm",
+        'backdrop-blur-sm',
         className
       )}
     >
       {/* Animated background pattern */}
       <div className="absolute inset-0 opacity-30">
-        <div className={cn(
-          "absolute inset-0 bg-gradient-to-r",
-          variant === 'dark-orange' 
-            ? "from-orange-600/10 via-transparent to-amber-600/10"
-            : variant === 'dark'
-            ? "from-purple-600/10 via-transparent to-indigo-600/10"
-            : "from-purple-500/10 via-transparent to-indigo-500/10"
-        )} />
+        <div
+          className={cn(
+            'absolute inset-0 bg-gradient-to-r',
+            variant === 'dark-orange'
+              ? 'from-orange-600/10 via-transparent to-amber-600/10'
+              : variant === 'dark'
+                ? 'from-purple-600/10 via-transparent to-indigo-600/10'
+                : 'from-purple-500/10 via-transparent to-indigo-500/10'
+          )}
+        />
         <motion.div
           className={cn(
-            "absolute -top-4 -right-4 w-24 h-24 rounded-full blur-xl",
-            variant === 'dark-orange' ? "bg-orange-500/20" : "bg-purple-500/20"
+            'absolute -right-4 -top-4 h-24 w-24 rounded-full blur-xl',
+            variant === 'dark-orange' ? 'bg-orange-500/20' : 'bg-purple-500/20'
           )}
           animate={{
             scale: [1, 1.2, 1],
@@ -101,24 +103,27 @@ export function ModernTransactionSummary({
           transition={{
             duration: 4,
             repeat: Infinity,
-            ease: "easeInOut",
+            ease: 'easeInOut',
           }}
         />
       </div>
 
       {/* Header */}
       <div className="relative z-10 mb-4">
-        <motion.h4 
-          className={cn("text-lg font-bold flex items-center gap-2", theme.title)}
+        <motion.h4
+          className={cn(
+            'flex items-center gap-2 text-lg font-bold',
+            theme.title
+          )}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <FinancialIcon 
-            name={isBuy ? 'buy' : 'sell'} 
+          <FinancialIcon
+            name={isBuy ? 'buy' : 'sell'}
             className={cn(
-              "transition-transform duration-300",
-              variant === 'dark-orange' ? "text-orange-400" : "text-purple-600"
+              'transition-transform duration-300',
+              variant === 'dark-orange' ? 'text-orange-400' : 'text-purple-600'
             )}
             size={20}
           />
@@ -129,22 +134,22 @@ export function ModernTransactionSummary({
       {/* Transaction Details Grid */}
       <div className="relative z-10 space-y-3">
         {/* Transaction Type */}
-        <motion.div 
-          className="flex justify-between items-center"
+        <motion.div
+          className="flex items-center justify-between"
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <span className={cn("text-sm font-medium", theme.label)}>Type:</span>
+          <span className={cn('text-sm font-medium', theme.label)}>Type:</span>
           <Badge
             variant={isBuy ? 'default' : 'destructive'}
             className={cn(
-              "font-bold px-3 py-1 shadow-sm",
-              isBuy 
+              'px-3 py-1 font-bold shadow-sm',
+              isBuy
                 ? variant === 'dark-orange'
-                  ? "bg-gradient-to-r from-orange-600 to-amber-600 text-white"
-                  : "bg-gradient-to-r from-green-600 to-green-700 text-white"
-                : "bg-gradient-to-r from-red-600 to-red-700 text-white"
+                  ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white'
+                  : 'bg-gradient-to-r from-green-600 to-green-700 text-white'
+                : 'bg-gradient-to-r from-red-600 to-red-700 text-white'
             )}
           >
             {isBuy ? 'Kjøp' : 'Salg'}
@@ -152,44 +157,51 @@ export function ModernTransactionSummary({
         </motion.div>
 
         {/* Stock Information */}
-        <motion.div 
-          className="flex justify-between items-center"
+        <motion.div
+          className="flex items-center justify-between"
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <span className={cn("text-sm font-medium", theme.label)}>Aksje:</span>
+          <span className={cn('text-sm font-medium', theme.label)}>Aksje:</span>
           <div className="flex items-center gap-2">
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className={cn(
-                "font-mono text-xs border-2",
-                variant === 'dark-orange' 
-                  ? "border-orange-300/50 text-orange-300"
+                'border-2 font-mono text-xs',
+                variant === 'dark-orange'
+                  ? 'border-orange-300/50 text-orange-300'
                   : variant === 'dark'
-                  ? "border-purple-300/50 text-purple-300"
-                  : "border-purple-300 text-purple-700"
+                    ? 'border-purple-300/50 text-purple-300'
+                    : 'border-purple-300 text-purple-700'
               )}
             >
               {symbol || '—'}
             </Badge>
-            <span className={cn("text-sm font-medium truncate max-w-32", theme.value)}>
+            <span
+              className={cn(
+                'max-w-32 truncate text-sm font-medium',
+                theme.value
+              )}
+            >
               {stockName || 'Ikke valgt'}
             </span>
           </div>
         </motion.div>
 
         {/* Quantity */}
-        <motion.div 
-          className="flex justify-between items-center"
+        <motion.div
+          className="flex items-center justify-between"
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <span className={cn("text-sm font-medium", theme.label)}>Antall:</span>
+          <span className={cn('text-sm font-medium', theme.label)}>
+            Antall:
+          </span>
           <div className="flex items-center gap-1">
-            <motion.span 
-              className={cn("font-semibold", theme.value)}
+            <motion.span
+              className={cn('font-semibold', theme.value)}
               key={quantity}
               initial={{ scale: 1.2, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -197,21 +209,23 @@ export function ModernTransactionSummary({
             >
               {quantity || '0'}
             </motion.span>
-            <span className={cn("text-xs", theme.label)}>aksjer</span>
+            <span className={cn('text-xs', theme.label)}>aksjer</span>
           </div>
         </motion.div>
 
         {/* Price per Share */}
-        <motion.div 
-          className="flex justify-between items-center"
+        <motion.div
+          className="flex items-center justify-between"
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <span className={cn("text-sm font-medium", theme.label)}>Pris per aksje:</span>
+          <span className={cn('text-sm font-medium', theme.label)}>
+            Pris per aksje:
+          </span>
           <div className="flex items-center gap-1">
-            <motion.span 
-              className={cn("font-semibold", theme.value)}
+            <motion.span
+              className={cn('font-semibold', theme.value)}
               key={pricePerShare}
               initial={{ scale: 1.2, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -224,16 +238,18 @@ export function ModernTransactionSummary({
         </motion.div>
 
         {/* Fees */}
-        <motion.div 
-          className="flex justify-between items-center"
+        <motion.div
+          className="flex items-center justify-between"
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.6 }}
         >
-          <span className={cn("text-sm font-medium", theme.label)}>Gebyrer:</span>
+          <span className={cn('text-sm font-medium', theme.label)}>
+            Gebyrer:
+          </span>
           <div className="flex items-center gap-1">
-            <motion.span 
-              className={cn("font-semibold", theme.value)}
+            <motion.span
+              className={cn('font-semibold', theme.value)}
               key={fees}
               initial={{ scale: 1.2, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -246,14 +262,14 @@ export function ModernTransactionSummary({
         </motion.div>
 
         {/* Divider */}
-        <motion.div 
+        <motion.div
           className={cn(
-            "w-full h-px my-4",
-            variant === 'dark-orange' 
-              ? "bg-gradient-to-r from-transparent via-orange-500/50 to-transparent"
+            'my-4 h-px w-full',
+            variant === 'dark-orange'
+              ? 'bg-gradient-to-r from-transparent via-orange-500/50 to-transparent'
               : variant === 'dark'
-              ? "bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"
-              : "bg-gradient-to-r from-transparent via-purple-400/50 to-transparent"
+                ? 'bg-gradient-to-r from-transparent via-purple-500/50 to-transparent'
+                : 'bg-gradient-to-r from-transparent via-purple-400/50 to-transparent'
           )}
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
@@ -261,34 +277,34 @@ export function ModernTransactionSummary({
         />
 
         {/* Total Amount */}
-        <motion.div 
-          className="flex justify-between items-center pt-2"
+        <motion.div
+          className="flex items-center justify-between pt-2"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.8, duration: 0.4 }}
         >
-          <span className={cn("text-base font-bold", theme.label)}>
+          <span className={cn('text-base font-bold', theme.label)}>
             Total beløp:
           </span>
           <div className="flex items-center gap-2">
-            <motion.span 
+            <motion.span
               className={cn(
-                "text-xl font-bold",
+                'text-xl font-bold',
                 theme.total,
-                variant === 'dark-orange' && "text-orange-400"
+                variant === 'dark-orange' && 'text-orange-400'
               )}
               key={totalAmount}
               initial={{ scale: 1.3, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
+              transition={{ duration: 0.4, type: 'spring', stiffness: 200 }}
             >
               {totalAmount.toFixed(2)}
             </motion.span>
-            <CurrencyIcon 
-              currency={currency} 
-              size={18} 
+            <CurrencyIcon
+              currency={currency}
+              size={18}
               className={cn(
-                variant === 'dark-orange' ? "text-orange-400" : "text-current"
+                variant === 'dark-orange' ? 'text-orange-400' : 'text-current'
               )}
             />
           </div>
@@ -296,23 +312,27 @@ export function ModernTransactionSummary({
       </div>
 
       {/* Bottom accent line */}
-      <motion.div 
+      <motion.div
         className={cn(
-          "absolute bottom-0 left-0 h-1 bg-gradient-to-r",
+          'absolute bottom-0 left-0 h-1 bg-gradient-to-r',
           variant === 'dark-orange'
-            ? "from-orange-500 via-amber-500 to-orange-600"
-            : "from-purple-500 via-indigo-500 to-pink-500"
+            ? 'from-orange-500 via-amber-500 to-orange-600'
+            : 'from-purple-500 via-indigo-500 to-pink-500'
         )}
         initial={{ width: 0 }}
         animate={{ width: '100%' }}
-        transition={{ delay: 1, duration: 0.8, ease: "easeOut" }}
+        transition={{ delay: 1, duration: 0.8, ease: 'easeOut' }}
       />
     </motion.div>
   )
 }
 
 // Simplified version for loading states
-export function TransactionSummarySkeleton({ variant = 'light' }: { variant?: 'light' | 'dark' | 'dark-orange' }) {
+export function TransactionSummarySkeleton({
+  variant = 'light',
+}: {
+  variant?: 'light' | 'dark' | 'dark-orange'
+}) {
   const getSkeletonClasses = () => {
     switch (variant) {
       case 'dark':
@@ -324,25 +344,27 @@ export function TransactionSummarySkeleton({ variant = 'light' }: { variant?: 'l
   }
 
   return (
-    <div className={cn(
-      "rounded-xl border-2 p-6",
-      variant === 'dark-orange' 
-        ? "bg-stone-900 border-stone-700"
-        : variant === 'dark'
-        ? "bg-slate-900 border-slate-700"
-        : "bg-gray-50 border-gray-200"
-    )}>
-      <div className={cn("h-6 w-48 rounded mb-4", getSkeletonClasses())} />
+    <div
+      className={cn(
+        'rounded-xl border-2 p-6',
+        variant === 'dark-orange'
+          ? 'border-stone-700 bg-stone-900'
+          : variant === 'dark'
+            ? 'border-slate-700 bg-slate-900'
+            : 'border-gray-200 bg-gray-50'
+      )}
+    >
+      <div className={cn('mb-4 h-6 w-48 rounded', getSkeletonClasses())} />
       <div className="space-y-3">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex justify-between items-center">
-            <div className={cn("h-4 w-20 rounded", getSkeletonClasses())} />
-            <div className={cn("h-4 w-16 rounded", getSkeletonClasses())} />
+          <div key={i} className="flex items-center justify-between">
+            <div className={cn('h-4 w-20 rounded', getSkeletonClasses())} />
+            <div className={cn('h-4 w-16 rounded', getSkeletonClasses())} />
           </div>
         ))}
-        <div className="pt-2 flex justify-between items-center">
-          <div className={cn("h-5 w-24 rounded", getSkeletonClasses())} />
-          <div className={cn("h-6 w-20 rounded", getSkeletonClasses())} />
+        <div className="flex items-center justify-between pt-2">
+          <div className={cn('h-5 w-24 rounded', getSkeletonClasses())} />
+          <div className={cn('h-6 w-20 rounded', getSkeletonClasses())} />
         </div>
       </div>
     </div>

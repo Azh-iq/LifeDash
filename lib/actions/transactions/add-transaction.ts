@@ -134,7 +134,8 @@ export async function addTransaction(
         price: transactionData.pricePerShare,
         total_amount: transactionData.totalAmount,
         // Advanced fees breakdown
-        commission: transactionData.advancedFees?.commission || transactionData.fees || 0,
+        commission:
+          transactionData.advancedFees?.commission || transactionData.fees || 0,
         sec_fees: transactionData.advancedFees?.currencyExchange || 0, // Currency exchange fees
         other_fees: transactionData.advancedFees?.otherFees || 0,
         // Note: total_fees is automatically calculated by the database

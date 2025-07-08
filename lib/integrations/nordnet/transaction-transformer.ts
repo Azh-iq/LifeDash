@@ -50,8 +50,8 @@ export class NordnetTransactionTransformer {
   private platformId: string
 
   constructor(
-    userId: string, 
-    platformId: string, 
+    userId: string,
+    platformId: string,
     supabaseClient: ReturnType<typeof createClient<Database>>
   ) {
     this.userId = userId
@@ -110,12 +110,12 @@ export class NordnetTransactionTransformer {
       result.transformedRows = transformedTransactions.length
     } catch (error) {
       console.error('Transaction Transformer Error:', error)
-      
+
       let errorMessage = 'Import failed: Unknown error'
       if (error instanceof Error) {
         errorMessage = `Import failed: ${error.message}`
         console.error('Error stack:', error.stack)
-        
+
         // Log additional error details for debugging
         if ('code' in error) {
           console.error('Error code:', (error as any).code)
@@ -127,7 +127,7 @@ export class NordnetTransactionTransformer {
           console.error('Error hint:', (error as any).hint)
         }
       }
-      
+
       result.errors.push(errorMessage)
       result.success = false
     }
@@ -388,22 +388,26 @@ export class NordnetTransactionTransformer {
         // Validate required fields before creating transaction record
         if (!transaction.internal_transaction_type) {
           result.skippedRows++
-          result.errors.push(`Transaction ${transaction.id}: Missing internal transaction type`)
+          result.errors.push(
+            `Transaction ${transaction.id}: Missing internal transaction type`
+          )
           continue
         }
-        
+
         if (!transaction.booking_date) {
           result.skippedRows++
-          result.errors.push(`Transaction ${transaction.id}: Missing booking date`)
+          result.errors.push(
+            `Transaction ${transaction.id}: Missing booking date`
+          )
           continue
         }
-        
+
         if (transaction.amount === null || transaction.amount === undefined) {
           result.skippedRows++
           result.errors.push(`Transaction ${transaction.id}: Missing amount`)
           continue
         }
-        
+
         if (!transaction.currency) {
           result.skippedRows++
           result.errors.push(`Transaction ${transaction.id}: Missing currency`)
@@ -423,12 +427,16 @@ export class NordnetTransactionTransformer {
           price: transaction.price || undefined,
           total_amount: transaction.amount,
           commission: transaction.commission || 0,
-          other_fees: Math.max(0,
-            (transaction.total_fees || 0) - (transaction.commission || 0)),
+          other_fees: Math.max(
+            0,
+            (transaction.total_fees || 0) - (transaction.commission || 0)
+          ),
           currency: transaction.currency,
           exchange_rate: Math.max(0.0001, transaction.exchange_rate || 1.0), // Ensure positive
           description:
-            transaction.transaction_text || transaction.security_name || 'CSV Import',
+            transaction.transaction_text ||
+            transaction.security_name ||
+            'CSV Import',
           notes: this.generateNotes(transaction),
           data_source: 'CSV_IMPORT',
           import_batch_id: this.importBatchId,
@@ -481,7 +489,10 @@ export class NordnetTransactionTransformer {
             .insert(batch)
 
           if (error) {
-            console.error('Transaction batch insert error (no duplicate filtering):', error)
+            console.error(
+              'Transaction batch insert error (no duplicate filtering):',
+              error
+            )
             console.error('Batch data (first 3):', batch.slice(0, 3))
             throw error
           }

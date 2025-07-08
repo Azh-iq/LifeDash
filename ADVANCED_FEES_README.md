@@ -7,6 +7,7 @@ The Advanced Fees System allows users to separately track different types of fee
 ## 🎯 Features Implemented
 
 ### 1. AdvancedFeesInput Component
+
 **File**: `/components/stocks/advanced-fees-input.tsx`
 
 - **Expandable Interface**: Collapsed by default showing total fees, expandable to show breakdown
@@ -20,6 +21,7 @@ The Advanced Fees System allows users to separately track different types of fee
 - **Norwegian Localization**: All text in Norwegian
 
 ### 2. Broker Defaults
+
 Pre-configured fee structures for common Norwegian brokers:
 
 ```typescript
@@ -30,9 +32,10 @@ Pre-configured fee structures for common Norwegian brokers:
 ```
 
 ### 3. Database Schema Enhancement
+
 **Migration**: `016_advanced_fees_system.sql`
 
-- **Reused Existing Columns**: 
+- **Reused Existing Columns**:
   - `commission` (kurtasje)
   - `sec_fees` (repurposed for valutaveksling)
   - `other_fees` (andre gebyrer)
@@ -42,6 +45,7 @@ Pre-configured fee structures for common Norwegian brokers:
 - **Validation Triggers**: Ensures all fee components are non-negative
 
 ### 4. Updated Transaction Modal
+
 **File**: `/components/stocks/add-transaction-modal.tsx`
 
 - **Interface Update**: Added `AdvancedFees` to `TransactionData`
@@ -50,6 +54,7 @@ Pre-configured fee structures for common Norwegian brokers:
 - **Smart Calculation**: Total amount calculation uses advanced fees when available
 
 ### 5. Enhanced Transaction Processing
+
 **File**: `/lib/actions/transactions/add-transaction.ts`
 
 - **Fee Mapping**: Maps advanced fees to database columns
@@ -59,6 +64,7 @@ Pre-configured fee structures for common Norwegian brokers:
 ## 🚀 Usage Examples
 
 ### Basic Usage (Collapsed State)
+
 ```typescript
 // User sees simple "Gebyrer" field with total amount
 <AdvancedFeesInput
@@ -70,30 +76,33 @@ Pre-configured fee structures for common Norwegian brokers:
 ```
 
 ### Advanced Usage (Expanded State)
+
 ```typescript
 // User sees breakdown of all fee components
 const advancedFees = {
-  commission: 99,      // Nordnet commission
+  commission: 99, // Nordnet commission
   currencyExchange: 0, // No currency exchange for NOK
-  otherFees: 0,        // No additional fees
-  total: 99            // Auto-calculated
+  otherFees: 0, // No additional fees
+  total: 99, // Auto-calculated
 }
 ```
 
 ### Broker Default Application
+
 ```typescript
 // Apply Nordnet defaults for US stocks
 const nordnetUSD = {
   commission: 0.99,
   currencyExchange: 25,
   otherFees: 0,
-  total: 25.99
+  total: 25.99,
 }
 ```
 
 ## 📊 Database Structure
 
 ### Updated Transaction Record
+
 ```sql
 INSERT INTO transactions (
   commission,           -- 99.00 (kurtasje)
@@ -105,14 +114,16 @@ INSERT INTO transactions (
 ```
 
 ### Fee Analysis View
+
 ```sql
-SELECT * FROM transaction_fee_analysis 
+SELECT * FROM transaction_fee_analysis
 WHERE user_id = 'user-uuid'
 ORDER BY fee_percentage DESC;
 -- Shows comprehensive fee breakdown and platform detection
 ```
 
 ### Fee Statistics Function
+
 ```sql
 SELECT * FROM get_user_fee_statistics('user-uuid');
 -- Returns total fees paid, average per transaction, potential savings, etc.
@@ -121,6 +132,7 @@ SELECT * FROM get_user_fee_statistics('user-uuid');
 ## 🔧 Technical Implementation Details
 
 ### Component Architecture
+
 ```
 AddTransactionModal
 ├── AdvancedFeesInput (expandable)
@@ -134,6 +146,7 @@ AddTransactionModal
 ```
 
 ### State Management
+
 ```typescript
 const [advancedFees, setAdvancedFees] = useState<AdvancedFees>({
   commission: 0,
@@ -152,6 +165,7 @@ useEffect(() => {
 ```
 
 ### Currency Detection
+
 ```typescript
 const isNorwegianStock = currency === 'NOK' || symbol.includes('.OL')
 // Automatically suggests appropriate fee defaults
@@ -169,11 +183,13 @@ const isNorwegianStock = currency === 'NOK' || symbol.includes('.OL')
 ## 🔄 Migration Path
 
 ### Existing Data
+
 - Existing transactions with simple `fees` values are preserved
 - Can be migrated to advanced structure using provided migration function
 - No data loss during transition
 
 ### Backward Compatibility
+
 - Simple fee entry still works when component is collapsed
 - Legacy `fees` field acts as fallback for older transactions
 - API supports both simple and advanced fee structures

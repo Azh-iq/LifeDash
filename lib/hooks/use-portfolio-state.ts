@@ -73,6 +73,7 @@ export interface UsePortfolioStateReturn {
   holdingsLoading: boolean
   holdingsError: string | null
   refreshHoldings: () => Promise<void>
+  fastRefresh: () => Promise<void>
   // Real-time data
   realtimePrices: { [symbol: string]: any }
   pricesLoading: boolean
@@ -372,7 +373,20 @@ export function usePortfolioState(
       return holding
     })
 
-    setHoldings(updatedHoldings)
+    // Check if holdings actually changed to avoid unnecessary re-renders
+    const hasChanges = updatedHoldings.some((updated, index) => {
+      const current = currentHoldings[index]
+      return (
+        updated.current_price !== current.current_price ||
+        updated.current_value !== current.current_value ||
+        updated.gain_loss !== current.gain_loss ||
+        updated.daily_change !== current.daily_change
+      )
+    })
+
+    if (hasChanges) {
+      setHoldings(updatedHoldings)
+    }
   }, []) // Empty dependency array since we use refs
 
   // Update holdings with real-time prices (debounced)
@@ -451,15 +465,21 @@ export function usePortfolioState(
         (currencyAllocation[currency] || 0) + holding.weight
     })
 
-    // Performance metrics
+    // Performance metrics - improved calculation
     const dailyChange = holdingsWithWeights.reduce(
-      (sum, holding) => sum + (holding.daily_change || 0),
+      (sum, holding) => sum + (holding.daily_change || 0) * holding.quantity,
       0
     )
     const dailyChangePercent =
       totalValue > 0 ? (dailyChange / totalValue) * 100 : 0
     const weeklyChange = 0 // Will be calculated from historical data
     const monthlyChange = 0 // Will be calculated from historical data
+    
+    // Calculate volatility based on price changes
+    const volatility = holdingsWithWeights.length > 0 ? 
+      holdingsWithWeights.reduce((sum, holding) => 
+        sum + Math.abs(holding.daily_change_percent || 0), 0
+      ) / holdingsWithWeights.length : 0
 
     return {
       totalValue,
@@ -475,6 +495,7 @@ export function usePortfolioState(
         dailyChangePercent,
         weeklyChange,
         monthlyChange,
+        volatility,
       },
     }
   }, [holdingsWithWeights])
@@ -543,14 +564,30 @@ export function usePortfolioState(
     })
   }, [filteredHoldings, sortConfig])
 
-  // Refresh functions
+  // Refresh functions with better error handling and performance
   const refresh = useCallback(async () => {
-    await Promise.all([fetchPortfolio(), fetchHoldings()])
+    try {
+      await Promise.all([fetchPortfolio(), fetchHoldings()])
+    } catch (error) {
+      console.error('Error refreshing portfolio:', error)
+      throw error
+    }
   }, [fetchPortfolio, fetchHoldings])
 
   const refreshHoldings = useCallback(async () => {
-    await fetchHoldings()
+    try {
+      await fetchHoldings()
+    } catch (error) {
+      console.error('Error refreshing holdings:', error)
+      throw error
+    }
   }, [fetchHoldings])
+
+  // Fast refresh for real-time updates (only prices, not full data)
+  const fastRefresh = useCallback(async () => {
+    // Only update prices, not fetch full data
+    updateHoldingsWithPrices()
+  }, [updateHoldingsWithPrices])
 
   // Portfolio operations
   const updatePortfolio = useCallback(
@@ -662,6 +699,7 @@ export function usePortfolioState(
     holdingsLoading,
     holdingsError,
     refreshHoldings,
+    fastRefresh,
     realtimePrices,
     pricesLoading,
     isPricesConnected,
