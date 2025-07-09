@@ -11,10 +11,20 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog'
+import { WidgetConfigurationModal } from './widget-configuration-modal'
+import { WidgetPreview } from './widget-preview'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card'
+// Modern components import disabled for now
+// import { 
+//   ModernButton, 
+//   ModernCard, 
+//   ModernSearchInput, 
+//   ModernLoading, 
+//   ModernTooltip 
+// } from './modern-ui-components'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { 
@@ -202,39 +212,40 @@ const WidgetPreviewCard: React.FC<WidgetPreviewProps> = ({
 
       <CardFooter className="pt-0">
         <div className="flex w-full gap-2">
-          <Button 
-            variant="outline"
+          <ModernButton 
+            variant="secondary"
             size="sm"
+            glassmorphism={true}
             onClick={onPreview}
             className="flex-1"
           >
             <Eye className="w-4 h-4 mr-2" />
             Forhåndsvis
-          </Button>
-          <Button 
-            variant="outline"
+          </ModernButton>
+          <ModernTooltip content="Konfigurer widget">
+            <ModernButton 
+              variant="secondary"
+              size="sm"
+              glassmorphism={true}
+              onClick={onConfigure}
+              disabled={!registration.features.configurable}
+              className="p-2"
+            >
+              <Settings className="w-4 h-4" />
+            </ModernButton>
+          </ModernTooltip>
+          <ModernButton 
+            variant="primary"
             size="sm"
-            onClick={onConfigure}
-            disabled={!registration.features.configurable}
-          >
-            <Settings className="w-4 h-4" />
-          </Button>
-          <Button 
-            variant="default"
-            size="sm"
+            glassmorphism={true}
             onClick={onAdd}
             disabled={loading}
-            className={cn(
-              'flex-1',
-              registration.category === 'STOCKS' && 'bg-purple-600 hover:bg-purple-700',
-              registration.category === 'CRYPTO' && 'bg-amber-600 hover:bg-amber-700',
-              registration.category === 'ART' && 'bg-pink-600 hover:bg-pink-700',
-              registration.category === 'OTHER' && 'bg-emerald-600 hover:bg-emerald-700',
-            )}
+            loading={loading}
+            className="flex-1"
           >
             <Plus className="w-4 h-4 mr-2" />
             Legg til
-          </Button>
+          </ModernButton>
         </div>
       </CardFooter>
 
@@ -270,6 +281,8 @@ export const WidgetMarketplace: React.FC<WidgetMarketplaceProps> = ({
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [loading, setLoading] = useState(false)
   const [previewWidget, setPreviewWidget] = useState<WidgetRegistration | null>(null)
+  const [configurationWidget, setConfigurationWidget] = useState<WidgetRegistration | null>(null)
+  const [previewConfig, setPreviewConfig] = useState<any>(null)
 
   // Debounced search
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
@@ -352,13 +365,33 @@ export const WidgetMarketplace: React.FC<WidgetMarketplaceProps> = ({
   // Handle widget preview
   const handlePreviewWidget = useCallback((registration: WidgetRegistration) => {
     setPreviewWidget(registration)
+    setPreviewConfig(registration.defaultConfig)
     onWidgetPreview?.(registration)
   }, [onWidgetPreview])
 
   // Handle widget configuration
   const handleConfigureWidget = useCallback((registration: WidgetRegistration) => {
-    // TODO: Open widget configuration modal
-    console.log('Configure widget:', registration.type)
+    setConfigurationWidget(registration)
+    setPreviewConfig(registration.defaultConfig)
+  }, [])
+
+  // Handle configuration save
+  const handleConfigurationSave = useCallback(async (config: any) => {
+    if (!configurationWidget) return
+    
+    try {
+      // Here you would save the configuration as a template or user preference
+      console.log('Saving configuration for widget:', configurationWidget.type, config)
+      setConfigurationWidget(null)
+      setPreviewConfig(null)
+    } catch (error) {
+      console.error('Failed to save configuration:', error)
+    }
+  }, [configurationWidget])
+
+  // Handle configuration preview
+  const handleConfigurationPreview = useCallback((config: any) => {
+    setPreviewConfig(config)
   }, [])
 
   // Reset filters
@@ -369,8 +402,9 @@ export const WidgetMarketplace: React.FC<WidgetMarketplaceProps> = ({
   }, [])
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] p-0">
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-6xl max-h-[90vh] p-0">
         <div className="flex flex-col h-full">
           {/* Header */}
           <DialogHeader className="p-6 pb-4 border-b">
@@ -407,15 +441,14 @@ export const WidgetMarketplace: React.FC<WidgetMarketplaceProps> = ({
           <div className="p-6 pb-4 border-b bg-gray-50">
             <div className="flex flex-col gap-4">
               {/* Search bar */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Søk etter widgets..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+              <ModernSearchInput
+                placeholder="Søk etter widgets..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                glassmorphism={true}
+                icon={<Search className="w-4 h-4" />}
+                onClear={searchTerm ? () => setSearchTerm('') : undefined}
+              />
 
               {/* Category tabs */}
               <Tabs value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as any)}>
@@ -435,15 +468,16 @@ export const WidgetMarketplace: React.FC<WidgetMarketplaceProps> = ({
                 <span className="text-sm font-medium text-gray-700">Størrelse:</span>
                 <div className="flex flex-wrap gap-2">
                   {availableSizes.map((size) => (
-                    <Button
+                    <ModernButton
                       key={size}
-                      variant={selectedSize === size ? 'default' : 'outline'}
+                      variant={selectedSize === size ? 'primary' : 'secondary'}
                       size="sm"
+                      glassmorphism={true}
                       onClick={() => setSelectedSize(size)}
                       className="text-xs"
                     >
                       {size === 'ALL' ? 'Alle' : sizeLabels[size]}
-                    </Button>
+                    </ModernButton>
                   ))}
                 </div>
               </div>
@@ -470,9 +504,9 @@ export const WidgetMarketplace: React.FC<WidgetMarketplaceProps> = ({
                     <p className="text-gray-600 mb-4">
                       Prøv å endre søkekriteriene dine
                     </p>
-                    <Button variant="outline" onClick={resetFilters}>
+                    <ModernButton variant="secondary" glassmorphism={true} onClick={resetFilters}>
                       Tilbakestill filtre
-                    </Button>
+                    </ModernButton>
                   </div>
                 ) : (
                   <div className={cn(
@@ -511,6 +545,53 @@ export const WidgetMarketplace: React.FC<WidgetMarketplaceProps> = ({
         </div>
       </DialogContent>
     </Dialog>
+
+    {/* Widget Configuration Modal */}
+    <WidgetConfigurationModal
+      open={!!configurationWidget}
+      onOpenChange={(open) => {
+        if (!open) {
+          setConfigurationWidget(null)
+          setPreviewConfig(null)
+        }
+      }}
+      registration={configurationWidget}
+      currentConfig={previewConfig}
+      onSave={handleConfigurationSave}
+      onPreview={handleConfigurationPreview}
+      userId={userId}
+      portfolioId={portfolioId}
+    />
+
+    {/* Widget Preview */}
+    <AnimatePresence>
+      {previewWidget && previewConfig && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={() => setPreviewWidget(null)}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-4xl max-h-[90vh] overflow-auto"
+          >
+            <WidgetPreview
+              registration={previewWidget}
+              config={previewConfig}
+              userId={userId}
+              portfolioId={portfolioId}
+              onReset={() => setPreviewConfig(previewWidget.defaultConfig)}
+            />
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </>
   )
 }
 

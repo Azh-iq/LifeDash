@@ -25,20 +25,22 @@ import {
   X,
   HelpCircle
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/cn'
 import { 
   type WidgetRegistration,
+  type WidgetValidationResult,
+  type ResponsiveWidgetConfig,
+} from '../widget-types'
+import {
   type WidgetConfig,
   type ChartWidgetConfig,
   type TableWidgetConfig,
   type MetricsWidgetConfig,
   type NewsWidgetConfig,
   type AlertsWidgetConfig,
-  type WidgetValidationResult,
-  type ResponsiveWidgetConfig,
   type WidgetSize,
   type WidgetCategory
-} from '../widget-registry'
+} from '@/lib/types/widget.types'
 import { getInvestmentTheme } from '@/lib/themes/modern-themes'
 
 interface WidgetConfigFormsProps {
@@ -1044,7 +1046,7 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Smartphone className="w-4 h-4" />
-                <h4 className="font-medium">Mobil (< 768px)</h4>
+                <h4 className="font-medium">Mobil (&lt; 768px)</h4>
               </div>
               
               <ConfigField

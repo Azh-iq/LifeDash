@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { subscribeWithSelector } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
-import { Widget, WidgetLayout, WidgetType, WidgetCategory, WidgetSize } from '../widget-types'
+import { Widget, WidgetLayout, WidgetCategory, WidgetSize, WidgetType } from './simple-widget-types'
 
 interface WidgetPerformance {
   renderTime: number

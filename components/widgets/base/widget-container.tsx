@@ -6,6 +6,14 @@ import { CSS } from '@dnd-kit/utilities'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+// Modern components import disabled for now
+// import { 
+//   ModernButton, 
+//   ModernCard, 
+//   ModernLoading, 
+//   ModernTooltip, 
+//   ModernWidgetAction 
+// } from '../ui/modern-ui-components'
 import { 
   GripVertical, 
   Settings, 
@@ -25,7 +33,7 @@ import {
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu'
 import { useWidgetStore } from '../widget-store'
-import { Widget, WidgetSize, WidgetCategory } from '../widget-types'
+import { Widget, WidgetSize, WidgetCategory, WidgetType } from './simple-widget-types'
 
 interface WidgetContainerProps {
   widget: Widget
@@ -201,16 +209,15 @@ export function WidgetContainer({
     >
       <Card 
         className={cn(
-          'w-full transition-all duration-200',
+          'w-full transition-all duration-300',
           sizeConfig.height,
           sizeConfig.minHeight,
-          isSelected && editMode && 'ring-2 ring-blue-500 ring-offset-2',
-          isDragging && 'shadow-lg scale-105 rotate-2',
-          theme.border,
-          'border-2 border-dashed border-transparent',
-          isHovered && 'border-gray-300',
+          isSelected && editMode && 'ring-2 ring-purple-500 ring-offset-2',
+          isDragging && 'shadow-2xl scale-105 rotate-2',
           isExpanded && 'fixed inset-4 z-50 h-auto',
-          isLoading && 'opacity-75'
+          isLoading && 'opacity-50',
+          'backdrop-blur-lg bg-white/10 border-white/20',
+          isHovered && 'bg-white/20 border-white/30 shadow-2xl'
         )}
       >
         {/* Widget Header */}
@@ -219,14 +226,15 @@ export function WidgetContainer({
             <div className="flex items-center gap-2">
               {/* Drag Handle */}
               {isEditable && editMode && (
-                <Button
+                <ModernButton
                   variant="ghost"
                   size="sm"
-                  className="cursor-grab active:cursor-grabbing p-1 h-6 w-6"
+                  glassmorphism={true}
+                  className="cursor-grab active:cursor-grabbing p-1 h-6 w-6 widget-drag-handle"
                   {...listeners}
                 >
                   <GripVertical className="h-3 w-3" />
-                </Button>
+                </ModernButton>
               )}
               
               {/* Widget Title */}
@@ -250,50 +258,37 @@ export function WidgetContainer({
             {/* Widget Actions */}
             <div className="flex items-center gap-1">
               {/* Refresh Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleRefresh()
-                }}
+              <ModernWidgetAction
+                icon={<Refresh className={cn("h-3 w-3", isLoading && "animate-spin")} />}
+                label="Oppdater widget"
+                onClick={() => handleRefresh()}
                 disabled={isLoading}
-              >
-                <Refresh className={cn(
-                  "h-3 w-3", 
-                  isLoading && "animate-spin"
-                )} />
-              </Button>
+                loading={isLoading}
+                variant="secondary"
+                glassmorphism={true}
+              />
 
               {/* Expand/Collapse Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setIsExpanded(!isExpanded)
-                }}
-              >
-                {isExpanded ? (
-                  <Minimize2 className="h-3 w-3" />
-                ) : (
-                  <Maximize2 className="h-3 w-3" />
-                )}
-              </Button>
+              <ModernWidgetAction
+                icon={isExpanded ? <Minimize2 className="h-3 w-3" /> : <Maximize2 className="h-3 w-3" />}
+                label={isExpanded ? "Minimer widget" : "Utvid widget"}
+                onClick={() => setIsExpanded(!isExpanded)}
+                variant="secondary"
+                glassmorphism={true}
+              />
 
               {/* Widget Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
+                  <ModernButton
                     variant="ghost"
                     size="sm"
+                    glassmorphism={true}
                     className="h-6 w-6 p-0"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <MoreHorizontal className="h-3 w-3" />
-                  </Button>
+                  </ModernButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem onClick={onConfigure}>
@@ -338,10 +333,12 @@ export function WidgetContainer({
                 exit={{ opacity: 0 }}
                 className="flex items-center justify-center h-full"
               >
-                <div className="flex items-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                  <span className="text-sm text-gray-500">Oppdaterer...</span>
-                </div>
+                <ModernLoading
+                  size="md"
+                  variant="dots"
+                  message="Oppdaterer..."
+                  glassmorphism={true}
+                />
               </motion.div>
             ) : (
               <motion.div

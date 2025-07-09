@@ -32,6 +32,12 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { 
+  ModernButton, 
+  ModernCard, 
+  ModernLoading, 
+  ModernTooltip 
+} from './modern-ui-components'
+import { 
   Select,
   SelectContent,
   SelectItem,
@@ -661,7 +667,7 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
             <ScrollArea className="h-full">
               <div className="p-6 space-y-6">
                 {/* Widget info */}
-                <Card>
+                <ModernCard glassmorphism={true}>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm">Widget-informasjon</CardTitle>
                   </CardHeader>
@@ -683,10 +689,10 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
                       <span className="font-medium">v{widget.registration.version}</span>
                     </div>
                   </CardContent>
-                </Card>
+                </ModernCard>
 
                 {/* Preview mode selector */}
-                <Card>
+                <ModernCard glassmorphism={true}>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm">Forhåndsvisning</CardTitle>
                   </CardHeader>
@@ -695,24 +701,25 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
                       {(['desktop', 'tablet', 'mobile'] as const).map((mode) => {
                         const Icon = deviceIcons[mode]
                         return (
-                          <Button
+                          <ModernButton
                             key={mode}
-                            variant={previewMode === mode ? 'default' : 'outline'}
+                            variant={previewMode === mode ? 'primary' : 'secondary'}
                             size="sm"
+                            glassmorphism={true}
                             onClick={() => setPreviewMode(mode)}
                             className="flex items-center space-x-1"
                           >
                             <Icon className="w-4 h-4" />
                             <span className="capitalize">{mode}</span>
-                          </Button>
+                          </ModernButton>
                         )
                       })}
                     </div>
                   </CardContent>
-                </Card>
+                </ModernCard>
 
                 {/* Configuration fields */}
-                <Card>
+                <ModernCard glassmorphism={true}>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm">Konfigurasjonsalternativer</CardTitle>
                   </CardHeader>
@@ -750,10 +757,10 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
                       </Collapsible>
                     ))}
                   </CardContent>
-                </Card>
+                </ModernCard>
 
                 {/* Features */}
-                <Card>
+                <ModernCard glassmorphism={true}>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm">Funksjoner</CardTitle>
                   </CardHeader>
@@ -805,7 +812,7 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
                       </div>
                     </div>
                   </CardContent>
-                </Card>
+                </ModernCard>
 
                 {/* Validation errors */}
                 {Object.keys(errors).length > 0 && (
@@ -825,47 +832,46 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
           <SheetFooter className="p-6 pt-4 border-t">
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
+                <ModernButton
+                  variant="secondary"
                   size="sm"
+                  glassmorphism={true}
                   onClick={handleReset}
                   disabled={!hasChanges}
                 >
                   <RotateCcw className="w-4 h-4 mr-2" />
                   Tilbakestill
-                </Button>
-                <Button
-                  variant="outline"
+                </ModernButton>
+                <ModernButton
+                  variant="secondary"
                   size="sm"
+                  glassmorphism={true}
                   onClick={handlePreview}
                   disabled={Object.keys(errors).length > 0}
                 >
                   <Eye className="w-4 h-4 mr-2" />
                   Forhåndsvis
-                </Button>
+                </ModernButton>
               </div>
               <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
+                <ModernButton
+                  variant="secondary"
                   size="sm"
+                  glassmorphism={true}
                   onClick={() => onOpenChange(false)}
                 >
                   Avbryt
-                </Button>
-                <Button
+                </ModernButton>
+                <ModernButton
+                  variant="primary"
                   size="sm"
+                  glassmorphism={true}
                   onClick={handleSave}
                   disabled={!hasChanges || Object.keys(errors).length > 0}
-                  className={cn(
-                    widget.category === 'STOCKS' && 'bg-purple-600 hover:bg-purple-700',
-                    widget.category === 'CRYPTO' && 'bg-amber-600 hover:bg-amber-700',
-                    widget.category === 'ART' && 'bg-pink-600 hover:bg-pink-700',
-                    widget.category === 'OTHER' && 'bg-emerald-600 hover:bg-emerald-700',
-                  )}
                 >
                   <Save className="w-4 h-4 mr-2" />
                   Lagre
-                </Button>
+                </ModernButton>
               </div>
             </div>
           </SheetFooter>

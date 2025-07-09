@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { 
   DndContext, 
   DragEndEvent, 
@@ -19,6 +19,7 @@ import {
   rectSortingStrategy,
   sortableKeyboardCoordinates
 } from '@dnd-kit/sortable'
+import { Responsive, WidthProvider } from 'react-grid-layout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -31,14 +32,30 @@ import {
   Redo2,
   Eye,
   Edit3,
-  Trash2
+  Trash2,
+  Monitor,
+  Tablet,
+  Smartphone
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useWidgetStore } from '../widget-store'
-import { Widget, WidgetLayout, WidgetCategory } from '../widget-types'
+import { Widget, WidgetLayout, WidgetCategory, WidgetType } from './simple-widget-types'
 import { WidgetContainer } from './widget-container'
 import { useToast } from '@/hooks/use-toast'
+import { 
+  GridLayoutItem, 
+  GridLayoutConfig, 
+  WIDGET_SIZE_MAPPINGS, 
+  DEFAULT_GRID_CONFIG, 
+  WidgetSize 
+} from './simple-widget-types'
+
+// Import react-grid-layout styles
+import 'react-grid-layout/css/styles.css'
+import 'react-resizable/css/styles.css'
+
+const ResponsiveGridLayout = WidthProvider(Responsive)
 
 interface WidgetGridProps {
   layoutId: string
@@ -52,6 +69,12 @@ interface WidgetGridProps {
   columns?: number
   gap?: 'sm' | 'md' | 'lg'
   maxWidgets?: number
+  // New props for react-grid-layout integration
+  useGridLayout?: boolean
+  gridConfig?: Partial<GridLayoutConfig>
+  onLayoutChange?: (layout: GridLayoutItem[], layouts: Record<string, GridLayoutItem[]>) => void
+  enableResponsive?: boolean
+  currentBreakpoint?: string
 }
 
 // Grid configurations
@@ -67,6 +90,44 @@ const gridConfigs = {
     sm: 'gap-2',
     md: 'gap-4',
     lg: 'gap-6'
+  }
+}
+
+// Utility functions for grid layout conversion
+const widgetToGridItem = (widget: Widget): GridLayoutItem => {
+  const sizeMapping = WIDGET_SIZE_MAPPINGS[widget.size]
+  return {
+    i: widget.id,
+    x: widget.position.column,
+    y: widget.position.row,
+    w: sizeMapping.w,
+    h: sizeMapping.h,
+    minW: 1,
+    minH: 1,
+    isDraggable: true,
+    isResizable: true,
+    resizeHandles: ['se'] // Only allow southeast resize handle
+  }
+}
+
+const gridItemToWidget = (item: GridLayoutItem, widgets: Widget[]): Widget | null => {
+  const widget = widgets.find(w => w.id === item.i)
+  if (!widget) return null
+  
+  // Determine size based on grid dimensions
+  let size: WidgetSize = 'SMALL'
+  if (item.w >= 4 && item.h >= 4) size = 'HERO'
+  else if (item.w >= 3 && item.h >= 3) size = 'LARGE'
+  else if (item.w >= 2 && item.h >= 2) size = 'MEDIUM'
+  
+  return {
+    ...widget,
+    size,
+    position: {
+      row: item.y,
+      column: item.x
+    },
+    updatedAt: new Date()
   }
 }
 
@@ -86,7 +147,14 @@ const translations = {
   widgetRemoved: 'Widget fjernet',
   widgetUpdated: 'Widget oppdatert',
   layoutSaved: 'Layout lagret',
-  maxWidgetsReached: 'Maksimalt antall widgets nådd'
+  maxWidgetsReached: 'Maksimalt antall widgets nådd',
+  // New translations for grid layout
+  desktop: 'Skrivebord',
+  tablet: 'Nettbrett',
+  mobile: 'Mobil',
+  responsive: 'Responsiv',
+  gridLayout: 'Rutenett-layout',
+  classicLayout: 'Klassisk layout'
 }
 
 export function WidgetGrid({
@@ -100,13 +168,21 @@ export function WidgetGrid({
   isEditable = true,
   columns = 3,
   gap = 'md',
-  maxWidgets = 20
+  maxWidgets = 20,
+  // New props
+  useGridLayout = true,
+  gridConfig,
+  onLayoutChange,
+  enableResponsive = true,
+  currentBreakpoint = 'lg'
 }: WidgetGridProps) {
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
   const [draggedWidget, setDraggedWidget] = useState<Widget | null>(null)
   const [history, setHistory] = useState<Widget[][]>([])
   const [historyIndex, setHistoryIndex] = useState(-1)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [layoutMode, setLayoutMode] = useState<'grid' | 'classic'>(useGridLayout ? 'grid' : 'classic')
+  const [currentDeviceBreakpoint, setCurrentDeviceBreakpoint] = useState(currentBreakpoint)
   
   const { toast } = useToast()
   
@@ -119,6 +195,50 @@ export function WidgetGrid({
     updateLayout,
     performance
   } = useWidgetStore()
+  
+  // Merge default grid configuration with custom config
+  const mergedGridConfig = useMemo(() => ({
+    ...DEFAULT_GRID_CONFIG,
+    ...gridConfig
+  }), [gridConfig])
+  
+  // Convert widgets to grid layout format
+  const gridLayout = useMemo(() => {
+    const layouts: Record<string, GridLayoutItem[]> = {}
+    
+    Object.keys(mergedGridConfig.breakpoints).forEach(breakpoint => {
+      layouts[breakpoint] = widgets.map(widgetToGridItem)
+    })
+    
+    return layouts
+  }, [widgets, mergedGridConfig])
+  
+  // Grid layout change handler
+  const handleGridLayoutChange = useCallback((layout: GridLayoutItem[], layouts: Record<string, GridLayoutItem[]>) => {
+    if (!isEditable || !editMode) return
+    
+    // Convert grid items back to widgets
+    const updatedWidgets = layout.map(item => {
+      const convertedWidget = gridItemToWidget(item, widgets)
+      return convertedWidget || widgets.find(w => w.id === item.i)!
+    }).filter(Boolean)
+    
+    // Update widget positions and sizes
+    addToHistory(updatedWidgets)
+    onWidgetUpdate?.(updatedWidgets)
+    onLayoutChange?.(layout, layouts)
+    
+    toast({
+      title: translations.widgetUpdated,
+      description: 'Widget layout oppdatert',
+      duration: 2000
+    })
+  }, [widgets, isEditable, editMode, addToHistory, onWidgetUpdate, onLayoutChange, toast])
+  
+  // Breakpoint change handler
+  const handleBreakpointChange = useCallback((breakpoint: string) => {
+    setCurrentDeviceBreakpoint(breakpoint)
+  }, [])
 
   // Drag and drop sensors
   const sensors = useSensors(
@@ -238,6 +358,11 @@ export function WidgetGrid({
       duration: 2000
     })
   }
+  
+  // Toggle layout mode
+  const toggleLayoutMode = () => {
+    setLayoutMode(prev => prev === 'grid' ? 'classic' : 'grid')
+  }
 
   // Handle save layout
   const handleSaveLayout = async () => {
@@ -297,6 +422,30 @@ export function WidgetGrid({
     
     onAddWidget?.()
   }
+  
+  // Render responsive breakpoint indicator
+  const renderBreakpointIndicator = () => {
+    if (!enableResponsive) return null
+    
+    const breakpointIcons = {
+      lg: Monitor,
+      md: Monitor,
+      sm: Tablet,
+      xs: Smartphone,
+      xxs: Smartphone
+    }
+    
+    const IconComponent = breakpointIcons[currentDeviceBreakpoint as keyof typeof breakpointIcons] || Monitor
+    
+    return (
+      <div className="flex items-center gap-2 px-2 py-1 bg-gray-100 rounded-lg">
+        <IconComponent className="h-4 w-4 text-gray-600" />
+        <span className="text-xs text-gray-600">
+          {currentDeviceBreakpoint.toUpperCase()}
+        </span>
+      </div>
+    )
+  }
 
   return (
     <div className={cn('w-full', className)}>
@@ -312,6 +461,20 @@ export function WidgetGrid({
         
         {/* Grid Actions */}
         <div className="flex items-center gap-2">
+          {/* Responsive Breakpoint Indicator */}
+          {renderBreakpointIndicator()}
+          
+          {/* Layout Mode Toggle */}
+          <Button
+            variant={layoutMode === 'grid' ? 'default' : 'outline'}
+            size="sm"
+            onClick={toggleLayoutMode}
+            className="gap-2"
+          >
+            <Grid3X3 className="h-4 w-4" />
+            {layoutMode === 'grid' ? translations.gridLayout : translations.classicLayout}
+          </Button>
+          
           {/* History Actions */}
           <div className="flex items-center gap-1">
             <Button
@@ -373,34 +536,79 @@ export function WidgetGrid({
       </div>
 
       {/* Widget Grid */}
-      <DndContext 
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext 
-          items={widgets.map(w => w.id)}
-          strategy={rectSortingStrategy}
+      {widgets.length === 0 ? (
+        /* Empty State */
+        <Card className="p-8 text-center">
+          <CardContent className="pt-6">
+            <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <Grid3X3 className="h-6 w-6 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium mb-2">{translations.noWidgets}</h3>
+            <p className="text-gray-500 mb-4">{translations.noWidgetsDesc}</p>
+            <Button onClick={handleAddWidget} className="gap-2">
+              <Plus className="h-4 w-4" />
+              {translations.addWidget}
+            </Button>
+          </CardContent>
+        </Card>
+      ) : layoutMode === 'grid' ? (
+        /* React Grid Layout */
+        <div className="w-full">
+          <ResponsiveGridLayout
+            className="layout"
+            layouts={gridLayout}
+            breakpoints={mergedGridConfig.breakpoints}
+            cols={mergedGridConfig.cols}
+            rowHeight={mergedGridConfig.rowHeight}
+            margin={mergedGridConfig.margin}
+            containerPadding={mergedGridConfig.containerPadding}
+            isDraggable={isEditable && editMode}
+            isResizable={isEditable && editMode}
+            onLayoutChange={handleGridLayoutChange}
+            onBreakpointChange={handleBreakpointChange}
+            draggableHandle={mergedGridConfig.draggableHandle}
+            preventCollision={mergedGridConfig.preventCollision}
+            useCSSTransforms={true}
+            compactType={null}
+            measureBeforeMount={false}
+          >
+            {widgets.map((widget) => (
+              <div key={widget.id} className="relative">
+                <WidgetContainer
+                  widget={widget}
+                  isEditable={isEditable && editMode}
+                  onRemove={() => handleWidgetRemove(widget.id)}
+                  onConfigure={() => onWidgetConfigure?.(widget)}
+                  onResize={(size) => handleWidgetResize(widget.id, size)}
+                  className="h-full"
+                >
+                  {/* Widget Content - This will be replaced with actual widget components */}
+                  <div className="h-full flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="w-8 h-8 bg-gray-100 rounded-full mx-auto mb-2 flex items-center justify-center">
+                        <span className="text-sm font-medium">{widget.type[0]}</span>
+                      </div>
+                      <p className="text-sm text-gray-600">{widget.type}</p>
+                    </div>
+                  </div>
+                </WidgetContainer>
+              </div>
+            ))}
+          </ResponsiveGridLayout>
+        </div>
+      ) : (
+        /* Classic DND Layout */
+        <DndContext 
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
         >
-          {widgets.length === 0 ? (
-            /* Empty State */
-            <Card className="p-8 text-center">
-              <CardContent className="pt-6">
-                <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                  <Grid3X3 className="h-6 w-6 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-medium mb-2">{translations.noWidgets}</h3>
-                <p className="text-gray-500 mb-4">{translations.noWidgetsDesc}</p>
-                <Button onClick={handleAddWidget} className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  {translations.addWidget}
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            /* Widget Grid */
+          <SortableContext 
+            items={widgets.map(w => w.id)}
+            strategy={rectSortingStrategy}
+          >
             <div className={cn(
               'grid w-full',
               gridConfigs.columns[columns as keyof typeof gridConfigs.columns],
@@ -437,9 +645,9 @@ export function WidgetGrid({
                 ))}
               </AnimatePresence>
             </div>
-          )}
-        </SortableContext>
-      </DndContext>
+          </SortableContext>
+        </DndContext>
+      )}
 
       {/* Debug Info (Dev Mode) */}
       {process.env.NODE_ENV === 'development' && (
@@ -452,9 +660,39 @@ export function WidgetGrid({
             <div>History: {historyIndex + 1}/{history.length}</div>
             <div>Unsaved Changes: {hasUnsavedChanges ? 'Yes' : 'No'}</div>
             <div>Performance: {performance.renderTime}ms</div>
+            <div>Layout Mode: {layoutMode}</div>
+            <div>Current Breakpoint: {currentDeviceBreakpoint}</div>
+            <div>Grid Layout Enabled: {useGridLayout ? 'Yes' : 'No'}</div>
+            <div>Responsive Enabled: {enableResponsive ? 'Yes' : 'No'}</div>
           </div>
         </div>
       )}
     </div>
+  )
+}
+
+// Enhanced WidgetGrid with grid layout as default
+export function EnhancedWidgetGrid(props: WidgetGridProps) {
+  return (
+    <WidgetGrid
+      {...props}
+      useGridLayout={true}
+      enableResponsive={true}
+      gridConfig={{
+        ...DEFAULT_GRID_CONFIG,
+        ...props.gridConfig
+      }}
+    />
+  )
+}
+
+// Classic WidgetGrid for backward compatibility
+export function ClassicWidgetGrid(props: WidgetGridProps) {
+  return (
+    <WidgetGrid
+      {...props}
+      useGridLayout={false}
+      enableResponsive={false}
+    />
   )
 }
