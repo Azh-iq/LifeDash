@@ -99,6 +99,43 @@ All implementation MUST follow the wireframes located in `/wireframes/` director
 - Simplified button styling using standard shadcn variants
 - Maintained responsive grid layout with better space distribution
 
+### ✅ Holdings Display & Transaction History Fixes (January 2025)
+
+**Critical Database Integration Fix** - Resolved major issues preventing holdings from displaying and transaction history from working.
+
+#### Database Schema Resolution:
+- **Fixed Column Name Mismatch**: Corrected `asset_type` → `asset_class` in database queries
+- **Proper Field Mapping**: Added mapping from `average_cost` (database) to `cost_basis` (frontend interface)
+- **Symbol Extraction**: Fixed symbol extraction from joined stocks table data
+- **Authentication Integration**: Added proper user authentication and portfolio filtering
+
+#### Transaction History Implementation:
+- **Complete Stock Detail Modal**: Implemented real transaction history fetching and display
+- **Comprehensive Transaction Table**: Date, type, quantity, price, total amount, fees, and account columns
+- **Loading States**: Added proper loading indicators and empty states
+- **Error Handling**: Comprehensive error boundaries with Norwegian localization
+- **Real-time Updates**: Automatic refresh after transaction additions
+
+#### Enhanced Transaction Modal UX:
+- **Improved Field Layout**: Fixed alignment between quantity, price, and currency fields
+- **Account-Based Fees**: Automatic platform-specific fee calculation (Nordnet: 99 NOK, DNB: 149 NOK)
+- **Live Price Integration**: Enhanced price refresh with better visual feedback
+- **Logical Flow**: Moved account selection above fees section for better user experience
+
+#### Technical Improvements:
+- **Database Query Optimization**: Fixed silent query failures causing empty holdings
+- **Real-time Synchronization**: Proper holdings refresh after transactions
+- **Performance Optimization**: Reduced unnecessary re-renders with smart state management
+- **Debugging Infrastructure**: Added comprehensive logging and error tracking
+
+#### Files Fixed:
+- `lib/hooks/use-portfolio-state.ts` - Core holdings query fixes
+- `lib/actions/transactions/add-transaction.ts` - Transaction creation fixes
+- `lib/supabase/realtime.ts` - Real-time holdings updates
+- `components/stocks/stock-detail-modal-v2.tsx` - Transaction history implementation
+- `components/stocks/add-transaction-modal.tsx` - UX improvements and fee automation
+- `components/stocks/advanced-fees-input.tsx` - Platform-specific fee display
+
 ### ✅ Enhanced Holdings Table & Advanced Actions System (July 2025)
 
 **Complete Portfolio Management Overhaul** - Transformed the holdings table into a professional-grade investment interface with industry-standard features.
@@ -314,6 +351,9 @@ CURRENT STATUS:
 - ✅ S&P 500 database with comprehensive stock registry
 - ✅ CSV import system for Norwegian Nordnet files
 - ✅ Database schema fixes and performance optimizations
+- ✅ Holdings display and transaction history fixes (January 2025)
+- ✅ Critical database query column name fixes resolved
+- ✅ Transaction modal UX improvements and platform-specific fees
 
 IMMEDIATE TASKS:
 1. Integrate TradingView charts with technical indicators in stock detail modal
