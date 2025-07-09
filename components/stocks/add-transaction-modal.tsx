@@ -169,6 +169,89 @@ export default function AddTransactionModal({
     }
   }, [])
   
+  // Apply default fees based on account platform
+  const applyDefaultFees = useCallback((accountId: string) => {
+    const account = accounts.find(acc => acc.id === accountId)
+    if (!account) return
+
+    // Determine if it's a Norwegian or foreign stock
+    const isNorwegian = currency === 'NOK' || symbol.includes('.OL')
+    const platform = account.platform.toLowerCase()
+    
+    let defaultFees: AdvancedFees = {
+      commission: 0,
+      currencyExchange: 0,
+      otherFees: 0,
+      total: 0
+    }
+
+    // Set default fees based on platform and currency
+    if (platform === 'nordnet') {
+      if (isNorwegian) {
+        defaultFees = {
+          commission: 99,
+          currencyExchange: 0,
+          otherFees: 0,
+          total: 99
+        }
+      } else {
+        defaultFees = {
+          commission: 0.99,
+          currencyExchange: 25,
+          otherFees: 0,
+          total: 25.99
+        }
+      }
+    } else if (platform === 'dnb') {
+      if (isNorwegian) {
+        defaultFees = {
+          commission: 149,
+          currencyExchange: 0,
+          otherFees: 0,
+          total: 149
+        }
+      } else {
+        defaultFees = {
+          commission: 149,
+          currencyExchange: 50,
+          otherFees: 0,
+          total: 199
+        }
+      }
+    } else if (platform === 'handelsbanken') {
+      if (isNorwegian) {
+        defaultFees = {
+          commission: 199,
+          currencyExchange: 0,
+          otherFees: 0,
+          total: 199
+        }
+      } else {
+        defaultFees = {
+          commission: 199,
+          currencyExchange: 35,
+          otherFees: 0,
+          total: 234
+        }
+      }
+    }
+
+    setAdvancedFees(defaultFees)
+  }, [accounts, currency, symbol])
+
+  // Handle account selection
+  const handleAccountSelect = useCallback((accountId: string) => {
+    setAccountId(accountId)
+    applyDefaultFees(accountId)
+  }, [applyDefaultFees])
+
+  // Apply default fees when account, currency, or symbol changes
+  useEffect(() => {
+    if (accountId && currency && symbol) {
+      applyDefaultFees(accountId)
+    }
+  }, [accountId, currency, symbol, applyDefaultFees])
+
   // Handle stock selection from search
   const handleStockSelect = useCallback(async (stock: StockSearchResult) => {
     setSymbol(stock.symbol)
@@ -188,6 +271,7 @@ export default function AddTransactionModal({
       // Pre-select the account for sell transactions
       if (stock.account_id) {
         setAccountId(stock.account_id)
+        applyDefaultFees(stock.account_id)
       }
     } else {
       setSelectedHolding(null)
@@ -512,15 +596,15 @@ export default function AddTransactionModal({
             </div>
           </div>
 
-          {/* Transaction Details */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {/* Transaction Details - Fixed Alignment */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="quantity">Antall aksjer *</Label>
+              <div className="flex items-center justify-between min-h-[24px]">
+                <Label htmlFor="quantity" className="text-sm font-medium">Antall aksjer *</Label>
                 {type === 'SELL' && selectedHolding && (
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-500">
-                      Eier: {selectedHolding.quantity} aksjer
+                      Eier: {selectedHolding.quantity}
                     </span>
                     <Button
                       type="button"
@@ -543,7 +627,10 @@ export default function AddTransactionModal({
                 value={quantity}
                 onChange={e => handleQuantityChange(e.target.value)}
                 placeholder="100"
-                className={errors.quantity ? 'border-red-500' : ''}
+                className={cn(
+                  'h-12 text-lg',
+                  errors.quantity ? 'border-red-500' : ''
+                )}
               />
               {errors.quantity && (
                 <p className="text-sm text-red-600">{errors.quantity}</p>
@@ -556,8 +643,8 @@ export default function AddTransactionModal({
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="pricePerShare">Pris per aksje *</Label>
+              <div className="flex items-center justify-between min-h-[24px]">
+                <Label htmlFor="pricePerShare" className="text-sm font-medium">Pris per aksje *</Label>
                 <div className="flex items-center gap-2">
                   {isLivePrice && (
                     <TooltipProvider>
@@ -565,7 +652,7 @@ export default function AddTransactionModal({
                         <TooltipTrigger>
                           <Badge variant="secondary" className="text-xs px-2 py-1 bg-green-100 text-green-800 border-green-300">
                             <Activity className="w-3 h-3 mr-1" />
-                            Live pris
+                            Live
                           </Badge>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -575,16 +662,25 @@ export default function AddTransactionModal({
                     </TooltipProvider>
                   )}
                   {symbol && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={handlePriceRefresh}
-                      disabled={isFetchingPrice || !symbol}
-                      className="h-8 w-8 p-0"
-                    >
-                      <RefreshCw className={cn('h-4 w-4', isFetchingPrice && 'animate-spin')} />
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={handlePriceRefresh}
+                            disabled={isFetchingPrice || !symbol}
+                            className="h-6 w-6 p-0 border-blue-300 hover:bg-blue-50"
+                          >
+                            <RefreshCw className={cn('h-4 w-4 text-blue-600', isFetchingPrice && 'animate-spin')} />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Hent aktuell pris</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   )}
                 </div>
               </div>
@@ -604,6 +700,7 @@ export default function AddTransactionModal({
                   }}
                   placeholder={isFetchingPrice ? 'Henter pris...' : '150.50'}
                   className={cn(
+                    'h-12 text-lg',
                     errors.pricePerShare ? 'border-red-500' : '',
                     isFetchingPrice && 'opacity-50'
                   )}
@@ -638,9 +735,11 @@ export default function AddTransactionModal({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="currency">Valuta</Label>
+              <div className="flex items-center justify-between min-h-[24px]">
+                <Label htmlFor="currency" className="text-sm font-medium">Valuta *</Label>
+              </div>
               <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger>
+                <SelectTrigger className="h-12">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -652,6 +751,45 @@ export default function AddTransactionModal({
             </div>
           </div>
 
+          {/* Account Selection - Moved above fees */}
+          {accounts.length > 0 && (
+            <div className="space-y-3">
+              <Label className="flex items-center gap-2 text-base font-semibold">
+                <FinancialIcon
+                  name="building"
+                  size={18}
+                  className="text-blue-600"
+                />
+                Konto *
+              </Label>
+              <Select value={accountId} onValueChange={handleAccountSelect}>
+                <SelectTrigger
+                  className={cn(
+                    'h-12 border-2 transition-colors',
+                    errors.accountId && 'border-red-500'
+                  )}
+                >
+                  <SelectValue placeholder="Velg konto" />
+                </SelectTrigger>
+                <SelectContent>
+                  {accounts.map(account => (
+                    <SelectItem key={account.id} value={account.id}>
+                      <div className="flex items-center gap-2">
+                        <FinancialIcon name="wallet" size={16} />
+                        {account.name} ({account.platform})
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.accountId && (
+                <p className="text-sm text-red-600 duration-300 animate-in slide-in-from-left-2">
+                  {errors.accountId}
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Advanced Fees */}
           <div className="space-y-4">
             <AdvancedFeesInput
@@ -660,6 +798,7 @@ export default function AddTransactionModal({
               currency={currency}
               symbol={symbol}
               disabled={isSubmitting}
+              accountPlatform={accounts.find(acc => acc.id === accountId)?.platform}
             />
             {errors.fees && (
               <p className="text-sm text-red-600">{errors.fees}</p>
@@ -692,45 +831,6 @@ export default function AddTransactionModal({
               )}
             </div>
           </div>
-
-          {/* Account Selection */}
-          {accounts.length > 0 && (
-            <div className="space-y-3">
-              <Label className="flex items-center gap-2 text-base font-semibold text-stone-200">
-                <FinancialIcon
-                  name="building"
-                  size={18}
-                  className="text-orange-400"
-                />
-                Konto
-              </Label>
-              <Select value={accountId} onValueChange={setAccountId}>
-                <SelectTrigger
-                  className={cn(
-                    'h-12 border-2 border-stone-700 bg-stone-900 text-stone-200 transition-colors hover:border-orange-600 focus:border-orange-500',
-                    errors.accountId && 'border-red-500'
-                  )}
-                >
-                  <SelectValue placeholder="Velg konto" />
-                </SelectTrigger>
-                <SelectContent>
-                  {accounts.map(account => (
-                    <SelectItem key={account.id} value={account.id}>
-                      <div className="flex items-center gap-2">
-                        <FinancialIcon name="wallet" size={16} />
-                        {account.name} ({account.platform})
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.accountId && (
-                <p className="text-sm text-red-600 duration-300 animate-in slide-in-from-left-2">
-                  {errors.accountId}
-                </p>
-              )}
-            </div>
-          )}
 
           <Separator className="h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent" />
 

@@ -63,8 +63,7 @@ export async function addTransaction(
           name: transactionData.stockName,
           company_name: transactionData.stockName,
           currency: transactionData.currency,
-          current_price: transactionData.pricePerShare,
-          asset_type: 'STOCK',
+          asset_class: 'STOCK',
         })
         .select('id')
         .single()

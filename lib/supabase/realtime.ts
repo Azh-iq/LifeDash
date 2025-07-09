@@ -230,7 +230,7 @@ export class RealtimeService {
                 symbol,
                 name,
                 currency,
-                asset_type
+                asset_class
               )
             `
             )

@@ -50,7 +50,7 @@ export interface HoldingWithMetrics {
     symbol: string
     name: string
     currency: string
-    asset_type: string
+    asset_class: string
     sector?: string
     market_cap?: number
     last_updated?: string
@@ -276,10 +276,9 @@ export function usePortfolioState(
             symbol,
             name,
             currency,
-            asset_type,
+            asset_class,
             sector,
             market_cap,
-            current_price,
             last_updated
           ),
           accounts (
@@ -313,19 +312,21 @@ export function usePortfolioState(
       if (filteredHoldings.length > 0) {
         const enhancedHoldings: HoldingWithMetrics[] = filteredHoldings.map(
           (holding: any) => {
+            const costBasis = holding.average_cost || 0
             const currentPrice =
-              holding.stocks?.current_price || holding.cost_basis
+              holding.stocks?.current_price || costBasis
             const currentValue = holding.quantity * currentPrice
             const gainLoss =
-              currentValue - holding.quantity * holding.cost_basis
+              currentValue - holding.quantity * costBasis
             const gainLossPercent =
-              holding.cost_basis > 0
-                ? (gainLoss / (holding.quantity * holding.cost_basis)) * 100
+              costBasis > 0
+                ? (gainLoss / (holding.quantity * costBasis)) * 100
                 : 0
 
             return {
               ...holding,
               symbol: holding.stocks?.symbol || '', // Extract symbol from joined stocks table
+              cost_basis: costBasis, // Map average_cost to cost_basis for interface compatibility
               current_price: currentPrice,
               current_value: currentValue,
               gain_loss: gainLoss,

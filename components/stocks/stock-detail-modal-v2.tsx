@@ -1,16 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, TrendingUp, TrendingDown } from 'lucide-react'
+import { X, TrendingUp, TrendingDown, Calendar, DollarSign, Hash } from 'lucide-react'
 import { HoldingWithMetrics } from '@/lib/hooks/use-portfolio-state'
 import { formatCurrency, formatPercentage } from '@/lib/utils/format'
 import { cn } from '@/lib/utils/cn'
+import { getStockDetail, type StockTransaction } from '@/lib/actions/stocks/stock-detail'
 
 // Types
 interface StockDetailModalV2Props {
   isOpen: boolean
   onClose: () => void
   stockData: HoldingWithMetrics
+  portfolioId?: string
 }
 
 interface TabType {
@@ -113,12 +115,18 @@ export default function StockDetailModalV2({
   isOpen,
   onClose,
   stockData,
+  portfolioId,
 }: StockDetailModalV2Props) {
   const [activeTab, setActiveTab] = useState('overview')
   const [activeTimeRange, setActiveTimeRange] = useState('D')
+  const [transactions, setTransactions] = useState<StockTransaction[]>([])
+  const [loadingTransactions, setLoadingTransactions] = useState(false)
 
   const stock = stockData.stocks
-  const symbol = stock?.symbol || 'N/A'
+  const symbol = stock?.symbol || stockData.symbol || 'N/A'
+  
+  console.log('Stock detail modal - stockData:', stockData)
+  console.log('Stock detail modal - symbol:', symbol)
   const currentPrice = stockData.current_price || 0
   const dailyChange = stockData.daily_change || 0
   const dailyChangePercent = stockData.daily_change_percent || 0
@@ -130,6 +138,32 @@ export default function StockDetailModalV2({
   // Get chart data based on actual current price
   const chartData = generateChartData(symbol, currentPrice)
   const latestPrice = chartData[chartData.length - 1]?.price || currentPrice
+
+  // Fetch transactions when modal opens
+  useEffect(() => {
+    if (isOpen && symbol && symbol !== 'N/A') {
+      fetchTransactions()
+    }
+  }, [isOpen, symbol])
+
+  const fetchTransactions = async () => {
+    setLoadingTransactions(true)
+    try {
+      console.log('Fetching transactions for symbol:', symbol, 'portfolioId:', portfolioId)
+      const result = await getStockDetail(symbol, portfolioId)
+      console.log('Stock detail result:', result)
+      if (result.success && result.data) {
+        console.log('Transactions found:', result.data.transactions)
+        setTransactions(result.data.transactions)
+      } else {
+        console.error('Failed to fetch stock detail:', result.error)
+      }
+    } catch (error) {
+      console.error('Error fetching transactions:', error)
+    } finally {
+      setLoadingTransactions(false)
+    }
+  }
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -347,11 +381,121 @@ export default function StockDetailModalV2({
 
   const TransactionsTab = () => (
     <div className="p-6">
-      <div className="py-20 text-center text-gray-500">
-        <h3 className="mb-2 text-xl font-semibold">
-          Transaksjoner kommer snart
-        </h3>
-        <p>Detaljert transaksjonshistorikk for denne aksjen.</p>
+      <div className="rounded-2xl border border-gray-200 bg-white p-6">
+        <div className="mb-6 flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Transaksjonshistorikk
+          </h3>
+          <div className="text-sm text-gray-500">
+            {transactions.length} transaksjoner
+          </div>
+        </div>
+
+        {loadingTransactions ? (
+          <div className="py-20 text-center text-gray-500">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-gray-300 border-r-transparent"></div>
+            <p className="mt-4">Laster transaksjoner...</p>
+          </div>
+        ) : transactions.length === 0 ? (
+          <div className="py-20 text-center text-gray-500">
+            <Hash className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+            <h3 className="mb-2 text-xl font-semibold">
+              Ingen transaksjoner funnet
+            </h3>
+            <p>Ingen transaksjoner registrert for denne aksjen enda.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    Dato
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    Type
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    Antall
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    Pris
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    Totalbeløp
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    Gebyrer
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    Konto
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactions.map((transaction, index) => (
+                  <tr
+                    key={transaction.id}
+                    className="border-b border-gray-100 hover:bg-gray-50"
+                  >
+                    <td className="px-4 py-4 text-sm text-gray-900">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-gray-400" />
+                        {new Date(transaction.date).toLocaleDateString('nb-NO')}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <span
+                        className={cn(
+                          'inline-flex items-center rounded-full px-2 py-1 text-xs font-medium',
+                          transaction.transaction_type === 'BUY'
+                            ? 'bg-green-100 text-green-800'
+                            : transaction.transaction_type === 'SELL'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-gray-100 text-gray-800'
+                        )}
+                      >
+                        {transaction.transaction_type === 'BUY' ? 'Kjøp' : 
+                         transaction.transaction_type === 'SELL' ? 'Salg' : 
+                         transaction.transaction_type}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 text-right font-mono text-sm font-semibold">
+                      {transaction.quantity.toLocaleString('nb-NO')}
+                    </td>
+                    <td className="px-4 py-4 text-right font-mono text-sm font-semibold">
+                      {transaction.price
+                        ? `${transaction.price.toFixed(2)} ${transaction.currency}`
+                        : '-'}
+                    </td>
+                    <td className="px-4 py-4 text-right font-mono text-sm font-semibold">
+                      <div className="flex items-center justify-end gap-1">
+                        <DollarSign className="h-4 w-4 text-gray-400" />
+                        {Math.abs(transaction.total_amount).toLocaleString('nb-NO', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })} {transaction.currency}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 text-right font-mono text-sm text-gray-600">
+                      {transaction.total_fees > 0
+                        ? `${transaction.total_fees.toFixed(2)} ${transaction.currency}`
+                        : '-'}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-600">
+                      <div>
+                        <div className="font-medium">{transaction.account_name}</div>
+                        {transaction.platform_name && (
+                          <div className="text-xs text-gray-500">{transaction.platform_name}</div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   )

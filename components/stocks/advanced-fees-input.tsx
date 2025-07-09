@@ -73,6 +73,7 @@ interface AdvancedFeesInputProps {
   symbol: string
   className?: string
   disabled?: boolean
+  accountPlatform?: string
 }
 
 export default function AdvancedFeesInput({
@@ -82,6 +83,7 @@ export default function AdvancedFeesInput({
   symbol,
   className,
   disabled = false,
+  accountPlatform,
 }: AdvancedFeesInputProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [showDefaults, setShowDefaults] = useState(false)
@@ -157,8 +159,13 @@ export default function AdvancedFeesInput({
           <div className="flex items-center justify-between">
             <Label className="text-sm font-medium">Gebyrer</Label>
             <div className="flex items-center gap-2">
+              {accountPlatform && (
+                <Badge variant="outline" className="text-xs capitalize">
+                  {accountPlatform} standard
+                </Badge>
+              )}
               {isNonZeroFees && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs font-medium">
                   {fees.total.toFixed(2)} {currency}
                 </Badge>
               )}
@@ -166,16 +173,16 @@ export default function AdvancedFeesInput({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 p-1 hover:bg-gray-100"
+                  className="h-8 px-3 py-1 hover:bg-gray-100"
                   disabled={disabled}
                 >
                   <span className="text-xs text-gray-600">
-                    {isExpanded ? 'Enkel visning' : 'Avanserte gebyrer'}
+                    {isExpanded ? 'Skjul detaljer' : 'Endre'}
                   </span>
                   {isExpanded ? (
-                    <ChevronUp className="h-4 w-4" />
+                    <ChevronUp className="h-4 w-4 ml-1" />
                   ) : (
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className="h-4 w-4 ml-1" />
                   )}
                 </Button>
               </CollapsibleTrigger>

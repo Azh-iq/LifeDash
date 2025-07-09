@@ -84,11 +84,47 @@ export async function getStockDetail(
     const userId = session.user.id
 
     // First, get basic stock information
-    const { data: stockData, error: stockError } = await supabase
+    console.log('Looking for stock with symbol:', stockSymbol)
+    
+    // Try to find the stock - first exact match, then try without exchange suffix
+    let { data: stockData, error: stockError } = await supabase
       .from('stocks')
       .select('*')
       .eq('symbol', stockSymbol)
       .single()
+
+    // If not found and symbol doesn't have exchange suffix, try adding common exchanges
+    if (stockError && !stockSymbol.includes('.')) {
+      console.log('Trying to find stock with exchange suffixes...')
+      
+      // Try NASDAQ first (most common for US stocks)
+      const { data: nasdaqStock } = await supabase
+        .from('stocks')
+        .select('*')
+        .eq('symbol', stockSymbol)
+        .eq('exchange', 'NASDAQ')
+        .single()
+      
+      if (nasdaqStock) {
+        stockData = nasdaqStock
+        stockError = null
+      } else {
+        // Try NYSE
+        const { data: nyseStock } = await supabase
+          .from('stocks')
+          .select('*')
+          .eq('symbol', stockSymbol)
+          .eq('exchange', 'NYSE')
+          .single()
+        
+        if (nyseStock) {
+          stockData = nyseStock
+          stockError = null
+        }
+      }
+    }
+
+    console.log('Stock data result:', stockData, 'Error:', stockError)
 
     if (stockError) {
       return {
@@ -156,6 +192,8 @@ export async function getStockDetail(
     }
 
     const { data: transactionsData, error: transactionsError } = await transactionsQuery
+
+    console.log('Transactions data result:', transactionsData, 'Error:', transactionsError)
 
     if (transactionsError) {
       console.error('Error fetching transactions:', transactionsError)

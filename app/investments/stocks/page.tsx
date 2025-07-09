@@ -147,6 +147,7 @@ export default function StocksPage() {
 
   // Handle stock detail modal
   const handleStockClick = useCallback((holding: HoldingWithMetrics) => {
+    console.log('Stock clicked - holding data:', holding)
     setSelectedStock(holding)
     setIsStockModalOpen(true)
   }, [])
@@ -234,28 +235,19 @@ export default function StocksPage() {
     // Reset transaction states
     setTransactionSuccess(false)
     setTransactionError(null)
-    setOptimisticHoldings([])
   }, [])
 
   // Handle transaction completion
   const handleTransactionComplete = useCallback(() => {
     setTransactionSuccess(false)
     setTransactionError(null)
-    setOptimisticHoldings([])
   }, [])
 
-  // Handle optimistic updates for holdings table
-  const handleOptimisticUpdate = useCallback((holding: HoldingWithMetrics, updates: Partial<HoldingWithMetrics>) => {
-    setOptimisticHoldings(prev => {
-      const existingIndex = prev.findIndex(h => h.id === holding.id)
-      if (existingIndex >= 0) {
-        const updated = [...prev]
-        updated[existingIndex] = { ...updated[existingIndex], ...updates }
-        return updated
-      } else {
-        return [...prev, { ...holding, ...updates }]
-      }
-    })
+  // Handle optimistic updates - bridge to allow holdings table to communicate changes
+  const handleOptimisticUpdate = useCallback((updatedHoldings: HoldingWithMetrics[]) => {
+    // This function serves as a communication bridge between parent and holdings table
+    // The actual optimistic state is managed internally by the NorwegianHoldingsTable component
+    console.log('Optimistic update received:', updatedHoldings.length, 'holdings')
   }, [])
 
   const handleSubmitTransaction = useCallback(
@@ -269,38 +261,6 @@ export default function StocksPage() {
       setTransactionSuccess(false)
 
       try {
-        // Create optimistic update for immediate UI feedback
-        const optimisticHolding: Partial<HoldingWithMetrics> = {
-          symbol: transactionData.symbol,
-          quantity: transactionData.quantity,
-          cost_basis: transactionData.price,
-          current_price: transactionData.price,
-          current_value: transactionData.quantity * transactionData.price,
-          gain_loss: 0,
-          gain_loss_percent: 0,
-          weight: 0,
-        }
-
-        // Add optimistic holding to the list
-        if (transactionData.type === 'BUY') {
-          setOptimisticHoldings(prev => {
-            const existingIndex = prev.findIndex(h => h.symbol === transactionData.symbol)
-            if (existingIndex >= 0) {
-              // Update existing holding
-              const updated = [...prev]
-              updated[existingIndex] = {
-                ...updated[existingIndex],
-                quantity: updated[existingIndex].quantity + transactionData.quantity,
-                current_value: (updated[existingIndex].quantity + transactionData.quantity) * updated[existingIndex].current_price,
-              }
-              return updated
-            } else {
-              // Add new holding
-              return [...prev, optimisticHolding as HoldingWithMetrics]
-            }
-          })
-        }
-
         const result = await addTransaction(transactionData, safePortfolioId)
 
         if (!result.success) {
@@ -323,8 +283,6 @@ export default function StocksPage() {
         return result
       } catch (error) {
         setTransactionError(error instanceof Error ? error.message : 'Unknown error occurred')
-        // Reset optimistic updates on error
-        setOptimisticHoldings([])
         throw error
       } finally {
         setIsProcessingTransaction(false)
@@ -814,6 +772,7 @@ export default function StocksPage() {
             isOpen={isStockModalOpen}
             onClose={handleCloseStockModal}
             stockData={selectedStock}
+            portfolioId={safePortfolioId}
           />
         </ErrorBoundary>
       )}
