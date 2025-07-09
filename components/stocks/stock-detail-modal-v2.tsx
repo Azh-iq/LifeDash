@@ -6,6 +6,12 @@ import { HoldingWithMetrics } from '@/lib/hooks/use-portfolio-state'
 import { formatCurrency, formatPercentage } from '@/lib/utils/format'
 import { cn } from '@/lib/utils/cn'
 import { getStockDetail, type StockTransaction } from '@/lib/actions/stocks/stock-detail'
+import { StockChartWidget } from '@/components/widgets/stock/stock-chart-widget'
+import { NewsFeedWidget } from '@/components/widgets/stock/news-feed-widget'
+import { HoldingsWidget } from '@/components/widgets/stock/holdings-widget'
+import { TransactionsWidget } from '@/components/widgets/stock/transactions-widget'
+import { WidgetGrid } from '@/components/widgets/base/widget-grid'
+import { Widget } from '@/components/widgets/widget-types'
 
 // Types
 interface StockDetailModalV2Props {
