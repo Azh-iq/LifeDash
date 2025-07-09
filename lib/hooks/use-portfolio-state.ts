@@ -259,6 +259,14 @@ export function usePortfolioState(
       setHoldingsError(null)
 
       const supabase = createClient()
+      
+      // First, get the current user to ensure proper RLS filtering
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      if (userError || !user) {
+        throw new Error('Authentication required')
+      }
+
+      // Query holdings with proper joins and filters
       const { data: holdingsData, error: holdingsError } = await supabase
         .from('holdings')
         .select(
@@ -268,27 +276,43 @@ export function usePortfolioState(
             symbol,
             name,
             currency,
-            asset_class,
+            asset_type,
             sector,
             market_cap,
             current_price,
             last_updated
           ),
-          accounts!inner (
+          accounts (
             id,
             portfolio_id
           )
         `
         )
-        .eq('accounts.portfolio_id', portfolioId)
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .gt('quantity', 0)
+        .not('accounts', 'is', null)
 
       if (holdingsError) {
+        console.error('Holdings query error:', holdingsError)
         throw holdingsError
       }
 
-      if (holdingsData) {
-        const enhancedHoldings: HoldingWithMetrics[] = holdingsData.map(
-          holding => {
+      // Filter by portfolio_id after the query since we can't use nested filters on joins
+      const filteredHoldings = holdingsData?.filter(
+        (holding: any) => holding.accounts?.portfolio_id === portfolioId
+      ) || []
+
+      console.log('🔍 Debug Holdings Query:', {
+        portfolioId,
+        totalHoldings: holdingsData?.length || 0,
+        filteredHoldings: filteredHoldings.length,
+        sampleData: filteredHoldings.slice(0, 3)
+      })
+
+      if (filteredHoldings.length > 0) {
+        const enhancedHoldings: HoldingWithMetrics[] = filteredHoldings.map(
+          (holding: any) => {
             const currentPrice =
               holding.stocks?.current_price || holding.cost_basis
             const currentValue = holding.quantity * currentPrice
@@ -319,6 +343,9 @@ export function usePortfolioState(
         )
 
         setHoldings(sortedHoldings)
+      } else {
+        // No holdings found for this portfolio
+        setHoldings([])
       }
     } catch (err) {
       console.error('Error fetching holdings:', err)

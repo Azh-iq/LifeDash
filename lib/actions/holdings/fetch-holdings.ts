@@ -51,7 +51,7 @@ export async function fetchUserHoldingsForSale(portfolioId?: string): Promise<Fe
     }
 
     // Build query to fetch holdings with stock info
-    let query = supabase
+    const { data: holdings, error: fetchError } = await supabase
       .from('holdings')
       .select(`
         id,
@@ -61,7 +61,7 @@ export async function fetchUserHoldingsForSale(portfolioId?: string): Promise<Fe
         current_price,
         market_value,
         account_id,
-        stock:stocks!inner(
+        stock:stocks(
           id,
           symbol,
           name,
@@ -73,7 +73,7 @@ export async function fetchUserHoldingsForSale(portfolioId?: string): Promise<Fe
           country,
           is_popular
         ),
-        account:accounts!inner(
+        account:accounts(
           id,
           name,
           platform,
@@ -83,13 +83,8 @@ export async function fetchUserHoldingsForSale(portfolioId?: string): Promise<Fe
       .eq('user_id', user.id)
       .eq('is_active', true)
       .gt('quantity', 0) // Only holdings with positive quantity
-
-    // Filter by portfolio if provided
-    if (portfolioId) {
-      query = query.eq('account.portfolio_id', portfolioId)
-    }
-
-    const { data: holdings, error: fetchError } = await query
+      .not('stock', 'is', null)
+      .not('account', 'is', null)
 
     if (fetchError) {
       console.error('Error fetching holdings:', fetchError)
@@ -99,8 +94,13 @@ export async function fetchUserHoldingsForSale(portfolioId?: string): Promise<Fe
       }
     }
 
+    // Filter by portfolio if provided
+    const filteredHoldings = portfolioId
+      ? holdings?.filter((holding: any) => holding.account?.portfolio_id === portfolioId) || []
+      : holdings || []
+
     // Transform holdings data for stock search
-    const holdingsForSale: HoldingForSale[] = (holdings || []).map((holding: any) => ({
+    const holdingsForSale: HoldingForSale[] = filteredHoldings.map((holding: any) => ({
       id: holding.stock.id,
       symbol: holding.stock.symbol,
       name: holding.stock.name,
