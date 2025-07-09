@@ -301,6 +301,7 @@ export function usePortfolioState(
 
             return {
               ...holding,
+              symbol: holding.stocks?.symbol || '', // Extract symbol from joined stocks table
               current_price: currentPrice,
               current_value: currentValue,
               gain_loss: gainLoss,
