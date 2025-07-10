@@ -1,6 +1,6 @@
 /**
  * LifeDash Stock Widget Library
- * 
+ *
  * A comprehensive collection of stock-specific widgets for the LifeDash platform.
  * These widgets follow the existing LifeDash architecture patterns and provide
  * a consistent user experience with Norwegian localization.
@@ -195,11 +195,11 @@ export const STOCK_WIDGET_LABELS = {
     title: 'Aksjekurs',
     timeRanges: {
       '4h': 'Siste 4 timer',
-      'D': 'I dag',
-      'W': 'Denne uken',
-      'M': 'Denne måneden',
+      D: 'I dag',
+      W: 'Denne uken',
+      M: 'Denne måneden',
       '3M': 'Siste 3 måneder',
-      'YTD': 'År til dato',
+      YTD: 'År til dato',
       '1Y': 'Siste år',
     },
     chartTypes: {
@@ -309,7 +309,9 @@ export const STOCK_WIDGET_LABELS = {
 } as const
 
 // Helper function to get widget configuration
-export function getStockWidgetConfig(widgetType: keyof typeof STOCK_WIDGET_CONFIGS) {
+export function getStockWidgetConfig(
+  widgetType: keyof typeof STOCK_WIDGET_CONFIGS
+) {
   return STOCK_WIDGET_CONFIGS[widgetType]
 }
 
@@ -319,6 +321,8 @@ export function getStockWidgetTheme() {
 }
 
 // Helper function to get Norwegian labels
-export function getStockWidgetLabels(section?: keyof typeof STOCK_WIDGET_LABELS) {
+export function getStockWidgetLabels(
+  section?: keyof typeof STOCK_WIDGET_LABELS
+) {
   return section ? STOCK_WIDGET_LABELS[section] : STOCK_WIDGET_LABELS
 }

@@ -154,7 +154,7 @@ export const PortfolioPerformanceChart = ({
   showLegend = false,
   timeRange = '1M',
   isLoading = false,
-  currency = 'NOK',
+  currency: _currency = 'NOK',
 }: PortfolioPerformanceChartProps) => {
   // Calculate performance metrics
   const metrics = useMemo(() => {

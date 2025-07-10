@@ -76,7 +76,7 @@ export default function StocksPage() {
     Array<{ id: string; name: string; platform: string }>
   >([])
   const [loadingAccounts, setLoadingAccounts] = useState(false)
-  
+
   // Transaction processing state
   const [isProcessingTransaction, setIsProcessingTransaction] = useState(false)
   const [transactionSuccess, setTransactionSuccess] = useState(false)
@@ -244,11 +244,18 @@ export default function StocksPage() {
   }, [])
 
   // Handle optimistic updates - bridge to allow holdings table to communicate changes
-  const handleOptimisticUpdate = useCallback((updatedHoldings: HoldingWithMetrics[]) => {
-    // This function serves as a communication bridge between parent and holdings table
-    // The actual optimistic state is managed internally by the NorwegianHoldingsTable component
-    console.log('Optimistic update received:', updatedHoldings.length, 'holdings')
-  }, [])
+  const handleOptimisticUpdate = useCallback(
+    (updatedHoldings: HoldingWithMetrics[]) => {
+      // This function serves as a communication bridge between parent and holdings table
+      // The actual optimistic state is managed internally by the NorwegianHoldingsTable component
+      console.log(
+        'Optimistic update received:',
+        updatedHoldings.length,
+        'holdings'
+      )
+    },
+    []
+  )
 
   const handleSubmitTransaction = useCallback(
     async (transactionData: TransactionData) => {
@@ -269,7 +276,7 @@ export default function StocksPage() {
 
         // Show success state
         setTransactionSuccess(true)
-        
+
         // Refresh portfolio data to show updated holdings
         if (portfolioState.refresh) {
           await portfolioState.refresh()
@@ -282,7 +289,9 @@ export default function StocksPage() {
 
         return result
       } catch (error) {
-        setTransactionError(error instanceof Error ? error.message : 'Unknown error occurred')
+        setTransactionError(
+          error instanceof Error ? error.message : 'Unknown error occurred'
+        )
         throw error
       } finally {
         setIsProcessingTransaction(false)
@@ -386,12 +395,12 @@ export default function StocksPage() {
   // Handle CSV import completion from top navigation
   const handleTopNavImportComplete = useCallback(async () => {
     console.log('Top navigation CSV import completed')
-    
+
     // Show loading state
     toast.loading('Oppdaterer portefølje...', {
       duration: 2000,
     })
-    
+
     try {
       // Refresh the portfolio data to show newly imported transactions
       if (portfolioState.refresh) {
@@ -399,7 +408,7 @@ export default function StocksPage() {
       }
       // Also trigger smart refresh for consistency
       await smartRefresh()
-      
+
       toast.success('Portefølje oppdatert!', {
         description: 'Importerte transaksjoner er nå synlige',
         duration: 3000,
@@ -783,12 +792,12 @@ export default function StocksPage() {
         onClose={() => setIsCSVModalOpen(false)}
         onImportComplete={async () => {
           console.log('CSV import completed successfully')
-          
+
           // Show loading state
           toast.loading('Oppdaterer portefølje...', {
             duration: 2000,
           })
-          
+
           try {
             // Refresh the portfolio data to show newly imported transactions
             if (portfolioState.refresh) {
@@ -796,7 +805,7 @@ export default function StocksPage() {
             }
             // Also trigger smart refresh for consistency
             await smartRefresh()
-            
+
             toast.success('CSV import fullført!', {
               description: 'Transaksjoner er lagt til i porteføljen',
               duration: 3000,

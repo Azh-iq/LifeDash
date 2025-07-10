@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { 
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -15,7 +15,8 @@ import {
 import { Loader2 } from 'lucide-react'
 
 // Modern Glassmorphism Button Component
-interface ModernButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ModernButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'destructive'
   size?: 'sm' | 'md' | 'lg'
   loading?: boolean
@@ -43,30 +44,38 @@ export const ModernButton: React.FC<ModernButtonProps> = ({
     'transform-gpu will-change-transform',
     {
       // Glassmorphism effects
-      'backdrop-blur-md bg-white/20 border border-white/30 shadow-lg': glassmorphism,
+      'backdrop-blur-md bg-white/20 border border-white/30 shadow-lg':
+        glassmorphism,
       'hover:bg-white/30 hover:border-white/40': glassmorphism && !disabled,
-      
+
       // Standard variants
-      'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg': variant === 'primary' && !glassmorphism,
-      'hover:from-purple-700 hover:to-indigo-700': variant === 'primary' && !glassmorphism && !disabled,
+      'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg':
+        variant === 'primary' && !glassmorphism,
+      'hover:from-purple-700 hover:to-indigo-700':
+        variant === 'primary' && !glassmorphism && !disabled,
       'focus:ring-purple-500': variant === 'primary',
-      
-      'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-900 shadow-md': variant === 'secondary' && !glassmorphism,
-      'hover:from-gray-200 hover:to-gray-300': variant === 'secondary' && !glassmorphism && !disabled,
+
+      'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-900 shadow-md':
+        variant === 'secondary' && !glassmorphism,
+      'hover:from-gray-200 hover:to-gray-300':
+        variant === 'secondary' && !glassmorphism && !disabled,
       'focus:ring-gray-400': variant === 'secondary',
-      
-      'bg-transparent hover:bg-gray-100 text-gray-700': variant === 'ghost' && !glassmorphism,
+
+      'bg-transparent hover:bg-gray-100 text-gray-700':
+        variant === 'ghost' && !glassmorphism,
       'focus:ring-gray-400': variant === 'ghost',
-      
-      'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg': variant === 'destructive' && !glassmorphism,
-      'hover:from-red-600 hover:to-red-700': variant === 'destructive' && !glassmorphism && !disabled,
+
+      'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg':
+        variant === 'destructive' && !glassmorphism,
+      'hover:from-red-600 hover:to-red-700':
+        variant === 'destructive' && !glassmorphism && !disabled,
       'focus:ring-red-500': variant === 'destructive',
-      
+
       // Sizes
       'px-3 py-1.5 text-sm font-medium rounded-md': size === 'sm',
       'px-4 py-2 text-sm font-medium rounded-lg': size === 'md',
       'px-6 py-3 text-base font-semibold rounded-xl': size === 'lg',
-      
+
       // States
       'opacity-60 cursor-not-allowed': disabled,
       'hover:scale-105 hover:shadow-xl': !disabled && !glassmorphism,
@@ -86,7 +95,7 @@ export const ModernButton: React.FC<ModernButtonProps> = ({
       onMouseUp={() => setIsPressed(false)}
       whileHover={{ scale: disabled ? 1 : 1.05 }}
       whileTap={{ scale: disabled ? 1 : 0.95 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
       {...props}
     >
       {/* Animated background gradient */}
@@ -106,13 +115,13 @@ export const ModernButton: React.FC<ModernButtonProps> = ({
       {!disabled && (
         <div className="absolute inset-0 overflow-hidden">
           <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12"
+            className="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent"
             animate={{
               x: isHovered ? ['-100%', '100%'] : '-100%',
             }}
             transition={{
               duration: 0.8,
-              ease: "easeInOut",
+              ease: 'easeInOut',
             }}
           />
         </div>
@@ -120,9 +129,7 @@ export const ModernButton: React.FC<ModernButtonProps> = ({
 
       {/* Content */}
       <span className="relative z-10 flex items-center justify-center gap-2">
-        {loading && (
-          <Loader2 className="w-4 h-4 animate-spin" />
-        )}
+        {loading && <Loader2 className="h-4 w-4 animate-spin" />}
         {children}
       </span>
 
@@ -166,12 +173,12 @@ export const ModernCard: React.FC<ModernCardProps> = ({
       // Glassmorphism effects
       'backdrop-blur-md bg-white/10 border-white/20 shadow-xl': glassmorphism,
       'hover:bg-white/20 hover:border-white/30': glassmorphism && interactive,
-      
+
       // Standard styles
       'bg-white': !glassmorphism,
       'hover:shadow-xl hover:scale-105': interactive && !glassmorphism,
       'hover:shadow-2xl': interactive && glassmorphism,
-      
+
       // Interactive states
       'cursor-pointer': interactive,
       'opacity-60': loading,
@@ -186,7 +193,7 @@ export const ModernCard: React.FC<ModernCardProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       whileHover={interactive ? { scale: 1.02 } : {}}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
     >
       {/* Animated border gradient */}
       <AnimatePresence>
@@ -195,7 +202,7 @@ export const ModernCard: React.FC<ModernCardProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-gradient-to-r from-purple-500/20 via-transparent to-purple-500/20 rounded-lg"
+            className="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-500/20 via-transparent to-purple-500/20"
           />
         )}
       </AnimatePresence>
@@ -204,7 +211,7 @@ export const ModernCard: React.FC<ModernCardProps> = ({
       <div className="relative z-10">
         {loading ? (
           <div className="flex items-center justify-center p-8">
-            <Loader2 className="w-6 h-6 animate-spin text-purple-500" />
+            <Loader2 className="h-6 w-6 animate-spin text-purple-500" />
           </div>
         ) : (
           children
@@ -213,14 +220,15 @@ export const ModernCard: React.FC<ModernCardProps> = ({
 
       {/* Glassmorphism overlay */}
       {glassmorphism && (
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
       )}
     </motion.div>
   )
 }
 
 // Modern Search Input Component
-interface ModernSearchInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface ModernSearchInputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   glassmorphism?: boolean
   icon?: React.ReactNode
   onClear?: () => void
@@ -245,13 +253,14 @@ export const ModernSearchInput: React.FC<ModernSearchInputProps> = ({
     'placeholder:text-gray-400',
     {
       // Glassmorphism effects
-      'backdrop-blur-md bg-white/10 border-white/20 text-white placeholder:text-white/60': glassmorphism,
+      'backdrop-blur-md bg-white/10 border-white/20 text-white placeholder:text-white/60':
+        glassmorphism,
       'focus:bg-white/20 focus:border-white/30': glassmorphism,
-      
+
       // Standard styles
       'bg-white': !glassmorphism,
       'hover:shadow-md': !glassmorphism,
-      
+
       // With icon padding
       'pl-12': icon,
       'pr-12': onClear || loading,
@@ -263,7 +272,7 @@ export const ModernSearchInput: React.FC<ModernSearchInputProps> = ({
     <div className="relative">
       {/* Icon */}
       {icon && (
-        <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 transform text-gray-400">
           {icon}
         </div>
       )}
@@ -275,23 +284,33 @@ export const ModernSearchInput: React.FC<ModernSearchInputProps> = ({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         whileFocus={{ scale: 1.02 }}
-        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 17 }}
         {...props}
       />
 
       {/* Clear button or loading */}
       {(onClear || loading) && (
-        <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 transform">
           {loading ? (
-            <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+            <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
           ) : (
             onClear && (
               <button
                 onClick={onClear}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-400 transition-colors hover:text-gray-600"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             )
@@ -306,7 +325,7 @@ export const ModernSearchInput: React.FC<ModernSearchInputProps> = ({
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
             exit={{ scaleX: 0 }}
-            className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full"
+            className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500"
           />
         )}
       </AnimatePresence>
@@ -345,21 +364,19 @@ export const ModernLoading: React.FC<ModernLoadingProps> = ({
   const renderLoader = () => {
     switch (variant) {
       case 'spinner':
-        return (
-          <Loader2 className={cn(sizeClasses[size], 'animate-spin')} />
-        )
-      
+        return <Loader2 className={cn(sizeClasses[size], 'animate-spin')} />
+
       case 'dots':
         return (
           <div className="flex gap-1">
-            {[0, 1, 2].map((i) => (
+            {[0, 1, 2].map(i => (
               <motion.div
                 key={i}
                 className={cn(
                   'rounded-full bg-purple-500',
-                  size === 'sm' && 'w-2 h-2',
-                  size === 'md' && 'w-3 h-3',
-                  size === 'lg' && 'w-4 h-4'
+                  size === 'sm' && 'h-2 w-2',
+                  size === 'md' && 'h-3 w-3',
+                  size === 'lg' && 'h-4 w-4'
                 )}
                 animate={{
                   scale: [1, 1.2, 1],
@@ -374,14 +391,11 @@ export const ModernLoading: React.FC<ModernLoadingProps> = ({
             ))}
           </div>
         )
-      
+
       case 'pulse':
         return (
           <motion.div
-            className={cn(
-              'rounded-full bg-purple-500',
-              sizeClasses[size]
-            )}
+            className={cn('rounded-full bg-purple-500', sizeClasses[size])}
             animate={{
               scale: [1, 1.2, 1],
               opacity: [0.5, 1, 0.5],
@@ -392,7 +406,7 @@ export const ModernLoading: React.FC<ModernLoadingProps> = ({
             }}
           />
         )
-      
+
       default:
         return <Loader2 className={cn(sizeClasses[size], 'animate-spin')} />
     }
@@ -433,16 +447,15 @@ export const ModernTooltip: React.FC<ModernTooltipProps> = ({
   return (
     <TooltipProvider delayDuration={delayDuration}>
       <Tooltip>
-        <TooltipTrigger asChild>
-          {children}
-        </TooltipTrigger>
+        <TooltipTrigger asChild>{children}</TooltipTrigger>
         <TooltipContent
           side={side}
           className={cn(
             'max-w-xs p-3 text-sm font-medium transition-all duration-200',
             {
-              'backdrop-blur-md bg-black/80 border-white/20 text-white shadow-xl': glassmorphism,
-              'bg-gray-900 text-white border-gray-800': !glassmorphism,
+              'border-white/20 bg-black/80 text-white shadow-xl backdrop-blur-md':
+                glassmorphism,
+              'border-gray-800 bg-gray-900 text-white': !glassmorphism,
             }
           )}
         >
@@ -493,7 +506,7 @@ export const ModernWidgetAction: React.FC<ModernWidgetActionProps> = ({
         disabled={disabled}
         loading={loading}
         glassmorphism={glassmorphism}
-        className="p-2 min-w-[36px] h-9"
+        className="h-9 min-w-[36px] p-2"
       >
         {icon}
       </ModernButton>

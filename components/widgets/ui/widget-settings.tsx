@@ -2,15 +2,15 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  Settings, 
-  X, 
-  Save, 
-  RotateCcw, 
-  Eye, 
-  Palette, 
-  Sliders, 
-  Layout, 
+import {
+  Settings,
+  X,
+  Save,
+  RotateCcw,
+  Eye,
+  Palette,
+  Sliders,
+  Layout,
   Monitor,
   Smartphone,
   Tablet,
@@ -20,7 +20,7 @@ import {
   AlertCircle,
   Check,
 } from 'lucide-react'
-import { 
+import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -31,13 +31,13 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { 
-  ModernButton, 
-  ModernCard, 
-  ModernLoading, 
-  ModernTooltip 
+import {
+  ModernButton,
+  ModernCard,
+  ModernLoading,
+  ModernTooltip,
 } from './modern-ui-components'
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -50,35 +50,31 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import { 
+import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
-import { 
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { 
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from '@/components/ui/alert'
-import { 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import {
   useWidgetStore,
   useWidgetActions,
   useActiveLayout,
 } from '@/components/widgets/widget-store'
-import { 
+import {
   WidgetRegistration,
   WidgetInstance,
   WidgetConfigField,
   WidgetConfigSchema,
   BaseWidgetComponentProps,
 } from '@/components/widgets/widget-types'
-import { 
+import {
   WidgetConfig,
   ChartWidgetConfig,
   TableWidgetConfig,
@@ -143,25 +139,25 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
           <Input
             type="text"
             value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={e => onChange(e.target.value)}
             placeholder={field.defaultValue}
             className={cn(error && 'border-red-500')}
           />
         )
-      
+
       case 'number':
         return (
           <Input
             type="number"
             value={value || ''}
-            onChange={(e) => onChange(parseFloat(e.target.value))}
+            onChange={e => onChange(parseFloat(e.target.value))}
             placeholder={field.defaultValue?.toString()}
             min={field.validation?.min}
             max={field.validation?.max}
             className={cn(error && 'border-red-500')}
           />
         )
-      
+
       case 'boolean':
         return (
           <Switch
@@ -169,7 +165,7 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
             onCheckedChange={onChange}
           />
         )
-      
+
       case 'select':
         return (
           <Select value={value || field.defaultValue} onValueChange={onChange}>
@@ -177,7 +173,7 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
               <SelectValue placeholder="Velg..." />
             </SelectTrigger>
             <SelectContent>
-              {field.options?.map((option) => (
+              {field.options?.map(option => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -185,16 +181,16 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
             </SelectContent>
           </Select>
         )
-      
+
       case 'multiselect':
         return (
           <div className="space-y-2">
-            {field.options?.map((option) => (
+            {field.options?.map(option => (
               <div key={option.value} className="flex items-center space-x-2">
                 <Switch
                   id={option.value}
                   checked={value?.includes(option.value)}
-                  onCheckedChange={(checked) => {
+                  onCheckedChange={checked => {
                     const newValue = value || []
                     if (checked) {
                       onChange([...newValue, option.value])
@@ -210,26 +206,26 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
             ))}
           </div>
         )
-      
+
       case 'color':
         return (
           <div className="flex items-center space-x-2">
             <Input
               type="color"
               value={value || field.defaultValue}
-              onChange={(e) => onChange(e.target.value)}
-              className="w-12 h-8 p-0 border-0 cursor-pointer"
+              onChange={e => onChange(e.target.value)}
+              className="h-8 w-12 cursor-pointer border-0 p-0"
             />
             <Input
               type="text"
               value={value || field.defaultValue}
-              onChange={(e) => onChange(e.target.value)}
+              onChange={e => onChange(e.target.value)}
               placeholder="#000000"
               className={cn('flex-1', error && 'border-red-500')}
             />
           </div>
         )
-      
+
       case 'range':
         return (
           <div className="space-y-2">
@@ -238,7 +234,7 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
               min={field.validation?.min || 0}
               max={field.validation?.max || 100}
               value={value || field.defaultValue}
-              onChange={(e) => onChange(parseFloat(e.target.value))}
+              onChange={e => onChange(parseFloat(e.target.value))}
               className="w-full"
             />
             <div className="flex justify-between text-sm text-gray-500">
@@ -248,13 +244,13 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
             </div>
           </div>
         )
-      
+
       default:
         return (
           <Input
             type="text"
             value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={e => onChange(e.target.value)}
             placeholder={field.defaultValue}
             className={cn(error && 'border-red-500')}
           />
@@ -267,13 +263,13 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
       <div className="flex items-center justify-between">
         <Label htmlFor={field.key} className="text-sm font-medium">
           {field.label}
-          {field.required && <span className="text-red-500 ml-1">*</span>}
+          {field.required && <span className="ml-1 text-red-500">*</span>}
         </Label>
         {field.description && (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Info className="w-4 h-4 text-gray-400 cursor-help" />
+                <Info className="h-4 w-4 cursor-help text-gray-400" />
               </TooltipTrigger>
               <TooltipContent>
                 <p className="max-w-xs">{field.description}</p>
@@ -284,8 +280,8 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
       </div>
       {renderField()}
       {error && (
-        <div className="flex items-center space-x-1 text-red-500 text-sm">
-          <AlertCircle className="w-4 h-4" />
+        <div className="flex items-center space-x-1 text-sm text-red-500">
+          <AlertCircle className="h-4 w-4" />
           <span>{error}</span>
         </div>
       )}
@@ -443,7 +439,14 @@ const generateConfigSchema = (widget: WidgetInstance): WidgetConfigSchema => {
 
   return {
     fields: baseFields,
-    categories: ['Grunnleggende', 'Utseende', 'Layout', 'Data', 'Graf', 'Tabell'],
+    categories: [
+      'Grunnleggende',
+      'Utseende',
+      'Layout',
+      'Data',
+      'Graf',
+      'Tabell',
+    ],
     advanced: false,
   }
 }
@@ -461,14 +464,18 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
   const [config, setConfig] = useState<WidgetConfig>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [hasChanges, setHasChanges] = useState(false)
-  const [previewMode, setPreviewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop')
-  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
-    'Grunnleggende': true,
-    'Utseende': false,
-    'Layout': false,
-    'Data': false,
-    'Graf': false,
-    'Tabell': false,
+  const [previewMode, setPreviewMode] = useState<
+    'desktop' | 'tablet' | 'mobile'
+  >('desktop')
+  const [expandedCategories, setExpandedCategories] = useState<
+    Record<string, boolean>
+  >({
+    Grunnleggende: true,
+    Utseende: false,
+    Layout: false,
+    Data: false,
+    Graf: false,
+    Tabell: false,
   })
 
   // Generate config schema
@@ -488,7 +495,7 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
   // Group fields by category
   const fieldsByCategory = useMemo(() => {
     if (!configSchema) return {}
-    
+
     const grouped: Record<string, WidgetConfigField[]> = {}
     configSchema.fields.forEach(field => {
       const category = field.category || 'Annet'
@@ -497,46 +504,49 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
       }
       grouped[category].push(field)
     })
-    
+
     return grouped
   }, [configSchema])
 
   // Handle field change
-  const handleFieldChange = useCallback((key: string, value: any) => {
-    setConfig(prev => ({
-      ...prev,
-      [key]: value,
-    }))
-    setHasChanges(true)
-    
-    // Clear error for this field
-    if (errors[key]) {
-      setErrors(prev => {
-        const newErrors = { ...prev }
-        delete newErrors[key]
-        return newErrors
-      })
-    }
-  }, [errors])
+  const handleFieldChange = useCallback(
+    (key: string, value: any) => {
+      setConfig(prev => ({
+        ...prev,
+        [key]: value,
+      }))
+      setHasChanges(true)
+
+      // Clear error for this field
+      if (errors[key]) {
+        setErrors(prev => {
+          const newErrors = { ...prev }
+          delete newErrors[key]
+          return newErrors
+        })
+      }
+    },
+    [errors]
+  )
 
   // Validate config
   const validateConfig = useCallback(() => {
     if (!configSchema) return true
-    
+
     const newErrors: Record<string, string> = {}
-    
+
     configSchema.fields.forEach(field => {
       const value = config[field.key]
-      
+
       // Check required fields
       if (field.required && (!value || value === '')) {
         newErrors[field.key] = 'Dette feltet er påkrevd'
       }
-      
+
       // Check validation rules
       if (field.validation && value !== undefined && value !== '') {
         const { min, max, pattern } = field.validation
-        
+
         if (field.type === 'number') {
           const numValue = parseFloat(value)
           if (min !== undefined && numValue < min) {
@@ -546,7 +556,7 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
             newErrors[field.key] = `Verdien kan ikke være mer enn ${max}`
           }
         }
-        
+
         if (field.type === 'text' && pattern) {
           const regex = new RegExp(pattern)
           if (!regex.test(value)) {
@@ -555,7 +565,7 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
         }
       }
     })
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }, [config, configSchema])
@@ -563,11 +573,11 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
   // Handle save
   const handleSave = useCallback(() => {
     if (!widget || !activeLayoutId) return
-    
+
     if (!validateConfig()) {
       return
     }
-    
+
     const updatedWidget = {
       ...widget,
       props: {
@@ -575,12 +585,18 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
         config,
         title: config.title || widget.props.title,
         description: config.description || widget.props.description,
-        showHeader: config.showHeader !== undefined ? config.showHeader : widget.props.showHeader,
-        showFooter: config.showFooter !== undefined ? config.showFooter : widget.props.showFooter,
+        showHeader:
+          config.showHeader !== undefined
+            ? config.showHeader
+            : widget.props.showHeader,
+        showFooter:
+          config.showFooter !== undefined
+            ? config.showFooter
+            : widget.props.showFooter,
       },
       updated: new Date(),
     }
-    
+
     updateWidget(activeLayoutId, widget.id, updatedWidget)
     onSave?.(updatedWidget, config)
     setHasChanges(false)
@@ -589,7 +605,7 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
   // Handle preview
   const handlePreview = useCallback(() => {
     if (!widget) return
-    
+
     const previewWidget = {
       ...widget,
       props: {
@@ -597,18 +613,24 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
         config,
         title: config.title || widget.props.title,
         description: config.description || widget.props.description,
-        showHeader: config.showHeader !== undefined ? config.showHeader : widget.props.showHeader,
-        showFooter: config.showFooter !== undefined ? config.showFooter : widget.props.showFooter,
+        showHeader:
+          config.showHeader !== undefined
+            ? config.showHeader
+            : widget.props.showHeader,
+        showFooter:
+          config.showFooter !== undefined
+            ? config.showFooter
+            : widget.props.showFooter,
       },
     }
-    
+
     onPreview?.(previewWidget, config)
   }, [widget, config, onPreview])
 
   // Handle reset
   const handleReset = useCallback(() => {
     if (!widget) return
-    
+
     setConfig(widget.registration.defaultConfig)
     setHasChanges(true)
     setErrors({})
@@ -625,24 +647,32 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
 
   if (!widget) return null
 
-  const theme = getInvestmentTheme('light', widget.category.toLowerCase() as any)
+  const theme = getInvestmentTheme(
+    'light',
+    widget.category.toLowerCase() as any
+  )
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[400px] sm:w-[500px] p-0">
-        <div className="flex flex-col h-full">
+      <SheetContent side="right" className="w-[400px] p-0 sm:w-[500px]">
+        <div className="flex h-full flex-col">
           {/* Header */}
-          <SheetHeader className="p-6 pb-4 border-b">
+          <SheetHeader className="border-b p-6 pb-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className={cn(
-                  'p-2 rounded-lg',
-                  widget.category === 'STOCKS' && 'bg-purple-100 text-purple-600',
-                  widget.category === 'CRYPTO' && 'bg-amber-100 text-amber-600',
-                  widget.category === 'ART' && 'bg-pink-100 text-pink-600',
-                  widget.category === 'OTHER' && 'bg-emerald-100 text-emerald-600',
-                )}>
-                  <Settings className="w-5 h-5" />
+                <div
+                  className={cn(
+                    'rounded-lg p-2',
+                    widget.category === 'STOCKS' &&
+                      'bg-purple-100 text-purple-600',
+                    widget.category === 'CRYPTO' &&
+                      'bg-amber-100 text-amber-600',
+                    widget.category === 'ART' && 'bg-pink-100 text-pink-600',
+                    widget.category === 'OTHER' &&
+                      'bg-emerald-100 text-emerald-600'
+                  )}
+                >
+                  <Settings className="h-5 w-5" />
                 </div>
                 <div>
                   <SheetTitle>Widget-innstillinger</SheetTitle>
@@ -655,9 +685,7 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
                 <Badge variant="secondary">
                   {categoryLabels[widget.category]}
                 </Badge>
-                <Badge variant="outline">
-                  {sizeLabels[widget.size]}
-                </Badge>
+                <Badge variant="outline">{sizeLabels[widget.size]}</Badge>
               </div>
             </div>
           </SheetHeader>
@@ -665,28 +693,38 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
           {/* Content */}
           <div className="flex-1 overflow-hidden">
             <ScrollArea className="h-full">
-              <div className="p-6 space-y-6">
+              <div className="space-y-6 p-6">
                 {/* Widget info */}
                 <ModernCard glassmorphism={true}>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm">Widget-informasjon</CardTitle>
+                    <CardTitle className="text-sm">
+                      Widget-informasjon
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Type:</span>
-                      <span className="font-medium">{widget.registration.displayName}</span>
+                      <span className="font-medium">
+                        {widget.registration.displayName}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Kategori:</span>
-                      <span className="font-medium">{categoryLabels[widget.category]}</span>
+                      <span className="font-medium">
+                        {categoryLabels[widget.category]}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Størrelse:</span>
-                      <span className="font-medium">{sizeLabels[widget.size]}</span>
+                      <span className="font-medium">
+                        {sizeLabels[widget.size]}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Versjon:</span>
-                      <span className="font-medium">v{widget.registration.version}</span>
+                      <span className="font-medium">
+                        v{widget.registration.version}
+                      </span>
                     </div>
                   </CardContent>
                 </ModernCard>
@@ -698,18 +736,20 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center space-x-2">
-                      {(['desktop', 'tablet', 'mobile'] as const).map((mode) => {
+                      {(['desktop', 'tablet', 'mobile'] as const).map(mode => {
                         const Icon = deviceIcons[mode]
                         return (
                           <ModernButton
                             key={mode}
-                            variant={previewMode === mode ? 'primary' : 'secondary'}
+                            variant={
+                              previewMode === mode ? 'primary' : 'secondary'
+                            }
                             size="sm"
                             glassmorphism={true}
                             onClick={() => setPreviewMode(mode)}
                             className="flex items-center space-x-1"
                           >
-                            <Icon className="w-4 h-4" />
+                            <Icon className="h-4 w-4" />
                             <span className="capitalize">{mode}</span>
                           </ModernButton>
                         )
@@ -721,41 +761,47 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
                 {/* Configuration fields */}
                 <ModernCard glassmorphism={true}>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm">Konfigurasjonsalternativer</CardTitle>
+                    <CardTitle className="text-sm">
+                      Konfigurasjonsalternativer
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {Object.entries(fieldsByCategory).map(([category, fields]) => (
-                      <Collapsible
-                        key={category}
-                        open={expandedCategories[category]}
-                        onOpenChange={() => toggleCategory(category)}
-                      >
-                        <CollapsibleTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="w-full justify-between h-8 px-2 text-sm font-medium"
-                          >
-                            {category}
-                            {expandedCategories[category] ? (
-                              <ChevronDown className="w-4 h-4" />
-                            ) : (
-                              <ChevronRight className="w-4 h-4" />
-                            )}
-                          </Button>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="space-y-4 mt-2">
-                          {fields.map((field) => (
-                            <ConfigField
-                              key={field.key}
-                              field={field}
-                              value={config[field.key]}
-                              onChange={(value) => handleFieldChange(field.key, value)}
-                              error={errors[field.key]}
-                            />
-                          ))}
-                        </CollapsibleContent>
-                      </Collapsible>
-                    ))}
+                    {Object.entries(fieldsByCategory).map(
+                      ([category, fields]) => (
+                        <Collapsible
+                          key={category}
+                          open={expandedCategories[category]}
+                          onOpenChange={() => toggleCategory(category)}
+                        >
+                          <CollapsibleTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="h-8 w-full justify-between px-2 text-sm font-medium"
+                            >
+                              {category}
+                              {expandedCategories[category] ? (
+                                <ChevronDown className="h-4 w-4" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="mt-2 space-y-4">
+                            {fields.map(field => (
+                              <ConfigField
+                                key={field.key}
+                                field={field}
+                                value={config[field.key]}
+                                onChange={value =>
+                                  handleFieldChange(field.key, value)
+                                }
+                                error={errors[field.key]}
+                              />
+                            ))}
+                          </CollapsibleContent>
+                        </Collapsible>
+                      )
+                    )}
                   </CardContent>
                 </ModernCard>
 
@@ -767,46 +813,78 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div className="flex items-center space-x-2">
-                        <div className={cn(
-                          'w-2 h-2 rounded-full',
-                          widget.registration.features.realTimeUpdates ? 'bg-green-500' : 'bg-gray-300'
-                        )} />
-                        <span className={cn(
-                          widget.registration.features.realTimeUpdates ? 'text-gray-900' : 'text-gray-500'
-                        )}>
+                        <div
+                          className={cn(
+                            'h-2 w-2 rounded-full',
+                            widget.registration.features.realTimeUpdates
+                              ? 'bg-green-500'
+                              : 'bg-gray-300'
+                          )}
+                        />
+                        <span
+                          className={cn(
+                            widget.registration.features.realTimeUpdates
+                              ? 'text-gray-900'
+                              : 'text-gray-500'
+                          )}
+                        >
                           Sanntidsoppdatering
                         </span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <div className={cn(
-                          'w-2 h-2 rounded-full',
-                          widget.registration.features.exportable ? 'bg-green-500' : 'bg-gray-300'
-                        )} />
-                        <span className={cn(
-                          widget.registration.features.exportable ? 'text-gray-900' : 'text-gray-500'
-                        )}>
+                        <div
+                          className={cn(
+                            'h-2 w-2 rounded-full',
+                            widget.registration.features.exportable
+                              ? 'bg-green-500'
+                              : 'bg-gray-300'
+                          )}
+                        />
+                        <span
+                          className={cn(
+                            widget.registration.features.exportable
+                              ? 'text-gray-900'
+                              : 'text-gray-500'
+                          )}
+                        >
                           Eksporterbar
                         </span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <div className={cn(
-                          'w-2 h-2 rounded-full',
-                          widget.registration.features.caching ? 'bg-green-500' : 'bg-gray-300'
-                        )} />
-                        <span className={cn(
-                          widget.registration.features.caching ? 'text-gray-900' : 'text-gray-500'
-                        )}>
+                        <div
+                          className={cn(
+                            'h-2 w-2 rounded-full',
+                            widget.registration.features.caching
+                              ? 'bg-green-500'
+                              : 'bg-gray-300'
+                          )}
+                        />
+                        <span
+                          className={cn(
+                            widget.registration.features.caching
+                              ? 'text-gray-900'
+                              : 'text-gray-500'
+                          )}
+                        >
                           Caching
                         </span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <div className={cn(
-                          'w-2 h-2 rounded-full',
-                          widget.registration.features.responsive ? 'bg-green-500' : 'bg-gray-300'
-                        )} />
-                        <span className={cn(
-                          widget.registration.features.responsive ? 'text-gray-900' : 'text-gray-500'
-                        )}>
+                        <div
+                          className={cn(
+                            'h-2 w-2 rounded-full',
+                            widget.registration.features.responsive
+                              ? 'bg-green-500'
+                              : 'bg-gray-300'
+                          )}
+                        />
+                        <span
+                          className={cn(
+                            widget.registration.features.responsive
+                              ? 'text-gray-900'
+                              : 'text-gray-500'
+                          )}
+                        >
                           Responsiv
                         </span>
                       </div>
@@ -829,8 +907,8 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
           </div>
 
           {/* Footer */}
-          <SheetFooter className="p-6 pt-4 border-t">
-            <div className="flex items-center justify-between w-full">
+          <SheetFooter className="border-t p-6 pt-4">
+            <div className="flex w-full items-center justify-between">
               <div className="flex items-center space-x-2">
                 <ModernButton
                   variant="secondary"
@@ -839,7 +917,7 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
                   onClick={handleReset}
                   disabled={!hasChanges}
                 >
-                  <RotateCcw className="w-4 h-4 mr-2" />
+                  <RotateCcw className="mr-2 h-4 w-4" />
                   Tilbakestill
                 </ModernButton>
                 <ModernButton
@@ -849,7 +927,7 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
                   onClick={handlePreview}
                   disabled={Object.keys(errors).length > 0}
                 >
-                  <Eye className="w-4 h-4 mr-2" />
+                  <Eye className="mr-2 h-4 w-4" />
                   Forhåndsvis
                 </ModernButton>
               </div>
@@ -869,7 +947,7 @@ export const WidgetSettings: React.FC<WidgetSettingsProps> = ({
                   onClick={handleSave}
                   disabled={!hasChanges || Object.keys(errors).length > 0}
                 >
-                  <Save className="w-4 h-4 mr-2" />
+                  <Save className="mr-2 h-4 w-4" />
                   Lagre
                 </ModernButton>
               </div>

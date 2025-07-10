@@ -8,11 +8,14 @@ interface LoadingSpinnerProps {
   className?: string
 }
 
-export function LoadingSpinner({ size = 'md', className }: LoadingSpinnerProps) {
+export function LoadingSpinner({
+  size = 'md',
+  className,
+}: LoadingSpinnerProps) {
   const sizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-8 h-8',
-    lg: 'w-12 h-12'
+    lg: 'w-12 h-12',
   }
 
   return (
@@ -26,7 +29,7 @@ export function LoadingSpinner({ size = 'md', className }: LoadingSpinnerProps) 
       transition={{
         duration: 1,
         repeat: Infinity,
-        ease: 'linear'
+        ease: 'linear',
       }}
     />
   )
@@ -38,18 +41,25 @@ interface LoadingStateProps {
   className?: string
 }
 
-export function LoadingState({ message = 'Laster...', submessage, className }: LoadingStateProps) {
+export function LoadingState({
+  message = 'Laster...',
+  submessage,
+  className,
+}: LoadingStateProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={cn('flex flex-col items-center justify-center gap-4 p-8', className)}
+      className={cn(
+        'flex flex-col items-center justify-center gap-4 p-8',
+        className
+      )}
     >
       <LoadingSpinner size="lg" />
       <div className="text-center">
         <p className="text-lg font-medium text-gray-900">{message}</p>
         {submessage && (
-          <p className="text-sm text-gray-600 mt-1">{submessage}</p>
+          <p className="mt-1 text-sm text-gray-600">{submessage}</p>
         )}
       </div>
     </motion.div>

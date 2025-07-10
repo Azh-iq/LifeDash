@@ -1,8 +1,19 @@
-
 import React from 'react'
-import { getUserWidgetLayouts, createWidgetLayout, updateWidgetLayout, deleteWidgetLayout } from '@/lib/actions/widgets/layouts'
-import { getUserWidgetPreferences, updateWidgetPreferences } from '@/lib/actions/widgets/preferences'
-import type { WidgetLayoutRow, WidgetPreferencesRow, WidgetInstance } from '@/lib/types/widget.types'
+import {
+  getUserWidgetLayouts,
+  createWidgetLayout,
+  updateWidgetLayout,
+  deleteWidgetLayout,
+} from '@/lib/actions/widgets/layouts'
+import {
+  getUserWidgetPreferences,
+  updateWidgetPreferences,
+} from '@/lib/actions/widgets/preferences'
+import type {
+  WidgetLayoutRow,
+  WidgetPreferencesRow,
+  WidgetInstance,
+} from '@/lib/types/widget.types'
 import { useWidgetStore } from './widget-store'
 
 // Extended widget store with database sync
@@ -12,11 +23,11 @@ export interface WidgetStorePersistence {
   saveToDatabase: () => Promise<void>
   syncLayoutsWithDatabase: () => Promise<void>
   syncPreferencesWithDatabase: () => Promise<void>
-  
+
   // Auto-save functionality
   enableAutoSave: () => void
   disableAutoSave: () => void
-  
+
   // Database state
   lastSyncTime: Date | null
   syncInProgress: boolean
@@ -46,7 +57,11 @@ const convertRowToWidget = (row: WidgetLayoutRow): WidgetInstance => ({
 // Convert widget instance to database insert
 const convertWidgetToInsert = (widget: WidgetInstance, layoutId: string) => ({
   layout_name: layoutId,
-  layout_type: layoutId.split('_')[0] as 'dashboard' | 'portfolio' | 'stock' | 'custom',
+  layout_type: layoutId.split('_')[0] as
+    | 'dashboard'
+    | 'portfolio'
+    | 'stock'
+    | 'custom',
   widget_type: widget.type,
   widget_category: widget.category,
   widget_size: widget.size,
@@ -66,36 +81,39 @@ const convertWidgetToInsert = (widget: WidgetInstance, layoutId: string) => ({
 // Add database sync methods to the widget store
 export const useWidgetDatabaseSync = () => {
   const store = useWidgetStore()
-  
+
   const loadFromDatabase = async () => {
     try {
       store.setLoading(true)
       store.setError(null)
-      
+
       // Load layouts
       const layoutsResponse = await getUserWidgetLayouts()
       if (layoutsResponse.success && layoutsResponse.data) {
         // Convert database rows to widget instances
-        const layouts = layoutsResponse.data.reduce((acc, row) => {
-          const layoutId = `${row.layout_type}_${row.stock_symbol || row.portfolio_id || 'default'}`
-          if (!acc[layoutId]) acc[layoutId] = []
-          
-          acc[layoutId].push(convertRowToWidget(row))
-          
-          return acc
-        }, {} as Record<string, WidgetInstance[]>)
-        
+        const layouts = layoutsResponse.data.reduce(
+          (acc, row) => {
+            const layoutId = `${row.layout_type}_${row.stock_symbol || row.portfolio_id || 'default'}`
+            if (!acc[layoutId]) acc[layoutId] = []
+
+            acc[layoutId].push(convertRowToWidget(row))
+
+            return acc
+          },
+          {} as Record<string, WidgetInstance[]>
+        )
+
         // Update store with loaded layouts
         Object.entries(layouts).forEach(([layoutId, widgets]) => {
           store.createLayout(layoutId, widgets)
         })
-        
+
         // Set active layout if none is set
         if (!store.activeLayoutId && Object.keys(layouts).length > 0) {
           store.setActiveLayout(Object.keys(layouts)[0])
         }
       }
-      
+
       // Load preferences
       const prefsResponse = await getUserWidgetPreferences()
       if (prefsResponse.success && prefsResponse.data) {
@@ -112,7 +130,6 @@ export const useWidgetDatabaseSync = () => {
           showPerformanceMetrics: false,
         }
       }
-      
     } catch (error) {
       console.error('Database sync error:', error)
       store.setError('Failed to load data from database')
@@ -120,33 +137,33 @@ export const useWidgetDatabaseSync = () => {
       store.setLoading(false)
     }
   }
-  
+
   const saveToDatabase = async () => {
     try {
       if (!store.activeLayoutId) return
-      
+
       const activeWidgets = store.layouts[store.activeLayoutId] || []
-      
+
       // Save each widget as a layout entry
       for (const widget of activeWidgets) {
         const insertData = convertWidgetToInsert(widget, store.activeLayoutId)
-        
+
         // Try to update first, then create if not exists
         const updateResult = await updateWidgetLayout(widget.id, insertData)
-        
+
         if (!updateResult.success) {
           // Create new layout entry
           const createResult = await createWidgetLayout({
             ...insertData,
             user_id: '', // Will be set by the action
           })
-          
+
           if (!createResult.success) {
             console.error('Failed to save widget:', createResult.error)
           }
         }
       }
-      
+
       // Save preferences
       await updateWidgetPreferences({
         default_theme: store.theme,
@@ -156,18 +173,17 @@ export const useWidgetDatabaseSync = () => {
         grid_gap: store.preferences.defaultGridGap,
         animation_enabled: store.preferences.animationsEnabled,
       })
-      
     } catch (error) {
       console.error('Save to database error:', error)
       store.setError('Failed to save data to database')
     }
   }
-  
+
   const syncLayoutsWithDatabase = async () => {
     // Implementation for syncing layouts
     await loadFromDatabase()
   }
-  
+
   const syncPreferencesWithDatabase = async () => {
     // Implementation for syncing preferences
     const prefsResponse = await getUserWidgetPreferences()
@@ -185,27 +201,27 @@ export const useWidgetDatabaseSync = () => {
       }
     }
   }
-  
+
   // Auto-save functionality
   let autoSaveInterval: NodeJS.Timeout | null = null
-  
+
   const enableAutoSave = () => {
     if (autoSaveInterval) return
-    
+
     autoSaveInterval = setInterval(async () => {
       if (store.preferences.autoSave) {
         await saveToDatabase()
       }
     }, 30000) // Save every 30 seconds
   }
-  
+
   const disableAutoSave = () => {
     if (autoSaveInterval) {
       clearInterval(autoSaveInterval)
       autoSaveInterval = null
     }
   }
-  
+
   return {
     loadFromDatabase,
     saveToDatabase,
@@ -222,17 +238,17 @@ export const useWidgetDatabaseSync = () => {
 // Hook to initialize database sync
 export const useInitializeWidgetSync = () => {
   const sync = useWidgetDatabaseSync()
-  
+
   // Initialize sync on mount
   React.useEffect(() => {
     sync.loadFromDatabase()
     sync.enableAutoSave()
-    
+
     return () => {
       sync.disableAutoSave()
     }
   }, [])
-  
+
   return sync
 }
 

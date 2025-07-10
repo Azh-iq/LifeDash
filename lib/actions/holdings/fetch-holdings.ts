@@ -33,7 +33,9 @@ export interface FetchHoldingsResult {
 /**
  * Fetch user's current holdings for sale transaction filtering
  */
-export async function fetchUserHoldingsForSale(portfolioId?: string): Promise<FetchHoldingsResult> {
+export async function fetchUserHoldingsForSale(
+  portfolioId?: string
+): Promise<FetchHoldingsResult> {
   try {
     const supabase = createClient()
 
@@ -53,7 +55,8 @@ export async function fetchUserHoldingsForSale(portfolioId?: string): Promise<Fe
     // Build query to fetch holdings with stock info
     const { data: holdings, error: fetchError } = await supabase
       .from('holdings')
-      .select(`
+      .select(
+        `
         id,
         quantity,
         average_cost,
@@ -79,7 +82,8 @@ export async function fetchUserHoldingsForSale(portfolioId?: string): Promise<Fe
           platform,
           portfolio_id
         )
-      `)
+      `
+      )
       .eq('user_id', user.id)
       .eq('is_active', true)
       .gt('quantity', 0) // Only holdings with positive quantity
@@ -96,31 +100,35 @@ export async function fetchUserHoldingsForSale(portfolioId?: string): Promise<Fe
 
     // Filter by portfolio if provided
     const filteredHoldings = portfolioId
-      ? holdings?.filter((holding: any) => holding.account?.portfolio_id === portfolioId) || []
+      ? holdings?.filter(
+          (holding: any) => holding.account?.portfolio_id === portfolioId
+        ) || []
       : holdings || []
 
     // Transform holdings data for stock search
-    const holdingsForSale: HoldingForSale[] = filteredHoldings.map((holding: any) => ({
-      id: holding.stock.id,
-      symbol: holding.stock.symbol,
-      name: holding.stock.name,
-      company_name: holding.stock.company_name,
-      exchange: holding.stock.exchange,
-      currency: holding.stock.currency,
-      sector: holding.stock.sector,
-      industry: holding.stock.industry,
-      country: holding.stock.country,
-      is_popular: holding.stock.is_popular,
-      // Holdings-specific data
-      quantity: holding.quantity,
-      average_cost: holding.average_cost,
-      total_cost: holding.total_cost,
-      current_price: holding.current_price,
-      market_value: holding.market_value,
-      account_id: holding.account_id,
-      account_name: holding.account.name,
-      account_platform: holding.account.platform,
-    }))
+    const holdingsForSale: HoldingForSale[] = filteredHoldings.map(
+      (holding: any) => ({
+        id: holding.stock.id,
+        symbol: holding.stock.symbol,
+        name: holding.stock.name,
+        company_name: holding.stock.company_name,
+        exchange: holding.stock.exchange,
+        currency: holding.stock.currency,
+        sector: holding.stock.sector,
+        industry: holding.stock.industry,
+        country: holding.stock.country,
+        is_popular: holding.stock.is_popular,
+        // Holdings-specific data
+        quantity: holding.quantity,
+        average_cost: holding.average_cost,
+        total_cost: holding.total_cost,
+        current_price: holding.current_price,
+        market_value: holding.market_value,
+        account_id: holding.account_id,
+        account_name: holding.account.name,
+        account_platform: holding.account.platform,
+      })
+    )
 
     return {
       success: true,

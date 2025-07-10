@@ -12,9 +12,22 @@ import {
   WidgetThemeConfig,
   norwegianLabels,
 } from './widget-types'
-import { WidgetType, WidgetCategory, WidgetSize, WidgetConfig } from '@/lib/types/widget.types'
-import { widgetRegistry, useWidgetRegistry, getWidgetTheme } from './widget-registry'
-import { useWidgetStore, useWidgetActions, useWidgetPerformance } from './widget-store'
+import {
+  WidgetType,
+  WidgetCategory,
+  WidgetSize,
+  WidgetConfig,
+} from '@/lib/types/widget.types'
+import {
+  widgetRegistry,
+  useWidgetRegistry,
+  getWidgetTheme,
+} from './widget-registry'
+import {
+  useWidgetStore,
+  useWidgetActions,
+  useWidgetPerformance,
+} from './widget-store'
 import { getInvestmentTheme } from '@/lib/themes/modern-themes'
 import { Widget } from '@/components/ui/widget'
 import { Button } from '@/components/ui/button'
@@ -48,10 +61,12 @@ class WidgetFactory {
 
     const id = uuidv4()
     const now = new Date()
-    
+
     // Determine grid size based on widget size
-    const gridSize = this.getGridSizeForWidgetSize(options.size || registration.recommendedSize)
-    
+    const gridSize = this.getGridSizeForWidgetSize(
+      options.size || registration.recommendedSize
+    )
+
     // Create widget instance
     const widget: WidgetInstance = {
       id,
@@ -77,7 +92,8 @@ class WidgetFactory {
         },
         config: { ...registration.defaultConfig, ...options.config },
         title: options.title || registration.norwegianLabels.title,
-        description: options.description || registration.norwegianLabels.description,
+        description:
+          options.description || registration.norwegianLabels.description,
         userId: options.userId,
         portfolioId: options.portfolioId,
         stockSymbol: options.stockSymbol,
@@ -102,7 +118,17 @@ class WidgetFactory {
   }
 
   // Create widget props
-  private createWidgetProps(baseProps: Omit<BaseWidgetComponentProps, 'onRefresh' | 'onExport' | 'onConfigure' | 'onDelete' | 'onMove' | 'onResize'>): BaseWidgetComponentProps {
+  private createWidgetProps(
+    baseProps: Omit<
+      BaseWidgetComponentProps,
+      | 'onRefresh'
+      | 'onExport'
+      | 'onConfigure'
+      | 'onDelete'
+      | 'onMove'
+      | 'onResize'
+    >
+  ): BaseWidgetComponentProps {
     return {
       ...baseProps,
       onRefresh: this.createRefreshHandler(baseProps.id),
@@ -122,7 +148,7 @@ class WidgetFactory {
         // Implement refresh logic here
         await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate async operation
         const endTime = Date.now()
-        
+
         // Track performance
         this.trackPerformance(widgetId, 'refresh', endTime - startTime)
       } catch (error) {
@@ -139,7 +165,7 @@ class WidgetFactory {
         // Implement export logic here
         await new Promise(resolve => setTimeout(resolve, 500)) // Simulate async operation
         const endTime = Date.now()
-        
+
         // Track performance
         this.trackPerformance(widgetId, 'export', endTime - startTime)
       } catch (error) {
@@ -178,7 +204,10 @@ class WidgetFactory {
   }
 
   // Utility methods
-  private getGridSizeForWidgetSize(size: WidgetSize): { rows: number; columns: number } {
+  private getGridSizeForWidgetSize(size: WidgetSize): {
+    rows: number
+    columns: number
+  } {
     switch (size) {
       case 'SMALL':
         return { rows: 1, columns: 1 }
@@ -195,21 +224,25 @@ class WidgetFactory {
 
   private validateWidget(widget: WidgetInstance): WidgetValidationResult {
     const cacheKey = `${widget.type}-${JSON.stringify(widget.props.config)}`
-    
+
     if (this.validationCache.has(cacheKey)) {
       return this.validationCache.get(cacheKey)!
     }
 
     const result = widgetRegistry.validate(widget.type, widget.props.config)
     this.validationCache.set(cacheKey, result)
-    
+
     return result
   }
 
-  private trackPerformance(widgetId: string, operation: string, duration: number) {
+  private trackPerformance(
+    widgetId: string,
+    operation: string,
+    duration: number
+  ) {
     const existing = this.performanceTracker.get(widgetId)
     const now = new Date()
-    
+
     const metrics: WidgetPerformanceMetrics = {
       widgetId,
       type: 'CUSTOM_WIDGET',
@@ -218,39 +251,58 @@ class WidgetFactory {
       updateCount: (existing?.updateCount || 0) + 1,
       memoryUsage: existing?.memoryUsage || 0,
       viewCount: existing?.viewCount || 0,
-      interactionCount: operation === 'interaction' ? (existing?.interactionCount || 0) + 1 : existing?.interactionCount || 0,
-      dataLoadTime: operation === 'dataLoad' ? duration : existing?.dataLoadTime || 0,
-      dataUpdateCount: operation === 'dataUpdate' ? (existing?.dataUpdateCount || 0) + 1 : existing?.dataUpdateCount || 0,
+      interactionCount:
+        operation === 'interaction'
+          ? (existing?.interactionCount || 0) + 1
+          : existing?.interactionCount || 0,
+      dataLoadTime:
+        operation === 'dataLoad' ? duration : existing?.dataLoadTime || 0,
+      dataUpdateCount:
+        operation === 'dataUpdate'
+          ? (existing?.dataUpdateCount || 0) + 1
+          : existing?.dataUpdateCount || 0,
       errorCount: existing?.errorCount || 0,
       created: existing?.created || now,
       lastUpdated: now,
     }
-    
+
     this.performanceTracker.set(widgetId, metrics)
   }
 
   // Factory methods for different widget types
-  public createHeroPortfolioChart(options: Omit<WidgetFactoryOptions, 'type'>): WidgetInstance {
+  public createHeroPortfolioChart(
+    options: Omit<WidgetFactoryOptions, 'type'>
+  ): WidgetInstance {
     return this.createWidget({ ...options, type: 'HERO_PORTFOLIO_CHART' })
   }
 
-  public createCategoryMiniChart(options: Omit<WidgetFactoryOptions, 'type'>): WidgetInstance {
+  public createCategoryMiniChart(
+    options: Omit<WidgetFactoryOptions, 'type'>
+  ): WidgetInstance {
     return this.createWidget({ ...options, type: 'CATEGORY_MINI_CHART' })
   }
 
-  public createStockPerformanceChart(options: Omit<WidgetFactoryOptions, 'type'>): WidgetInstance {
+  public createStockPerformanceChart(
+    options: Omit<WidgetFactoryOptions, 'type'>
+  ): WidgetInstance {
     return this.createWidget({ ...options, type: 'STOCK_PERFORMANCE_CHART' })
   }
 
-  public createHoldingsTable(options: Omit<WidgetFactoryOptions, 'type'>): WidgetInstance {
+  public createHoldingsTable(
+    options: Omit<WidgetFactoryOptions, 'type'>
+  ): WidgetInstance {
     return this.createWidget({ ...options, type: 'HOLDINGS_TABLE_RICH' })
   }
 
-  public createMetricsGrid(options: Omit<WidgetFactoryOptions, 'type'>): WidgetInstance {
+  public createMetricsGrid(
+    options: Omit<WidgetFactoryOptions, 'type'>
+  ): WidgetInstance {
     return this.createWidget({ ...options, type: 'METRICS_GRID' })
   }
 
-  public createActivityFeed(options: Omit<WidgetFactoryOptions, 'type'>): WidgetInstance {
+  public createActivityFeed(
+    options: Omit<WidgetFactoryOptions, 'type'>
+  ): WidgetInstance {
     return this.createWidget({ ...options, type: 'ACTIVITY_FEED' })
   }
 
@@ -268,14 +320,20 @@ interface WidgetRendererProps {
   onError?: (error: Error) => void
 }
 
-export const WidgetRenderer: React.FC<WidgetRendererProps> = ({ widget, className, onError }) => {
+export const WidgetRenderer: React.FC<WidgetRendererProps> = ({
+  widget,
+  className,
+  onError,
+}) => {
   const [renderError, setRenderError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const { recordRenderTime, recordInteraction } = useWidgetPerformance(widget.id)
-  
+  const { recordRenderTime, recordInteraction } = useWidgetPerformance(
+    widget.id
+  )
+
   const handleRender = useCallback(() => {
     const startTime = Date.now()
-    
+
     try {
       // Simulate render time tracking
       setTimeout(() => {
@@ -283,7 +341,8 @@ export const WidgetRenderer: React.FC<WidgetRendererProps> = ({ widget, classNam
         recordRenderTime(endTime - startTime)
       }, 0)
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error'
       setRenderError(errorMessage)
       onError?.(error instanceof Error ? error : new Error(errorMessage))
     }
@@ -321,7 +380,7 @@ export const WidgetRenderer: React.FC<WidgetRendererProps> = ({ widget, classNam
   const themeConfig = getWidgetTheme(widget.category)
 
   return (
-    <div 
+    <div
       className={cn('widget-container', className)}
       onClick={handleInteraction}
       style={{
@@ -331,7 +390,10 @@ export const WidgetRenderer: React.FC<WidgetRendererProps> = ({ widget, classNam
     >
       <Widget
         title={widget.props.title || widget.registration.norwegianLabels.title}
-        description={widget.props.description || widget.registration.norwegianLabels.description}
+        description={
+          widget.props.description ||
+          widget.registration.norwegianLabels.description
+        }
         category={widget.category}
         size={widget.size}
         loading={isLoading}
@@ -357,14 +419,15 @@ interface WidgetCatalogProps {
   className?: string
 }
 
-export const WidgetCatalog: React.FC<WidgetCatalogProps> = ({ 
-  category, 
-  onWidgetSelect, 
-  className 
+export const WidgetCatalog: React.FC<WidgetCatalogProps> = ({
+  category,
+  onWidgetSelect,
+  className,
 }) => {
   const { state } = useWidgetRegistry()
-  const [selectedCategory, setSelectedCategory] = useState<WidgetCategory | null>(category || null)
-  
+  const [selectedCategory, setSelectedCategory] =
+    useState<WidgetCategory | null>(category || null)
+
   const widgets = useMemo(() => {
     if (selectedCategory) {
       return state.categories.get(selectedCategory) || []
@@ -396,24 +459,29 @@ export const WidgetCatalog: React.FC<WidgetCatalogProps> = ({
               size="sm"
               onClick={() => setSelectedCategory(cat)}
               style={{
-                backgroundColor: selectedCategory === cat ? theme.primary : undefined,
+                backgroundColor:
+                  selectedCategory === cat ? theme.primary : undefined,
                 borderColor: theme.primary,
               }}
             >
-              {norwegianLabels[cat.toLowerCase() as keyof typeof norwegianLabels]}
+              {
+                norwegianLabels[
+                  cat.toLowerCase() as keyof typeof norwegianLabels
+                ]
+              }
             </Button>
           )
         })}
       </div>
 
       {/* Widget grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {widgets.map(registration => {
           const theme = getWidgetTheme(registration.category)
           return (
-            <Card 
+            <Card
               key={registration.type}
-              className="cursor-pointer hover:shadow-lg transition-shadow"
+              className="cursor-pointer transition-shadow hover:shadow-lg"
               onClick={() => onWidgetSelect?.(registration.type)}
             >
               <CardHeader className="pb-3">
@@ -421,21 +489,29 @@ export const WidgetCatalog: React.FC<WidgetCatalogProps> = ({
                   <CardTitle className="text-base">
                     {registration.displayName}
                   </CardTitle>
-                  <Badge 
+                  <Badge
                     variant="secondary"
                     style={{ backgroundColor: theme.primary, color: 'white' }}
                   >
-                    {norwegianLabels[registration.category.toLowerCase() as keyof typeof norwegianLabels]}
+                    {
+                      norwegianLabels[
+                        registration.category.toLowerCase() as keyof typeof norwegianLabels
+                      ]
+                    }
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-600 mb-3">
+                <p className="mb-3 text-sm text-gray-600">
                   {registration.description}
                 </p>
                 <div className="flex items-center justify-between text-xs text-gray-500">
                   <span>
-                    {norwegianLabels[registration.recommendedSize.toLowerCase() as keyof typeof norwegianLabels]}
+                    {
+                      norwegianLabels[
+                        registration.recommendedSize.toLowerCase() as keyof typeof norwegianLabels
+                      ]
+                    }
                   </span>
                   <div className="flex gap-1">
                     {registration.features.exportable && (
@@ -457,7 +533,7 @@ export const WidgetCatalog: React.FC<WidgetCatalogProps> = ({
       </div>
 
       {widgets.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
+        <div className="py-8 text-center text-gray-500">
           <p>Ingen widgets funnet for denne kategorien.</p>
         </div>
       )}
@@ -494,9 +570,7 @@ export const WidgetCreator: React.FC<WidgetCreatorProps> = ({
   if (!registration) {
     return (
       <Alert>
-        <AlertDescription>
-          Widget type {type} not found
-        </AlertDescription>
+        <AlertDescription>Widget type {type} not found</AlertDescription>
       </Alert>
     )
   }
@@ -504,7 +578,7 @@ export const WidgetCreator: React.FC<WidgetCreatorProps> = ({
   const handleCreate = async () => {
     setIsCreating(true)
     setError(null)
-    
+
     try {
       const widget = factory.createWidget({
         type,
@@ -515,7 +589,7 @@ export const WidgetCreator: React.FC<WidgetCreatorProps> = ({
         portfolioId,
         stockSymbol,
       })
-      
+
       onWidgetCreate?.(widget)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
@@ -525,7 +599,7 @@ export const WidgetCreator: React.FC<WidgetCreatorProps> = ({
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="mx-auto w-full max-w-md">
       <CardHeader>
         <CardTitle>Lag ny widget</CardTitle>
         <p className="text-sm text-gray-600">
@@ -534,39 +608,33 @@ export const WidgetCreator: React.FC<WidgetCreatorProps> = ({
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">
-            Tittel
-          </label>
+          <label className="mb-1 block text-sm font-medium">Tittel</label>
           <input
             type="text"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={e => setTitle(e.target.value)}
             placeholder={registration.norwegianLabels.title}
-            className="w-full px-3 py-2 border rounded-md"
+            className="w-full rounded-md border px-3 py-2"
           />
         </div>
-        
+
         <div>
-          <label className="block text-sm font-medium mb-1">
-            Beskrivelse
-          </label>
+          <label className="mb-1 block text-sm font-medium">Beskrivelse</label>
           <textarea
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={e => setDescription(e.target.value)}
             placeholder={registration.norwegianLabels.description}
             rows={3}
-            className="w-full px-3 py-2 border rounded-md"
+            className="w-full rounded-md border px-3 py-2"
           />
         </div>
-        
+
         <div>
-          <label className="block text-sm font-medium mb-1">
-            Størrelse
-          </label>
+          <label className="mb-1 block text-sm font-medium">Størrelse</label>
           <select
             value={size}
-            onChange={(e) => setSize(e.target.value as WidgetSize)}
-            className="w-full px-3 py-2 border rounded-md"
+            onChange={e => setSize(e.target.value as WidgetSize)}
+            className="w-full rounded-md border px-3 py-2"
           >
             <option value="SMALL">Liten</option>
             <option value="MEDIUM">Medium</option>
@@ -574,26 +642,22 @@ export const WidgetCreator: React.FC<WidgetCreatorProps> = ({
             <option value="HERO">Hero</option>
           </select>
         </div>
-        
+
         {error && (
           <Alert>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        
+
         <div className="flex gap-2 pt-2">
-          <Button 
+          <Button
             onClick={handleCreate}
             disabled={isCreating}
             className="flex-1"
           >
             {isCreating ? 'Lager...' : 'Lag Widget'}
           </Button>
-          <Button 
-            variant="outline"
-            onClick={onCancel}
-            disabled={isCreating}
-          >
+          <Button variant="outline" onClick={onCancel} disabled={isCreating}>
             Avbryt
           </Button>
         </div>
@@ -606,25 +670,29 @@ export const WidgetCreator: React.FC<WidgetCreatorProps> = ({
 export const useWidgetFactory = () => {
   const factory = useMemo(() => WidgetFactory.getInstance(), [])
   const actions = useWidgetActions()
-  
-  const createAndAddWidget = useCallback((layoutId: string, options: WidgetFactoryOptions) => {
-    try {
-      const widget = factory.createWidget(options)
-      actions.addWidget(layoutId, widget)
-      return widget
-    } catch (error) {
-      console.error('Failed to create widget:', error)
-      throw error
-    }
-  }, [factory, actions])
-  
+
+  const createAndAddWidget = useCallback(
+    (layoutId: string, options: WidgetFactoryOptions) => {
+      try {
+        const widget = factory.createWidget(options)
+        actions.addWidget(layoutId, widget)
+        return widget
+      } catch (error) {
+        console.error('Failed to create widget:', error)
+        throw error
+      }
+    },
+    [factory, actions]
+  )
+
   return {
     factory,
     createWidget: factory.createWidget.bind(factory),
     createAndAddWidget,
     createHeroPortfolioChart: factory.createHeroPortfolioChart.bind(factory),
     createCategoryMiniChart: factory.createCategoryMiniChart.bind(factory),
-    createStockPerformanceChart: factory.createStockPerformanceChart.bind(factory),
+    createStockPerformanceChart:
+      factory.createStockPerformanceChart.bind(factory),
     createHoldingsTable: factory.createHoldingsTable.bind(factory),
     createMetricsGrid: factory.createMetricsGrid.bind(factory),
     createActivityFeed: factory.createActivityFeed.bind(factory),

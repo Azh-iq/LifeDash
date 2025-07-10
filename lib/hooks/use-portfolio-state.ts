@@ -259,9 +259,12 @@ export function usePortfolioState(
       setHoldingsError(null)
 
       const supabase = createClient()
-      
+
       // First, get the current user to ensure proper RLS filtering
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser()
       if (userError || !user) {
         throw new Error('Authentication required')
       }
@@ -298,26 +301,25 @@ export function usePortfolioState(
       }
 
       // Filter by portfolio_id after the query since we can't use nested filters on joins
-      const filteredHoldings = holdingsData?.filter(
-        (holding: any) => holding.accounts?.portfolio_id === portfolioId
-      ) || []
+      const filteredHoldings =
+        holdingsData?.filter(
+          (holding: any) => holding.accounts?.portfolio_id === portfolioId
+        ) || []
 
       console.log('🔍 Debug Holdings Query:', {
         portfolioId,
         totalHoldings: holdingsData?.length || 0,
         filteredHoldings: filteredHoldings.length,
-        sampleData: filteredHoldings.slice(0, 3)
+        sampleData: filteredHoldings.slice(0, 3),
       })
 
       if (filteredHoldings.length > 0) {
         const enhancedHoldings: HoldingWithMetrics[] = filteredHoldings.map(
           (holding: any) => {
             const costBasis = holding.average_cost || 0
-            const currentPrice =
-              holding.stocks?.current_price || costBasis
+            const currentPrice = holding.stocks?.current_price || costBasis
             const currentValue = holding.quantity * currentPrice
-            const gainLoss =
-              currentValue - holding.quantity * costBasis
+            const gainLoss = currentValue - holding.quantity * costBasis
             const gainLossPercent =
               costBasis > 0
                 ? (gainLoss / (holding.quantity * costBasis)) * 100
@@ -503,12 +505,15 @@ export function usePortfolioState(
       totalValue > 0 ? (dailyChange / totalValue) * 100 : 0
     const weeklyChange = 0 // Will be calculated from historical data
     const monthlyChange = 0 // Will be calculated from historical data
-    
+
     // Calculate volatility based on price changes
-    const volatility = holdingsWithWeights.length > 0 ? 
-      holdingsWithWeights.reduce((sum, holding) => 
-        sum + Math.abs(holding.daily_change_percent || 0), 0
-      ) / holdingsWithWeights.length : 0
+    const volatility =
+      holdingsWithWeights.length > 0
+        ? holdingsWithWeights.reduce(
+            (sum, holding) => sum + Math.abs(holding.daily_change_percent || 0),
+            0
+          ) / holdingsWithWeights.length
+        : 0
 
     return {
       totalValue,

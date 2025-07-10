@@ -2,9 +2,20 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Search, Building2, TrendingUp, Loader2, Star, Package, Wallet } from 'lucide-react'
+import {
+  Search,
+  Building2,
+  TrendingUp,
+  Loader2,
+  Star,
+  Package,
+  Wallet,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { fetchUserHoldingsForSale, type HoldingForSale } from '@/lib/actions/holdings/fetch-holdings'
+import {
+  fetchUserHoldingsForSale,
+  type HoldingForSale,
+} from '@/lib/actions/holdings/fetch-holdings'
 
 export interface StockSearchResult {
   id: string
@@ -132,14 +143,15 @@ export function StockSearch({
       setShowPopular(false)
       setShowHoldings(false)
       setIsLoading(true)
-      
+
       try {
         if (holdingsOnly) {
           // Filter holdings by search term
-          const filtered = userHoldings.filter(holding => 
-            holding.symbol.toLowerCase().includes(term.toLowerCase()) ||
-            holding.name.toLowerCase().includes(term.toLowerCase()) ||
-            holding.company_name.toLowerCase().includes(term.toLowerCase())
+          const filtered = userHoldings.filter(
+            holding =>
+              holding.symbol.toLowerCase().includes(term.toLowerCase()) ||
+              holding.name.toLowerCase().includes(term.toLowerCase()) ||
+              holding.company_name.toLowerCase().includes(term.toLowerCase())
           )
           setResults(filtered)
         } else {
@@ -229,7 +241,11 @@ export function StockSearch({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen) return
 
-    const currentResults = showPopular ? popularStocks : showHoldings ? userHoldings : results
+    const currentResults = showPopular
+      ? popularStocks
+      : showHoldings
+        ? userHoldings
+        : results
     const maxIndex = currentResults.length - 1
 
     switch (e.key) {
@@ -528,16 +544,14 @@ export function StockSearch({
           ) : !isLoading && searchTerm.length >= 1 ? (
             <div className="px-4 py-6 text-center">
               <div className="mb-2 text-sm text-gray-500">
-                {holdingsOnly 
-                  ? `Ingen beholdninger funnet for "${searchTerm}"` 
-                  : `Ingen aksjer funnet for "${searchTerm}"`
-                }
+                {holdingsOnly
+                  ? `Ingen beholdninger funnet for "${searchTerm}"`
+                  : `Ingen aksjer funnet for "${searchTerm}"`}
               </div>
               <div className="text-xs text-gray-400">
                 {holdingsOnly
                   ? 'Prøv å søke på symbol eller navn på aksjer du eier'
-                  : 'Prøv søk på symbol (f.eks. AAPL) eller bedriftsnavn (f.eks. Apple)'
-                }
+                  : 'Prøv søk på symbol (f.eks. AAPL) eller bedriftsnavn (f.eks. Apple)'}
               </div>
             </div>
           ) : isLoading ? (

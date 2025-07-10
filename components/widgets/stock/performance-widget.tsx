@@ -19,27 +19,37 @@ import {
   Line,
   ReferenceLine,
 } from 'recharts'
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Target, 
-  Award, 
-  Calendar, 
-  BarChart3, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Target,
+  Award,
+  Calendar,
+  BarChart3,
   PieChart as PieChartIcon,
   Activity,
   Compare,
   Percent,
   DollarSign,
   Users,
-  Globe
+  Globe,
 } from 'lucide-react'
 import { StockWidget } from '@/components/ui/widget'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { formatCurrency, formatPercentage, formatDate } from '@/lib/utils/format'
+import {
+  formatCurrency,
+  formatPercentage,
+  formatDate,
+} from '@/lib/utils/format'
 import { cn } from '@/lib/utils'
 
 export interface PerformanceData {
@@ -100,11 +110,11 @@ const CHART_COLORS = {
   neutral: '#6b7280',
 } as const
 
-function PerformanceChart({ 
-  data, 
-  type, 
-  currency = 'NOK' 
-}: { 
+function PerformanceChart({
+  data,
+  type,
+  currency = 'NOK',
+}: {
   data: PerformanceData[]
   type: 'returns' | 'comparison'
   currency?: string
@@ -118,7 +128,10 @@ function PerformanceChart({
           </p>
           {payload.map((entry: any, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {entry.name}: {type === 'returns' ? formatPercentage(entry.value) : formatCurrency(entry.value, currency)}
+              {entry.name}:{' '}
+              {type === 'returns'
+                ? formatPercentage(entry.value)
+                : formatCurrency(entry.value, currency)}
             </p>
           ))}
         </div>
@@ -130,26 +143,60 @@ function PerformanceChart({
   if (type === 'returns') {
     return (
       <ResponsiveContainer width="100%" height={300}>
-        <AreaChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+        <AreaChart
+          data={data}
+          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+        >
           <defs>
-            <linearGradient id="stockReturnGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={CHART_COLORS.stock} stopOpacity={0.3} />
-              <stop offset="100%" stopColor={CHART_COLORS.stock} stopOpacity={0.05} />
+            <linearGradient
+              id="stockReturnGradient"
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
+              <stop
+                offset="0%"
+                stopColor={CHART_COLORS.stock}
+                stopOpacity={0.3}
+              />
+              <stop
+                offset="100%"
+                stopColor={CHART_COLORS.stock}
+                stopOpacity={0.05}
+              />
             </linearGradient>
-            <linearGradient id="portfolioReturnGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={CHART_COLORS.portfolio} stopOpacity={0.3} />
-              <stop offset="100%" stopColor={CHART_COLORS.portfolio} stopOpacity={0.05} />
+            <linearGradient
+              id="portfolioReturnGradient"
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
+              <stop
+                offset="0%"
+                stopColor={CHART_COLORS.portfolio}
+                stopOpacity={0.3}
+              />
+              <stop
+                offset="100%"
+                stopColor={CHART_COLORS.portfolio}
+                stopOpacity={0.05}
+              />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
-          <XAxis 
-            dataKey="date" 
+          <CartesianGrid
+            strokeDasharray="3 3"
+            className="stroke-gray-200 dark:stroke-gray-700"
+          />
+          <XAxis
+            dataKey="date"
             tick={{ fontSize: 12 }}
             className="text-gray-500 dark:text-gray-400"
             axisLine={false}
             tickLine={false}
           />
-          <YAxis 
+          <YAxis
             tick={{ fontSize: 12 }}
             className="text-gray-500 dark:text-gray-400"
             axisLine={false}
@@ -181,21 +228,29 @@ function PerformanceChart({
 
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
-        <XAxis 
-          dataKey="date" 
+      <LineChart
+        data={data}
+        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+      >
+        <CartesianGrid
+          strokeDasharray="3 3"
+          className="stroke-gray-200 dark:stroke-gray-700"
+        />
+        <XAxis
+          dataKey="date"
           tick={{ fontSize: 12 }}
           className="text-gray-500 dark:text-gray-400"
           axisLine={false}
           tickLine={false}
         />
-        <YAxis 
+        <YAxis
           tick={{ fontSize: 12 }}
           className="text-gray-500 dark:text-gray-400"
           axisLine={false}
           tickLine={false}
-          tickFormatter={value => formatCurrency(value, currency, { minimumFractionDigits: 0 })}
+          tickFormatter={value =>
+            formatCurrency(value, currency, { minimumFractionDigits: 0 })
+          }
         />
         <Tooltip content={<CustomTooltip />} />
         <Line
@@ -227,7 +282,13 @@ function PerformanceChart({
   )
 }
 
-function MetricsGrid({ metrics, currency = 'NOK' }: { metrics: PerformanceMetrics, currency?: string }) {
+function MetricsGrid({
+  metrics,
+  currency = 'NOK',
+}: {
+  metrics: PerformanceMetrics
+  currency?: string
+}) {
   const metricCards = [
     {
       title: 'Total avkastning',
@@ -256,7 +317,12 @@ function MetricsGrid({ metrics, currency = 'NOK' }: { metrics: PerformanceMetric
       title: 'Sharpe Ratio',
       value: metrics.sharpeRatio.toFixed(2),
       icon: <Award className="h-4 w-4" />,
-      color: metrics.sharpeRatio > 1 ? 'green' : metrics.sharpeRatio > 0.5 ? 'orange' : 'red',
+      color:
+        metrics.sharpeRatio > 1
+          ? 'green'
+          : metrics.sharpeRatio > 0.5
+            ? 'orange'
+            : 'red',
       tooltip: 'Risikojustert avkastning',
     },
     {
@@ -290,23 +356,33 @@ function MetricsGrid({ metrics, currency = 'NOK' }: { metrics: PerformanceMetric
   ]
 
   const colors = {
-    green: 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400',
+    green:
+      'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400',
     red: 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400',
     blue: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400',
-    orange: 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400',
+    orange:
+      'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400',
     gray: 'bg-gray-50 dark:bg-gray-900/20 text-gray-600 dark:text-gray-400',
   }
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {metricCards.map((metric) => (
-        <Card key={metric.title} className="transition-all duration-200 hover:shadow-md">
+      {metricCards.map(metric => (
+        <Card
+          key={metric.title}
+          className="transition-all duration-200 hover:shadow-md"
+        >
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">
                 {metric.title}
               </CardTitle>
-              <div className={cn('rounded-lg p-2', colors[metric.color as keyof typeof colors])}>
+              <div
+                className={cn(
+                  'rounded-lg p-2',
+                  colors[metric.color as keyof typeof colors]
+                )}
+              >
                 {metric.icon}
               </div>
             </div>
@@ -322,13 +398,21 @@ function MetricsGrid({ metrics, currency = 'NOK' }: { metrics: PerformanceMetric
                 ) : metric.change < 0 ? (
                   <TrendingDown className="h-3 w-3 text-red-500" />
                 ) : null}
-                <span className={cn(
-                  'font-medium',
-                  metric.change > 0 ? 'text-green-600 dark:text-green-400' : 
-                  metric.change < 0 ? 'text-red-600 dark:text-red-400' : 
-                  'text-gray-500 dark:text-gray-400'
-                )}>
-                  {metric.change > 0 ? 'Positiv' : metric.change < 0 ? 'Negativ' : 'Nøytral'}
+                <span
+                  className={cn(
+                    'font-medium',
+                    metric.change > 0
+                      ? 'text-green-600 dark:text-green-400'
+                      : metric.change < 0
+                        ? 'text-red-600 dark:text-red-400'
+                        : 'text-gray-500 dark:text-gray-400'
+                  )}
+                >
+                  {metric.change > 0
+                    ? 'Positiv'
+                    : metric.change < 0
+                      ? 'Negativ'
+                      : 'Nøytral'}
                 </span>
               </div>
             )}
@@ -339,7 +423,13 @@ function MetricsGrid({ metrics, currency = 'NOK' }: { metrics: PerformanceMetric
   )
 }
 
-function RiskAnalysis({ metrics, currency = 'NOK' }: { metrics: PerformanceMetrics, currency?: string }) {
+function RiskAnalysis({
+  metrics,
+  currency = 'NOK',
+}: {
+  metrics: PerformanceMetrics
+  currency?: string
+}) {
   const riskMetrics = [
     {
       title: 'Beste dag',
@@ -368,14 +458,22 @@ function RiskAnalysis({ metrics, currency = 'NOK' }: { metrics: PerformanceMetri
   ]
 
   const profitLossData = [
-    { name: 'Dager i gevinst', value: metrics.daysInProfit, color: CHART_COLORS.profit },
-    { name: 'Dager i tap', value: metrics.daysInLoss, color: CHART_COLORS.loss },
+    {
+      name: 'Dager i gevinst',
+      value: metrics.daysInProfit,
+      color: CHART_COLORS.profit,
+    },
+    {
+      name: 'Dager i tap',
+      value: metrics.daysInLoss,
+      color: CHART_COLORS.loss,
+    },
   ]
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {riskMetrics.map((metric) => (
+        {riskMetrics.map(metric => (
           <Card key={metric.title}>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">
@@ -383,13 +481,17 @@ function RiskAnalysis({ metrics, currency = 'NOK' }: { metrics: PerformanceMetri
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className={cn(
-                'text-2xl font-bold',
-                metric.color === 'green' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-              )}>
+              <div
+                className={cn(
+                  'text-2xl font-bold',
+                  metric.color === 'green'
+                    ? 'text-green-600 dark:text-green-400'
+                    : 'text-red-600 dark:text-red-400'
+                )}
+              >
                 {metric.value}
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 {metric.description}
               </p>
             </CardContent>
@@ -418,13 +520,15 @@ function RiskAnalysis({ metrics, currency = 'NOK' }: { metrics: PerformanceMetri
                     outerRadius={100}
                     paddingAngle={5}
                     dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }) =>
+                      `${name} ${(percent * 100).toFixed(0)}%`
+                    }
                   >
                     {profitLossData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => [`${value} dager`, '']} />
+                  <Tooltip formatter={value => [`${value} dager`, '']} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -441,45 +545,56 @@ function RiskAnalysis({ metrics, currency = 'NOK' }: { metrics: PerformanceMetri
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <div className="flex justify-between text-sm mb-2">
+              <div className="mb-2 flex justify-between text-sm">
                 <span>Profit Factor</span>
-                <span className="font-medium">{metrics.profitFactor.toFixed(2)}</span>
+                <span className="font-medium">
+                  {metrics.profitFactor.toFixed(2)}
+                </span>
               </div>
-              <Progress 
-                value={Math.min(metrics.profitFactor * 50, 100)} 
+              <Progress
+                value={Math.min(metrics.profitFactor * 50, 100)}
                 className="h-2"
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {metrics.profitFactor > 1 ? 'Lønnsom strategi' : 'Ulønnsom strategi'}
-              </p>
-            </div>
-            
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>Vinnrate</span>
-                <span className="font-medium">{formatPercentage(metrics.winRate)}</span>
-              </div>
-              <Progress 
-                value={metrics.winRate} 
-                className="h-2"
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {metrics.winRate > 50 ? 'Over 50% vinnrate' : 'Under 50% vinnrate'}
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                {metrics.profitFactor > 1
+                  ? 'Lønnsom strategi'
+                  : 'Ulønnsom strategi'}
               </p>
             </div>
 
             <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>Sharpe Ratio</span>
-                <span className="font-medium">{metrics.sharpeRatio.toFixed(2)}</span>
+              <div className="mb-2 flex justify-between text-sm">
+                <span>Vinnrate</span>
+                <span className="font-medium">
+                  {formatPercentage(metrics.winRate)}
+                </span>
               </div>
-              <Progress 
-                value={Math.min(Math.max(metrics.sharpeRatio * 25, 0), 100)} 
+              <Progress value={metrics.winRate} className="h-2" />
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                {metrics.winRate > 50
+                  ? 'Over 50% vinnrate'
+                  : 'Under 50% vinnrate'}
+              </p>
+            </div>
+
+            <div>
+              <div className="mb-2 flex justify-between text-sm">
+                <span>Sharpe Ratio</span>
+                <span className="font-medium">
+                  {metrics.sharpeRatio.toFixed(2)}
+                </span>
+              </div>
+              <Progress
+                value={Math.min(Math.max(metrics.sharpeRatio * 25, 0), 100)}
                 className="h-2"
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {metrics.sharpeRatio > 1 ? 'Utmerket' : 
-                 metrics.sharpeRatio > 0.5 ? 'Bra' : 'Dårlig'} risikojustert avkastning
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                {metrics.sharpeRatio > 1
+                  ? 'Utmerket'
+                  : metrics.sharpeRatio > 0.5
+                    ? 'Bra'
+                    : 'Dårlig'}{' '}
+                risikojustert avkastning
               </p>
             </div>
           </CardContent>
@@ -501,7 +616,9 @@ export function PerformanceWidget({
   onRefresh,
   className,
 }: PerformanceWidgetProps) {
-  const [selectedView, setSelectedView] = useState<'returns' | 'comparison' | 'metrics' | 'risk'>('returns')
+  const [selectedView, setSelectedView] = useState<
+    'returns' | 'comparison' | 'metrics' | 'risk'
+  >('returns')
 
   const chartData = useMemo(() => {
     return performanceData.map(item => ({
@@ -539,7 +656,7 @@ export function PerformanceWidget({
                     : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
                 )}
               >
-                <view.icon className="h-3 w-3 mr-1" />
+                <view.icon className="mr-1 h-3 w-3" />
                 {view.label}
               </Button>
             ))}
@@ -583,10 +700,14 @@ export function PerformanceWidget({
                     </div>
                   </div>
                 </div>
-                <PerformanceChart data={chartData} type="returns" currency={currency} />
+                <PerformanceChart
+                  data={chartData}
+                  type="returns"
+                  currency={currency}
+                />
               </div>
             )}
-            
+
             {selectedView === 'comparison' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -608,10 +729,14 @@ export function PerformanceWidget({
                     </div>
                   </div>
                 </div>
-                <PerformanceChart data={chartData} type="comparison" currency={currency} />
+                <PerformanceChart
+                  data={chartData}
+                  type="comparison"
+                  currency={currency}
+                />
               </div>
             )}
-            
+
             {selectedView === 'metrics' && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -620,7 +745,7 @@ export function PerformanceWidget({
                 <MetricsGrid metrics={metrics} currency={currency} />
               </div>
             )}
-            
+
             {selectedView === 'risk' && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">

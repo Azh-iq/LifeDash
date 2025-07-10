@@ -98,13 +98,13 @@ export const validateWidgetLayout = (layoutId: string) => {
   // Validate entire widget layout
   const store = useWidgetStore.getState()
   const widgets = store.layouts[layoutId] || []
-  
+
   const validationResults = widgets.map(widget => ({
     widgetId: widget.id,
     valid: widget.isValid,
     errors: widget.validationErrors,
   }))
-  
+
   return {
     layoutId,
     totalWidgets: widgets.length,
@@ -119,14 +119,14 @@ export const calculateOptimalGridSize = (widgets: any[]) => {
   // Calculate optimal grid size for a set of widgets
   let maxRow = 0
   let maxColumn = 0
-  
+
   widgets.forEach(widget => {
     const endRow = widget.position.row + widget.position.rowSpan
     const endColumn = widget.position.column + widget.position.columnSpan
     maxRow = Math.max(maxRow, endRow)
     maxColumn = Math.max(maxColumn, endColumn)
   })
-  
+
   return {
     rows: Math.max(4, maxRow),
     columns: Math.max(2, maxColumn),
@@ -150,23 +150,35 @@ export const getWidgetAnalytics = (layoutId: string) => {
   // Get analytics for widgets in a layout
   const store = useWidgetStore.getState()
   const widgets = store.layouts[layoutId] || []
-  
+
   return {
     layoutId,
     totalWidgets: widgets.length,
-    widgetsByCategory: widgets.reduce((acc, widget) => {
-      acc[widget.category] = (acc[widget.category] || 0) + 1
-      return acc
-    }, {} as Record<string, number>),
-    widgetsBySize: widgets.reduce((acc, widget) => {
-      acc[widget.size] = (acc[widget.size] || 0) + 1
-      return acc
-    }, {} as Record<string, number>),
-    widgetsByType: widgets.reduce((acc, widget) => {
-      acc[widget.type] = (acc[widget.type] || 0) + 1
-      return acc
-    }, {} as Record<string, number>),
-    totalErrors: widgets.reduce((acc, widget) => acc + widget.validationErrors.length, 0),
+    widgetsByCategory: widgets.reduce(
+      (acc, widget) => {
+        acc[widget.category] = (acc[widget.category] || 0) + 1
+        return acc
+      },
+      {} as Record<string, number>
+    ),
+    widgetsBySize: widgets.reduce(
+      (acc, widget) => {
+        acc[widget.size] = (acc[widget.size] || 0) + 1
+        return acc
+      },
+      {} as Record<string, number>
+    ),
+    widgetsByType: widgets.reduce(
+      (acc, widget) => {
+        acc[widget.type] = (acc[widget.type] || 0) + 1
+        return acc
+      },
+      {} as Record<string, number>
+    ),
+    totalErrors: widgets.reduce(
+      (acc, widget) => acc + widget.validationErrors.length,
+      0
+    ),
   }
 }
 

@@ -2,7 +2,13 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { subscribeWithSelector } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
-import { Widget, WidgetLayout, WidgetCategory, WidgetSize, WidgetType } from './simple-widget-types'
+import {
+  Widget,
+  WidgetLayout,
+  WidgetCategory,
+  WidgetSize,
+  WidgetType,
+} from './simple-widget-types'
 
 interface WidgetPerformance {
   renderTime: number
@@ -15,64 +21,67 @@ interface WidgetState {
   // Layout Management
   layouts: Record<string, WidgetLayout>
   activeLayoutId: string | null
-  
+
   // Widget Management
   widgets: Record<string, Widget>
-  
+
   // UI State
   editMode: boolean
   selectedWidget: string | null
   draggedWidget: string | null
-  
+
   // Performance Monitoring
   performance: WidgetPerformance
-  
+
   // History Management
   history: Widget[][]
   historyIndex: number
   maxHistorySize: number
-  
+
   // Loading and Error States
   isLoading: boolean
   error: string | null
-  
+
   // Actions
   setEditMode: (editMode: boolean) => void
   setSelectedWidget: (widgetId: string | null) => void
   setDraggedWidget: (widgetId: string | null) => void
-  
+
   // Layout Actions
   createLayout: (layoutId: string, layout?: Partial<WidgetLayout>) => void
   updateLayout: (layoutId: string, layout: Partial<WidgetLayout>) => void
   deleteLayout: (layoutId: string) => void
   duplicateLayout: (layoutId: string, newId: string) => void
   setActiveLayout: (layoutId: string) => void
-  
+
   // Widget Actions
   addWidget: (widget: Widget) => void
   removeWidget: (widgetId: string) => void
   updateWidget: (widgetId: string, updates: Partial<Widget>) => void
-  moveWidget: (widgetId: string, newPosition: { row: number; column: number }) => void
+  moveWidget: (
+    widgetId: string,
+    newPosition: { row: number; column: number }
+  ) => void
   resizeWidget: (widgetId: string, newSize: WidgetSize) => void
   duplicateWidget: (widgetId: string, newId: string) => void
-  
+
   // History Actions
   addToHistory: (widgets: Widget[]) => void
   undo: () => void
   redo: () => void
   clearHistory: () => void
-  
+
   // Performance Actions
   updatePerformance: (performance: Partial<WidgetPerformance>) => void
-  
+
   // Utility Actions
   clearError: () => void
   setLoading: (isLoading: boolean) => void
-  
+
   // Persistence Actions
   saveToStorage: () => void
   loadFromStorage: () => void
-  
+
   // Bulk Actions
   bulkUpdateWidgets: (updates: Record<string, Partial<Widget>>) => void
   bulkRemoveWidgets: (widgetIds: string[]) => void
@@ -83,7 +92,7 @@ const defaultPerformance: WidgetPerformance = {
   renderTime: 0,
   loadTime: 0,
   memoryUsage: 0,
-  lastUpdated: new Date()
+  lastUpdated: new Date(),
 }
 
 // Default widget layout
@@ -95,10 +104,10 @@ const createDefaultLayout = (id: string): WidgetLayout => ({
   configuration: {
     columns: 3,
     gap: 'md',
-    theme: 'default'
+    theme: 'default',
   },
   createdAt: new Date(),
-  updatedAt: new Date()
+  updatedAt: new Date(),
 })
 
 export const useWidgetStore = create<WidgetState>()(
@@ -121,16 +130,16 @@ export const useWidgetStore = create<WidgetState>()(
           error: null,
 
           // UI Actions
-          setEditMode: (editMode) => set({ editMode }),
-          setSelectedWidget: (selectedWidget) => set({ selectedWidget }),
-          setDraggedWidget: (draggedWidget) => set({ draggedWidget }),
+          setEditMode: editMode => set({ editMode }),
+          setSelectedWidget: selectedWidget => set({ selectedWidget }),
+          setDraggedWidget: draggedWidget => set({ draggedWidget }),
 
           // Layout Actions
           createLayout: (layoutId, layout) => {
-            set((state) => {
+            set(state => {
               const newLayout = {
                 ...createDefaultLayout(layoutId),
-                ...layout
+                ...layout,
               }
               state.layouts[layoutId] = newLayout
               if (!state.activeLayoutId) {
@@ -140,19 +149,19 @@ export const useWidgetStore = create<WidgetState>()(
           },
 
           updateLayout: (layoutId, layout) => {
-            set((state) => {
+            set(state => {
               if (state.layouts[layoutId]) {
                 state.layouts[layoutId] = {
                   ...state.layouts[layoutId],
                   ...layout,
-                  updatedAt: new Date()
+                  updatedAt: new Date(),
                 }
               }
             })
           },
 
-          deleteLayout: (layoutId) => {
-            set((state) => {
+          deleteLayout: layoutId => {
+            set(state => {
               delete state.layouts[layoutId]
               if (state.activeLayoutId === layoutId) {
                 state.activeLayoutId = Object.keys(state.layouts)[0] || null
@@ -161,7 +170,7 @@ export const useWidgetStore = create<WidgetState>()(
           },
 
           duplicateLayout: (layoutId, newId) => {
-            set((state) => {
+            set(state => {
               const original = state.layouts[layoutId]
               if (original) {
                 state.layouts[newId] = {
@@ -169,14 +178,14 @@ export const useWidgetStore = create<WidgetState>()(
                   id: newId,
                   name: `${original.name} (Copy)`,
                   createdAt: new Date(),
-                  updatedAt: new Date()
+                  updatedAt: new Date(),
                 }
               }
             })
           },
 
-          setActiveLayout: (layoutId) => {
-            set((state) => {
+          setActiveLayout: layoutId => {
+            set(state => {
               if (state.layouts[layoutId]) {
                 state.activeLayoutId = layoutId
               }
@@ -184,10 +193,10 @@ export const useWidgetStore = create<WidgetState>()(
           },
 
           // Widget Actions
-          addWidget: (widget) => {
-            set((state) => {
+          addWidget: widget => {
+            set(state => {
               state.widgets[widget.id] = widget
-              
+
               // Add to active layout if exists
               if (state.activeLayoutId && state.layouts[state.activeLayoutId]) {
                 const layout = state.layouts[state.activeLayoutId]
@@ -198,25 +207,25 @@ export const useWidgetStore = create<WidgetState>()(
                   title: widget.title,
                   size: widget.size,
                   position: widget.position,
-                  configuration: widget.configuration || {}
+                  configuration: widget.configuration || {},
                 })
                 layout.updatedAt = new Date()
               }
             })
           },
 
-          removeWidget: (widgetId) => {
-            set((state) => {
+          removeWidget: widgetId => {
+            set(state => {
               // Remove from widgets
               delete state.widgets[widgetId]
-              
+
               // Remove from active layout
               if (state.activeLayoutId && state.layouts[state.activeLayoutId]) {
                 const layout = state.layouts[state.activeLayoutId]
                 layout.widgets = layout.widgets.filter(w => w.id !== widgetId)
                 layout.updatedAt = new Date()
               }
-              
+
               // Clear selection if this widget was selected
               if (state.selectedWidget === widgetId) {
                 state.selectedWidget = null
@@ -225,22 +234,27 @@ export const useWidgetStore = create<WidgetState>()(
           },
 
           updateWidget: (widgetId, updates) => {
-            set((state) => {
+            set(state => {
               if (state.widgets[widgetId]) {
                 state.widgets[widgetId] = {
                   ...state.widgets[widgetId],
                   ...updates,
-                  updatedAt: new Date()
+                  updatedAt: new Date(),
                 }
-                
+
                 // Update in active layout as well
-                if (state.activeLayoutId && state.layouts[state.activeLayoutId]) {
+                if (
+                  state.activeLayoutId &&
+                  state.layouts[state.activeLayoutId]
+                ) {
                   const layout = state.layouts[state.activeLayoutId]
-                  const widgetIndex = layout.widgets.findIndex(w => w.id === widgetId)
+                  const widgetIndex = layout.widgets.findIndex(
+                    w => w.id === widgetId
+                  )
                   if (widgetIndex !== -1) {
                     layout.widgets[widgetIndex] = {
                       ...layout.widgets[widgetIndex],
-                      ...updates
+                      ...updates,
                     }
                     layout.updatedAt = new Date()
                   }
@@ -250,7 +264,7 @@ export const useWidgetStore = create<WidgetState>()(
           },
 
           moveWidget: (widgetId, newPosition) => {
-            set((state) => {
+            set(state => {
               if (state.widgets[widgetId]) {
                 state.widgets[widgetId].position = newPosition
                 state.widgets[widgetId].updatedAt = new Date()
@@ -259,7 +273,7 @@ export const useWidgetStore = create<WidgetState>()(
           },
 
           resizeWidget: (widgetId, newSize) => {
-            set((state) => {
+            set(state => {
               if (state.widgets[widgetId]) {
                 state.widgets[widgetId].size = newSize
                 state.widgets[widgetId].updatedAt = new Date()
@@ -268,7 +282,7 @@ export const useWidgetStore = create<WidgetState>()(
           },
 
           duplicateWidget: (widgetId, newId) => {
-            set((state) => {
+            set(state => {
               const original = state.widgets[widgetId]
               if (original) {
                 state.widgets[newId] = {
@@ -277,25 +291,25 @@ export const useWidgetStore = create<WidgetState>()(
                   title: `${original.title} (Copy)`,
                   position: {
                     row: original.position.row + 1,
-                    column: original.position.column
+                    column: original.position.column,
                   },
                   createdAt: new Date(),
-                  updatedAt: new Date()
+                  updatedAt: new Date(),
                 }
               }
             })
           },
 
           // History Actions
-          addToHistory: (widgets) => {
-            set((state) => {
+          addToHistory: widgets => {
+            set(state => {
               // Remove items after current index
               state.history = state.history.slice(0, state.historyIndex + 1)
-              
+
               // Add new state
               state.history.push(widgets)
               state.historyIndex = state.history.length - 1
-              
+
               // Limit history size
               if (state.history.length > state.maxHistorySize) {
                 state.history = state.history.slice(-state.maxHistorySize)
@@ -305,11 +319,11 @@ export const useWidgetStore = create<WidgetState>()(
           },
 
           undo: () => {
-            set((state) => {
+            set(state => {
               if (state.historyIndex > 0) {
                 state.historyIndex -= 1
                 const previousState = state.history[state.historyIndex]
-                
+
                 // Restore widgets from history
                 state.widgets = {}
                 previousState.forEach(widget => {
@@ -320,11 +334,11 @@ export const useWidgetStore = create<WidgetState>()(
           },
 
           redo: () => {
-            set((state) => {
+            set(state => {
               if (state.historyIndex < state.history.length - 1) {
                 state.historyIndex += 1
                 const nextState = state.history[state.historyIndex]
-                
+
                 // Restore widgets from history
                 state.widgets = {}
                 nextState.forEach(widget => {
@@ -335,26 +349,26 @@ export const useWidgetStore = create<WidgetState>()(
           },
 
           clearHistory: () => {
-            set((state) => {
+            set(state => {
               state.history = []
               state.historyIndex = -1
             })
           },
 
           // Performance Actions
-          updatePerformance: (performance) => {
-            set((state) => {
+          updatePerformance: performance => {
+            set(state => {
               state.performance = {
                 ...state.performance,
                 ...performance,
-                lastUpdated: new Date()
+                lastUpdated: new Date(),
               }
             })
           },
 
           // Utility Actions
           clearError: () => set({ error: null }),
-          setLoading: (isLoading) => set({ isLoading }),
+          setLoading: isLoading => set({ isLoading }),
 
           // Persistence Actions
           saveToStorage: () => {
@@ -364,9 +378,12 @@ export const useWidgetStore = create<WidgetState>()(
                 layouts: state.layouts,
                 widgets: state.widgets,
                 activeLayoutId: state.activeLayoutId,
-                performance: state.performance
+                performance: state.performance,
               }
-              localStorage.setItem('lifedash-widget-state', JSON.stringify(dataToSave))
+              localStorage.setItem(
+                'lifedash-widget-state',
+                JSON.stringify(dataToSave)
+              )
             } catch (error) {
               console.error('Failed to save widget state:', error)
             }
@@ -377,11 +394,12 @@ export const useWidgetStore = create<WidgetState>()(
               const saved = localStorage.getItem('lifedash-widget-state')
               if (saved) {
                 const parsedData = JSON.parse(saved)
-                set((state) => {
+                set(state => {
                   state.layouts = parsedData.layouts || {}
                   state.widgets = parsedData.widgets || {}
                   state.activeLayoutId = parsedData.activeLayoutId || null
-                  state.performance = parsedData.performance || defaultPerformance
+                  state.performance =
+                    parsedData.performance || defaultPerformance
                 })
               }
             } catch (error) {
@@ -390,48 +408,51 @@ export const useWidgetStore = create<WidgetState>()(
           },
 
           // Bulk Actions
-          bulkUpdateWidgets: (updates) => {
-            set((state) => {
+          bulkUpdateWidgets: updates => {
+            set(state => {
               Object.entries(updates).forEach(([widgetId, widgetUpdates]) => {
                 if (state.widgets[widgetId]) {
                   state.widgets[widgetId] = {
                     ...state.widgets[widgetId],
                     ...widgetUpdates,
-                    updatedAt: new Date()
+                    updatedAt: new Date(),
                   }
                 }
               })
             })
           },
 
-          bulkRemoveWidgets: (widgetIds) => {
-            set((state) => {
+          bulkRemoveWidgets: widgetIds => {
+            set(state => {
               widgetIds.forEach(widgetId => {
                 delete state.widgets[widgetId]
-                
+
                 // Remove from active layout
-                if (state.activeLayoutId && state.layouts[state.activeLayoutId]) {
+                if (
+                  state.activeLayoutId &&
+                  state.layouts[state.activeLayoutId]
+                ) {
                   const layout = state.layouts[state.activeLayoutId]
                   layout.widgets = layout.widgets.filter(w => w.id !== widgetId)
                   layout.updatedAt = new Date()
                 }
               })
-              
+
               // Clear selection if selected widget was removed
               if (widgetIds.includes(state.selectedWidget!)) {
                 state.selectedWidget = null
               }
             })
-          }
+          },
         }),
         {
           name: 'lifedash-widget-store',
-          partialize: (state) => ({
+          partialize: state => ({
             layouts: state.layouts,
             widgets: state.widgets,
             activeLayoutId: state.activeLayoutId,
-            performance: state.performance
-          })
+            performance: state.performance,
+          }),
         }
       )
     )
@@ -439,53 +460,60 @@ export const useWidgetStore = create<WidgetState>()(
 )
 
 // Selectors for derived state
-export const useWidgetActions = () => useWidgetStore((state) => ({
-  setEditMode: state.setEditMode,
-  setSelectedWidget: state.setSelectedWidget,
-  setDraggedWidget: state.setDraggedWidget,
-  createLayout: state.createLayout,
-  updateLayout: state.updateLayout,
-  deleteLayout: state.deleteLayout,
-  duplicateLayout: state.duplicateLayout,
-  setActiveLayout: state.setActiveLayout,
-  addWidget: state.addWidget,
-  removeWidget: state.removeWidget,
-  updateWidget: state.updateWidget,
-  moveWidget: state.moveWidget,
-  resizeWidget: state.resizeWidget,
-  duplicateWidget: state.duplicateWidget,
-  addToHistory: state.addToHistory,
-  undo: state.undo,
-  redo: state.redo,
-  clearHistory: state.clearHistory,
-  updatePerformance: state.updatePerformance,
-  clearError: state.clearError,
-  setLoading: state.setLoading,
-  bulkUpdateWidgets: state.bulkUpdateWidgets,
-  bulkRemoveWidgets: state.bulkRemoveWidgets
-}))
+export const useWidgetActions = () =>
+  useWidgetStore(state => ({
+    setEditMode: state.setEditMode,
+    setSelectedWidget: state.setSelectedWidget,
+    setDraggedWidget: state.setDraggedWidget,
+    createLayout: state.createLayout,
+    updateLayout: state.updateLayout,
+    deleteLayout: state.deleteLayout,
+    duplicateLayout: state.duplicateLayout,
+    setActiveLayout: state.setActiveLayout,
+    addWidget: state.addWidget,
+    removeWidget: state.removeWidget,
+    updateWidget: state.updateWidget,
+    moveWidget: state.moveWidget,
+    resizeWidget: state.resizeWidget,
+    duplicateWidget: state.duplicateWidget,
+    addToHistory: state.addToHistory,
+    undo: state.undo,
+    redo: state.redo,
+    clearHistory: state.clearHistory,
+    updatePerformance: state.updatePerformance,
+    clearError: state.clearError,
+    setLoading: state.setLoading,
+    bulkUpdateWidgets: state.bulkUpdateWidgets,
+    bulkRemoveWidgets: state.bulkRemoveWidgets,
+  }))
 
-export const useActiveLayout = () => useWidgetStore((state) => {
-  const activeLayoutId = state.activeLayoutId
-  return activeLayoutId ? state.layouts[activeLayoutId] : null
-})
+export const useActiveLayout = () =>
+  useWidgetStore(state => {
+    const activeLayoutId = state.activeLayoutId
+    return activeLayoutId ? state.layouts[activeLayoutId] : null
+  })
 
-export const useActiveWidgets = () => useWidgetStore((state) => {
-  const activeLayout = state.activeLayoutId ? state.layouts[state.activeLayoutId] : null
-  if (!activeLayout) return []
-  
-  return activeLayout.widgets.map(w => state.widgets[w.id]).filter(Boolean)
-})
+export const useActiveWidgets = () =>
+  useWidgetStore(state => {
+    const activeLayout = state.activeLayoutId
+      ? state.layouts[state.activeLayoutId]
+      : null
+    if (!activeLayout) return []
 
-export const useWidgetById = (widgetId: string) => useWidgetStore((state) => state.widgets[widgetId])
+    return activeLayout.widgets.map(w => state.widgets[w.id]).filter(Boolean)
+  })
 
-export const useCanUndo = () => useWidgetStore((state) => state.historyIndex > 0)
-export const useCanRedo = () => useWidgetStore((state) => state.historyIndex < state.history.length - 1)
+export const useWidgetById = (widgetId: string) =>
+  useWidgetStore(state => state.widgets[widgetId])
+
+export const useCanUndo = () => useWidgetStore(state => state.historyIndex > 0)
+export const useCanRedo = () =>
+  useWidgetStore(state => state.historyIndex < state.history.length - 1)
 
 // Performance monitor hook
 export const usePerformanceMonitor = () => {
-  const updatePerformance = useWidgetStore((state) => state.updatePerformance)
-  
+  const updatePerformance = useWidgetStore(state => state.updatePerformance)
+
   return {
     startRender: () => {
       const startTime = performance.now()
@@ -503,6 +531,6 @@ export const usePerformanceMonitor = () => {
     },
     updateMemoryUsage: (memoryUsage: number) => {
       updatePerformance({ memoryUsage })
-    }
+    },
   }
 }

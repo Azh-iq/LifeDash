@@ -34,7 +34,10 @@ const createWidgetUsageSchema = z.object({
   ]),
   action_type: z.enum(['view', 'interact', 'refresh', 'export', 'configure']),
   portfolio_id: z.string().uuid().optional(),
-  stock_symbol: z.string().regex(/^[A-Z]{1,5}$/).optional(),
+  stock_symbol: z
+    .string()
+    .regex(/^[A-Z]{1,5}$/)
+    .optional(),
   session_id: z.string().uuid().optional(),
   duration_seconds: z.number().min(0).optional(),
   interaction_count: z.number().min(0).default(1),
@@ -180,9 +183,7 @@ export async function getUserWidgetUsage(
 /**
  * Get widget usage summary
  */
-export async function getWidgetUsageSummary(
-  days: number = 30
-): Promise<{
+export async function getWidgetUsageSummary(days: number = 30): Promise<{
   success: boolean
   data?: {
     totalInteractions: number
@@ -242,37 +243,55 @@ export async function getWidgetUsageSummary(
     }
 
     // Calculate summary statistics
-    const totalInteractions = usage.reduce((sum, record) => sum + (record.interaction_count || 0), 0)
-    
+    const totalInteractions = usage.reduce(
+      (sum, record) => sum + (record.interaction_count || 0),
+      0
+    )
+
     const sessionDurations = usage
       .filter(record => record.duration_seconds !== null)
       .map(record => record.duration_seconds || 0)
-    const averageSessionDuration = sessionDurations.length > 0 
-      ? sessionDurations.reduce((sum, duration) => sum + duration, 0) / sessionDurations.length
-      : 0
+    const averageSessionDuration =
+      sessionDurations.length > 0
+        ? sessionDurations.reduce((sum, duration) => sum + duration, 0) /
+          sessionDurations.length
+        : 0
 
     // Widget breakdown
-    const widgetBreakdown = usage.reduce((acc, record) => {
-      acc[record.widget_type] = (acc[record.widget_type] || 0) + (record.interaction_count || 1)
-      return acc
-    }, {} as Record<WidgetType, number>)
+    const widgetBreakdown = usage.reduce(
+      (acc, record) => {
+        acc[record.widget_type] =
+          (acc[record.widget_type] || 0) + (record.interaction_count || 1)
+        return acc
+      },
+      {} as Record<WidgetType, number>
+    )
 
-    const mostUsedWidget = Object.entries(widgetBreakdown)
-      .sort(([,a], [,b]) => b - a)[0]?.[0] || ''
+    const mostUsedWidget =
+      Object.entries(widgetBreakdown).sort(([, a], [, b]) => b - a)[0]?.[0] ||
+      ''
 
     // Action breakdown
-    const actionBreakdown = usage.reduce((acc, record) => {
-      acc[record.action_type] = (acc[record.action_type] || 0) + (record.interaction_count || 1)
-      return acc
-    }, {} as Record<ActionType, number>)
+    const actionBreakdown = usage.reduce(
+      (acc, record) => {
+        acc[record.action_type] =
+          (acc[record.action_type] || 0) + (record.interaction_count || 1)
+        return acc
+      },
+      {} as Record<ActionType, number>
+    )
 
     // Device breakdown
-    const deviceBreakdown = usage.reduce((acc, record) => {
-      if (record.device_type) {
-        acc[record.device_type] = (acc[record.device_type] || 0) + (record.interaction_count || 1)
-      }
-      return acc
-    }, {} as Record<DeviceType, number>)
+    const deviceBreakdown = usage.reduce(
+      (acc, record) => {
+        if (record.device_type) {
+          acc[record.device_type] =
+            (acc[record.device_type] || 0) + (record.interaction_count || 1)
+        }
+        return acc
+      },
+      {} as Record<DeviceType, number>
+    )
 
     return {
       success: true,
@@ -361,17 +380,26 @@ export async function getWidgetPerformanceMetrics(
     }
 
     // Calculate metrics
-    const totalViews = usage.filter(record => record.action_type === 'view').length
-    const totalInteractions = usage.reduce((sum, record) => sum + (record.interaction_count || 0), 0)
-    
+    const totalViews = usage.filter(
+      record => record.action_type === 'view'
+    ).length
+    const totalInteractions = usage.reduce(
+      (sum, record) => sum + (record.interaction_count || 0),
+      0
+    )
+
     const engagementTimes = usage
       .filter(record => record.duration_seconds !== null)
       .map(record => record.duration_seconds || 0)
-    const averageEngagementTime = engagementTimes.length > 0 
-      ? engagementTimes.reduce((sum, duration) => sum + duration, 0) / engagementTimes.length
-      : 0
+    const averageEngagementTime =
+      engagementTimes.length > 0
+        ? engagementTimes.reduce((sum, duration) => sum + duration, 0) /
+          engagementTimes.length
+        : 0
 
-    const refreshActions = usage.filter(record => record.action_type === 'refresh').length
+    const refreshActions = usage.filter(
+      record => record.action_type === 'refresh'
+    ).length
     const refreshRate = totalViews > 0 ? (refreshActions / totalViews) * 100 : 0
 
     // For now, we don't track errors explicitly in usage analytics
@@ -379,10 +407,14 @@ export async function getWidgetPerformanceMetrics(
     const errorRate = 0
 
     // Popular actions
-    const actionCounts = usage.reduce((acc, record) => {
-      acc[record.action_type] = (acc[record.action_type] || 0) + (record.interaction_count || 1)
-      return acc
-    }, {} as Record<ActionType, number>)
+    const actionCounts = usage.reduce(
+      (acc, record) => {
+        acc[record.action_type] =
+          (acc[record.action_type] || 0) + (record.interaction_count || 1)
+        return acc
+      },
+      {} as Record<ActionType, number>
+    )
 
     const popularActions = Object.entries(actionCounts)
       .map(([action, count]) => ({ action: action as ActionType, count }))
@@ -411,9 +443,7 @@ export async function getWidgetPerformanceMetrics(
 /**
  * Get daily widget usage trends
  */
-export async function getWidgetUsageTrends(
-  days: number = 30
-): Promise<{
+export async function getWidgetUsageTrends(days: number = 30): Promise<{
   success: boolean
   data?: Array<{
     date: string
@@ -465,39 +495,47 @@ export async function getWidgetUsageTrends(
     }
 
     // Group usage by date
-    const dailyUsage = usage.reduce((acc, record) => {
-      const date = new Date(record.created_at).toISOString().split('T')[0]
-      
-      if (!acc[date]) {
-        acc[date] = {
-          totalInteractions: 0,
-          uniqueWidgets: new Set<WidgetType>(),
-          sessionDurations: [],
+    const dailyUsage = usage.reduce(
+      (acc, record) => {
+        const date = new Date(record.created_at).toISOString().split('T')[0]
+
+        if (!acc[date]) {
+          acc[date] = {
+            totalInteractions: 0,
+            uniqueWidgets: new Set<WidgetType>(),
+            sessionDurations: [],
+          }
         }
-      }
 
-      acc[date].totalInteractions += record.interaction_count || 1
-      acc[date].uniqueWidgets.add(record.widget_type)
-      
-      if (record.duration_seconds !== null) {
-        acc[date].sessionDurations.push(record.duration_seconds || 0)
-      }
+        acc[date].totalInteractions += record.interaction_count || 1
+        acc[date].uniqueWidgets.add(record.widget_type)
 
-      return acc
-    }, {} as Record<string, {
-      totalInteractions: number
-      uniqueWidgets: Set<WidgetType>
-      sessionDurations: number[]
-    }>)
+        if (record.duration_seconds !== null) {
+          acc[date].sessionDurations.push(record.duration_seconds || 0)
+        }
+
+        return acc
+      },
+      {} as Record<
+        string,
+        {
+          totalInteractions: number
+          uniqueWidgets: Set<WidgetType>
+          sessionDurations: number[]
+        }
+      >
+    )
 
     // Convert to array format
     const trends = Object.entries(dailyUsage).map(([date, data]) => ({
       date,
       totalInteractions: data.totalInteractions,
       uniqueWidgets: data.uniqueWidgets.size,
-      averageSessionDuration: data.sessionDurations.length > 0 
-        ? data.sessionDurations.reduce((sum, duration) => sum + duration, 0) / data.sessionDurations.length
-        : 0,
+      averageSessionDuration:
+        data.sessionDurations.length > 0
+          ? data.sessionDurations.reduce((sum, duration) => sum + duration, 0) /
+            data.sessionDurations.length
+          : 0,
     }))
 
     return {

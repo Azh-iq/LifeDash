@@ -393,7 +393,7 @@ export async function compareBenchmarks(
       date: string
       [symbol: string]: number | string
     }> = []
-    let baseValues: Record<string, number> = {}
+    const baseValues: Record<string, number> = {}
 
     if (normalizeToBase && commonDates.length > 0) {
       // Calculate base values (first available price for each benchmark)

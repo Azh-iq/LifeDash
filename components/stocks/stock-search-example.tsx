@@ -11,7 +11,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StockSearch, StockSearchResult } from './stock-search'
 
 export function StockSearchExample() {
-  const [selectedStock, setSelectedStock] = useState<StockSearchResult | null>(null)
+  const [selectedStock, setSelectedStock] = useState<StockSearchResult | null>(
+    null
+  )
   const [transactionType, setTransactionType] = useState<'BUY' | 'SELL'>('BUY')
   const [portfolioId] = useState('your-portfolio-id') // Replace with actual portfolio ID
 
@@ -21,7 +23,7 @@ export function StockSearchExample() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6 p-6">
       <Card>
         <CardHeader>
           <CardTitle>Stock Search Example</CardTitle>
@@ -52,8 +54,8 @@ export function StockSearchExample() {
             <StockSearch
               onSelect={handleStockSelect}
               placeholder={
-                transactionType === 'SELL' 
-                  ? 'Search your holdings...' 
+                transactionType === 'SELL'
+                  ? 'Search your holdings...'
                   : 'Search stocks...'
               }
               holdingsOnly={transactionType === 'SELL'}
@@ -65,21 +67,24 @@ export function StockSearchExample() {
           {selectedStock && (
             <div className="space-y-2">
               <label className="text-sm font-medium">Selected Stock</label>
-              <div className="p-3 bg-gray-50 rounded-lg">
+              <div className="rounded-lg bg-gray-50 p-3">
                 <div className="font-medium">{selectedStock.symbol}</div>
-                <div className="text-sm text-gray-600">{selectedStock.name}</div>
+                <div className="text-sm text-gray-600">
+                  {selectedStock.name}
+                </div>
                 <div className="text-sm text-gray-500">
                   {selectedStock.exchange} • {selectedStock.currency}
                 </div>
-                
+
                 {/* Show holdings information if available */}
                 {transactionType === 'SELL' && selectedStock.quantity && (
-                  <div className="mt-2 pt-2 border-t border-gray-200">
+                  <div className="mt-2 border-t border-gray-200 pt-2">
                     <div className="text-sm text-gray-600">
                       Holdings: {selectedStock.quantity} shares
                     </div>
                     <div className="text-sm text-gray-600">
-                      Average Cost: {selectedStock.average_cost?.toFixed(2)} {selectedStock.currency}
+                      Average Cost: {selectedStock.average_cost?.toFixed(2)}{' '}
+                      {selectedStock.currency}
                     </div>
                     <div className="text-sm text-gray-600">
                       Account: {selectedStock.account_name}
@@ -91,13 +96,13 @@ export function StockSearchExample() {
           )}
 
           {/* Mode Information */}
-          <div className="text-sm text-gray-600 p-3 bg-blue-50 rounded-lg">
-            <strong>Current Mode:</strong> {transactionType === 'SELL' ? 'Holdings Only' : 'All Stocks'}
+          <div className="rounded-lg bg-blue-50 p-3 text-sm text-gray-600">
+            <strong>Current Mode:</strong>{' '}
+            {transactionType === 'SELL' ? 'Holdings Only' : 'All Stocks'}
             <br />
-            {transactionType === 'SELL' 
+            {transactionType === 'SELL'
               ? 'Only stocks you own are shown for sale transactions.'
-              : 'All stocks from the registry are shown for buy transactions.'
-            }
+              : 'All stocks from the registry are shown for buy transactions.'}
           </div>
         </CardContent>
       </Card>

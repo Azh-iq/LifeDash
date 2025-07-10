@@ -17,16 +17,18 @@ import type {
 } from '@/lib/types/widget.types'
 
 // Validation schemas
-const widgetConfigSchema = z.object({
-  refreshInterval: z.number().optional(),
-  showLoadingStates: z.boolean().optional(),
-  showErrorStates: z.boolean().optional(),
-  customTitle: z.string().optional(),
-  customDescription: z.string().optional(),
-  showHeader: z.boolean().optional(),
-  showFooter: z.boolean().optional(),
-  theme: z.enum(['light', 'dark', 'system']).optional(),
-}).passthrough() // Allow additional properties for specific widget types
+const widgetConfigSchema = z
+  .object({
+    refreshInterval: z.number().optional(),
+    showLoadingStates: z.boolean().optional(),
+    showErrorStates: z.boolean().optional(),
+    customTitle: z.string().optional(),
+    customDescription: z.string().optional(),
+    showHeader: z.boolean().optional(),
+    showFooter: z.boolean().optional(),
+    theme: z.enum(['light', 'dark', 'system']).optional(),
+  })
+  .passthrough() // Allow additional properties for specific widget types
 
 const responsiveConfigSchema = z.object({
   size: z.enum(['SMALL', 'MEDIUM', 'LARGE', 'HERO']).optional(),
@@ -38,7 +40,10 @@ const responsiveConfigSchema = z.object({
 
 const createWidgetLayoutSchema = z.object({
   portfolio_id: z.string().uuid().optional(),
-  stock_symbol: z.string().regex(/^[A-Z]{1,5}$/).optional(),
+  stock_symbol: z
+    .string()
+    .regex(/^[A-Z]{1,5}$/)
+    .optional(),
   layout_name: z.string().min(1).max(100),
   layout_type: z.enum(['dashboard', 'portfolio', 'stock', 'custom']),
   is_default: z.boolean().default(false),
@@ -61,7 +66,9 @@ const createWidgetLayoutSchema = z.object({
     'WATCHLIST',
     'CUSTOM_WIDGET',
   ]),
-  widget_category: z.enum(['STOCKS', 'CRYPTO', 'ART', 'OTHER']).default('STOCKS'),
+  widget_category: z
+    .enum(['STOCKS', 'CRYPTO', 'ART', 'OTHER'])
+    .default('STOCKS'),
   widget_size: z.enum(['SMALL', 'MEDIUM', 'LARGE', 'HERO']).default('MEDIUM'),
   grid_row: z.number().min(1),
   grid_column: z.number().min(1),
@@ -110,31 +117,33 @@ export async function createWidgetLayout(
     let rawData: any
     if (formData instanceof FormData) {
       rawData = {
-        portfolio_id: formData.get('portfolio_id') as string || undefined,
-        stock_symbol: formData.get('stock_symbol') as string || undefined,
+        portfolio_id: (formData.get('portfolio_id') as string) || undefined,
+        stock_symbol: (formData.get('stock_symbol') as string) || undefined,
         layout_name: formData.get('layout_name') as string,
         layout_type: formData.get('layout_type') as LayoutType,
         is_default: formData.get('is_default') === 'true',
         is_active: formData.get('is_active') !== 'false',
         widget_type: formData.get('widget_type') as WidgetType,
-        widget_category: formData.get('widget_category') as WidgetCategory || 'STOCKS',
-        widget_size: formData.get('widget_size') as WidgetSize || 'MEDIUM',
+        widget_category:
+          (formData.get('widget_category') as WidgetCategory) || 'STOCKS',
+        widget_size: (formData.get('widget_size') as WidgetSize) || 'MEDIUM',
         grid_row: parseInt(formData.get('grid_row') as string),
         grid_column: parseInt(formData.get('grid_column') as string),
         grid_row_span: parseInt(formData.get('grid_row_span') as string) || 1,
-        grid_column_span: parseInt(formData.get('grid_column_span') as string) || 1,
-        widget_config: formData.get('widget_config') 
+        grid_column_span:
+          parseInt(formData.get('grid_column_span') as string) || 1,
+        widget_config: formData.get('widget_config')
           ? JSON.parse(formData.get('widget_config') as string)
           : {},
-        title: formData.get('title') as string || undefined,
-        description: formData.get('description') as string || undefined,
+        title: (formData.get('title') as string) || undefined,
+        description: (formData.get('description') as string) || undefined,
         show_header: formData.get('show_header') !== 'false',
         show_footer: formData.get('show_footer') === 'true',
         mobile_hidden: formData.get('mobile_hidden') === 'true',
-        tablet_config: formData.get('tablet_config') 
+        tablet_config: formData.get('tablet_config')
           ? JSON.parse(formData.get('tablet_config') as string)
           : undefined,
-        mobile_config: formData.get('mobile_config') 
+        mobile_config: formData.get('mobile_config')
           ? JSON.parse(formData.get('mobile_config') as string)
           : undefined,
       }
@@ -286,7 +295,9 @@ export async function updateWidgetLayout(
 /**
  * Delete a widget layout
  */
-export async function deleteWidgetLayout(id: string): Promise<WidgetLayoutResponse> {
+export async function deleteWidgetLayout(
+  id: string
+): Promise<WidgetLayoutResponse> {
   try {
     const supabase = createClient()
 
@@ -606,12 +617,12 @@ export async function duplicateWidgetLayout(
     }
 
     // Create duplicate
-    const { 
-      id: originalId, 
-      created_at, 
-      updated_at, 
+    const {
+      id: originalId,
+      created_at,
+      updated_at,
       is_default,
-      ...layoutData 
+      ...layoutData
     } = existingLayout
 
     const duplicateData = {

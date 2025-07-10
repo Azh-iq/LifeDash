@@ -17,37 +17,43 @@ import type {
 } from '@/lib/types/widget.types'
 
 // Enhanced validation schemas
-const widgetConfigSchema = z.object({
-  refreshInterval: z.number().min(30).max(3600).optional(),
-  showLoadingStates: z.boolean().optional(),
-  showErrorStates: z.boolean().optional(),
-  customTitle: z.string().max(200).optional(),
-  customDescription: z.string().max(500).optional(),
-  showHeader: z.boolean().optional(),
-  showFooter: z.boolean().optional(),
-  theme: z.enum(['light', 'dark', 'system']).optional(),
-  chartType: z.enum(['line', 'candlestick', 'area', 'bar']).optional(),
-  timeframe: z.enum(['1D', '1W', '1M', '3M', '6M', '1Y', 'ALL']).optional(),
-  showVolume: z.boolean().optional(),
-  showGrid: z.boolean().optional(),
-  autoRefresh: z.boolean().optional(),
-  compact: z.boolean().optional(),
-  showLegend: z.boolean().optional(),
-  animationsEnabled: z.boolean().optional(),
-  // Category-specific configs
-  stocksConfig: z.object({
-    showMarketCap: z.boolean().optional(),
-    showPERatio: z.boolean().optional(),
-    showDividendYield: z.boolean().optional(),
-    showSector: z.boolean().optional(),
-  }).optional(),
-  portfolioConfig: z.object({
-    showAllocation: z.boolean().optional(),
-    showPerformance: z.boolean().optional(),
-    showRebalancing: z.boolean().optional(),
-    defaultCurrency: z.enum(['NOK', 'USD', 'EUR']).optional(),
-  }).optional(),
-}).passthrough()
+const widgetConfigSchema = z
+  .object({
+    refreshInterval: z.number().min(30).max(3600).optional(),
+    showLoadingStates: z.boolean().optional(),
+    showErrorStates: z.boolean().optional(),
+    customTitle: z.string().max(200).optional(),
+    customDescription: z.string().max(500).optional(),
+    showHeader: z.boolean().optional(),
+    showFooter: z.boolean().optional(),
+    theme: z.enum(['light', 'dark', 'system']).optional(),
+    chartType: z.enum(['line', 'candlestick', 'area', 'bar']).optional(),
+    timeframe: z.enum(['1D', '1W', '1M', '3M', '6M', '1Y', 'ALL']).optional(),
+    showVolume: z.boolean().optional(),
+    showGrid: z.boolean().optional(),
+    autoRefresh: z.boolean().optional(),
+    compact: z.boolean().optional(),
+    showLegend: z.boolean().optional(),
+    animationsEnabled: z.boolean().optional(),
+    // Category-specific configs
+    stocksConfig: z
+      .object({
+        showMarketCap: z.boolean().optional(),
+        showPERatio: z.boolean().optional(),
+        showDividendYield: z.boolean().optional(),
+        showSector: z.boolean().optional(),
+      })
+      .optional(),
+    portfolioConfig: z
+      .object({
+        showAllocation: z.boolean().optional(),
+        showPerformance: z.boolean().optional(),
+        showRebalancing: z.boolean().optional(),
+        defaultCurrency: z.enum(['NOK', 'USD', 'EUR']).optional(),
+      })
+      .optional(),
+  })
+  .passthrough()
 
 const responsiveConfigSchema = z.object({
   size: z.enum(['SMALL', 'MEDIUM', 'LARGE', 'HERO']).optional(),
@@ -59,7 +65,10 @@ const responsiveConfigSchema = z.object({
 
 const createWidgetLayoutSchema = z.object({
   portfolio_id: z.string().uuid().optional(),
-  stock_symbol: z.string().regex(/^[A-Z0-9]{1,10}$/).optional(),
+  stock_symbol: z
+    .string()
+    .regex(/^[A-Z0-9]{1,10}$/)
+    .optional(),
   layout_name: z.string().min(1).max(100),
   layout_type: z.enum(['dashboard', 'portfolio', 'stock', 'custom']),
   is_default: z.boolean().default(false),
@@ -82,7 +91,9 @@ const createWidgetLayoutSchema = z.object({
     'WATCHLIST',
     'CUSTOM_WIDGET',
   ]),
-  widget_category: z.enum(['STOCKS', 'CRYPTO', 'ART', 'OTHER']).default('STOCKS'),
+  widget_category: z
+    .enum(['STOCKS', 'CRYPTO', 'ART', 'OTHER'])
+    .default('STOCKS'),
   widget_size: z.enum(['SMALL', 'MEDIUM', 'LARGE', 'HERO']).default('MEDIUM'),
   grid_row: z.number().min(1).max(10),
   grid_column: z.number().min(1).max(4),
@@ -117,11 +128,13 @@ const layoutImportSchema = z.object({
   layoutData: z.object({
     layouts: z.array(createWidgetLayoutSchema),
     preferences: z.object({}).passthrough().optional(),
-    metadata: z.object({
-      version: z.string(),
-      exportedAt: z.string(),
-      exportedBy: z.string().optional(),
-    }).optional(),
+    metadata: z
+      .object({
+        version: z.string(),
+        exportedAt: z.string(),
+        exportedBy: z.string().optional(),
+      })
+      .optional(),
   }),
   overwriteExisting: z.boolean().default(false),
   preservePositions: z.boolean().default(true),
@@ -173,31 +186,33 @@ export async function createWidgetLayout(
     let rawData: any
     if (formData instanceof FormData) {
       rawData = {
-        portfolio_id: formData.get('portfolio_id') as string || undefined,
-        stock_symbol: formData.get('stock_symbol') as string || undefined,
+        portfolio_id: (formData.get('portfolio_id') as string) || undefined,
+        stock_symbol: (formData.get('stock_symbol') as string) || undefined,
         layout_name: formData.get('layout_name') as string,
         layout_type: formData.get('layout_type') as LayoutType,
         is_default: formData.get('is_default') === 'true',
         is_active: formData.get('is_active') !== 'false',
         widget_type: formData.get('widget_type') as WidgetType,
-        widget_category: formData.get('widget_category') as WidgetCategory || 'STOCKS',
-        widget_size: formData.get('widget_size') as WidgetSize || 'MEDIUM',
+        widget_category:
+          (formData.get('widget_category') as WidgetCategory) || 'STOCKS',
+        widget_size: (formData.get('widget_size') as WidgetSize) || 'MEDIUM',
         grid_row: parseInt(formData.get('grid_row') as string),
         grid_column: parseInt(formData.get('grid_column') as string),
         grid_row_span: parseInt(formData.get('grid_row_span') as string) || 1,
-        grid_column_span: parseInt(formData.get('grid_column_span') as string) || 1,
-        widget_config: formData.get('widget_config') 
+        grid_column_span:
+          parseInt(formData.get('grid_column_span') as string) || 1,
+        widget_config: formData.get('widget_config')
           ? JSON.parse(formData.get('widget_config') as string)
           : {},
-        title: formData.get('title') as string || undefined,
-        description: formData.get('description') as string || undefined,
+        title: (formData.get('title') as string) || undefined,
+        description: (formData.get('description') as string) || undefined,
         show_header: formData.get('show_header') !== 'false',
         show_footer: formData.get('show_footer') === 'true',
         mobile_hidden: formData.get('mobile_hidden') === 'true',
-        tablet_config: formData.get('tablet_config') 
+        tablet_config: formData.get('tablet_config')
           ? JSON.parse(formData.get('tablet_config') as string)
           : undefined,
-        mobile_config: formData.get('mobile_config') 
+        mobile_config: formData.get('mobile_config')
           ? JSON.parse(formData.get('mobile_config') as string)
           : undefined,
       }
@@ -217,12 +232,16 @@ export async function createWidgetLayout(
       .gte('grid_row', validatedData.grid_row)
       .lt('grid_row', validatedData.grid_row + validatedData.grid_row_span)
       .gte('grid_column', validatedData.grid_column)
-      .lt('grid_column', validatedData.grid_column + validatedData.grid_column_span)
+      .lt(
+        'grid_column',
+        validatedData.grid_column + validatedData.grid_column_span
+      )
 
     if (conflictCheck.data && conflictCheck.data.length > 0) {
       return {
         success: false,
-        error: 'Posisjonskonflikt: En annen widget okkuperer allerede denne posisjonen',
+        error:
+          'Posisjonskonflikt: En annen widget okkuperer allerede denne posisjonen',
       }
     }
 
@@ -432,14 +451,12 @@ export async function loadWidgetLayoutConfiguration(
 /**
  * Export widget layout for backup or sharing
  */
-export async function exportWidgetLayout(
-  exportConfig: {
-    layoutId?: string
-    layoutType?: LayoutType
-    includeUserData?: boolean
-    includePreferences?: boolean
-  }
-): Promise<{ success: boolean; data?: LayoutExportData; error?: string }> {
+export async function exportWidgetLayout(exportConfig: {
+  layoutId?: string
+  layoutType?: LayoutType
+  includeUserData?: boolean
+  includePreferences?: boolean
+}): Promise<{ success: boolean; data?: LayoutExportData; error?: string }> {
   try {
     const supabase = createClient()
 
@@ -482,13 +499,14 @@ export async function exportWidgetLayout(
     }
 
     // Clean sensitive data if not including user data
-    const cleanedLayouts = layouts?.map(layout => {
-      if (!validatedConfig.includeUserData) {
-        const { user_id, created_at, updated_at, ...cleanLayout } = layout
-        return cleanLayout
-      }
-      return layout
-    }) || []
+    const cleanedLayouts =
+      layouts?.map(layout => {
+        if (!validatedConfig.includeUserData) {
+          const { user_id, created_at, updated_at, ...cleanLayout } = layout
+          return cleanLayout
+        }
+        return layout
+      }) || []
 
     // Get preferences if requested
     let preferences = undefined
@@ -528,13 +546,11 @@ export async function exportWidgetLayout(
 /**
  * Import widget layout from backup or external source
  */
-export async function importWidgetLayout(
-  importConfig: {
-    layoutData: LayoutExportData
-    overwriteExisting?: boolean
-    preservePositions?: boolean
-  }
-): Promise<{ success: boolean; data?: LayoutImportResult; error?: string }> {
+export async function importWidgetLayout(importConfig: {
+  layoutData: LayoutExportData
+  overwriteExisting?: boolean
+  preservePositions?: boolean
+}): Promise<{ success: boolean; data?: LayoutImportResult; error?: string }> {
   try {
     const supabase = createClient()
 
@@ -580,7 +596,7 @@ export async function importWidgetLayout(
         }
 
         // Adjust positions if not preserving
-        let adjustedLayout = { ...layoutItem }
+        const adjustedLayout = { ...layoutItem }
         if (!preservePositions) {
           // Find next available position
           const { data: maxPosition } = await supabase
@@ -657,9 +673,7 @@ export async function importWidgetLayout(
           )
         }
       } catch (error) {
-        importResult.warnings.push(
-          `Feil ved import av preferanser: ${error}`
-        )
+        importResult.warnings.push(`Feil ved import av preferanser: ${error}`)
       }
     }
 
@@ -827,15 +841,13 @@ async function trackLayoutUsage(
   try {
     const supabase = createClient()
 
-    await supabase
-      .from('widget_usage_analytics')
-      .insert({
-        user_id: userId,
-        widget_layout_id: layoutId,
-        widget_type: 'CUSTOM_WIDGET',
-        action_type: action,
-        created_at: new Date().toISOString(),
-      })
+    await supabase.from('widget_usage_analytics').insert({
+      user_id: userId,
+      widget_layout_id: layoutId,
+      widget_type: 'CUSTOM_WIDGET',
+      action_type: action,
+      created_at: new Date().toISOString(),
+    })
   } catch (error) {
     console.warn('Failed to track layout usage:', error)
   }

@@ -8,11 +8,11 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { 
+import {
   WidgetRegistration,
   BaseWidgetComponentProps,
 } from '@/components/widgets/widget-types'
-import { 
+import {
   WidgetConfig,
   WidgetType,
   WidgetCategory,
@@ -50,10 +50,10 @@ const generateMockStockData = () => ({
 
 const generateMockPortfolioData = () => ({
   totalValue: 1234567.89,
-  totalCost: 1000000.00,
+  totalCost: 1000000.0,
   totalPnl: 234567.89,
   totalPnlPercent: 23.46,
-  dailyChange: 5432.10,
+  dailyChange: 5432.1,
   dailyChangePercent: 0.44,
   holdings: [
     { symbol: 'AAPL', quantity: 100, value: 15025, pnl: 2045 },
@@ -62,11 +62,12 @@ const generateMockPortfolioData = () => ({
   ],
 })
 
-const generateMockNewsData = () => ([
+const generateMockNewsData = () => [
   {
     id: '1',
     title: 'Apple Reports Strong Q4 Earnings',
-    summary: 'Apple exceeded expectations with strong iPhone sales and services growth.',
+    summary:
+      'Apple exceeded expectations with strong iPhone sales and services growth.',
     source: 'Reuters',
     publishedAt: new Date(),
     imageUrl: 'https://via.placeholder.com/300x200',
@@ -79,7 +80,7 @@ const generateMockNewsData = () => ([
     publishedAt: new Date(),
     imageUrl: 'https://via.placeholder.com/300x200',
   },
-])
+]
 
 const generateMockMetricsData = () => ({
   totalReturn: 23.45,
@@ -100,34 +101,36 @@ const MockChartWidget: React.FC<{
 }> = ({ config, type, title }) => {
   const chartConfig = config as any
   const mockData = generateMockPortfolioData()
-  
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">{title}</h3>
         <Badge variant="secondary">{chartConfig.chartType || 'line'}</Badge>
       </div>
-      
-      <div 
-        className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center"
+
+      <div
+        className="flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gradient-to-br from-blue-50 to-purple-50"
         style={{ height: chartConfig.height || 300 }}
       >
         <div className="text-center text-gray-500">
-          <div className="text-2xl mb-2">📈</div>
+          <div className="mb-2 text-2xl">📈</div>
           <div className="font-medium">Graf forhåndsvisning</div>
           <div className="text-sm">
             {chartConfig.chartType} • {chartConfig.timeframe || '1M'}
           </div>
           {chartConfig.showVolume && (
-            <div className="text-xs mt-1">Volum: Aktivert</div>
+            <div className="mt-1 text-xs">Volum: Aktivert</div>
           )}
         </div>
       </div>
-      
+
       <div className="grid grid-cols-3 gap-4 text-sm">
         <div>
           <div className="text-gray-500">Verdi</div>
-          <div className="font-semibold">{mockData.totalValue.toLocaleString('no-NO')} NOK</div>
+          <div className="font-semibold">
+            {mockData.totalValue.toLocaleString('no-NO')} NOK
+          </div>
         </div>
         <div>
           <div className="text-gray-500">P&L</div>
@@ -152,29 +155,32 @@ const MockTableWidget: React.FC<{
 }> = ({ config, title }) => {
   const tableConfig = config as any
   const mockData = generateMockPortfolioData()
-  
+
   const columns = tableConfig.columns || ['symbol', 'quantity', 'value', 'pnl']
   const pageSize = tableConfig.pageSize || 10
-  
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">{title}</h3>
         <Badge variant="secondary">{columns.length} kolonner</Badge>
       </div>
-      
+
       {tableConfig.showSearch && (
-        <div className="bg-gray-50 border rounded-lg p-3">
+        <div className="rounded-lg border bg-gray-50 p-3">
           <div className="text-sm text-gray-500">🔍 Søkefelt aktivert</div>
         </div>
       )}
-      
-      <div className="border rounded-lg overflow-hidden">
+
+      <div className="overflow-hidden rounded-lg border">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
               {columns.map((col: string) => (
-                <th key={col} className="px-4 py-2 text-left text-sm font-medium text-gray-600">
+                <th
+                  key={col}
+                  className="px-4 py-2 text-left text-sm font-medium text-gray-600"
+                >
                   {col.replace('_', ' ')}
                 </th>
               ))}
@@ -187,13 +193,15 @@ const MockTableWidget: React.FC<{
                   <td key={col} className="px-4 py-2 text-sm">
                     {col === 'symbol' && holding.symbol}
                     {col === 'quantity' && holding.quantity}
-                    {col === 'value' && `${holding.value.toLocaleString('no-NO')} NOK`}
+                    {col === 'value' &&
+                      `${holding.value.toLocaleString('no-NO')} NOK`}
                     {col === 'pnl' && (
                       <span className="text-green-600">
                         +{holding.pnl.toLocaleString('no-NO')} NOK
                       </span>
                     )}
-                    {!['symbol', 'quantity', 'value', 'pnl'].includes(col) && '--'}
+                    {!['symbol', 'quantity', 'value', 'pnl'].includes(col) &&
+                      '--'}
                   </td>
                 ))}
               </tr>
@@ -201,10 +209,10 @@ const MockTableWidget: React.FC<{
           </tbody>
         </table>
       </div>
-      
+
       {tableConfig.showPagination && (
         <div className="flex justify-center">
-          <div className="bg-gray-50 border rounded-lg px-4 py-2 text-sm text-gray-500">
+          <div className="rounded-lg border bg-gray-50 px-4 py-2 text-sm text-gray-500">
             Sideinndeling aktivert
           </div>
         </div>
@@ -219,21 +227,28 @@ const MockMetricsWidget: React.FC<{
 }> = ({ config, title }) => {
   const metricsConfig = config as any
   const mockData = generateMockMetricsData()
-  
-  const metrics = metricsConfig.metrics || ['totalReturn', 'annualizedReturn', 'sharpeRatio', 'volatility']
-  
+
+  const metrics = metricsConfig.metrics || [
+    'totalReturn',
+    'annualizedReturn',
+    'sharpeRatio',
+    'volatility',
+  ]
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">{title}</h3>
         <Badge variant="secondary">{metrics.length} målinger</Badge>
       </div>
-      
+
       <div className="grid grid-cols-2 gap-4">
         {metrics.map((metric: string) => (
-          <div key={metric} className="bg-gray-50 rounded-lg p-4">
-            <div className="text-sm text-gray-500 mb-1">
-              {metric.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+          <div key={metric} className="rounded-lg bg-gray-50 p-4">
+            <div className="mb-1 text-sm text-gray-500">
+              {metric
+                .replace(/([A-Z])/g, ' $1')
+                .replace(/^./, str => str.toUpperCase())}
             </div>
             <div className="text-xl font-semibold">
               {metric === 'totalReturn' && `${mockData.totalReturn}%`}
@@ -242,17 +257,24 @@ const MockMetricsWidget: React.FC<{
               {metric === 'volatility' && `${mockData.volatility}%`}
               {metric === 'maxDrawdown' && `${mockData.maxDrawdown}%`}
               {metric === 'winRate' && `${mockData.winRate}%`}
-              {!['totalReturn', 'annualizedReturn', 'sharpeRatio', 'volatility', 'maxDrawdown', 'winRate'].includes(metric) && '--'}
+              {![
+                'totalReturn',
+                'annualizedReturn',
+                'sharpeRatio',
+                'volatility',
+                'maxDrawdown',
+                'winRate',
+              ].includes(metric) && '--'}
             </div>
             {metricsConfig.showSparklines && (
-              <div className="mt-2 h-8 bg-gradient-to-r from-blue-200 to-purple-200 rounded opacity-50"></div>
+              <div className="mt-2 h-8 rounded bg-gradient-to-r from-blue-200 to-purple-200 opacity-50"></div>
             )}
           </div>
         ))}
       </div>
-      
+
       {metricsConfig.compactView && (
-        <div className="text-xs text-gray-500 text-center">
+        <div className="text-center text-xs text-gray-500">
           Kompakt visning aktivert
         </div>
       )}
@@ -266,32 +288,34 @@ const MockNewsWidget: React.FC<{
 }> = ({ config, title }) => {
   const newsConfig = config as any
   const mockData = generateMockNewsData()
-  
+
   const maxItems = newsConfig.maxItems || 5
   const sources = newsConfig.sources || ['Reuters', 'Bloomberg']
-  
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">{title}</h3>
         <Badge variant="secondary">{sources.length} kilder</Badge>
       </div>
-      
+
       <div className="space-y-3">
-        {mockData.slice(0, maxItems).map((article) => (
-          <div key={article.id} className="border rounded-lg p-4">
+        {mockData.slice(0, maxItems).map(article => (
+          <div key={article.id} className="rounded-lg border p-4">
             <div className="flex items-start gap-3">
               {newsConfig.showImages && (
-                <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-gray-200">
                   📰
                 </div>
               )}
               <div className="flex-1">
-                <h4 className="font-medium text-sm">{article.title}</h4>
+                <h4 className="text-sm font-medium">{article.title}</h4>
                 {newsConfig.showSummary && (
-                  <p className="text-sm text-gray-600 mt-1">{article.summary}</p>
+                  <p className="mt-1 text-sm text-gray-600">
+                    {article.summary}
+                  </p>
                 )}
-                <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
+                <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
                   <span>{article.source}</span>
                   <span>•</span>
                   <span>{article.publishedAt.toLocaleDateString('no-NO')}</span>
@@ -301,9 +325,9 @@ const MockNewsWidget: React.FC<{
           </div>
         ))}
       </div>
-      
+
       {newsConfig.filterBySymbol && (
-        <div className="text-xs text-gray-500 text-center">
+        <div className="text-center text-xs text-gray-500">
           Filtrert etter aktuell aksje
         </div>
       )}
@@ -318,32 +342,36 @@ const MockAlertsWidget: React.FC<{
   const alertsConfig = config as any
   const alertTypes = alertsConfig.alertTypes || ['price_alert', 'volume_alert']
   const maxItems = alertsConfig.maxItems || 10
-  
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">{title}</h3>
         <Badge variant="secondary">{alertTypes.length} typer</Badge>
       </div>
-      
+
       <div className="space-y-2">
         {Array.from({ length: Math.min(maxItems, 3) }).map((_, index) => (
-          <div key={index} className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+          <div
+            key={index}
+            className="rounded-lg border border-yellow-200 bg-yellow-50 p-3"
+          >
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+              <div className="h-2 w-2 rounded-full bg-yellow-400"></div>
               <div className="text-sm font-medium">
-                {alertTypes[index % alertTypes.length]?.replace('_', ' ')} varsel
+                {alertTypes[index % alertTypes.length]?.replace('_', ' ')}{' '}
+                varsel
               </div>
             </div>
-            <div className="text-xs text-gray-600 mt-1">
+            <div className="mt-1 text-xs text-gray-600">
               Mock varsel for demo formål
             </div>
           </div>
         ))}
       </div>
-      
+
       {alertsConfig.showNotifications && (
-        <div className="text-xs text-gray-500 text-center">
+        <div className="text-center text-xs text-gray-500">
           Notifikasjoner aktivert
         </div>
       )}
@@ -365,7 +393,10 @@ export const WidgetPreview: React.FC<WidgetPreviewProps> = ({
   const [previewError, setPreviewError] = useState<string | null>(null)
 
   const theme = useMemo(() => {
-    return getInvestmentTheme('light', registration.category.toLowerCase() as any)
+    return getInvestmentTheme(
+      'light',
+      registration.category.toLowerCase() as any
+    )
   }, [registration.category])
 
   const widgetTitle = useMemo(() => {
@@ -390,41 +421,23 @@ export const WidgetPreview: React.FC<WidgetPreviewProps> = ({
             />
           )
         case 'HOLDINGS_TABLE_RICH':
-          return (
-            <MockTableWidget
-              config={config}
-              title={widgetTitle}
-            />
-          )
+          return <MockTableWidget config={config} title={widgetTitle} />
         case 'METRICS_GRID':
         case 'PERFORMANCE_METRICS':
-          return (
-            <MockMetricsWidget
-              config={config}
-              title={widgetTitle}
-            />
-          )
+          return <MockMetricsWidget config={config} title={widgetTitle} />
         case 'NEWS_FEED':
-          return (
-            <MockNewsWidget
-              config={config}
-              title={widgetTitle}
-            />
-          )
+          return <MockNewsWidget config={config} title={widgetTitle} />
         case 'PRICE_ALERTS':
-          return (
-            <MockAlertsWidget
-              config={config}
-              title={widgetTitle}
-            />
-          )
+          return <MockAlertsWidget config={config} title={widgetTitle} />
         default:
           return (
-            <div className="text-center py-8">
-              <div className="text-4xl mb-4">🔧</div>
-              <h3 className="text-lg font-semibold mb-2">{widgetTitle}</h3>
-              <p className="text-gray-600 mb-4">{widgetDescription}</p>
-              <Badge variant="secondary">Forhåndsvisning ikke tilgjengelig</Badge>
+            <div className="py-8 text-center">
+              <div className="mb-4 text-4xl">🔧</div>
+              <h3 className="mb-2 text-lg font-semibold">{widgetTitle}</h3>
+              <p className="mb-4 text-gray-600">{widgetDescription}</p>
+              <Badge variant="secondary">
+                Forhåndsvisning ikke tilgjengelig
+              </Badge>
             </div>
           )
       }
@@ -440,27 +453,34 @@ export const WidgetPreview: React.FC<WidgetPreviewProps> = ({
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       className={cn(
-        'bg-white rounded-lg shadow-lg overflow-hidden',
+        'overflow-hidden rounded-lg bg-white shadow-lg',
         isFullScreen && 'fixed inset-4 z-50',
         className
       )}
     >
       {/* Preview header */}
-      <div className="bg-gray-50 border-b px-4 py-3">
+      <div className="border-b bg-gray-50 px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={cn(
-              'p-1.5 rounded-md',
-              registration.category === 'STOCKS' && 'bg-purple-100 text-purple-600',
-              registration.category === 'CRYPTO' && 'bg-amber-100 text-amber-600',
-              registration.category === 'ART' && 'bg-pink-100 text-pink-600',
-              registration.category === 'OTHER' && 'bg-emerald-100 text-emerald-600',
-            )}>
-              <Eye className="w-4 h-4" />
+            <div
+              className={cn(
+                'rounded-md p-1.5',
+                registration.category === 'STOCKS' &&
+                  'bg-purple-100 text-purple-600',
+                registration.category === 'CRYPTO' &&
+                  'bg-amber-100 text-amber-600',
+                registration.category === 'ART' && 'bg-pink-100 text-pink-600',
+                registration.category === 'OTHER' &&
+                  'bg-emerald-100 text-emerald-600'
+              )}
+            >
+              <Eye className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm">Forhåndsvisning</h3>
-              <p className="text-xs text-gray-500">{registration.displayName}</p>
+              <h3 className="text-sm font-semibold">Forhåndsvisning</h3>
+              <p className="text-xs text-gray-500">
+                {registration.displayName}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -474,7 +494,7 @@ export const WidgetPreview: React.FC<WidgetPreviewProps> = ({
                 onClick={onReset}
                 className="h-8 w-8 p-0"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="h-4 w-4" />
               </Button>
             )}
             {onToggleFullScreen && (
@@ -484,7 +504,11 @@ export const WidgetPreview: React.FC<WidgetPreviewProps> = ({
                 onClick={onToggleFullScreen}
                 className="h-8 w-8 p-0"
               >
-                {isFullScreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                {isFullScreen ? (
+                  <Minimize2 className="h-4 w-4" />
+                ) : (
+                  <Maximize2 className="h-4 w-4" />
+                )}
               </Button>
             )}
           </div>
@@ -505,25 +529,29 @@ export const WidgetPreview: React.FC<WidgetPreviewProps> = ({
                   <div>
                     <h2 className="text-lg font-semibold">{widgetTitle}</h2>
                     {widgetDescription && (
-                      <p className="text-sm text-gray-600">{widgetDescription}</p>
+                      <p className="text-sm text-gray-600">
+                        {widgetDescription}
+                      </p>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-xs">
                       {registration.category}
                     </Badge>
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <div className="h-2 w-2 animate-pulse rounded-full bg-green-400"></div>
                   </div>
                 </div>
               </div>
             )}
-            
+
             {renderPreviewContent()}
-            
+
             {config.showFooter !== false && (
               <div className="border-t pt-3">
                 <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span>Sist oppdatert: {new Date().toLocaleTimeString('no-NO')}</span>
+                  <span>
+                    Sist oppdatert: {new Date().toLocaleTimeString('no-NO')}
+                  </span>
                   <span>Oppdatering: {config.refreshInterval || 300}s</span>
                 </div>
               </div>

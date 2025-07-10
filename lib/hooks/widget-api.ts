@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import { 
+import {
   getWidgetDataService,
   type WidgetDataService,
   type WidgetStockPricesResult,
@@ -23,7 +23,7 @@ import { type StockPrice } from '@/lib/utils/finnhub-api'
 
 /**
  * Widget API Hooks for LifeDash
- * 
+ *
  * Provides custom React hooks for each widget type:
  * - useStockChart, useNewsFeed, useTransactions, etc.
  * - Error handling and loading states
@@ -72,7 +72,11 @@ function useWidgetService(): WidgetDataService {
   return useMemo(() => getWidgetDataService(), [])
 }
 
-function useRefreshInterval(callback: () => Promise<void>, interval: number, enabled: boolean = true) {
+function useRefreshInterval(
+  callback: () => Promise<void>,
+  interval: number,
+  enabled: boolean = true
+) {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const callbackRef = useRef(callback)
 
@@ -101,10 +105,10 @@ function useRetryLogic(
   delay: number = 1000
 ) {
   const [retryCount, setRetryCount] = useState(0)
-  
+
   const executeWithRetry = useCallback(async () => {
     let lastError: Error | null = null
-    
+
     for (let i = 0; i <= maxRetries; i++) {
       try {
         const result = await operation()
@@ -117,11 +121,11 @@ function useRetryLogic(
         }
       }
     }
-    
+
     setRetryCount(maxRetries + 1)
     throw lastError
   }, [operation, maxRetries, delay])
-  
+
   return { executeWithRetry, retryCount }
 }
 
@@ -138,7 +142,7 @@ export function useStockPrices(
     retryCount = 3,
     retryDelay = 1000,
     onError,
-    onSuccess
+    onSuccess,
   } = options
 
   const [data, setData] = useState<StockPrice[] | null>(null)
@@ -159,7 +163,7 @@ export function useStockPrices(
       setError(null)
 
       const result = await service.getStockPrices(validSymbols)
-      
+
       if (result.success) {
         setData(result.data)
         setFromCache(result.fromCache)
@@ -167,7 +171,8 @@ export function useStockPrices(
         setCurrentRetryCount(0)
         onSuccess?.(result.data)
       } else {
-        const errorMessage = result.errors[0]?.message || 'Failed to fetch stock prices'
+        const errorMessage =
+          result.errors[0]?.message || 'Failed to fetch stock prices'
         setError(errorMessage)
         onError?.(errorMessage)
       }
@@ -180,7 +185,11 @@ export function useStockPrices(
     }
   }, [service, validSymbols, enabled, onSuccess, onError])
 
-  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(fetchData, retryCount, retryDelay)
+  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(
+    fetchData,
+    retryCount,
+    retryDelay
+  )
 
   const refresh = useCallback(async () => {
     await executeWithRetry()
@@ -208,7 +217,7 @@ export function useStockPrices(
     lastUpdated,
     fromCache,
     retryCount: hookRetryCount,
-    isStale
+    isStale,
   }
 }
 
@@ -223,7 +232,7 @@ export function useStockPrice(
     retryCount = 3,
     retryDelay = 1000,
     onError,
-    onSuccess
+    onSuccess,
   } = options
 
   const [data, setData] = useState<StockPrice | null>(null)
@@ -243,14 +252,15 @@ export function useStockPrice(
       setError(null)
 
       const result = await service.getStockPrice(symbol)
-      
+
       if (result.success && result.data) {
         setData(result.data)
         setFromCache(result.fromCache)
         setLastUpdated(result.timestamp)
         onSuccess?.(result.data)
       } else {
-        const errorMessage = result.error?.message || 'Failed to fetch stock price'
+        const errorMessage =
+          result.error?.message || 'Failed to fetch stock price'
         setError(errorMessage)
         onError?.(errorMessage)
       }
@@ -263,7 +273,11 @@ export function useStockPrice(
     }
   }, [service, symbol, validSymbol, enabled, onSuccess, onError])
 
-  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(fetchData, retryCount, retryDelay)
+  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(
+    fetchData,
+    retryCount,
+    retryDelay
+  )
 
   const refresh = useCallback(async () => {
     await executeWithRetry()
@@ -291,7 +305,7 @@ export function useStockPrice(
     lastUpdated,
     fromCache,
     retryCount: hookRetryCount,
-    isStale
+    isStale,
   }
 }
 
@@ -306,10 +320,12 @@ export function useCompanyProfile(
     retryCount = 3,
     retryDelay = 1000,
     onError,
-    onSuccess
+    onSuccess,
   } = options
 
-  const [data, setData] = useState<WidgetCompanyProfileResult['data'] | null>(null)
+  const [data, setData] = useState<WidgetCompanyProfileResult['data'] | null>(
+    null
+  )
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
@@ -326,14 +342,15 @@ export function useCompanyProfile(
       setError(null)
 
       const result = await service.getCompanyProfile(symbol)
-      
+
       if (result.success && result.data) {
         setData(result.data)
         setFromCache(result.fromCache)
         setLastUpdated(result.timestamp)
         onSuccess?.(result.data)
       } else {
-        const errorMessage = result.error?.message || 'Failed to fetch company profile'
+        const errorMessage =
+          result.error?.message || 'Failed to fetch company profile'
         setError(errorMessage)
         onError?.(errorMessage)
       }
@@ -346,7 +363,11 @@ export function useCompanyProfile(
     }
   }, [service, symbol, validSymbol, enabled, onSuccess, onError])
 
-  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(fetchData, retryCount, retryDelay)
+  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(
+    fetchData,
+    retryCount,
+    retryDelay
+  )
 
   const refresh = useCallback(async () => {
     await executeWithRetry()
@@ -374,7 +395,7 @@ export function useCompanyProfile(
     lastUpdated,
     fromCache,
     retryCount: hookRetryCount,
-    isStale
+    isStale,
   }
 }
 
@@ -389,10 +410,12 @@ export function useBasicFinancials(
     retryCount = 3,
     retryDelay = 1000,
     onError,
-    onSuccess
+    onSuccess,
   } = options
 
-  const [data, setData] = useState<WidgetBasicFinancialsResult['data'] | null>(null)
+  const [data, setData] = useState<WidgetBasicFinancialsResult['data'] | null>(
+    null
+  )
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
@@ -409,14 +432,15 @@ export function useBasicFinancials(
       setError(null)
 
       const result = await service.getBasicFinancials(symbol)
-      
+
       if (result.success && result.data) {
         setData(result.data)
         setFromCache(result.fromCache)
         setLastUpdated(result.timestamp)
         onSuccess?.(result.data)
       } else {
-        const errorMessage = result.error?.message || 'Failed to fetch basic financials'
+        const errorMessage =
+          result.error?.message || 'Failed to fetch basic financials'
         setError(errorMessage)
         onError?.(errorMessage)
       }
@@ -429,7 +453,11 @@ export function useBasicFinancials(
     }
   }, [service, symbol, validSymbol, enabled, onSuccess, onError])
 
-  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(fetchData, retryCount, retryDelay)
+  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(
+    fetchData,
+    retryCount,
+    retryDelay
+  )
 
   const refresh = useCallback(async () => {
     await executeWithRetry()
@@ -457,7 +485,7 @@ export function useBasicFinancials(
     lastUpdated,
     fromCache,
     retryCount: hookRetryCount,
-    isStale
+    isStale,
   }
 }
 
@@ -473,7 +501,7 @@ export function useCompanyNews(
     retryCount = 3,
     retryDelay = 1000,
     onError,
-    onSuccess
+    onSuccess,
   } = options
 
   const [data, setData] = useState<WidgetCompanyNewsResult['data'] | null>(null)
@@ -493,14 +521,15 @@ export function useCompanyNews(
       setError(null)
 
       const result = await service.getCompanyNews(symbol, days)
-      
+
       if (result.success) {
         setData(result.data)
         setFromCache(result.fromCache)
         setLastUpdated(result.timestamp)
         onSuccess?.(result.data)
       } else {
-        const errorMessage = result.error?.message || 'Failed to fetch company news'
+        const errorMessage =
+          result.error?.message || 'Failed to fetch company news'
         setError(errorMessage)
         onError?.(errorMessage)
       }
@@ -513,7 +542,11 @@ export function useCompanyNews(
     }
   }, [service, symbol, validSymbol, days, enabled, onSuccess, onError])
 
-  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(fetchData, retryCount, retryDelay)
+  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(
+    fetchData,
+    retryCount,
+    retryDelay
+  )
 
   const refresh = useCallback(async () => {
     await executeWithRetry()
@@ -541,7 +574,7 @@ export function useCompanyNews(
     lastUpdated,
     fromCache,
     retryCount: hookRetryCount,
-    isStale
+    isStale,
   }
 }
 
@@ -558,17 +591,22 @@ export function usePortfolioOverview(
     retryCount = 3,
     retryDelay = 1000,
     onError,
-    onSuccess
+    onSuccess,
   } = options
 
-  const [data, setData] = useState<WidgetPortfolioOverviewResult['data'] | null>(null)
+  const [data, setData] = useState<
+    WidgetPortfolioOverviewResult['data'] | null
+  >(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
   const [fromCache, setFromCache] = useState(false)
 
   const service = useWidgetService()
-  const validPortfolioId = useMemo(() => isValidPortfolioId(portfolioId), [portfolioId])
+  const validPortfolioId = useMemo(
+    () => isValidPortfolioId(portfolioId),
+    [portfolioId]
+  )
 
   const fetchData = useCallback(async () => {
     if (!enabled || !validPortfolioId) return
@@ -578,13 +616,14 @@ export function usePortfolioOverview(
       setError(null)
 
       const result = await service.getPortfolioOverview(portfolioId)
-      
+
       if (result.success && result.data) {
         setData(result.data)
         setLastUpdated(result.timestamp)
         onSuccess?.(result.data)
       } else {
-        const errorMessage = result.error || 'Failed to fetch portfolio overview'
+        const errorMessage =
+          result.error || 'Failed to fetch portfolio overview'
         setError(errorMessage)
         onError?.(errorMessage)
       }
@@ -597,7 +636,11 @@ export function usePortfolioOverview(
     }
   }, [service, portfolioId, validPortfolioId, enabled, onSuccess, onError])
 
-  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(fetchData, retryCount, retryDelay)
+  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(
+    fetchData,
+    retryCount,
+    retryDelay
+  )
 
   const refresh = useCallback(async () => {
     await executeWithRetry()
@@ -625,7 +668,7 @@ export function usePortfolioOverview(
     lastUpdated,
     fromCache,
     retryCount: hookRetryCount,
-    isStale
+    isStale,
   }
 }
 
@@ -640,17 +683,22 @@ export function usePortfolioHoldings(
     retryCount = 3,
     retryDelay = 1000,
     onError,
-    onSuccess
+    onSuccess,
   } = options
 
-  const [data, setData] = useState<WidgetPortfolioHoldingsResult['data'] | null>(null)
+  const [data, setData] = useState<
+    WidgetPortfolioHoldingsResult['data'] | null
+  >(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
   const [fromCache, setFromCache] = useState(false)
 
   const service = useWidgetService()
-  const validPortfolioId = useMemo(() => isValidPortfolioId(portfolioId), [portfolioId])
+  const validPortfolioId = useMemo(
+    () => isValidPortfolioId(portfolioId),
+    [portfolioId]
+  )
 
   const fetchData = useCallback(async () => {
     if (!enabled || !validPortfolioId) return
@@ -660,13 +708,14 @@ export function usePortfolioHoldings(
       setError(null)
 
       const result = await service.getPortfolioHoldings(portfolioId)
-      
+
       if (result.success) {
         setData(result.data)
         setLastUpdated(result.timestamp)
         onSuccess?.(result.data)
       } else {
-        const errorMessage = result.error || 'Failed to fetch portfolio holdings'
+        const errorMessage =
+          result.error || 'Failed to fetch portfolio holdings'
         setError(errorMessage)
         onError?.(errorMessage)
       }
@@ -679,7 +728,11 @@ export function usePortfolioHoldings(
     }
   }, [service, portfolioId, validPortfolioId, enabled, onSuccess, onError])
 
-  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(fetchData, retryCount, retryDelay)
+  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(
+    fetchData,
+    retryCount,
+    retryDelay
+  )
 
   const refresh = useCallback(async () => {
     await executeWithRetry()
@@ -707,7 +760,7 @@ export function usePortfolioHoldings(
     lastUpdated,
     fromCache,
     retryCount: hookRetryCount,
-    isStale
+    isStale,
   }
 }
 
@@ -722,17 +775,22 @@ export function usePortfolioPerformance(
     retryCount = 3,
     retryDelay = 1000,
     onError,
-    onSuccess
+    onSuccess,
   } = options
 
-  const [data, setData] = useState<WidgetPortfolioPerformanceResult['data'] | null>(null)
+  const [data, setData] = useState<
+    WidgetPortfolioPerformanceResult['data'] | null
+  >(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
   const [fromCache, setFromCache] = useState(false)
 
   const service = useWidgetService()
-  const validPortfolioId = useMemo(() => isValidPortfolioId(portfolioId), [portfolioId])
+  const validPortfolioId = useMemo(
+    () => isValidPortfolioId(portfolioId),
+    [portfolioId]
+  )
 
   const fetchData = useCallback(async () => {
     if (!enabled || !validPortfolioId) return
@@ -742,13 +800,14 @@ export function usePortfolioPerformance(
       setError(null)
 
       const result = await service.getPortfolioPerformance(portfolioId)
-      
+
       if (result.success && result.data) {
         setData(result.data)
         setLastUpdated(result.timestamp)
         onSuccess?.(result.data)
       } else {
-        const errorMessage = result.error || 'Failed to fetch portfolio performance'
+        const errorMessage =
+          result.error || 'Failed to fetch portfolio performance'
         setError(errorMessage)
         onError?.(errorMessage)
       }
@@ -761,7 +820,11 @@ export function usePortfolioPerformance(
     }
   }, [service, portfolioId, validPortfolioId, enabled, onSuccess, onError])
 
-  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(fetchData, retryCount, retryDelay)
+  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(
+    fetchData,
+    retryCount,
+    retryDelay
+  )
 
   const refresh = useCallback(async () => {
     await executeWithRetry()
@@ -789,7 +852,7 @@ export function usePortfolioPerformance(
     lastUpdated,
     fromCache,
     retryCount: hookRetryCount,
-    isStale
+    isStale,
   }
 }
 
@@ -805,17 +868,22 @@ export function usePortfolioTransactions(
     retryCount = 3,
     retryDelay = 1000,
     onError,
-    onSuccess
+    onSuccess,
   } = options
 
-  const [data, setData] = useState<WidgetTransactionsResult['data'] | null>(null)
+  const [data, setData] = useState<WidgetTransactionsResult['data'] | null>(
+    null
+  )
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
   const [fromCache, setFromCache] = useState(false)
 
   const service = useWidgetService()
-  const validPortfolioId = useMemo(() => isValidPortfolioId(portfolioId), [portfolioId])
+  const validPortfolioId = useMemo(
+    () => isValidPortfolioId(portfolioId),
+    [portfolioId]
+  )
 
   const fetchData = useCallback(async () => {
     if (!enabled || !validPortfolioId) return
@@ -825,13 +893,14 @@ export function usePortfolioTransactions(
       setError(null)
 
       const result = await service.getPortfolioTransactions(portfolioId, limit)
-      
+
       if (result.success) {
         setData(result.data)
         setLastUpdated(result.timestamp)
         onSuccess?.(result.data)
       } else {
-        const errorMessage = result.error || 'Failed to fetch portfolio transactions'
+        const errorMessage =
+          result.error || 'Failed to fetch portfolio transactions'
         setError(errorMessage)
         onError?.(errorMessage)
       }
@@ -842,9 +911,21 @@ export function usePortfolioTransactions(
     } finally {
       setLoading(false)
     }
-  }, [service, portfolioId, validPortfolioId, limit, enabled, onSuccess, onError])
+  }, [
+    service,
+    portfolioId,
+    validPortfolioId,
+    limit,
+    enabled,
+    onSuccess,
+    onError,
+  ])
 
-  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(fetchData, retryCount, retryDelay)
+  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(
+    fetchData,
+    retryCount,
+    retryDelay
+  )
 
   const refresh = useCallback(async () => {
     await executeWithRetry()
@@ -872,7 +953,7 @@ export function usePortfolioTransactions(
     lastUpdated,
     fromCache,
     retryCount: hookRetryCount,
-    isStale
+    isStale,
   }
 }
 
@@ -889,17 +970,22 @@ export function usePortfolioAnalytics(
     retryCount = 3,
     retryDelay = 1000,
     onError,
-    onSuccess
+    onSuccess,
   } = options
 
-  const [data, setData] = useState<WidgetPortfolioAnalyticsResult['data'] | null>(null)
+  const [data, setData] = useState<
+    WidgetPortfolioAnalyticsResult['data'] | null
+  >(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
   const [fromCache, setFromCache] = useState(false)
 
   const service = useWidgetService()
-  const validPortfolioId = useMemo(() => isValidPortfolioId(portfolioId), [portfolioId])
+  const validPortfolioId = useMemo(
+    () => isValidPortfolioId(portfolioId),
+    [portfolioId]
+  )
 
   const fetchData = useCallback(async () => {
     if (!enabled || !validPortfolioId) return
@@ -909,13 +995,14 @@ export function usePortfolioAnalytics(
       setError(null)
 
       const result = await service.getPortfolioAnalytics(portfolioId)
-      
+
       if (result.success && result.data) {
         setData(result.data)
         setLastUpdated(result.timestamp)
         onSuccess?.(result.data)
       } else {
-        const errorMessage = result.error || 'Failed to fetch portfolio analytics'
+        const errorMessage =
+          result.error || 'Failed to fetch portfolio analytics'
         setError(errorMessage)
         onError?.(errorMessage)
       }
@@ -928,7 +1015,11 @@ export function usePortfolioAnalytics(
     }
   }, [service, portfolioId, validPortfolioId, enabled, onSuccess, onError])
 
-  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(fetchData, retryCount, retryDelay)
+  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(
+    fetchData,
+    retryCount,
+    retryDelay
+  )
 
   const refresh = useCallback(async () => {
     await executeWithRetry()
@@ -956,7 +1047,7 @@ export function usePortfolioAnalytics(
     lastUpdated,
     fromCache,
     retryCount: hookRetryCount,
-    isStale
+    isStale,
   }
 }
 
@@ -971,10 +1062,12 @@ export function useStockAnalytics(
     retryCount = 3,
     retryDelay = 1000,
     onError,
-    onSuccess
+    onSuccess,
   } = options
 
-  const [data, setData] = useState<WidgetStockAnalyticsResult['data'] | null>(null)
+  const [data, setData] = useState<WidgetStockAnalyticsResult['data'] | null>(
+    null
+  )
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
@@ -991,7 +1084,7 @@ export function useStockAnalytics(
       setError(null)
 
       const result = await service.getStockAnalytics(symbol)
-      
+
       if (result.success && result.data) {
         setData(result.data)
         setLastUpdated(result.timestamp)
@@ -1010,7 +1103,11 @@ export function useStockAnalytics(
     }
   }, [service, symbol, validSymbol, enabled, onSuccess, onError])
 
-  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(fetchData, retryCount, retryDelay)
+  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(
+    fetchData,
+    retryCount,
+    retryDelay
+  )
 
   const refresh = useCallback(async () => {
     await executeWithRetry()
@@ -1038,7 +1135,7 @@ export function useStockAnalytics(
     lastUpdated,
     fromCache,
     retryCount: hookRetryCount,
-    isStale
+    isStale,
   }
 }
 
@@ -1055,7 +1152,7 @@ export function useRealtimeStockPrices(
     retryCount = 3,
     retryDelay = 1000,
     onError,
-    onSuccess
+    onSuccess,
   } = options
 
   const [data, setData] = useState<StockPrice[] | null>(null)
@@ -1077,14 +1174,15 @@ export function useRealtimeStockPrices(
       setError(null)
 
       const result = await service.getStockPrices(validSymbols)
-      
+
       if (result.success) {
         setData(result.data)
         setFromCache(result.fromCache)
         setLastUpdated(result.timestamp)
         onSuccess?.(result.data)
       } else {
-        const errorMessage = result.errors[0]?.message || 'Failed to fetch stock prices'
+        const errorMessage =
+          result.errors[0]?.message || 'Failed to fetch stock prices'
         setError(errorMessage)
         onError?.(errorMessage)
       }
@@ -1097,7 +1195,11 @@ export function useRealtimeStockPrices(
     }
   }, [service, validSymbols, enabled, onSuccess, onError])
 
-  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(fetchData, retryCount, retryDelay)
+  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(
+    fetchData,
+    retryCount,
+    retryDelay
+  )
 
   const refresh = useCallback(async () => {
     await executeWithRetry()
@@ -1106,13 +1208,16 @@ export function useRealtimeStockPrices(
   const subscribe = useCallback(() => {
     if (!enableRealtime || validSymbols.length === 0) return
 
-    unsubscribeRef.current = service.subscribeToStockPrices(validSymbols, (prices) => {
-      setData(prices)
-      setLastUpdated(new Date().toISOString())
-      setFromCache(false)
-      setIsConnected(true)
-      onSuccess?.(prices)
-    })
+    unsubscribeRef.current = service.subscribeToStockPrices(
+      validSymbols,
+      prices => {
+        setData(prices)
+        setLastUpdated(new Date().toISOString())
+        setFromCache(false)
+        setIsConnected(true)
+        onSuccess?.(prices)
+      }
+    )
   }, [service, validSymbols, enableRealtime, onSuccess])
 
   const unsubscribe = useCallback(() => {
@@ -1136,7 +1241,11 @@ export function useRealtimeStockPrices(
     }
   }, [enabled, validSymbols, refresh, enableRealtime, subscribe, unsubscribe])
 
-  useRefreshInterval(refresh, pollInterval, enabled && !loading && !enableRealtime)
+  useRefreshInterval(
+    refresh,
+    pollInterval,
+    enabled && !loading && !enableRealtime
+  )
 
   const isStale = useMemo(() => {
     if (!lastUpdated) return true
@@ -1155,7 +1264,7 @@ export function useRealtimeStockPrices(
     isStale,
     subscribe,
     unsubscribe,
-    isConnected
+    isConnected,
   }
 }
 
@@ -1170,10 +1279,12 @@ export function useRealtimePortfolio(
     retryCount = 3,
     retryDelay = 1000,
     onError,
-    onSuccess
+    onSuccess,
   } = options
 
-  const [data, setData] = useState<WidgetPortfolioOverviewResult['data'] | null>(null)
+  const [data, setData] = useState<
+    WidgetPortfolioOverviewResult['data'] | null
+  >(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
@@ -1181,7 +1292,10 @@ export function useRealtimePortfolio(
   const [isConnected, setIsConnected] = useState(false)
 
   const service = useWidgetService()
-  const validPortfolioId = useMemo(() => isValidPortfolioId(portfolioId), [portfolioId])
+  const validPortfolioId = useMemo(
+    () => isValidPortfolioId(portfolioId),
+    [portfolioId]
+  )
   const unsubscribeRef = useRef<(() => void) | null>(null)
 
   const fetchData = useCallback(async () => {
@@ -1192,13 +1306,14 @@ export function useRealtimePortfolio(
       setError(null)
 
       const result = await service.getPortfolioOverview(portfolioId)
-      
+
       if (result.success && result.data) {
         setData(result.data)
         setLastUpdated(result.timestamp)
         onSuccess?.(result.data)
       } else {
-        const errorMessage = result.error || 'Failed to fetch portfolio overview'
+        const errorMessage =
+          result.error || 'Failed to fetch portfolio overview'
         setError(errorMessage)
         onError?.(errorMessage)
       }
@@ -1211,7 +1326,11 @@ export function useRealtimePortfolio(
     }
   }, [service, portfolioId, validPortfolioId, enabled, onSuccess, onError])
 
-  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(fetchData, retryCount, retryDelay)
+  const { executeWithRetry, retryCount: hookRetryCount } = useRetryLogic(
+    fetchData,
+    retryCount,
+    retryDelay
+  )
 
   const refresh = useCallback(async () => {
     await executeWithRetry()
@@ -1220,11 +1339,14 @@ export function useRealtimePortfolio(
   const subscribe = useCallback(() => {
     if (!enableRealtime || !validPortfolioId) return
 
-    unsubscribeRef.current = service.subscribeToPortfolioUpdates(portfolioId, () => {
-      // Refresh data when portfolio updates
-      refresh()
-      setIsConnected(true)
-    })
+    unsubscribeRef.current = service.subscribeToPortfolioUpdates(
+      portfolioId,
+      () => {
+        // Refresh data when portfolio updates
+        refresh()
+        setIsConnected(true)
+      }
+    )
   }, [service, portfolioId, validPortfolioId, enableRealtime, refresh])
 
   const unsubscribe = useCallback(() => {
@@ -1246,9 +1368,20 @@ export function useRealtimePortfolio(
     return () => {
       unsubscribe()
     }
-  }, [enabled, validPortfolioId, refresh, enableRealtime, subscribe, unsubscribe])
+  }, [
+    enabled,
+    validPortfolioId,
+    refresh,
+    enableRealtime,
+    subscribe,
+    unsubscribe,
+  ])
 
-  useRefreshInterval(refresh, pollInterval, enabled && !loading && !enableRealtime)
+  useRefreshInterval(
+    refresh,
+    pollInterval,
+    enabled && !loading && !enableRealtime
+  )
 
   const isStale = useMemo(() => {
     if (!lastUpdated) return true
@@ -1267,7 +1400,7 @@ export function useRealtimePortfolio(
     isStale,
     subscribe,
     unsubscribe,
-    isConnected
+    isConnected,
   }
 }
 
@@ -1315,16 +1448,19 @@ export function useCacheStats(): UseWidgetHookResult<WidgetCacheStats> {
     lastUpdated,
     fromCache: false,
     retryCount: 0,
-    isStale: false
+    isStale: false,
   }
 }
 
 export function useCacheClear() {
   const service = useWidgetService()
 
-  const clearCache = useCallback((pattern?: string) => {
-    service.clearCache(pattern)
-  }, [service])
+  const clearCache = useCallback(
+    (pattern?: string) => {
+      service.clearCache(pattern)
+    },
+    [service]
+  )
 
   return { clearCache }
 }
@@ -1338,23 +1474,33 @@ export function useStockWidget(
   const priceResult = useStockPrice(symbol, options)
   const profileResult = useCompanyProfile(symbol, {
     ...options,
-    refreshInterval: 24 * 60 * 60 * 1000 // 24 hours
+    refreshInterval: 24 * 60 * 60 * 1000, // 24 hours
   })
   const financialsResult = useBasicFinancials(symbol, {
     ...options,
-    refreshInterval: 6 * 60 * 60 * 1000 // 6 hours
+    refreshInterval: 6 * 60 * 60 * 1000, // 6 hours
   })
   const newsResult = useCompanyNews(symbol, 7, {
     ...options,
-    refreshInterval: 60 * 60 * 1000 // 1 hour
+    refreshInterval: 60 * 60 * 1000, // 1 hour
   })
   const analyticsResult = useStockAnalytics(symbol, {
     ...options,
-    refreshInterval: 10 * 60 * 1000 // 10 minutes
+    refreshInterval: 10 * 60 * 1000, // 10 minutes
   })
 
-  const loading = priceResult.loading || profileResult.loading || financialsResult.loading || newsResult.loading || analyticsResult.loading
-  const error = priceResult.error || profileResult.error || financialsResult.error || newsResult.error || analyticsResult.error
+  const loading =
+    priceResult.loading ||
+    profileResult.loading ||
+    financialsResult.loading ||
+    newsResult.loading ||
+    analyticsResult.loading
+  const error =
+    priceResult.error ||
+    profileResult.error ||
+    financialsResult.error ||
+    newsResult.error ||
+    analyticsResult.error
 
   const refresh = useCallback(async () => {
     await Promise.all([
@@ -1362,9 +1508,15 @@ export function useStockWidget(
       profileResult.refresh(),
       financialsResult.refresh(),
       newsResult.refresh(),
-      analyticsResult.refresh()
+      analyticsResult.refresh(),
     ])
-  }, [priceResult.refresh, profileResult.refresh, financialsResult.refresh, newsResult.refresh, analyticsResult.refresh])
+  }, [
+    priceResult.refresh,
+    profileResult.refresh,
+    financialsResult.refresh,
+    newsResult.refresh,
+    analyticsResult.refresh,
+  ])
 
   return {
     price: priceResult.data,
@@ -1376,7 +1528,7 @@ export function useStockWidget(
     error,
     refresh,
     lastUpdated: priceResult.lastUpdated,
-    fromCache: priceResult.fromCache
+    fromCache: priceResult.fromCache,
   }
 }
 
@@ -1390,11 +1542,21 @@ export function usePortfolioWidget(
   const transactionsResult = usePortfolioTransactions(portfolioId, 10, options)
   const analyticsResult = usePortfolioAnalytics(portfolioId, {
     ...options,
-    refreshInterval: 10 * 60 * 1000 // 10 minutes
+    refreshInterval: 10 * 60 * 1000, // 10 minutes
   })
 
-  const loading = overviewResult.loading || holdingsResult.loading || performanceResult.loading || transactionsResult.loading || analyticsResult.loading
-  const error = overviewResult.error || holdingsResult.error || performanceResult.error || transactionsResult.error || analyticsResult.error
+  const loading =
+    overviewResult.loading ||
+    holdingsResult.loading ||
+    performanceResult.loading ||
+    transactionsResult.loading ||
+    analyticsResult.loading
+  const error =
+    overviewResult.error ||
+    holdingsResult.error ||
+    performanceResult.error ||
+    transactionsResult.error ||
+    analyticsResult.error
 
   const refresh = useCallback(async () => {
     await Promise.all([
@@ -1402,9 +1564,15 @@ export function usePortfolioWidget(
       holdingsResult.refresh(),
       performanceResult.refresh(),
       transactionsResult.refresh(),
-      analyticsResult.refresh()
+      analyticsResult.refresh(),
     ])
-  }, [overviewResult.refresh, holdingsResult.refresh, performanceResult.refresh, transactionsResult.refresh, analyticsResult.refresh])
+  }, [
+    overviewResult.refresh,
+    holdingsResult.refresh,
+    performanceResult.refresh,
+    transactionsResult.refresh,
+    analyticsResult.refresh,
+  ])
 
   return {
     overview: overviewResult.data,
@@ -1416,7 +1584,7 @@ export function usePortfolioWidget(
     error,
     refresh,
     lastUpdated: overviewResult.lastUpdated,
-    fromCache: overviewResult.fromCache
+    fromCache: overviewResult.fromCache,
   }
 }
 

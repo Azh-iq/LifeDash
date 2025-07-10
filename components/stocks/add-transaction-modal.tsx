@@ -19,7 +19,12 @@ import {
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { Separator } from '@/components/ui/separator'
 import { StockSearch, StockSearchResult } from './stock-search'
 import AdvancedFeesInput, { AdvancedFees } from './advanced-fees-input'
@@ -97,16 +102,18 @@ export default function AddTransactionModal({
   // UI state
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
-  
+
   // Price fetching state
   const [isFetchingPrice, setIsFetchingPrice] = useState(false)
   const [currentPrice, setCurrentPrice] = useState<StockPrice | null>(null)
   const [priceError, setPriceError] = useState<string | null>(null)
   const [isLivePrice, setIsLivePrice] = useState(false)
   const [lastPriceUpdate, setLastPriceUpdate] = useState<Date | null>(null)
-  
+
   // Price cache (1-2 minutes)
-  const priceCache = useRef<Map<string, { price: StockPrice; timestamp: number }>>(new Map())
+  const priceCache = useRef<
+    Map<string, { price: StockPrice; timestamp: number }>
+  >(new Map())
   const PRICE_CACHE_TTL = 2 * 60 * 1000 // 2 minutes
 
   // Calculated values
@@ -117,133 +124,143 @@ export default function AddTransactionModal({
     quantityNum * priceNum + (type === 'BUY' ? feesNum : -feesNum)
 
   // Fetch current stock price
-  const fetchCurrentPrice = useCallback(async (symbol: string, useCache: boolean = true) => {
-    if (!symbol) return
-    
-    // Check cache first
-    const cacheKey = symbol.toUpperCase()
-    if (useCache && priceCache.current.has(cacheKey)) {
-      const cached = priceCache.current.get(cacheKey)!
-      const isExpired = Date.now() - cached.timestamp > PRICE_CACHE_TTL
-      if (!isExpired) {
-        setCurrentPrice(cached.price)
-        setPricePerShare(cached.price.price.toFixed(2))
-        setIsLivePrice(true)
-        setLastPriceUpdate(new Date(cached.timestamp))
-        return
+  const fetchCurrentPrice = useCallback(
+    async (symbol: string, useCache: boolean = true) => {
+      if (!symbol) return
+
+      // Check cache first
+      const cacheKey = symbol.toUpperCase()
+      if (useCache && priceCache.current.has(cacheKey)) {
+        const cached = priceCache.current.get(cacheKey)!
+        const isExpired = Date.now() - cached.timestamp > PRICE_CACHE_TTL
+        if (!isExpired) {
+          setCurrentPrice(cached.price)
+          setPricePerShare(cached.price.price.toFixed(2))
+          setIsLivePrice(true)
+          setLastPriceUpdate(new Date(cached.timestamp))
+          return
+        }
       }
-    }
-    
-    setIsFetchingPrice(true)
-    setPriceError(null)
-    
-    try {
-      const result = await fetchRealStockPrice(symbol, { useCache: false })
-      
-      if (result.success && result.data) {
-        setCurrentPrice(result.data)
-        setPricePerShare(result.data.price.toFixed(2))
-        setIsLivePrice(true)
-        setLastPriceUpdate(new Date())
-        
-        // Cache the price
-        priceCache.current.set(cacheKey, {
-          price: result.data,
-          timestamp: Date.now()
-        })
-        
-        // Clear any existing errors
-        setErrors(prev => {
-          const newErrors = { ...prev }
-          delete newErrors.pricePerShare
-          return newErrors
-        })
-      } else {
-        const errorMessage = result.errors[0]?.message || 'Kunne ikke hente aktuell pris'
-        setPriceError(errorMessage)
+
+      setIsFetchingPrice(true)
+      setPriceError(null)
+
+      try {
+        const result = await fetchRealStockPrice(symbol, { useCache: false })
+
+        if (result.success && result.data) {
+          setCurrentPrice(result.data)
+          setPricePerShare(result.data.price.toFixed(2))
+          setIsLivePrice(true)
+          setLastPriceUpdate(new Date())
+
+          // Cache the price
+          priceCache.current.set(cacheKey, {
+            price: result.data,
+            timestamp: Date.now(),
+          })
+
+          // Clear any existing errors
+          setErrors(prev => {
+            const newErrors = { ...prev }
+            delete newErrors.pricePerShare
+            return newErrors
+          })
+        } else {
+          const errorMessage =
+            result.errors[0]?.message || 'Kunne ikke hente aktuell pris'
+          setPriceError(errorMessage)
+        }
+      } catch (error) {
+        setPriceError('Feil ved henting av pris')
+      } finally {
+        setIsFetchingPrice(false)
       }
-    } catch (error) {
-      setPriceError('Feil ved henting av pris')
-    } finally {
-      setIsFetchingPrice(false)
-    }
-  }, [])
-  
+    },
+    []
+  )
+
   // Apply default fees based on account platform
-  const applyDefaultFees = useCallback((accountId: string) => {
-    const account = accounts.find(acc => acc.id === accountId)
-    if (!account) return
+  const applyDefaultFees = useCallback(
+    (accountId: string) => {
+      const account = accounts.find(acc => acc.id === accountId)
+      if (!account) return
 
-    // Determine if it's a Norwegian or foreign stock
-    const isNorwegian = currency === 'NOK' || symbol.includes('.OL')
-    const platform = account.platform.toLowerCase()
-    
-    let defaultFees: AdvancedFees = {
-      commission: 0,
-      currencyExchange: 0,
-      otherFees: 0,
-      total: 0
-    }
+      // Determine if it's a Norwegian or foreign stock
+      const isNorwegian = currency === 'NOK' || symbol.includes('.OL')
+      const platform = account.platform.toLowerCase()
 
-    // Set default fees based on platform and currency
-    if (platform === 'nordnet') {
-      if (isNorwegian) {
-        defaultFees = {
-          commission: 99,
-          currencyExchange: 0,
-          otherFees: 0,
-          total: 99
+      let defaultFees: AdvancedFees = {
+        commission: 0,
+        currencyExchange: 0,
+        otherFees: 0,
+        total: 0,
+      }
+
+      // Set default fees based on platform and currency
+      if (platform === 'nordnet') {
+        if (isNorwegian) {
+          defaultFees = {
+            commission: 99,
+            currencyExchange: 0,
+            otherFees: 0,
+            total: 99,
+          }
+        } else {
+          defaultFees = {
+            commission: 0.99,
+            currencyExchange: 25,
+            otherFees: 0,
+            total: 25.99,
+          }
         }
-      } else {
-        defaultFees = {
-          commission: 0.99,
-          currencyExchange: 25,
-          otherFees: 0,
-          total: 25.99
+      } else if (platform === 'dnb') {
+        if (isNorwegian) {
+          defaultFees = {
+            commission: 149,
+            currencyExchange: 0,
+            otherFees: 0,
+            total: 149,
+          }
+        } else {
+          defaultFees = {
+            commission: 149,
+            currencyExchange: 50,
+            otherFees: 0,
+            total: 199,
+          }
+        }
+      } else if (platform === 'handelsbanken') {
+        if (isNorwegian) {
+          defaultFees = {
+            commission: 199,
+            currencyExchange: 0,
+            otherFees: 0,
+            total: 199,
+          }
+        } else {
+          defaultFees = {
+            commission: 199,
+            currencyExchange: 35,
+            otherFees: 0,
+            total: 234,
+          }
         }
       }
-    } else if (platform === 'dnb') {
-      if (isNorwegian) {
-        defaultFees = {
-          commission: 149,
-          currencyExchange: 0,
-          otherFees: 0,
-          total: 149
-        }
-      } else {
-        defaultFees = {
-          commission: 149,
-          currencyExchange: 50,
-          otherFees: 0,
-          total: 199
-        }
-      }
-    } else if (platform === 'handelsbanken') {
-      if (isNorwegian) {
-        defaultFees = {
-          commission: 199,
-          currencyExchange: 0,
-          otherFees: 0,
-          total: 199
-        }
-      } else {
-        defaultFees = {
-          commission: 199,
-          currencyExchange: 35,
-          otherFees: 0,
-          total: 234
-        }
-      }
-    }
 
-    setAdvancedFees(defaultFees)
-  }, [accounts, currency, symbol])
+      setAdvancedFees(defaultFees)
+    },
+    [accounts, currency, symbol]
+  )
 
   // Handle account selection
-  const handleAccountSelect = useCallback((accountId: string) => {
-    setAccountId(accountId)
-    applyDefaultFees(accountId)
-  }, [applyDefaultFees])
+  const handleAccountSelect = useCallback(
+    (accountId: string) => {
+      setAccountId(accountId)
+      applyDefaultFees(accountId)
+    },
+    [applyDefaultFees]
+  )
 
   // Apply default fees when account, currency, or symbol changes
   useEffect(() => {
@@ -253,50 +270,53 @@ export default function AddTransactionModal({
   }, [accountId, currency, symbol, applyDefaultFees])
 
   // Handle stock selection from search
-  const handleStockSelect = useCallback(async (stock: StockSearchResult) => {
-    setSymbol(stock.symbol)
-    setStockName(stock.name)
-    setCurrency(stock.currency)
-    
-    // Handle holdings data for sell transactions
-    if (type === 'SELL' && stock.quantity && stock.account_id) {
-      setSelectedHolding({
-        quantity: stock.quantity,
-        account_id: stock.account_id,
-        account_name: stock.account_name || 'Unknown Account',
-        average_cost: stock.average_cost || 0
-      })
-      setMaxQuantity(stock.quantity)
-      
-      // Pre-select the account for sell transactions
-      if (stock.account_id) {
-        setAccountId(stock.account_id)
-        applyDefaultFees(stock.account_id)
+  const handleStockSelect = useCallback(
+    async (stock: StockSearchResult) => {
+      setSymbol(stock.symbol)
+      setStockName(stock.name)
+      setCurrency(stock.currency)
+
+      // Handle holdings data for sell transactions
+      if (type === 'SELL' && stock.quantity && stock.account_id) {
+        setSelectedHolding({
+          quantity: stock.quantity,
+          account_id: stock.account_id,
+          account_name: stock.account_name || 'Unknown Account',
+          average_cost: stock.average_cost || 0,
+        })
+        setMaxQuantity(stock.quantity)
+
+        // Pre-select the account for sell transactions
+        if (stock.account_id) {
+          setAccountId(stock.account_id)
+          applyDefaultFees(stock.account_id)
+        }
+      } else {
+        setSelectedHolding(null)
+        setMaxQuantity(0)
       }
-    } else {
-      setSelectedHolding(null)
-      setMaxQuantity(0)
-    }
-    
-    // Clear symbol-related errors
-    setErrors(prev => {
-      const newErrors = { ...prev }
-      delete newErrors.symbol
-      delete newErrors.stockName
-      delete newErrors.quantity
-      return newErrors
-    })
-    
-    // Reset price state
-    setCurrentPrice(null)
-    setPriceError(null)
-    setIsLivePrice(false)
-    setLastPriceUpdate(null)
-    
-    // Fetch current price for the selected stock
-    await fetchCurrentPrice(stock.symbol)
-  }, [fetchCurrentPrice, type])
-  
+
+      // Clear symbol-related errors
+      setErrors(prev => {
+        const newErrors = { ...prev }
+        delete newErrors.symbol
+        delete newErrors.stockName
+        delete newErrors.quantity
+        return newErrors
+      })
+
+      // Reset price state
+      setCurrentPrice(null)
+      setPriceError(null)
+      setIsLivePrice(false)
+      setLastPriceUpdate(null)
+
+      // Fetch current price for the selected stock
+      await fetchCurrentPrice(stock.symbol)
+    },
+    [fetchCurrentPrice, type]
+  )
+
   // Handle manual price refresh
   const handlePriceRefresh = useCallback(async () => {
     if (!symbol) return
@@ -322,11 +342,11 @@ export default function AddTransactionModal({
       setAccountId(accounts.length > 0 ? accounts[0].id : '')
       setNotes('')
       setErrors({})
-      
+
       // Reset holdings data
       setSelectedHolding(null)
       setMaxQuantity(0)
-      
+
       // Reset price-related state
       setCurrentPrice(null)
       setPriceError(null)
@@ -351,7 +371,7 @@ export default function AddTransactionModal({
     if (!quantity || quantityNum <= 0) {
       newErrors.quantity = 'Antall må være større enn 0'
     }
-    
+
     // Additional validation for sell transactions
     if (type === 'SELL' && maxQuantity > 0 && quantityNum > maxQuantity) {
       newErrors.quantity = `Du kan ikke selge mer enn ${maxQuantity} aksjer`
@@ -460,45 +480,48 @@ export default function AddTransactionModal({
   // Handle transaction type change
   const handleTypeChange = useCallback((newType: 'BUY' | 'SELL') => {
     setType(newType)
-    
+
     // Clear holdings data when switching away from SELL
     if (newType !== 'SELL') {
       setSelectedHolding(null)
       setMaxQuantity(0)
     }
-    
+
     // Reset form when switching transaction type
     setSymbol('')
     setStockName('')
     setQuantity('')
     setSelectedHolding(null)
     setMaxQuantity(0)
-    
+
     // Clear errors
     setErrors({})
   }, [])
 
   // Handle quantity change with validation for sell transactions
-  const handleQuantityChange = useCallback((value: string) => {
-    setQuantity(value)
-    
-    // Validate quantity for sell transactions
-    if (type === 'SELL' && maxQuantity > 0) {
-      const quantityNum = parseFloat(value)
-      if (quantityNum > maxQuantity) {
-        setErrors(prev => ({
-          ...prev,
-          quantity: `Du kan ikke selge mer enn ${maxQuantity} aksjer`
-        }))
-      } else {
-        setErrors(prev => {
-          const newErrors = { ...prev }
-          delete newErrors.quantity
-          return newErrors
-        })
+  const handleQuantityChange = useCallback(
+    (value: string) => {
+      setQuantity(value)
+
+      // Validate quantity for sell transactions
+      if (type === 'SELL' && maxQuantity > 0) {
+        const quantityNum = parseFloat(value)
+        if (quantityNum > maxQuantity) {
+          setErrors(prev => ({
+            ...prev,
+            quantity: `Du kan ikke selge mer enn ${maxQuantity} aksjer`,
+          }))
+        } else {
+          setErrors(prev => {
+            const newErrors = { ...prev }
+            delete newErrors.quantity
+            return newErrors
+          })
+        }
       }
-    }
-  }, [type, maxQuantity])
+    },
+    [type, maxQuantity]
+  )
 
   // Handle "Max" button click
   const handleMaxQuantity = useCallback(() => {
@@ -578,7 +601,11 @@ export default function AddTransactionModal({
               <StockSearch
                 value={symbol ? `${symbol} - ${stockName}` : ''}
                 onSelect={handleStockSelect}
-                placeholder={type === 'SELL' ? 'Søk i dine beholdninger...' : 'Søk etter aksjer (Apple, Equinor, Tesla...)'}
+                placeholder={
+                  type === 'SELL'
+                    ? 'Søk i dine beholdninger...'
+                    : 'Søk etter aksjer (Apple, Equinor, Tesla...)'
+                }
                 className={errors.symbol ? 'border-red-500' : ''}
                 holdingsOnly={type === 'SELL'}
                 portfolioId={portfolioId}
@@ -599,8 +626,10 @@ export default function AddTransactionModal({
           {/* Transaction Details - Fixed Alignment */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             <div className="space-y-2">
-              <div className="flex items-center justify-between min-h-[24px]">
-                <Label htmlFor="quantity" className="text-sm font-medium">Antall aksjer *</Label>
+              <div className="flex min-h-[24px] items-center justify-between">
+                <Label htmlFor="quantity" className="text-sm font-medium">
+                  Antall aksjer *
+                </Label>
                 {type === 'SELL' && selectedHolding && (
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-500">
@@ -637,26 +666,35 @@ export default function AddTransactionModal({
               )}
               {type === 'SELL' && selectedHolding && (
                 <div className="text-sm text-gray-600">
-                  Konto: {selectedHolding.account_name} | Snittspris: {selectedHolding.average_cost.toFixed(2)} {currency}
+                  Konto: {selectedHolding.account_name} | Snittspris:{' '}
+                  {selectedHolding.average_cost.toFixed(2)} {currency}
                 </div>
               )}
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between min-h-[24px]">
-                <Label htmlFor="pricePerShare" className="text-sm font-medium">Pris per aksje *</Label>
+              <div className="flex min-h-[24px] items-center justify-between">
+                <Label htmlFor="pricePerShare" className="text-sm font-medium">
+                  Pris per aksje *
+                </Label>
                 <div className="flex items-center gap-2">
                   {isLivePrice && (
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>
-                          <Badge variant="secondary" className="text-xs px-2 py-1 bg-green-100 text-green-800 border-green-300">
-                            <Activity className="w-3 h-3 mr-1" />
+                          <Badge
+                            variant="secondary"
+                            className="border-green-300 bg-green-100 px-2 py-1 text-xs text-green-800"
+                          >
+                            <Activity className="mr-1 h-3 w-3" />
                             Live
                           </Badge>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Oppdatert: {lastPriceUpdate?.toLocaleTimeString('nb-NO')}</p>
+                          <p>
+                            Oppdatert:{' '}
+                            {lastPriceUpdate?.toLocaleTimeString('nb-NO')}
+                          </p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -671,9 +709,14 @@ export default function AddTransactionModal({
                             size="sm"
                             onClick={handlePriceRefresh}
                             disabled={isFetchingPrice || !symbol}
-                            className="h-6 w-6 p-0 border-blue-300 hover:bg-blue-50"
+                            className="h-6 w-6 border-blue-300 p-0 hover:bg-blue-50"
                           >
-                            <RefreshCw className={cn('h-4 w-4 text-blue-600', isFetchingPrice && 'animate-spin')} />
+                            <RefreshCw
+                              className={cn(
+                                'h-4 w-4 text-blue-600',
+                                isFetchingPrice && 'animate-spin'
+                              )}
+                            />
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -707,7 +750,7 @@ export default function AddTransactionModal({
                   disabled={isFetchingPrice}
                 />
                 {isFetchingPrice && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 transform">
                     <RefreshCw className="h-4 w-4 animate-spin text-gray-400" />
                   </div>
                 )}
@@ -716,18 +759,25 @@ export default function AddTransactionModal({
                 <p className="text-sm text-red-600">{errors.pricePerShare}</p>
               )}
               {priceError && (
-                <p className="text-sm text-amber-600 flex items-center gap-1">
+                <p className="flex items-center gap-1 text-sm text-amber-600">
                   <AlertCircle className="h-4 w-4" />
                   {priceError}
                 </p>
               )}
               {currentPrice && isLivePrice && (
-                <div className="text-sm text-gray-600 flex items-center gap-2">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
                   <DollarSign className="h-4 w-4" />
                   <span>
-                    Endring: {currentPrice.change > 0 ? '+' : ''}{currentPrice.change.toFixed(2)} ({currentPrice.changePercent.toFixed(2)}%)
+                    Endring: {currentPrice.change > 0 ? '+' : ''}
+                    {currentPrice.change.toFixed(2)} (
+                    {currentPrice.changePercent.toFixed(2)}%)
                   </span>
-                  <Badge variant={currentPrice.change >= 0 ? 'default' : 'destructive'} className="text-xs">
+                  <Badge
+                    variant={
+                      currentPrice.change >= 0 ? 'default' : 'destructive'
+                    }
+                    className="text-xs"
+                  >
                     {currentPrice.marketState === 'REGULAR' ? 'Åpen' : 'Lukket'}
                   </Badge>
                 </div>
@@ -735,8 +785,10 @@ export default function AddTransactionModal({
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between min-h-[24px]">
-                <Label htmlFor="currency" className="text-sm font-medium">Valuta *</Label>
+              <div className="flex min-h-[24px] items-center justify-between">
+                <Label htmlFor="currency" className="text-sm font-medium">
+                  Valuta *
+                </Label>
               </div>
               <Select value={currency} onValueChange={setCurrency}>
                 <SelectTrigger className="h-12">
@@ -798,7 +850,9 @@ export default function AddTransactionModal({
               currency={currency}
               symbol={symbol}
               disabled={isSubmitting}
-              accountPlatform={accounts.find(acc => acc.id === accountId)?.platform}
+              accountPlatform={
+                accounts.find(acc => acc.id === accountId)?.platform
+              }
             />
             {errors.fees && (
               <p className="text-sm text-red-600">{errors.fees}</p>

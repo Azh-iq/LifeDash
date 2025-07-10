@@ -1,7 +1,13 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { CheckCircle, AlertCircle, Loader2, TrendingUp, TrendingDown } from 'lucide-react'
+import {
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  TrendingUp,
+  TrendingDown,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface TransactionStatusProps {
@@ -11,11 +17,11 @@ interface TransactionStatusProps {
   className?: string
 }
 
-export function TransactionStatus({ 
-  isProcessing, 
-  isSuccess, 
+export function TransactionStatus({
+  isProcessing,
+  isSuccess,
   error,
-  className 
+  className,
 }: TransactionStatusProps) {
   return (
     <AnimatePresence mode="wait">
@@ -26,18 +32,22 @@ export function TransactionStatus({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           className={cn(
-            'flex items-center gap-3 rounded-lg bg-blue-50 p-4 border border-blue-200',
+            'flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4',
             className
           )}
         >
           <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
           <div>
-            <p className="font-medium text-blue-900">Behandler transaksjon...</p>
-            <p className="text-sm text-blue-600">Beholdningene vil oppdateres automatisk</p>
+            <p className="font-medium text-blue-900">
+              Behandler transaksjon...
+            </p>
+            <p className="text-sm text-blue-600">
+              Beholdningene vil oppdateres automatisk
+            </p>
           </div>
         </motion.div>
       )}
-      
+
       {isSuccess && !isProcessing && (
         <motion.div
           key="success"
@@ -45,7 +55,7 @@ export function TransactionStatus({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           className={cn(
-            'flex items-center gap-3 rounded-lg bg-green-50 p-4 border border-green-200',
+            'flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4',
             className
           )}
         >
@@ -56,7 +66,7 @@ export function TransactionStatus({
           </div>
         </motion.div>
       )}
-      
+
       {error && !isProcessing && (
         <motion.div
           key="error"
@@ -64,7 +74,7 @@ export function TransactionStatus({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           className={cn(
-            'flex items-center gap-3 rounded-lg bg-red-50 p-4 border border-red-200',
+            'flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4',
             className
           )}
         >
@@ -90,10 +100,10 @@ interface HoldingUpdateIndicatorProps {
   className?: string
 }
 
-export function HoldingUpdateIndicator({ 
-  holding, 
+export function HoldingUpdateIndicator({
+  holding,
   isOptimistic = false,
-  className 
+  className,
 }: HoldingUpdateIndicatorProps) {
   const isPositive = holding.changePercent >= 0
 
@@ -102,8 +112,10 @@ export function HoldingUpdateIndicator({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       className={cn(
-        'flex items-center gap-2 p-2 rounded-lg border',
-        isOptimistic ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200',
+        'flex items-center gap-2 rounded-lg border p-2',
+        isOptimistic
+          ? 'border-blue-200 bg-blue-50'
+          : 'border-gray-200 bg-gray-50',
         className
       )}
     >
@@ -115,7 +127,7 @@ export function HoldingUpdateIndicator({
         )}
         <span className="font-medium">{holding.symbol}</span>
       </div>
-      
+
       <div className="flex items-center gap-1 text-sm">
         <span>{holding.quantity} aksjer</span>
         <span className="text-gray-400">•</span>
@@ -125,13 +137,14 @@ export function HoldingUpdateIndicator({
             isPositive ? 'text-green-600' : 'text-red-600'
           )}
         >
-          {isPositive ? '+' : ''}{holding.changePercent.toFixed(2)}%
+          {isPositive ? '+' : ''}
+          {holding.changePercent.toFixed(2)}%
         </span>
       </div>
-      
+
       {isOptimistic && (
         <div className="flex items-center gap-1 text-xs text-blue-600">
-          <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+          <div className="h-2 w-2 animate-pulse rounded-full bg-blue-500" />
           <span>Oppdaterer...</span>
         </div>
       )}

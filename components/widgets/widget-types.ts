@@ -10,7 +10,10 @@ import {
   LayoutType,
 } from '@/lib/types/widget.types'
 import { widgetVariants, type WidgetProps } from '@/components/ui/widget'
-import { getInvestmentTheme, type ThemeVariant } from '@/lib/themes/modern-themes'
+import {
+  getInvestmentTheme,
+  type ThemeVariant,
+} from '@/lib/themes/modern-themes'
 
 // Base widget component props
 export interface BaseWidgetComponentProps {
@@ -19,7 +22,7 @@ export interface BaseWidgetComponentProps {
   type: WidgetType
   category: WidgetCategory
   size: WidgetSize
-  
+
   // Layout positioning
   position: {
     row: number
@@ -27,28 +30,28 @@ export interface BaseWidgetComponentProps {
     rowSpan: number
     columnSpan: number
   }
-  
+
   // Configuration
   config: WidgetConfig
-  
+
   // Display options
   title?: string
   description?: string
   showHeader?: boolean
   showFooter?: boolean
-  
+
   // State management
   loading?: boolean
   error?: string | null
-  
+
   // Responsive settings
   mobileHidden?: boolean
   tabletConfig?: ResponsiveWidgetConfig
   mobileConfig?: ResponsiveWidgetConfig
-  
+
   // Theme
   theme?: ThemeVariant
-  
+
   // Event handlers
   onRefresh?: () => void | Promise<void>
   onExport?: () => void | Promise<void>
@@ -56,7 +59,7 @@ export interface BaseWidgetComponentProps {
   onDelete?: () => void
   onMove?: (newPosition: { row: number; column: number }) => void
   onResize?: (newSize: { rowSpan: number; columnSpan: number }) => void
-  
+
   // Data context
   portfolioId?: string
   stockSymbol?: string
@@ -73,23 +76,23 @@ export interface WidgetRegistration {
   displayName: string
   description: string
   category: WidgetCategory
-  
+
   // Component
   component: WidgetComponent
-  
+
   // Configuration
   defaultConfig: WidgetConfig
   configSchema?: Record<string, any> // JSON schema for validation
-  
+
   // Size constraints
   minSize: WidgetSize
   maxSize: WidgetSize
   recommendedSize: WidgetSize
-  
+
   // Grid constraints
   minGridSize: { rows: number; columns: number }
   maxGridSize: { rows: number; columns: number }
-  
+
   // Features
   features: {
     exportable: boolean
@@ -98,7 +101,7 @@ export interface WidgetRegistration {
     caching: boolean
     responsive: boolean
   }
-  
+
   // Data requirements
   dataRequirements: {
     requiresPortfolio: boolean
@@ -106,7 +109,7 @@ export interface WidgetRegistration {
     requiresAccount: boolean
     requiresInternetConnection: boolean
   }
-  
+
   // Norwegian localization
   norwegianLabels: {
     title: string
@@ -120,11 +123,11 @@ export interface WidgetRegistration {
       configError: string
     }
   }
-  
+
   // Version and compatibility
   version: string
   compatibleVersions: string[]
-  
+
   // Performance hints
   performance: {
     renderPriority: 'high' | 'medium' | 'low'
@@ -137,10 +140,10 @@ export interface WidgetRegistration {
 export interface WidgetFactoryOptions {
   // Widget definition
   type: WidgetType
-  
+
   // Configuration
   config?: Partial<WidgetConfig>
-  
+
   // Positioning
   position?: {
     row: number
@@ -148,21 +151,21 @@ export interface WidgetFactoryOptions {
     rowSpan?: number
     columnSpan?: number
   }
-  
+
   // Customization
   title?: string
   description?: string
   category?: WidgetCategory
   size?: WidgetSize
-  
+
   // Context
   portfolioId?: string
   stockSymbol?: string
   userId: string
-  
+
   // Theme
   theme?: ThemeVariant
-  
+
   // Responsive
   mobileHidden?: boolean
   tabletConfig?: ResponsiveWidgetConfig
@@ -176,7 +179,7 @@ export interface WidgetInstance {
   type: WidgetType
   category: WidgetCategory
   size: WidgetSize
-  
+
   // Layout
   position: {
     row: number
@@ -184,17 +187,17 @@ export interface WidgetInstance {
     rowSpan: number
     columnSpan: number
   }
-  
+
   // Component props
   props: BaseWidgetComponentProps
-  
+
   // Registration reference
   registration: WidgetRegistration
-  
+
   // Metadata
   created: Date
   updated: Date
-  
+
   // Validation
   isValid: boolean
   validationErrors: string[]
@@ -268,27 +271,27 @@ export interface WidgetThemeConfig {
 export interface WidgetPerformanceMetrics {
   widgetId: string
   type: WidgetType
-  
+
   // Rendering metrics
   renderTime: number
   mountTime: number
   updateCount: number
-  
+
   // Memory usage
   memoryUsage: number
-  
+
   // User interactions
   viewCount: number
   interactionCount: number
-  
+
   // Data loading
   dataLoadTime: number
   dataUpdateCount: number
-  
+
   // Error tracking
   errorCount: number
   lastError?: string
-  
+
   // Timestamps
   created: Date
   lastUpdated: Date
@@ -298,7 +301,14 @@ export interface WidgetPerformanceMetrics {
 export interface WidgetConfigField {
   key: string
   label: string
-  type: 'text' | 'number' | 'boolean' | 'select' | 'multiselect' | 'color' | 'range'
+  type:
+    | 'text'
+    | 'number'
+    | 'boolean'
+    | 'select'
+    | 'multiselect'
+    | 'color'
+    | 'range'
   required: boolean
   defaultValue: any
   options?: { value: any; label: string }[]
@@ -387,32 +397,56 @@ export interface WidgetState {
   // Layout state
   layouts: Record<string, WidgetInstance[]> // layoutId -> widgets
   activeLayout: string | null
-  
+
   // Selection state
   selectedWidgets: string[]
-  
+
   // Edit state
   editMode: boolean
   draggedWidget: string | null
-  
+
   // Configuration state
   configuringWidget: string | null
-  
+
   // Loading state
   loading: boolean
   error: string | null
-  
+
   // Performance state
   metrics: Record<string, WidgetPerformanceMetrics>
 }
 
 // Widget action types
-export type WidgetAction = 
-  | { type: 'ADD_WIDGET'; payload: { layoutId: string; widget: WidgetInstance } }
+export type WidgetAction =
+  | {
+      type: 'ADD_WIDGET'
+      payload: { layoutId: string; widget: WidgetInstance }
+    }
   | { type: 'REMOVE_WIDGET'; payload: { layoutId: string; widgetId: string } }
-  | { type: 'UPDATE_WIDGET'; payload: { layoutId: string; widgetId: string; updates: Partial<WidgetInstance> } }
-  | { type: 'MOVE_WIDGET'; payload: { layoutId: string; widgetId: string; position: { row: number; column: number } } }
-  | { type: 'RESIZE_WIDGET'; payload: { layoutId: string; widgetId: string; size: { rowSpan: number; columnSpan: number } } }
+  | {
+      type: 'UPDATE_WIDGET'
+      payload: {
+        layoutId: string
+        widgetId: string
+        updates: Partial<WidgetInstance>
+      }
+    }
+  | {
+      type: 'MOVE_WIDGET'
+      payload: {
+        layoutId: string
+        widgetId: string
+        position: { row: number; column: number }
+      }
+    }
+  | {
+      type: 'RESIZE_WIDGET'
+      payload: {
+        layoutId: string
+        widgetId: string
+        size: { rowSpan: number; columnSpan: number }
+      }
+    }
   | { type: 'SELECT_WIDGET'; payload: { widgetId: string } }
   | { type: 'DESELECT_WIDGET'; payload: { widgetId: string } }
   | { type: 'CLEAR_SELECTION' }
@@ -420,11 +454,20 @@ export type WidgetAction =
   | { type: 'SET_ACTIVE_LAYOUT'; payload: { layoutId: string } }
   | { type: 'SET_LOADING'; payload: { loading: boolean } }
   | { type: 'SET_ERROR'; payload: { error: string | null } }
-  | { type: 'UPDATE_METRICS'; payload: { widgetId: string; metrics: WidgetPerformanceMetrics } }
+  | {
+      type: 'UPDATE_METRICS'
+      payload: { widgetId: string; metrics: WidgetPerformanceMetrics }
+    }
 
 // Widget event types
 export interface WidgetEvent {
-  type: 'widget:created' | 'widget:updated' | 'widget:deleted' | 'widget:moved' | 'widget:resized' | 'widget:error'
+  type:
+    | 'widget:created'
+    | 'widget:updated'
+    | 'widget:deleted'
+    | 'widget:moved'
+    | 'widget:resized'
+    | 'widget:error'
   widgetId: string
   layoutId: string
   timestamp: Date
@@ -454,26 +497,26 @@ export interface NorwegianWidgetLabels {
   delete: string
   move: string
   resize: string
-  
+
   // Widget categories
   stocks: string
   crypto: string
   art: string
   other: string
-  
+
   // Widget sizes
   small: string
   medium: string
   large: string
   hero: string
-  
+
   // Actions
   addWidget: string
   removeWidget: string
   editLayout: string
   saveLayout: string
   resetLayout: string
-  
+
   // Validation messages
   invalidConfig: string
   unsupportedSize: string
@@ -493,23 +536,23 @@ export const norwegianLabels: NorwegianWidgetLabels = {
   delete: 'Slett',
   move: 'Flytt',
   resize: 'Endre størrelse',
-  
+
   stocks: 'Aksjer',
   crypto: 'Krypto',
   art: 'Kunst',
   other: 'Annet',
-  
+
   small: 'Liten',
   medium: 'Medium',
   large: 'Stor',
   hero: 'Hero',
-  
+
   addWidget: 'Legg til widget',
   removeWidget: 'Fjern widget',
   editLayout: 'Rediger layout',
   saveLayout: 'Lagre layout',
   resetLayout: 'Tilbakestill layout',
-  
+
   invalidConfig: 'Ugyldig konfigurasjon',
   unsupportedSize: 'Ustøttet størrelse',
   positionConflict: 'Posisjonskonflikt',
@@ -518,8 +561,14 @@ export const norwegianLabels: NorwegianWidgetLabels = {
 }
 
 // Widget utility types
-export type WidgetSizeMap = Record<WidgetSize, { rows: number; columns: number }>
-export type WidgetCategoryMap = Record<WidgetCategory, { color: string; icon: ReactNode }>
+export type WidgetSizeMap = Record<
+  WidgetSize,
+  { rows: number; columns: number }
+>
+export type WidgetCategoryMap = Record<
+  WidgetCategory,
+  { color: string; icon: ReactNode }
+>
 export type WidgetTypeMap = Record<WidgetType, WidgetRegistration>
 
 // Export all types for easy import

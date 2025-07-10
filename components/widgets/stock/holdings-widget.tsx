@@ -2,14 +2,14 @@
 
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  Wallet, 
-  TrendingUp, 
-  TrendingDown, 
-  Eye, 
-  Plus, 
-  Minus, 
-  Settings, 
+import {
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+  Eye,
+  Plus,
+  Minus,
+  Settings,
   Filter,
   Search,
   AlertCircle,
@@ -17,17 +17,33 @@ import {
   DollarSign,
   PieChart,
   BarChart3,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react'
 import { StockWidget } from '@/components/ui/widget'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Progress } from '@/components/ui/progress'
-import { formatCurrency, formatPercentage, formatDate } from '@/lib/utils/format'
+import {
+  formatCurrency,
+  formatPercentage,
+  formatDate,
+} from '@/lib/utils/format'
 import { cn } from '@/lib/utils'
 
 export interface Holding {
@@ -64,10 +80,11 @@ interface HoldingsWidgetProps {
 }
 
 const BROKER_COLORS = {
-  'Nordnet': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  'DNB': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  'Schwab': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-  'Other': 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
+  Nordnet: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+  DNB: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  Schwab:
+    'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
+  Other: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
 } as const
 
 const SORT_OPTIONS = [
@@ -81,12 +98,12 @@ const SORT_OPTIONS = [
   { value: 'quantity-asc', label: 'Antall (lav-høy)' },
 ] as const
 
-function HoldingCard({ 
-  holding, 
-  onViewDetails, 
-  onBuyMore, 
-  onSell 
-}: { 
+function HoldingCard({
+  holding,
+  onViewDetails,
+  onBuyMore,
+  onSell,
+}: {
   holding: Holding
   onViewDetails: (holding: Holding) => void
   onBuyMore: (holding: Holding) => void
@@ -97,18 +114,24 @@ function HoldingCard({
   const isDayPositive = holding.dayChange > 0
   const isDayNegative = holding.dayChange < 0
 
-  const pnlColor = isPositive ? 'text-green-600 dark:text-green-400' : 
-                   isNegative ? 'text-red-600 dark:text-red-400' : 
-                   'text-gray-500 dark:text-gray-400'
+  const pnlColor = isPositive
+    ? 'text-green-600 dark:text-green-400'
+    : isNegative
+      ? 'text-red-600 dark:text-red-400'
+      : 'text-gray-500 dark:text-gray-400'
 
-  const dayChangeColor = isDayPositive ? 'text-green-600 dark:text-green-400' : 
-                         isDayNegative ? 'text-red-600 dark:text-red-400' : 
-                         'text-gray-500 dark:text-gray-400'
+  const dayChangeColor = isDayPositive
+    ? 'text-green-600 dark:text-green-400'
+    : isDayNegative
+      ? 'text-red-600 dark:text-red-400'
+      : 'text-gray-500 dark:text-gray-400'
 
-  const brokerColor = BROKER_COLORS[holding.account as keyof typeof BROKER_COLORS] || BROKER_COLORS.Other
+  const brokerColor =
+    BROKER_COLORS[holding.account as keyof typeof BROKER_COLORS] ||
+    BROKER_COLORS.Other
 
   return (
-    <Card className="group transition-all duration-200 hover:shadow-md border-l-4 border-l-purple-500">
+    <Card className="group border-l-4 border-l-purple-500 transition-all duration-200 hover:shadow-md">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -130,7 +153,11 @@ function HoldingCard({
             </Badge>
             {holding.country && (
               <Badge variant="outline" className="text-xs">
-                {holding.country === 'NO' ? '🇳🇴' : holding.country === 'US' ? '🇺🇸' : holding.country}
+                {holding.country === 'NO'
+                  ? '🇳🇴'
+                  : holding.country === 'US'
+                    ? '🇺🇸'
+                    : holding.country}
               </Badge>
             )}
           </div>
@@ -172,7 +199,12 @@ function HoldingCard({
             <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
               Dagens endring
             </div>
-            <div className={cn('text-lg font-semibold flex items-center gap-1', dayChangeColor)}>
+            <div
+              className={cn(
+                'flex items-center gap-1 text-lg font-semibold',
+                dayChangeColor
+              )}
+            >
               {isDayPositive && <TrendingUp className="h-4 w-4" />}
               {isDayNegative && <TrendingDown className="h-4 w-4" />}
               {formatPercentage(holding.dayChangePercent)}
@@ -194,7 +226,12 @@ function HoldingCard({
             <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
               P&L
             </div>
-            <div className={cn('text-xl font-bold flex items-center gap-1', pnlColor)}>
+            <div
+              className={cn(
+                'flex items-center gap-1 text-xl font-bold',
+                pnlColor
+              )}
+            >
               {isPositive && <TrendingUp className="h-4 w-4" />}
               {isNegative && <TrendingDown className="h-4 w-4" />}
               <div>
@@ -213,8 +250,12 @@ function HoldingCard({
             <span>Kostbasis</span>
             <span>Markedsverdi</span>
           </div>
-          <Progress 
-            value={holding.marketValue > holding.costBasis ? 100 : (holding.marketValue / holding.costBasis) * 100} 
+          <Progress
+            value={
+              holding.marketValue > holding.costBasis
+                ? 100
+                : (holding.marketValue / holding.costBasis) * 100
+            }
             className="h-2"
           />
           <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
@@ -224,7 +265,7 @@ function HoldingCard({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between border-t border-gray-200 pt-2 dark:border-gray-700">
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
@@ -232,7 +273,7 @@ function HoldingCard({
               onClick={() => onBuyMore(holding)}
               className="h-8 px-3 text-xs"
             >
-              <Plus className="h-3 w-3 mr-1" />
+              <Plus className="mr-1 h-3 w-3" />
               Kjøp mer
             </Button>
             <Button
@@ -242,7 +283,7 @@ function HoldingCard({
               className="h-8 px-3 text-xs"
               disabled={holding.quantity <= 0}
             >
-              <Minus className="h-3 w-3 mr-1" />
+              <Minus className="mr-1 h-3 w-3" />
               Selg
             </Button>
           </div>
@@ -250,16 +291,20 @@ function HoldingCard({
             variant="ghost"
             size="sm"
             onClick={() => onViewDetails(holding)}
-            className="h-8 px-3 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+            className="h-8 px-3 text-xs opacity-0 transition-opacity group-hover:opacity-100"
           >
-            <Eye className="h-3 w-3 mr-1" />
+            <Eye className="mr-1 h-3 w-3" />
             Detaljer
           </Button>
         </div>
 
         {/* Last Updated */}
-        <div className="text-xs text-gray-400 dark:text-gray-500 text-center">
-          Sist oppdatert: {formatDate(holding.lastUpdated, { hour: '2-digit', minute: '2-digit' })}
+        <div className="text-center text-xs text-gray-400 dark:text-gray-500">
+          Sist oppdatert:{' '}
+          {formatDate(holding.lastUpdated, {
+            hour: '2-digit',
+            minute: '2-digit',
+          })}
         </div>
       </CardContent>
     </Card>
@@ -270,9 +315,13 @@ function HoldingsSummary({ holdings }: { holdings: Holding[] }) {
   const summary = useMemo(() => {
     const totalMarketValue = holdings.reduce((sum, h) => sum + h.marketValue, 0)
     const totalCostBasis = holdings.reduce((sum, h) => sum + h.costBasis, 0)
-    const totalUnrealizedPnL = holdings.reduce((sum, h) => sum + h.unrealizedPnL, 0)
+    const totalUnrealizedPnL = holdings.reduce(
+      (sum, h) => sum + h.unrealizedPnL,
+      0
+    )
     const totalDayChange = holdings.reduce((sum, h) => sum + h.dayChange, 0)
-    const totalUnrealizedPnLPercent = totalCostBasis > 0 ? (totalUnrealizedPnL / totalCostBasis) * 100 : 0
+    const totalUnrealizedPnLPercent =
+      totalCostBasis > 0 ? (totalUnrealizedPnL / totalCostBasis) * 100 : 0
 
     return {
       totalMarketValue,
@@ -280,7 +329,8 @@ function HoldingsSummary({ holdings }: { holdings: Holding[] }) {
       totalUnrealizedPnL,
       totalDayChange,
       totalUnrealizedPnLPercent,
-      avgHoldingSize: holdings.length > 0 ? totalMarketValue / holdings.length : 0,
+      avgHoldingSize:
+        holdings.length > 0 ? totalMarketValue / holdings.length : 0,
       positionsInProfit: holdings.filter(h => h.unrealizedPnL > 0).length,
       positionsInLoss: holdings.filter(h => h.unrealizedPnL < 0).length,
     }
@@ -308,14 +358,22 @@ function HoldingsSummary({ holdings }: { holdings: Holding[] }) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className={cn(
-            'text-2xl font-bold flex items-center gap-1',
-            summary.totalUnrealizedPnL > 0 ? 'text-green-600 dark:text-green-400' : 
-            summary.totalUnrealizedPnL < 0 ? 'text-red-600 dark:text-red-400' : 
-            'text-gray-500 dark:text-gray-400'
-          )}>
-            {summary.totalUnrealizedPnL > 0 && <TrendingUp className="h-5 w-5" />}
-            {summary.totalUnrealizedPnL < 0 && <TrendingDown className="h-5 w-5" />}
+          <div
+            className={cn(
+              'flex items-center gap-1 text-2xl font-bold',
+              summary.totalUnrealizedPnL > 0
+                ? 'text-green-600 dark:text-green-400'
+                : summary.totalUnrealizedPnL < 0
+                  ? 'text-red-600 dark:text-red-400'
+                  : 'text-gray-500 dark:text-gray-400'
+            )}
+          >
+            {summary.totalUnrealizedPnL > 0 && (
+              <TrendingUp className="h-5 w-5" />
+            )}
+            {summary.totalUnrealizedPnL < 0 && (
+              <TrendingDown className="h-5 w-5" />
+            )}
             {formatCurrency(summary.totalUnrealizedPnL, 'NOK')}
           </div>
           <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -331,12 +389,16 @@ function HoldingsSummary({ holdings }: { holdings: Holding[] }) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className={cn(
-            'text-2xl font-bold flex items-center gap-1',
-            summary.totalDayChange > 0 ? 'text-green-600 dark:text-green-400' : 
-            summary.totalDayChange < 0 ? 'text-red-600 dark:text-red-400' : 
-            'text-gray-500 dark:text-gray-400'
-          )}>
+          <div
+            className={cn(
+              'flex items-center gap-1 text-2xl font-bold',
+              summary.totalDayChange > 0
+                ? 'text-green-600 dark:text-green-400'
+                : summary.totalDayChange < 0
+                  ? 'text-red-600 dark:text-red-400'
+                  : 'text-gray-500 dark:text-gray-400'
+            )}
+          >
             {summary.totalDayChange > 0 && <TrendingUp className="h-5 w-5" />}
             {summary.totalDayChange < 0 && <TrendingDown className="h-5 w-5" />}
             {formatCurrency(summary.totalDayChange, 'NOK')}
@@ -488,13 +550,16 @@ export function HoldingsWidget({
                   <Input
                     placeholder="Søk i beholdninger..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 h-8 text-sm"
+                    onChange={e => setSearchTerm(e.target.value)}
+                    className="h-8 pl-10 text-sm"
                   />
                 </div>
 
                 {/* Account Filter */}
-                <Select value={selectedAccount} onValueChange={setSelectedAccount}>
+                <Select
+                  value={selectedAccount}
+                  onValueChange={setSelectedAccount}
+                >
                   <SelectTrigger className="h-8 text-sm">
                     <SelectValue placeholder="Alle konti" />
                   </SelectTrigger>

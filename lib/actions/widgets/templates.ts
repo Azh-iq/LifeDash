@@ -288,7 +288,10 @@ export async function updateWidgetTemplate(
     }
 
     // Only allow updates to user's own templates or system templates by admins
-    if (existingTemplate.created_by !== user.id && !existingTemplate.is_system_template) {
+    if (
+      existingTemplate.created_by !== user.id &&
+      !existingTemplate.is_system_template
+    ) {
       return {
         success: false,
         error: 'Access denied',
@@ -335,7 +338,9 @@ export async function updateWidgetTemplate(
 /**
  * Delete a widget template
  */
-export async function deleteWidgetTemplate(id: string): Promise<WidgetTemplateResponse> {
+export async function deleteWidgetTemplate(
+  id: string
+): Promise<WidgetTemplateResponse> {
   try {
     const supabase = createClient()
 
@@ -366,7 +371,10 @@ export async function deleteWidgetTemplate(id: string): Promise<WidgetTemplateRe
     }
 
     // Only allow deletion of user's own templates (not system templates)
-    if (existingTemplate.created_by !== user.id || existingTemplate.is_system_template) {
+    if (
+      existingTemplate.created_by !== user.id ||
+      existingTemplate.is_system_template
+    ) {
       return {
         success: false,
         error: 'Access denied',
@@ -439,30 +447,32 @@ export async function applyWidgetTemplate(
     }
 
     // Create widget layouts from template
-    const widgetLayouts: WidgetLayoutInsert[] = template.widgets_config.map((widget) => ({
-      user_id: user.id,
-      portfolio_id: portfolioId,
-      stock_symbol: stockSymbol,
-      layout_name: layoutName,
-      layout_type: template.template_type,
-      is_default: false,
-      is_active: true,
-      widget_type: widget.widget_type,
-      widget_category: widget.widget_category,
-      widget_size: widget.widget_size,
-      grid_row: widget.grid_row,
-      grid_column: widget.grid_column,
-      grid_row_span: widget.grid_row_span,
-      grid_column_span: widget.grid_column_span,
-      widget_config: widget.widget_config,
-      title: widget.title,
-      description: widget.description,
-      show_header: widget.show_header,
-      show_footer: widget.show_footer,
-      mobile_hidden: widget.mobile_hidden,
-      tablet_config: widget.tablet_config,
-      mobile_config: widget.mobile_config,
-    }))
+    const widgetLayouts: WidgetLayoutInsert[] = template.widgets_config.map(
+      widget => ({
+        user_id: user.id,
+        portfolio_id: portfolioId,
+        stock_symbol: stockSymbol,
+        layout_name: layoutName,
+        layout_type: template.template_type,
+        is_default: false,
+        is_active: true,
+        widget_type: widget.widget_type,
+        widget_category: widget.widget_category,
+        widget_size: widget.widget_size,
+        grid_row: widget.grid_row,
+        grid_column: widget.grid_column,
+        grid_row_span: widget.grid_row_span,
+        grid_column_span: widget.grid_column_span,
+        widget_config: widget.widget_config,
+        title: widget.title,
+        description: widget.description,
+        show_header: widget.show_header,
+        show_footer: widget.show_footer,
+        mobile_hidden: widget.mobile_hidden,
+        tablet_config: widget.tablet_config,
+        mobile_config: widget.mobile_config,
+      })
+    )
 
     // Insert widget layouts
     const { data: createdLayouts, error: createError } = await supabase
@@ -567,7 +577,7 @@ export async function createTemplateFromLayout(
     }
 
     // Convert layouts to template format
-    const widgetsConfig: WidgetLayoutTemplate[] = layouts.map((layout) => ({
+    const widgetsConfig: WidgetLayoutTemplate[] = layouts.map(layout => ({
       widget_type: layout.widget_type,
       widget_category: layout.widget_category,
       widget_size: layout.widget_size,
@@ -664,7 +674,9 @@ export async function searchWidgetTemplates(
       .from('widget_templates')
       .select('*')
       .eq('is_active', true)
-      .or(`template_name.ilike.%${query}%,display_name.ilike.%${query}%,description.ilike.%${query}%`)
+      .or(
+        `template_name.ilike.%${query}%,display_name.ilike.%${query}%,description.ilike.%${query}%`
+      )
 
     if (templateType) {
       searchQuery = searchQuery.eq('template_type', templateType)

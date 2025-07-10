@@ -62,7 +62,10 @@ interface NorwegianHoldingsTableProps {
   className?: string
   // Refresh and update handlers
   onRefresh?: () => Promise<void>
-  onOptimisticUpdate?: (holding: HoldingWithMetrics, updates: Partial<HoldingWithMetrics>) => void
+  onOptimisticUpdate?: (
+    holding: HoldingWithMetrics,
+    updates: Partial<HoldingWithMetrics>
+  ) => void
   isProcessingTransaction?: boolean
   transactionSuccess?: boolean
   transactionError?: string | null
@@ -171,7 +174,9 @@ export function NorwegianHoldingsTable({
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date())
-  const [optimisticHoldings, setOptimisticHoldings] = useState<HoldingWithMetrics[]>([])
+  const [optimisticHoldings, setOptimisticHoldings] = useState<
+    HoldingWithMetrics[]
+  >([])
 
   // Auto-refresh holdings when new data arrives
   useEffect(() => {
@@ -219,7 +224,7 @@ export function NorwegianHoldingsTable({
   // Handle manual refresh
   const handleRefresh = useCallback(async () => {
     if (!onRefresh) return
-    
+
     setIsRefreshing(true)
     try {
       await onRefresh()
@@ -238,16 +243,20 @@ export function NorwegianHoldingsTable({
   }, [onRefresh])
 
   // Handle optimistic updates
-  const handleOptimisticUpdate = useCallback((holding: HoldingWithMetrics, updates: Partial<HoldingWithMetrics>) => {
-    setOptimisticHoldings(prev => 
-      prev.map(h => h.id === holding.id ? { ...h, ...updates } : h)
-    )
-    onOptimisticUpdate?.(holding, updates)
-  }, [onOptimisticUpdate])
+  const handleOptimisticUpdate = useCallback(
+    (holding: HoldingWithMetrics, updates: Partial<HoldingWithMetrics>) => {
+      setOptimisticHoldings(prev =>
+        prev.map(h => (h.id === holding.id ? { ...h, ...updates } : h))
+      )
+      onOptimisticUpdate?.(holding, updates)
+    },
+    [onOptimisticUpdate]
+  )
 
   // Use optimistic holdings for immediate UI feedback
   const displayHoldings = useMemo(() => {
-    const holdingsToUse = optimisticHoldings.length > 0 ? optimisticHoldings : holdings || []
+    const holdingsToUse =
+      optimisticHoldings.length > 0 ? optimisticHoldings : holdings || []
     if (holdingsToUse.length > 0) {
       console.log('Using holdings data:', holdingsToUse.length, 'holdings')
       return holdingsToUse.map(convertToNorwegianHolding)
@@ -338,13 +347,18 @@ export function NorwegianHoldingsTable({
             )}
             <span className="hidden sm:inline">Oppdater</span>
           </Button>
-          
+
           {/* Last updated indicator */}
           <div className="flex items-center gap-2 text-xs text-gray-500">
-            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-            <span>Oppdatert {lastUpdateTime.toLocaleTimeString('nb-NO', { timeStyle: 'short' })}</span>
+            <div className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
+            <span>
+              Oppdatert{' '}
+              {lastUpdateTime.toLocaleTimeString('nb-NO', {
+                timeStyle: 'short',
+              })}
+            </span>
           </div>
-          
+
           {/* Time range selector */}
           <div className="flex items-center gap-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-800">
             {HOLDINGS_TIME_RANGES.map(range => (
@@ -377,37 +391,45 @@ export function NorwegianHoldingsTable({
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="flex items-center gap-3 rounded-lg bg-blue-50 p-4 border border-blue-200"
+                className="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4"
               >
                 <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
                 <div>
-                  <p className="font-medium text-blue-900">Behandler transaksjon...</p>
-                  <p className="text-sm text-blue-600">Beholdningene vil oppdateres automatisk</p>
+                  <p className="font-medium text-blue-900">
+                    Behandler transaksjon...
+                  </p>
+                  <p className="text-sm text-blue-600">
+                    Beholdningene vil oppdateres automatisk
+                  </p>
                 </div>
               </motion.div>
             )}
-            
+
             {transactionSuccess && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="flex items-center gap-3 rounded-lg bg-green-50 p-4 border border-green-200"
+                className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4"
               >
                 <CheckCircle className="h-5 w-5 text-green-600" />
                 <div>
-                  <p className="font-medium text-green-900">Transaksjon fullført!</p>
-                  <p className="text-sm text-green-600">Beholdningene er oppdatert</p>
+                  <p className="font-medium text-green-900">
+                    Transaksjon fullført!
+                  </p>
+                  <p className="text-sm text-green-600">
+                    Beholdningene er oppdatert
+                  </p>
                 </div>
               </motion.div>
             )}
-            
+
             {transactionError && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="flex items-center gap-3 rounded-lg bg-red-50 p-4 border border-red-200"
+                className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4"
               >
                 <AlertCircle className="h-5 w-5 text-red-600" />
                 <div>
@@ -417,7 +439,7 @@ export function NorwegianHoldingsTable({
               </motion.div>
             )}
           </AnimatePresence>
-          
+
           {/* Summary metrics */}
           <div className="grid grid-cols-2 gap-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-800/50 md:grid-cols-4">
             <div className="space-y-1">
@@ -657,7 +679,9 @@ export function NorwegianHoldingsTable({
                                   className="h-2 w-2 animate-pulse rounded-full bg-green-500"
                                   title="Live pris"
                                 />
-                                <span className="text-xs text-green-600 font-medium">LIVE</span>
+                                <span className="text-xs font-medium text-green-600">
+                                  LIVE
+                                </span>
                               </div>
                             )}
                           </div>

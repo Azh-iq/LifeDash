@@ -102,7 +102,9 @@ export class WidgetMigrationSystem {
 
   private async initializeUser(): Promise<void> {
     try {
-      const { data: { user } } = await this.supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await this.supabase.auth.getUser()
       this.userId = user?.id || null
     } catch (error) {
       console.error('Failed to initialize user for migration:', error)
@@ -112,7 +114,9 @@ export class WidgetMigrationSystem {
   /**
    * Main migration function - migrates from stock modal to widget board
    */
-  async migrateFromStockModal(options: Partial<MigrationOptions> = {}): Promise<MigrationResult> {
+  async migrateFromStockModal(
+    options: Partial<MigrationOptions> = {}
+  ): Promise<MigrationResult> {
     const defaultOptions: MigrationOptions = {
       preservePositions: true,
       createBackup: true,
@@ -122,8 +126,11 @@ export class WidgetMigrationSystem {
     }
 
     const migrationOptions = { ...defaultOptions, ...options }
-    
-    this.log('🚀 Starting migration from stock modal to widget board', migrationOptions.logVerbose)
+
+    this.log(
+      '🚀 Starting migration from stock modal to widget board',
+      migrationOptions.logVerbose
+    )
 
     const result: MigrationResult = {
       success: false,
@@ -151,18 +158,25 @@ export class WidgetMigrationSystem {
 
       // Step 2: Detect legacy stock modal data
       const legacyData = await this.detectLegacyStockModalData()
-      
+
       if (legacyData.length === 0) {
-        this.log('ℹ️ No legacy stock modal data found', migrationOptions.logVerbose)
+        this.log(
+          'ℹ️ No legacy stock modal data found',
+          migrationOptions.logVerbose
+        )
         result.success = true
         return result
       }
 
-      this.log(`📊 Found ${legacyData.length} legacy stock modal configurations`, migrationOptions.logVerbose)
+      this.log(
+        `📊 Found ${legacyData.length} legacy stock modal configurations`,
+        migrationOptions.logVerbose
+      )
 
       // Step 3: Transform legacy data to new widget format
-      const transformResult = await this.transformLegacyDataToWidgets(legacyData)
-      
+      const transformResult =
+        await this.transformLegacyDataToWidgets(legacyData)
+
       if (!transformResult.success) {
         result.errors.push(...transformResult.errors)
         result.warnings.push(...transformResult.warnings)
@@ -170,7 +184,8 @@ export class WidgetMigrationSystem {
       }
 
       // Step 4: Migrate dashboard layouts
-      const dashboardResult = await this.migrateDashboardLayouts(migrationOptions)
+      const dashboardResult =
+        await this.migrateDashboardLayouts(migrationOptions)
       result.warnings.push(...dashboardResult.warnings)
       result.errors.push(...dashboardResult.errors)
 
@@ -180,13 +195,16 @@ export class WidgetMigrationSystem {
           transformResult.transformedData,
           migrationOptions
         )
-        
+
         result.migratedLayouts = applyResult.migratedLayouts
         result.errors.push(...applyResult.errors)
         result.warnings.push(...applyResult.warnings)
       } else {
         result.migratedLayouts = transformResult.transformedData.length
-        this.log('🏃 Dry run completed - no data was actually migrated', migrationOptions.logVerbose)
+        this.log(
+          '🏃 Dry run completed - no data was actually migrated',
+          migrationOptions.logVerbose
+        )
       }
 
       // Step 6: Set migration version
@@ -220,32 +238,34 @@ export class WidgetMigrationSystem {
       const stockModalData = localStorage.getItem('lifedash-stock-modal-state')
       if (stockModalData) {
         const parsedData = JSON.parse(stockModalData)
-        
+
         // Transform localStorage data to legacy format
         if (parsedData.activeStocks) {
-          Object.entries(parsedData.activeStocks).forEach(([symbol, data]: [string, any]) => {
-            legacyData.push({
-              activeTab: data.activeTab || 'overview',
-              stockSymbol: symbol,
-              portfolioId: data.portfolioId || '',
-              preferences: {
-                showHeader: data.showHeader !== false,
-                showChart: data.showChart !== false,
-                showTransactions: data.showTransactions !== false,
-                showPerformance: data.showPerformance !== false,
-                chartType: data.chartType || 'line',
-                timeframe: data.timeframe || '1M',
-                theme: data.theme || 'light',
-              },
-              position: {
-                x: data.position?.x || 0,
-                y: data.position?.y || 0,
-                width: data.position?.width || 800,
-                height: data.position?.height || 600,
-              },
-              lastUsed: data.lastUsed || new Date().toISOString(),
-            })
-          })
+          Object.entries(parsedData.activeStocks).forEach(
+            ([symbol, data]: [string, any]) => {
+              legacyData.push({
+                activeTab: data.activeTab || 'overview',
+                stockSymbol: symbol,
+                portfolioId: data.portfolioId || '',
+                preferences: {
+                  showHeader: data.showHeader !== false,
+                  showChart: data.showChart !== false,
+                  showTransactions: data.showTransactions !== false,
+                  showPerformance: data.showPerformance !== false,
+                  chartType: data.chartType || 'line',
+                  timeframe: data.timeframe || '1M',
+                  theme: data.theme || 'light',
+                },
+                position: {
+                  x: data.position?.x || 0,
+                  y: data.position?.y || 0,
+                  width: data.position?.width || 800,
+                  height: data.position?.height || 600,
+                },
+                lastUsed: data.lastUsed || new Date().toISOString(),
+              })
+            }
+          )
         }
       }
 
@@ -261,7 +281,7 @@ export class WidgetMigrationSystem {
           try {
             const stockSymbol = entry.preference_key.replace('stock_modal_', '')
             const preferences = JSON.parse(entry.preference_value)
-            
+
             legacyData.push({
               activeTab: preferences.activeTab || 'overview',
               stockSymbol: stockSymbol,
@@ -426,7 +446,9 @@ export class WidgetMigrationSystem {
         }
       }
 
-      this.log(`🔄 Transformed ${legacyData.length} legacy configurations into ${result.transformedData.length} widgets`)
+      this.log(
+        `🔄 Transformed ${legacyData.length} legacy configurations into ${result.transformedData.length} widgets`
+      )
 
       return result
     } catch (error) {
@@ -469,7 +491,8 @@ export class WidgetMigrationSystem {
           is_active: true,
           widget_type: 'HERO_PORTFOLIO_CHART' as WidgetType,
           widget_category: 'STOCKS' as WidgetCategory,
-          widget_size: dashboardData.portfolioChart.type === 'hero' ? 'HERO' : 'LARGE',
+          widget_size:
+            dashboardData.portfolioChart.type === 'hero' ? 'HERO' : 'LARGE',
           grid_row: dashboardData.portfolioChart.position[0] || 1,
           grid_column: dashboardData.portfolioChart.position[1] || 1,
           grid_row_span: dashboardData.portfolioChart.size[0] || 2,
@@ -560,7 +583,10 @@ export class WidgetMigrationSystem {
 
       // Apply dashboard widgets if not in dry run
       if (!options.dryRun && dashboardWidgets.length > 0) {
-        const applyResult = await this.applyMigratedLayouts(dashboardWidgets, options)
+        const applyResult = await this.applyMigratedLayouts(
+          dashboardWidgets,
+          options
+        )
         result.errors.push(...applyResult.errors)
         result.warnings.push(...applyResult.warnings)
       }
@@ -580,7 +606,11 @@ export class WidgetMigrationSystem {
   private async applyMigratedLayouts(
     layouts: WidgetLayoutRow[],
     options: MigrationOptions
-  ): Promise<{ migratedLayouts: number; errors: string[]; warnings: string[] }> {
+  ): Promise<{
+    migratedLayouts: number
+    errors: string[]
+    warnings: string[]
+  }> {
     const result = { migratedLayouts: 0, errors: [], warnings: [] }
 
     try {
@@ -609,14 +639,20 @@ export class WidgetMigrationSystem {
             .upsert(layout, { onConflict: 'id' })
 
           if (error) {
-            result.errors.push(`Failed to migrate layout "${layout.layout_name}": ${error.message}`)
+            result.errors.push(
+              `Failed to migrate layout "${layout.layout_name}": ${error.message}`
+            )
             continue
           }
 
           result.migratedLayouts++
-          this.log(`✅ Migrated layout: ${layout.layout_name} (${layout.widget_type})`)
+          this.log(
+            `✅ Migrated layout: ${layout.layout_name} (${layout.widget_type})`
+          )
         } catch (error) {
-          result.errors.push(`Error migrating layout "${layout.layout_name}": ${error}`)
+          result.errors.push(
+            `Error migrating layout "${layout.layout_name}": ${error}`
+          )
         }
       }
 
@@ -655,7 +691,10 @@ export class WidgetMigrationSystem {
       }
 
       // Store backup in localStorage
-      localStorage.setItem(`lifedash-migration-backup-${timestamp}`, JSON.stringify(backupData))
+      localStorage.setItem(
+        `lifedash-migration-backup-${timestamp}`,
+        JSON.stringify(backupData)
+      )
 
       this.log(`💾 Created migration backup: ${backupName}`)
       return true
@@ -684,7 +723,9 @@ export class WidgetMigrationSystem {
         return result
       }
 
-      const backupData = localStorage.getItem(`lifedash-migration-backup-${backupTimestamp}`)
+      const backupData = localStorage.getItem(
+        `lifedash-migration-backup-${backupTimestamp}`
+      )
       if (!backupData) {
         result.errors.push('Backup not found')
         return result
@@ -700,7 +741,9 @@ export class WidgetMigrationSystem {
           .eq('user_id', this.userId!)
 
         if (error) {
-          result.errors.push(`Failed to clear existing layouts: ${error.message}`)
+          result.errors.push(
+            `Failed to clear existing layouts: ${error.message}`
+          )
           return result
         }
 
@@ -710,7 +753,9 @@ export class WidgetMigrationSystem {
             .insert(layout)
 
           if (error) {
-            result.errors.push(`Failed to restore layout ${layout.id}: ${error.message}`)
+            result.errors.push(
+              `Failed to restore layout ${layout.id}: ${error.message}`
+            )
             continue
           }
 
@@ -725,7 +770,9 @@ export class WidgetMigrationSystem {
           .upsert(backup.preferences)
 
         if (error) {
-          result.warnings.push(`Failed to restore preferences: ${error.message}`)
+          result.warnings.push(
+            `Failed to restore preferences: ${error.message}`
+          )
         }
       }
 
@@ -742,15 +789,19 @@ export class WidgetMigrationSystem {
   /**
    * Get available backups
    */
-  getAvailableBackups(): Array<{ timestamp: string; date: string; layoutCount: number }> {
+  getAvailableBackups(): Array<{
+    timestamp: string
+    date: string
+    layoutCount: number
+  }> {
     const backups = []
-    
+
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i)
       if (key?.startsWith('lifedash-migration-backup-')) {
         const timestamp = key.replace('lifedash-migration-backup-', '')
         const backupData = localStorage.getItem(key)
-        
+
         if (backupData) {
           try {
             const backup = JSON.parse(backupData)
@@ -785,9 +836,12 @@ export class WidgetMigrationSystem {
         .eq('user_id', this.userId!)
         .single()
 
-      const currentVersion = preferences?.category_preferences?.migrationVersion || '1.0.0'
-      const compatible = MIGRATION_COMPATIBILITY_MAP[currentVersion as keyof typeof MIGRATION_COMPATIBILITY_MAP]
-        ?.includes(CURRENT_MIGRATION_VERSION) || false
+      const currentVersion =
+        preferences?.category_preferences?.migrationVersion || '1.0.0'
+      const compatible =
+        MIGRATION_COMPATIBILITY_MAP[
+          currentVersion as keyof typeof MIGRATION_COMPATIBILITY_MAP
+        ]?.includes(CURRENT_MIGRATION_VERSION) || false
 
       const requiredActions = []
       if (!compatible) {
@@ -817,15 +871,13 @@ export class WidgetMigrationSystem {
    */
   private async setMigrationVersion(version: string): Promise<void> {
     try {
-      await this.supabase
-        .from('widget_preferences')
-        .upsert({
-          user_id: this.userId!,
-          category_preferences: {
-            migrationVersion: version,
-            migratedAt: new Date().toISOString(),
-          },
-        })
+      await this.supabase.from('widget_preferences').upsert({
+        user_id: this.userId!,
+        category_preferences: {
+          migrationVersion: version,
+          migratedAt: new Date().toISOString(),
+        },
+      })
     } catch (error) {
       console.error('Failed to set migration version:', error)
     }
@@ -844,7 +896,7 @@ export class WidgetMigrationSystem {
           const backupDate = new Date(timestamp.replace(/-/g, ':'))
           const thirtyDaysAgo = new Date()
           thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-          
+
           if (backupDate < thirtyDaysAgo) {
             localStorage.removeItem(key)
           }
@@ -890,9 +942,12 @@ export class WidgetMigrationSystem {
 export const widgetMigration = new WidgetMigrationSystem()
 
 // Export utility functions
-export const createMigrationBackup = () => widgetMigration.createMigrationBackup()
-export const restoreFromBackup = (timestamp: string) => widgetMigration.restoreFromBackup(timestamp)
-export const checkVersionCompatibility = () => widgetMigration.checkVersionCompatibility()
+export const createMigrationBackup = () =>
+  widgetMigration.createMigrationBackup()
+export const restoreFromBackup = (timestamp: string) =>
+  widgetMigration.restoreFromBackup(timestamp)
+export const checkVersionCompatibility = () =>
+  widgetMigration.checkVersionCompatibility()
 export const cleanupMigrationData = () => widgetMigration.cleanupMigrationData()
 export const getAvailableBackups = () => widgetMigration.getAvailableBackups()
 

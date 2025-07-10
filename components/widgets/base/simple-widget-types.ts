@@ -76,11 +76,14 @@ export interface GridLayoutConfig {
 }
 
 // Widget size mappings for react-grid-layout
-export const WIDGET_SIZE_MAPPINGS: Record<WidgetSize, { w: number; h: number }> = {
+export const WIDGET_SIZE_MAPPINGS: Record<
+  WidgetSize,
+  { w: number; h: number }
+> = {
   SMALL: { w: 1, h: 1 },
   MEDIUM: { w: 2, h: 2 },
   LARGE: { w: 3, h: 3 },
-  HERO: { w: 4, h: 4 }
+  HERO: { w: 4, h: 4 },
 }
 
 // Default grid configuration
@@ -90,19 +93,19 @@ export const DEFAULT_GRID_CONFIG: GridLayoutConfig = {
     md: 996,
     sm: 768,
     xs: 480,
-    xxs: 0
+    xxs: 0,
   },
   cols: {
     lg: 12,
     md: 8,
     sm: 6,
     xs: 4,
-    xxs: 2
+    xxs: 2,
   },
   rowHeight: 100,
   margin: [16, 16],
   containerPadding: [16, 16],
   draggableHandle: '.widget-drag-handle',
   resizeHandle: '.widget-resize-handle',
-  preventCollision: false
+  preventCollision: false,
 }

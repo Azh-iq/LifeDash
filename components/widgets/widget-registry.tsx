@@ -1,10 +1,16 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import { 
-  WidgetType, 
-  WidgetCategory, 
-  WidgetSize, 
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from 'react'
+import {
+  WidgetType,
+  WidgetCategory,
+  WidgetSize,
   WidgetConfig,
   ChartWidgetConfig,
   TableWidgetConfig,
@@ -25,10 +31,15 @@ import {
 import { getInvestmentTheme } from '@/lib/themes/modern-themes'
 
 // Placeholder widget components (these would be implemented separately)
-const PlaceholderWidget: WidgetComponent = ({ title, loading, error, children }) => {
+const PlaceholderWidget: WidgetComponent = ({
+  title,
+  loading,
+  error,
+  children,
+}) => {
   return (
-    <div className="p-4 border rounded-lg bg-gray-50 dark:bg-gray-900">
-      <h3 className="font-semibold mb-2">{title}</h3>
+    <div className="rounded-lg border bg-gray-50 p-4 dark:bg-gray-900">
+      <h3 className="mb-2 font-semibold">{title}</h3>
       {loading && <p className="text-gray-500">Laster...</p>}
       {error && <p className="text-red-500">Feil: {error}</p>}
       {children || <p className="text-gray-400">Widget kommer snart...</p>}
@@ -218,7 +229,14 @@ class WidgetRegistry {
       category: 'STOCKS',
       component: PlaceholderWidget,
       defaultConfig: {
-        columns: ['symbol', 'quantity', 'current_price', 'market_value', 'pnl', 'pnl_percent'],
+        columns: [
+          'symbol',
+          'quantity',
+          'current_price',
+          'market_value',
+          'pnl',
+          'pnl_percent',
+        ],
         sortBy: 'market_value',
         sortDirection: 'desc',
         pageSize: 20,
@@ -274,7 +292,12 @@ class WidgetRegistry {
       category: 'STOCKS',
       component: PlaceholderWidget,
       defaultConfig: {
-        metrics: ['total_value', 'total_return', 'day_change', 'unrealized_pnl'],
+        metrics: [
+          'total_value',
+          'total_return',
+          'day_change',
+          'unrealized_pnl',
+        ],
         showPercentageChange: true,
         showSparklines: true,
         compactView: false,
@@ -372,17 +395,83 @@ class WidgetRegistry {
     })
 
     // Initialize remaining widgets with placeholder registrations
-    const remainingWidgets: Array<{ type: WidgetType; name: string; desc: string; category: WidgetCategory; size: WidgetSize }> = [
-      { type: 'TOP_NAVIGATION_ENHANCED', name: 'Utvidet Navigasjon', desc: 'Hovednavigasjon med funksjoner', category: 'STOCKS', size: 'LARGE' },
-      { type: 'CATEGORY_SELECTOR', name: 'Kategorivelger', desc: 'Bytte mellom investeringstyper', category: 'STOCKS', size: 'SMALL' },
-      { type: 'STOCK_DETAIL_CARD', name: 'Aksjedetaljer', desc: 'Detaljert aksjeinfo med faner', category: 'STOCKS', size: 'MEDIUM' },
-      { type: 'TRANSACTION_HISTORY', name: 'Transaksjonshistorikk', desc: 'Fullstendig transaksjonslogg', category: 'STOCKS', size: 'LARGE' },
-      { type: 'PRICE_ALERTS', name: 'Prisvarsler', desc: 'Prisvarsler og notifikasjoner', category: 'STOCKS', size: 'MEDIUM' },
-      { type: 'NEWS_FEED', name: 'Nyhetsfeed', desc: 'Finansnyheter og markedsinformasjon', category: 'STOCKS', size: 'MEDIUM' },
-      { type: 'PORTFOLIO_ALLOCATION', name: 'Porteføljeallokering', desc: 'Fordeling av investeringer', category: 'STOCKS', size: 'MEDIUM' },
-      { type: 'PERFORMANCE_METRICS', name: 'Ytelsesmålinger', desc: 'Avanserte ytelsesmålinger', category: 'STOCKS', size: 'LARGE' },
-      { type: 'WATCHLIST', name: 'Overvåkningsliste', desc: 'Aksjer og investeringer å følge', category: 'STOCKS', size: 'MEDIUM' },
-      { type: 'CUSTOM_WIDGET', name: 'Tilpasset Widget', desc: 'Brukerdefinert widget', category: 'STOCKS', size: 'MEDIUM' },
+    const remainingWidgets: Array<{
+      type: WidgetType
+      name: string
+      desc: string
+      category: WidgetCategory
+      size: WidgetSize
+    }> = [
+      {
+        type: 'TOP_NAVIGATION_ENHANCED',
+        name: 'Utvidet Navigasjon',
+        desc: 'Hovednavigasjon med funksjoner',
+        category: 'STOCKS',
+        size: 'LARGE',
+      },
+      {
+        type: 'CATEGORY_SELECTOR',
+        name: 'Kategorivelger',
+        desc: 'Bytte mellom investeringstyper',
+        category: 'STOCKS',
+        size: 'SMALL',
+      },
+      {
+        type: 'STOCK_DETAIL_CARD',
+        name: 'Aksjedetaljer',
+        desc: 'Detaljert aksjeinfo med faner',
+        category: 'STOCKS',
+        size: 'MEDIUM',
+      },
+      {
+        type: 'TRANSACTION_HISTORY',
+        name: 'Transaksjonshistorikk',
+        desc: 'Fullstendig transaksjonslogg',
+        category: 'STOCKS',
+        size: 'LARGE',
+      },
+      {
+        type: 'PRICE_ALERTS',
+        name: 'Prisvarsler',
+        desc: 'Prisvarsler og notifikasjoner',
+        category: 'STOCKS',
+        size: 'MEDIUM',
+      },
+      {
+        type: 'NEWS_FEED',
+        name: 'Nyhetsfeed',
+        desc: 'Finansnyheter og markedsinformasjon',
+        category: 'STOCKS',
+        size: 'MEDIUM',
+      },
+      {
+        type: 'PORTFOLIO_ALLOCATION',
+        name: 'Porteføljeallokering',
+        desc: 'Fordeling av investeringer',
+        category: 'STOCKS',
+        size: 'MEDIUM',
+      },
+      {
+        type: 'PERFORMANCE_METRICS',
+        name: 'Ytelsesmålinger',
+        desc: 'Avanserte ytelsesmålinger',
+        category: 'STOCKS',
+        size: 'LARGE',
+      },
+      {
+        type: 'WATCHLIST',
+        name: 'Overvåkningsliste',
+        desc: 'Aksjer og investeringer å følge',
+        category: 'STOCKS',
+        size: 'MEDIUM',
+      },
+      {
+        type: 'CUSTOM_WIDGET',
+        name: 'Tilpasset Widget',
+        desc: 'Brukerdefinert widget',
+        category: 'STOCKS',
+        size: 'MEDIUM',
+      },
     ]
 
     remainingWidgets.forEach(({ type, name, desc, category, size }) => {
@@ -440,8 +529,8 @@ class WidgetRegistry {
 
   private updateCategories() {
     this.categories.clear()
-    
-    this.widgets.forEach((registration) => {
+
+    this.widgets.forEach(registration => {
       const category = registration.category
       if (!this.categories.has(category)) {
         this.categories.set(category, [])
@@ -456,9 +545,11 @@ class WidgetRegistry {
 
   public register(registration: WidgetRegistration): void {
     if (this.widgets.has(registration.type)) {
-      console.warn(`Widget ${registration.type} is already registered. Overwriting...`)
+      console.warn(
+        `Widget ${registration.type} is already registered. Overwriting...`
+      )
     }
-    
+
     this.widgets.set(registration.type, registration)
     this.updateCategories()
     this.notifyListeners()
@@ -491,116 +582,139 @@ class WidgetRegistry {
 
   public search(filter: WidgetFilter): WidgetSearchResult[] {
     let results = this.getAll()
-    
+
     // Filter by categories
     if (filter.categories && filter.categories.length > 0) {
-      results = results.filter(widget => filter.categories!.includes(widget.category))
+      results = results.filter(widget =>
+        filter.categories!.includes(widget.category)
+      )
     }
-    
+
     // Filter by types
     if (filter.types && filter.types.length > 0) {
       results = results.filter(widget => filter.types!.includes(widget.type))
     }
-    
+
     // Filter by sizes
     if (filter.sizes && filter.sizes.length > 0) {
-      results = results.filter(widget => filter.sizes!.includes(widget.recommendedSize))
+      results = results.filter(widget =>
+        filter.sizes!.includes(widget.recommendedSize)
+      )
     }
-    
+
     // Filter by features
     if (filter.features && filter.features.length > 0) {
-      results = results.filter(widget => 
-        filter.features!.some(feature => 
-          widget.features[feature as keyof typeof widget.features]
+      results = results.filter(widget =>
+        filter.features!.some(
+          feature => widget.features[feature as keyof typeof widget.features]
         )
       )
     }
-    
+
     // Text search
     if (filter.searchTerm) {
       const searchTerm = filter.searchTerm.toLowerCase()
-      results = results.filter(widget => 
-        widget.displayName.toLowerCase().includes(searchTerm) ||
-        widget.description.toLowerCase().includes(searchTerm) ||
-        widget.norwegianLabels.title.toLowerCase().includes(searchTerm) ||
-        widget.norwegianLabels.description.toLowerCase().includes(searchTerm)
+      results = results.filter(
+        widget =>
+          widget.displayName.toLowerCase().includes(searchTerm) ||
+          widget.description.toLowerCase().includes(searchTerm) ||
+          widget.norwegianLabels.title.toLowerCase().includes(searchTerm) ||
+          widget.norwegianLabels.description.toLowerCase().includes(searchTerm)
       )
     }
-    
+
     // Convert to search results with relevance scoring
-    return results.map(registration => ({
-      registration,
-      relevanceScore: this.calculateRelevanceScore(registration, filter),
-      matchedFields: this.getMatchedFields(registration, filter),
-    })).sort((a, b) => b.relevanceScore - a.relevanceScore)
+    return results
+      .map(registration => ({
+        registration,
+        relevanceScore: this.calculateRelevanceScore(registration, filter),
+        matchedFields: this.getMatchedFields(registration, filter),
+      }))
+      .sort((a, b) => b.relevanceScore - a.relevanceScore)
   }
 
-  private calculateRelevanceScore(registration: WidgetRegistration, filter: WidgetFilter): number {
+  private calculateRelevanceScore(
+    registration: WidgetRegistration,
+    filter: WidgetFilter
+  ): number {
     let score = 0
-    
+
     // Base score
     score += 50
-    
+
     // Category match
     if (filter.categories?.includes(registration.category)) {
       score += 30
     }
-    
+
     // Type match
     if (filter.types?.includes(registration.type)) {
       score += 40
     }
-    
+
     // Size match
     if (filter.sizes?.includes(registration.recommendedSize)) {
       score += 20
     }
-    
+
     // Feature matches
     if (filter.features) {
-      const featureMatches = filter.features.filter(feature => 
-        registration.features[feature as keyof typeof registration.features]
+      const featureMatches = filter.features.filter(
+        feature =>
+          registration.features[feature as keyof typeof registration.features]
       )
       score += featureMatches.length * 10
     }
-    
+
     // Text search bonus
     if (filter.searchTerm) {
       const searchTerm = filter.searchTerm.toLowerCase()
-      if (registration.displayName.toLowerCase().includes(searchTerm)) score += 25
-      if (registration.description.toLowerCase().includes(searchTerm)) score += 15
-      if (registration.norwegianLabels.title.toLowerCase().includes(searchTerm)) score += 20
+      if (registration.displayName.toLowerCase().includes(searchTerm))
+        score += 25
+      if (registration.description.toLowerCase().includes(searchTerm))
+        score += 15
+      if (registration.norwegianLabels.title.toLowerCase().includes(searchTerm))
+        score += 20
     }
-    
+
     return score
   }
 
-  private getMatchedFields(registration: WidgetRegistration, filter: WidgetFilter): string[] {
+  private getMatchedFields(
+    registration: WidgetRegistration,
+    filter: WidgetFilter
+  ): string[] {
     const matched: string[] = []
-    
+
     if (filter.categories?.includes(registration.category)) {
       matched.push('category')
     }
-    
+
     if (filter.types?.includes(registration.type)) {
       matched.push('type')
     }
-    
+
     if (filter.sizes?.includes(registration.recommendedSize)) {
       matched.push('size')
     }
-    
+
     if (filter.searchTerm) {
       const searchTerm = filter.searchTerm.toLowerCase()
-      if (registration.displayName.toLowerCase().includes(searchTerm)) matched.push('displayName')
-      if (registration.description.toLowerCase().includes(searchTerm)) matched.push('description')
-      if (registration.norwegianLabels.title.toLowerCase().includes(searchTerm)) matched.push('norwegianTitle')
+      if (registration.displayName.toLowerCase().includes(searchTerm))
+        matched.push('displayName')
+      if (registration.description.toLowerCase().includes(searchTerm))
+        matched.push('description')
+      if (registration.norwegianLabels.title.toLowerCase().includes(searchTerm))
+        matched.push('norwegianTitle')
     }
-    
+
     return matched
   }
 
-  public validate(type: WidgetType, config: WidgetConfig): WidgetValidationResult {
+  public validate(
+    type: WidgetType,
+    config: WidgetConfig
+  ): WidgetValidationResult {
     const registration = this.get(type)
     if (!registration) {
       return {
@@ -610,12 +724,12 @@ class WidgetRegistry {
         suggestions: [],
       }
     }
-    
+
     // Basic validation - in a real implementation, this would use JSON schema
     const errors: string[] = []
     const warnings: string[] = []
     const suggestions: string[] = []
-    
+
     // Validate required fields based on widget type
     if (type.includes('CHART')) {
       const chartConfig = config as ChartWidgetConfig
@@ -626,7 +740,7 @@ class WidgetRegistry {
         warnings.push('Chart height is very small')
       }
     }
-    
+
     if (type.includes('TABLE')) {
       const tableConfig = config as TableWidgetConfig
       if (!tableConfig.columns || tableConfig.columns.length === 0) {
@@ -636,12 +750,12 @@ class WidgetRegistry {
         warnings.push('Large page size may impact performance')
       }
     }
-    
+
     // Performance suggestions
     if (registration.performance.memoryUsage === 'high') {
       suggestions.push('Consider enabling caching for better performance')
     }
-    
+
     return {
       valid: errors.length === 0,
       errors,
@@ -680,45 +794,56 @@ interface WidgetRegistryContextType {
   refresh: () => void
 }
 
-const WidgetRegistryContext = createContext<WidgetRegistryContextType | undefined>(undefined)
+const WidgetRegistryContext = createContext<
+  WidgetRegistryContextType | undefined
+>(undefined)
 
 // Widget registry provider
 interface WidgetRegistryProviderProps {
   children: ReactNode
 }
 
-export const WidgetRegistryProvider: React.FC<WidgetRegistryProviderProps> = ({ children }) => {
-  const [state, setState] = useState<WidgetRegistryState>(widgetRegistry.getState())
-  
+export const WidgetRegistryProvider: React.FC<WidgetRegistryProviderProps> = ({
+  children,
+}) => {
+  const [state, setState] = useState<WidgetRegistryState>(
+    widgetRegistry.getState()
+  )
+
   useEffect(() => {
     const unsubscribe = widgetRegistry.subscribe(() => {
       setState(widgetRegistry.getState())
     })
-    
+
     return unsubscribe
   }, [])
-  
+
   const search = (filter: WidgetFilter): WidgetSearchResult[] => {
     return widgetRegistry.search(filter)
   }
-  
-  const validate = (type: WidgetType, config: WidgetConfig): WidgetValidationResult => {
+
+  const validate = (
+    type: WidgetType,
+    config: WidgetConfig
+  ): WidgetValidationResult => {
     return widgetRegistry.validate(type, config)
   }
-  
+
   const refresh = () => {
     // Force re-render
     setState(widgetRegistry.getState())
   }
-  
+
   return (
-    <WidgetRegistryContext.Provider value={{
-      registry: widgetRegistry,
-      state,
-      search,
-      validate,
-      refresh,
-    }}>
+    <WidgetRegistryContext.Provider
+      value={{
+        registry: widgetRegistry,
+        state,
+        search,
+        validate,
+        refresh,
+      }}
+    >
       {children}
     </WidgetRegistryContext.Provider>
   )
@@ -728,7 +853,9 @@ export const WidgetRegistryProvider: React.FC<WidgetRegistryProviderProps> = ({ 
 export const useWidgetRegistry = (): WidgetRegistryContextType => {
   const context = useContext(WidgetRegistryContext)
   if (!context) {
-    throw new Error('useWidgetRegistry must be used within a WidgetRegistryProvider')
+    throw new Error(
+      'useWidgetRegistry must be used within a WidgetRegistryProvider'
+    )
   }
   return context
 }
@@ -737,7 +864,9 @@ export const useWidgetRegistry = (): WidgetRegistryContextType => {
 export { widgetRegistry }
 
 // Utility functions
-export const getWidgetRegistration = (type: WidgetType): WidgetRegistration | undefined => {
+export const getWidgetRegistration = (
+  type: WidgetType
+): WidgetRegistration | undefined => {
   return widgetRegistry.get(type)
 }
 
@@ -745,7 +874,9 @@ export const getAllWidgetRegistrations = (): WidgetRegistration[] => {
   return widgetRegistry.getAll()
 }
 
-export const getWidgetsByCategory = (category: WidgetCategory): WidgetRegistration[] => {
+export const getWidgetsByCategory = (
+  category: WidgetCategory
+): WidgetRegistration[] => {
   return widgetRegistry.getByCategory(category)
 }
 
@@ -753,13 +884,22 @@ export const searchWidgets = (filter: WidgetFilter): WidgetSearchResult[] => {
   return widgetRegistry.search(filter)
 }
 
-export const validateWidgetConfig = (type: WidgetType, config: WidgetConfig): WidgetValidationResult => {
+export const validateWidgetConfig = (
+  type: WidgetType,
+  config: WidgetConfig
+): WidgetValidationResult => {
   return widgetRegistry.validate(type, config)
 }
 
 // Widget theme utilities
-export const getWidgetTheme = (category: WidgetCategory, theme: string = 'light') => {
-  const investment = getInvestmentTheme(theme as any, category.toLowerCase() as any)
+export const getWidgetTheme = (
+  category: WidgetCategory,
+  theme: string = 'light'
+) => {
+  const investment = getInvestmentTheme(
+    theme as any,
+    category.toLowerCase() as any
+  )
   return {
     primary: investment.primary,
     secondary: investment.secondary,
@@ -769,7 +909,9 @@ export const getWidgetTheme = (category: WidgetCategory, theme: string = 'light'
 }
 
 // Widget size utilities
-export const getWidgetGridSize = (size: WidgetSize): { rows: number; columns: number } => {
+export const getWidgetGridSize = (
+  size: WidgetSize
+): { rows: number; columns: number } => {
   switch (size) {
     case 'SMALL':
       return { rows: 1, columns: 1 }
@@ -784,11 +926,15 @@ export const getWidgetGridSize = (size: WidgetSize): { rows: number; columns: nu
   }
 }
 
-export const isWidgetSizeValid = (size: WidgetSize, minSize: WidgetSize, maxSize: WidgetSize): boolean => {
+export const isWidgetSizeValid = (
+  size: WidgetSize,
+  minSize: WidgetSize,
+  maxSize: WidgetSize
+): boolean => {
   const sizeOrder: WidgetSize[] = ['SMALL', 'MEDIUM', 'LARGE', 'HERO']
   const currentIndex = sizeOrder.indexOf(size)
   const minIndex = sizeOrder.indexOf(minSize)
   const maxIndex = sizeOrder.indexOf(maxSize)
-  
+
   return currentIndex >= minIndex && currentIndex <= maxIndex
 }

@@ -2,8 +2,19 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Settings, Eye, Save, X, RotateCcw, Palette, Layout, TrendingUp, Bell, Download } from 'lucide-react'
-import { 
+import {
+  Settings,
+  Eye,
+  Save,
+  X,
+  RotateCcw,
+  Palette,
+  Layout,
+  TrendingUp,
+  Bell,
+  Download,
+} from 'lucide-react'
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -15,7 +26,13 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -23,13 +40,13 @@ import { Slider } from '@/components/ui/slider'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { 
+import {
   WidgetRegistration,
   WidgetConfigField,
   WidgetConfigSchema,
   BaseWidgetComponentProps,
 } from '@/components/widgets/widget-types'
-import { 
+import {
   WidgetType,
   WidgetCategory,
   WidgetSize,
@@ -60,16 +77,22 @@ const ChartConfigForm: React.FC<{
   config: ChartWidgetConfig
   onChange: (config: ChartWidgetConfig) => void
 }> = ({ config, onChange }) => {
-  const updateConfig = useCallback((updates: Partial<ChartWidgetConfig>) => {
-    onChange({ ...config, ...updates })
-  }, [config, onChange])
+  const updateConfig = useCallback(
+    (updates: Partial<ChartWidgetConfig>) => {
+      onChange({ ...config, ...updates })
+    },
+    [config, onChange]
+  )
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="chartType">Graftype</Label>
-          <Select value={config.chartType} onValueChange={(value) => updateConfig({ chartType: value as any })}>
+          <Select
+            value={config.chartType}
+            onValueChange={value => updateConfig({ chartType: value as any })}
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -83,7 +106,10 @@ const ChartConfigForm: React.FC<{
         </div>
         <div className="space-y-2">
           <Label htmlFor="chartTheme">Tema</Label>
-          <Select value={config.chartTheme} onValueChange={(value) => updateConfig({ chartTheme: value as any })}>
+          <Select
+            value={config.chartTheme}
+            onValueChange={value => updateConfig({ chartTheme: value as any })}
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -103,7 +129,7 @@ const ChartConfigForm: React.FC<{
           <Switch
             id="showVolume"
             checked={config.showVolume}
-            onCheckedChange={(checked) => updateConfig({ showVolume: checked })}
+            onCheckedChange={checked => updateConfig({ showVolume: checked })}
           />
         </div>
         <div className="flex items-center justify-between">
@@ -111,15 +137,19 @@ const ChartConfigForm: React.FC<{
           <Switch
             id="showGrid"
             checked={config.showGrid}
-            onCheckedChange={(checked) => updateConfig({ showGrid: checked })}
+            onCheckedChange={checked => updateConfig({ showGrid: checked })}
           />
         </div>
         <div className="flex items-center justify-between">
-          <Label htmlFor="showTechnicalIndicators">Vis tekniske indikatorer</Label>
+          <Label htmlFor="showTechnicalIndicators">
+            Vis tekniske indikatorer
+          </Label>
           <Switch
             id="showTechnicalIndicators"
             checked={config.showTechnicalIndicators}
-            onCheckedChange={(checked) => updateConfig({ showTechnicalIndicators: checked })}
+            onCheckedChange={checked =>
+              updateConfig({ showTechnicalIndicators: checked })
+            }
           />
         </div>
         <div className="flex items-center justify-between">
@@ -127,7 +157,7 @@ const ChartConfigForm: React.FC<{
           <Switch
             id="showLegend"
             checked={config.showLegend}
-            onCheckedChange={(checked) => updateConfig({ showLegend: checked })}
+            onCheckedChange={checked => updateConfig({ showLegend: checked })}
           />
         </div>
       </div>
@@ -147,7 +177,10 @@ const ChartConfigForm: React.FC<{
 
       <div className="space-y-2">
         <Label htmlFor="timeframe">Tidsramme</Label>
-        <Select value={config.timeframe} onValueChange={(value) => updateConfig({ timeframe: value })}>
+        <Select
+          value={config.timeframe}
+          onValueChange={value => updateConfig({ timeframe: value })}
+        >
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -167,21 +200,32 @@ const ChartConfigForm: React.FC<{
         <div className="space-y-2">
           <Label htmlFor="indicators">Tekniske indikatorer</Label>
           <div className="grid grid-cols-2 gap-2">
-            {['RSI', 'MACD', 'Bollinger Bands', 'Moving Average', 'Volume', 'Stochastic'].map((indicator) => (
+            {[
+              'RSI',
+              'MACD',
+              'Bollinger Bands',
+              'Moving Average',
+              'Volume',
+              'Stochastic',
+            ].map(indicator => (
               <div key={indicator} className="flex items-center space-x-2">
                 <Switch
                   id={indicator}
                   checked={config.indicators?.includes(indicator)}
-                  onCheckedChange={(checked) => {
+                  onCheckedChange={checked => {
                     const indicators = config.indicators || []
                     if (checked) {
                       updateConfig({ indicators: [...indicators, indicator] })
                     } else {
-                      updateConfig({ indicators: indicators.filter(i => i !== indicator) })
+                      updateConfig({
+                        indicators: indicators.filter(i => i !== indicator),
+                      })
                     }
                   }}
                 />
-                <Label htmlFor={indicator} className="text-sm">{indicator}</Label>
+                <Label htmlFor={indicator} className="text-sm">
+                  {indicator}
+                </Label>
               </div>
             ))}
           </div>
@@ -195,12 +239,24 @@ const TableConfigForm: React.FC<{
   config: TableWidgetConfig
   onChange: (config: TableWidgetConfig) => void
 }> = ({ config, onChange }) => {
-  const updateConfig = useCallback((updates: Partial<TableWidgetConfig>) => {
-    onChange({ ...config, ...updates })
-  }, [config, onChange])
+  const updateConfig = useCallback(
+    (updates: Partial<TableWidgetConfig>) => {
+      onChange({ ...config, ...updates })
+    },
+    [config, onChange]
+  )
 
   const availableColumns = [
-    'symbol', 'name', 'quantity', 'price', 'change', 'value', 'cost_basis', 'pnl', 'pnl_percent', 'broker'
+    'symbol',
+    'name',
+    'quantity',
+    'price',
+    'change',
+    'value',
+    'cost_basis',
+    'pnl',
+    'pnl_percent',
+    'broker',
   ]
 
   return (
@@ -208,12 +264,12 @@ const TableConfigForm: React.FC<{
       <div className="space-y-2">
         <Label>Synlige kolonner</Label>
         <div className="grid grid-cols-2 gap-2">
-          {availableColumns.map((column) => (
+          {availableColumns.map(column => (
             <div key={column} className="flex items-center space-x-2">
               <Switch
                 id={column}
                 checked={config.columns?.includes(column)}
-                onCheckedChange={(checked) => {
+                onCheckedChange={checked => {
                   const columns = config.columns || availableColumns
                   if (checked) {
                     updateConfig({ columns: [...columns, column] })
@@ -222,7 +278,9 @@ const TableConfigForm: React.FC<{
                   }
                 }}
               />
-              <Label htmlFor={column} className="text-sm capitalize">{column.replace('_', ' ')}</Label>
+              <Label htmlFor={column} className="text-sm capitalize">
+                {column.replace('_', ' ')}
+              </Label>
             </div>
           ))}
         </div>
@@ -231,12 +289,15 @@ const TableConfigForm: React.FC<{
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="sortBy">Sorter etter</Label>
-          <Select value={config.sortBy} onValueChange={(value) => updateConfig({ sortBy: value })}>
+          <Select
+            value={config.sortBy}
+            onValueChange={value => updateConfig({ sortBy: value })}
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {availableColumns.map((column) => (
+              {availableColumns.map(column => (
                 <SelectItem key={column} value={column}>
                   {column.replace('_', ' ')}
                 </SelectItem>
@@ -246,7 +307,12 @@ const TableConfigForm: React.FC<{
         </div>
         <div className="space-y-2">
           <Label htmlFor="sortDirection">Sorteringsretning</Label>
-          <Select value={config.sortDirection} onValueChange={(value) => updateConfig({ sortDirection: value as any })}>
+          <Select
+            value={config.sortDirection}
+            onValueChange={value =>
+              updateConfig({ sortDirection: value as any })
+            }
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -277,7 +343,9 @@ const TableConfigForm: React.FC<{
           <Switch
             id="showPagination"
             checked={config.showPagination}
-            onCheckedChange={(checked) => updateConfig({ showPagination: checked })}
+            onCheckedChange={checked =>
+              updateConfig({ showPagination: checked })
+            }
           />
         </div>
         <div className="flex items-center justify-between">
@@ -285,7 +353,7 @@ const TableConfigForm: React.FC<{
           <Switch
             id="showSearch"
             checked={config.showSearch}
-            onCheckedChange={(checked) => updateConfig({ showSearch: checked })}
+            onCheckedChange={checked => updateConfig({ showSearch: checked })}
           />
         </div>
         <div className="flex items-center justify-between">
@@ -293,7 +361,7 @@ const TableConfigForm: React.FC<{
           <Switch
             id="showFilters"
             checked={config.showFilters}
-            onCheckedChange={(checked) => updateConfig({ showFilters: checked })}
+            onCheckedChange={checked => updateConfig({ showFilters: checked })}
           />
         </div>
         <div className="flex items-center justify-between">
@@ -301,7 +369,7 @@ const TableConfigForm: React.FC<{
           <Switch
             id="compactMode"
             checked={config.compactMode}
-            onCheckedChange={(checked) => updateConfig({ compactMode: checked })}
+            onCheckedChange={checked => updateConfig({ compactMode: checked })}
           />
         </div>
       </div>
@@ -313,13 +381,24 @@ const MetricsConfigForm: React.FC<{
   config: MetricsWidgetConfig
   onChange: (config: MetricsWidgetConfig) => void
 }> = ({ config, onChange }) => {
-  const updateConfig = useCallback((updates: Partial<MetricsWidgetConfig>) => {
-    onChange({ ...config, ...updates })
-  }, [config, onChange])
+  const updateConfig = useCallback(
+    (updates: Partial<MetricsWidgetConfig>) => {
+      onChange({ ...config, ...updates })
+    },
+    [config, onChange]
+  )
 
   const availableMetrics = [
-    'total_value', 'total_cost', 'total_pnl', 'total_pnl_percent', 'daily_change', 'daily_change_percent',
-    'best_performer', 'worst_performer', 'dividend_yield', 'portfolio_beta'
+    'total_value',
+    'total_cost',
+    'total_pnl',
+    'total_pnl_percent',
+    'daily_change',
+    'daily_change_percent',
+    'best_performer',
+    'worst_performer',
+    'dividend_yield',
+    'portfolio_beta',
   ]
 
   return (
@@ -327,12 +406,12 @@ const MetricsConfigForm: React.FC<{
       <div className="space-y-2">
         <Label>Synlige målinger</Label>
         <div className="grid grid-cols-2 gap-2">
-          {availableMetrics.map((metric) => (
+          {availableMetrics.map(metric => (
             <div key={metric} className="flex items-center space-x-2">
               <Switch
                 id={metric}
                 checked={config.metrics?.includes(metric)}
-                onCheckedChange={(checked) => {
+                onCheckedChange={checked => {
                   const metrics = config.metrics || availableMetrics
                   if (checked) {
                     updateConfig({ metrics: [...metrics, metric] })
@@ -341,7 +420,9 @@ const MetricsConfigForm: React.FC<{
                   }
                 }}
               />
-              <Label htmlFor={metric} className="text-sm">{metric.replace('_', ' ')}</Label>
+              <Label htmlFor={metric} className="text-sm">
+                {metric.replace('_', ' ')}
+              </Label>
             </div>
           ))}
         </div>
@@ -349,7 +430,10 @@ const MetricsConfigForm: React.FC<{
 
       <div className="space-y-2">
         <Label htmlFor="colorScheme">Fargeskjema</Label>
-        <Select value={config.colorScheme} onValueChange={(value) => updateConfig({ colorScheme: value as any })}>
+        <Select
+          value={config.colorScheme}
+          onValueChange={value => updateConfig({ colorScheme: value as any })}
+        >
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -367,7 +451,9 @@ const MetricsConfigForm: React.FC<{
           <Switch
             id="showPercentageChange"
             checked={config.showPercentageChange}
-            onCheckedChange={(checked) => updateConfig({ showPercentageChange: checked })}
+            onCheckedChange={checked =>
+              updateConfig({ showPercentageChange: checked })
+            }
           />
         </div>
         <div className="flex items-center justify-between">
@@ -375,7 +461,9 @@ const MetricsConfigForm: React.FC<{
           <Switch
             id="showSparklines"
             checked={config.showSparklines}
-            onCheckedChange={(checked) => updateConfig({ showSparklines: checked })}
+            onCheckedChange={checked =>
+              updateConfig({ showSparklines: checked })
+            }
           />
         </div>
         <div className="flex items-center justify-between">
@@ -383,7 +471,7 @@ const MetricsConfigForm: React.FC<{
           <Switch
             id="compactView"
             checked={config.compactView}
-            onCheckedChange={(checked) => updateConfig({ compactView: checked })}
+            onCheckedChange={checked => updateConfig({ compactView: checked })}
           />
         </div>
       </div>
@@ -395,12 +483,22 @@ const NewsConfigForm: React.FC<{
   config: NewsWidgetConfig
   onChange: (config: NewsWidgetConfig) => void
 }> = ({ config, onChange }) => {
-  const updateConfig = useCallback((updates: Partial<NewsWidgetConfig>) => {
-    onChange({ ...config, ...updates })
-  }, [config, onChange])
+  const updateConfig = useCallback(
+    (updates: Partial<NewsWidgetConfig>) => {
+      onChange({ ...config, ...updates })
+    },
+    [config, onChange]
+  )
 
   const availableSources = [
-    'E24', 'DN', 'Finansavisen', 'Reuters', 'Bloomberg', 'MarketWatch', 'Yahoo Finance', 'CNBC'
+    'E24',
+    'DN',
+    'Finansavisen',
+    'Reuters',
+    'Bloomberg',
+    'MarketWatch',
+    'Yahoo Finance',
+    'CNBC',
   ]
 
   return (
@@ -408,12 +506,12 @@ const NewsConfigForm: React.FC<{
       <div className="space-y-2">
         <Label>Nyhetskilder</Label>
         <div className="grid grid-cols-2 gap-2">
-          {availableSources.map((source) => (
+          {availableSources.map(source => (
             <div key={source} className="flex items-center space-x-2">
               <Switch
                 id={source}
                 checked={config.sources?.includes(source)}
-                onCheckedChange={(checked) => {
+                onCheckedChange={checked => {
                   const sources = config.sources || availableSources
                   if (checked) {
                     updateConfig({ sources: [...sources, source] })
@@ -422,14 +520,18 @@ const NewsConfigForm: React.FC<{
                   }
                 }}
               />
-              <Label htmlFor={source} className="text-sm">{source}</Label>
+              <Label htmlFor={source} className="text-sm">
+                {source}
+              </Label>
             </div>
           ))}
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="maxItems">Maksimalt antall artikler: {config.maxItems}</Label>
+        <Label htmlFor="maxItems">
+          Maksimalt antall artikler: {config.maxItems}
+        </Label>
         <Slider
           id="maxItems"
           min={5}
@@ -447,7 +549,7 @@ const NewsConfigForm: React.FC<{
           <Switch
             id="showImages"
             checked={config.showImages}
-            onCheckedChange={(checked) => updateConfig({ showImages: checked })}
+            onCheckedChange={checked => updateConfig({ showImages: checked })}
           />
         </div>
         <div className="flex items-center justify-between">
@@ -455,7 +557,7 @@ const NewsConfigForm: React.FC<{
           <Switch
             id="showSummary"
             checked={config.showSummary}
-            onCheckedChange={(checked) => updateConfig({ showSummary: checked })}
+            onCheckedChange={checked => updateConfig({ showSummary: checked })}
           />
         </div>
         <div className="flex items-center justify-between">
@@ -463,7 +565,9 @@ const NewsConfigForm: React.FC<{
           <Switch
             id="filterBySymbol"
             checked={config.filterBySymbol}
-            onCheckedChange={(checked) => updateConfig({ filterBySymbol: checked })}
+            onCheckedChange={checked =>
+              updateConfig({ filterBySymbol: checked })
+            }
           />
         </div>
       </div>
@@ -475,12 +579,20 @@ const AlertsConfigForm: React.FC<{
   config: AlertsWidgetConfig
   onChange: (config: AlertsWidgetConfig) => void
 }> = ({ config, onChange }) => {
-  const updateConfig = useCallback((updates: Partial<AlertsWidgetConfig>) => {
-    onChange({ ...config, ...updates })
-  }, [config, onChange])
+  const updateConfig = useCallback(
+    (updates: Partial<AlertsWidgetConfig>) => {
+      onChange({ ...config, ...updates })
+    },
+    [config, onChange]
+  )
 
   const availableAlertTypes = [
-    'price_alert', 'volume_alert', 'news_alert', 'dividend_alert', 'earnings_alert', 'sector_alert'
+    'price_alert',
+    'volume_alert',
+    'news_alert',
+    'dividend_alert',
+    'earnings_alert',
+    'sector_alert',
   ]
 
   return (
@@ -488,28 +600,34 @@ const AlertsConfigForm: React.FC<{
       <div className="space-y-2">
         <Label>Varseltyper</Label>
         <div className="grid grid-cols-2 gap-2">
-          {availableAlertTypes.map((alertType) => (
+          {availableAlertTypes.map(alertType => (
             <div key={alertType} className="flex items-center space-x-2">
               <Switch
                 id={alertType}
                 checked={config.alertTypes?.includes(alertType)}
-                onCheckedChange={(checked) => {
+                onCheckedChange={checked => {
                   const alertTypes = config.alertTypes || availableAlertTypes
                   if (checked) {
                     updateConfig({ alertTypes: [...alertTypes, alertType] })
                   } else {
-                    updateConfig({ alertTypes: alertTypes.filter(t => t !== alertType) })
+                    updateConfig({
+                      alertTypes: alertTypes.filter(t => t !== alertType),
+                    })
                   }
                 }}
               />
-              <Label htmlFor={alertType} className="text-sm">{alertType.replace('_', ' ')}</Label>
+              <Label htmlFor={alertType} className="text-sm">
+                {alertType.replace('_', ' ')}
+              </Label>
             </div>
           ))}
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="maxItems">Maksimalt antall varsler: {config.maxItems}</Label>
+        <Label htmlFor="maxItems">
+          Maksimalt antall varsler: {config.maxItems}
+        </Label>
         <Slider
           id="maxItems"
           min={5}
@@ -527,7 +645,9 @@ const AlertsConfigForm: React.FC<{
           <Switch
             id="showNotifications"
             checked={config.showNotifications}
-            onCheckedChange={(checked) => updateConfig({ showNotifications: checked })}
+            onCheckedChange={checked =>
+              updateConfig({ showNotifications: checked })
+            }
           />
         </div>
         <div className="flex items-center justify-between">
@@ -535,7 +655,9 @@ const AlertsConfigForm: React.FC<{
           <Switch
             id="autoMarkAsRead"
             checked={config.autoMarkAsRead}
-            onCheckedChange={(checked) => updateConfig({ autoMarkAsRead: checked })}
+            onCheckedChange={checked =>
+              updateConfig({ autoMarkAsRead: checked })
+            }
           />
         </div>
       </div>
@@ -543,7 +665,9 @@ const AlertsConfigForm: React.FC<{
   )
 }
 
-export const WidgetConfigurationModal: React.FC<WidgetConfigurationModalProps> = ({
+export const WidgetConfigurationModal: React.FC<
+  WidgetConfigurationModalProps
+> = ({
   open,
   onOpenChange,
   registration,
@@ -560,7 +684,10 @@ export const WidgetConfigurationModal: React.FC<WidgetConfigurationModalProps> =
 
   const theme = useMemo(() => {
     if (!registration) return getInvestmentTheme('light', 'stocks')
-    return getInvestmentTheme('light', registration.category.toLowerCase() as any)
+    return getInvestmentTheme(
+      'light',
+      registration.category.toLowerCase() as any
+    )
   }, [registration])
 
   // Initialize config when registration changes
@@ -621,16 +748,41 @@ export const WidgetConfigurationModal: React.FC<WidgetConfigurationModalProps> =
       case 'HERO_PORTFOLIO_CHART':
       case 'CATEGORY_MINI_CHART':
       case 'STOCK_PERFORMANCE_CHART':
-        return <ChartConfigForm {...commonProps} config={config as ChartWidgetConfig} />
+        return (
+          <ChartConfigForm
+            {...commonProps}
+            config={config as ChartWidgetConfig}
+          />
+        )
       case 'HOLDINGS_TABLE_RICH':
-        return <TableConfigForm {...commonProps} config={config as TableWidgetConfig} />
+        return (
+          <TableConfigForm
+            {...commonProps}
+            config={config as TableWidgetConfig}
+          />
+        )
       case 'METRICS_GRID':
       case 'PERFORMANCE_METRICS':
-        return <MetricsConfigForm {...commonProps} config={config as MetricsWidgetConfig} />
+        return (
+          <MetricsConfigForm
+            {...commonProps}
+            config={config as MetricsWidgetConfig}
+          />
+        )
       case 'NEWS_FEED':
-        return <NewsConfigForm {...commonProps} config={config as NewsWidgetConfig} />
+        return (
+          <NewsConfigForm
+            {...commonProps}
+            config={config as NewsWidgetConfig}
+          />
+        )
       case 'PRICE_ALERTS':
-        return <AlertsConfigForm {...commonProps} config={config as AlertsWidgetConfig} />
+        return (
+          <AlertsConfigForm
+            {...commonProps}
+            config={config as AlertsWidgetConfig}
+          />
+        )
       default:
         return (
           <div className="space-y-4">
@@ -639,16 +791,25 @@ export const WidgetConfigurationModal: React.FC<WidgetConfigurationModalProps> =
               <Input
                 id="customTitle"
                 value={config.customTitle || ''}
-                onChange={(e) => handleConfigChange({ ...config, customTitle: e.target.value })}
+                onChange={e =>
+                  handleConfigChange({ ...config, customTitle: e.target.value })
+                }
                 placeholder="Skriv inn egendefinert tittel"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="customDescription">Egendefinert beskrivelse</Label>
+              <Label htmlFor="customDescription">
+                Egendefinert beskrivelse
+              </Label>
               <Input
                 id="customDescription"
                 value={config.customDescription || ''}
-                onChange={(e) => handleConfigChange({ ...config, customDescription: e.target.value })}
+                onChange={e =>
+                  handleConfigChange({
+                    ...config,
+                    customDescription: e.target.value,
+                  })
+                }
                 placeholder="Skriv inn egendefinert beskrivelse"
               />
             </div>
@@ -658,7 +819,9 @@ export const WidgetConfigurationModal: React.FC<WidgetConfigurationModalProps> =
                 <Switch
                   id="showHeader"
                   checked={config.showHeader !== false}
-                  onCheckedChange={(checked) => handleConfigChange({ ...config, showHeader: checked })}
+                  onCheckedChange={checked =>
+                    handleConfigChange({ ...config, showHeader: checked })
+                  }
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -666,7 +829,9 @@ export const WidgetConfigurationModal: React.FC<WidgetConfigurationModalProps> =
                 <Switch
                   id="showFooter"
                   checked={config.showFooter !== false}
-                  onCheckedChange={(checked) => handleConfigChange({ ...config, showFooter: checked })}
+                  onCheckedChange={checked =>
+                    handleConfigChange({ ...config, showFooter: checked })
+                  }
                 />
               </div>
             </div>
@@ -679,20 +844,26 @@ export const WidgetConfigurationModal: React.FC<WidgetConfigurationModalProps> =
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0">
-        <div className="flex flex-col h-full">
+      <DialogContent className="max-h-[90vh] max-w-4xl p-0">
+        <div className="flex h-full flex-col">
           {/* Header */}
-          <DialogHeader className="p-6 pb-4 border-b">
+          <DialogHeader className="border-b p-6 pb-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className={cn(
-                  'p-2 rounded-lg',
-                  registration.category === 'STOCKS' && 'bg-purple-100 text-purple-600',
-                  registration.category === 'CRYPTO' && 'bg-amber-100 text-amber-600',
-                  registration.category === 'ART' && 'bg-pink-100 text-pink-600',
-                  registration.category === 'OTHER' && 'bg-emerald-100 text-emerald-600',
-                )}>
-                  <Settings className="w-5 h-5" />
+                <div
+                  className={cn(
+                    'rounded-lg p-2',
+                    registration.category === 'STOCKS' &&
+                      'bg-purple-100 text-purple-600',
+                    registration.category === 'CRYPTO' &&
+                      'bg-amber-100 text-amber-600',
+                    registration.category === 'ART' &&
+                      'bg-pink-100 text-pink-600',
+                    registration.category === 'OTHER' &&
+                      'bg-emerald-100 text-emerald-600'
+                  )}
+                >
+                  <Settings className="h-5 w-5" />
                 </div>
                 <div>
                   <DialogTitle className="text-xl font-bold">
@@ -715,7 +886,7 @@ export const WidgetConfigurationModal: React.FC<WidgetConfigurationModalProps> =
                   onClick={handleReset}
                   disabled={!hasChanges}
                 >
-                  <RotateCcw className="w-4 h-4 mr-2" />
+                  <RotateCcw className="mr-2 h-4 w-4" />
                   Tilbakestill
                 </Button>
               </div>
@@ -725,28 +896,39 @@ export const WidgetConfigurationModal: React.FC<WidgetConfigurationModalProps> =
           {/* Content */}
           <div className="flex-1 overflow-hidden">
             <Tabs defaultValue="configuration" className="h-full">
-              <div className="px-6 pt-4 border-b">
+              <div className="border-b px-6 pt-4">
                 <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="configuration" className="flex items-center gap-2">
-                    <Settings className="w-4 h-4" />
+                  <TabsTrigger
+                    value="configuration"
+                    className="flex items-center gap-2"
+                  >
+                    <Settings className="h-4 w-4" />
                     Konfigurasjon
                   </TabsTrigger>
-                  <TabsTrigger value="appearance" className="flex items-center gap-2">
-                    <Palette className="w-4 h-4" />
+                  <TabsTrigger
+                    value="appearance"
+                    className="flex items-center gap-2"
+                  >
+                    <Palette className="h-4 w-4" />
                     Utseende
                   </TabsTrigger>
-                  <TabsTrigger value="advanced" className="flex items-center gap-2">
-                    <Layout className="w-4 h-4" />
+                  <TabsTrigger
+                    value="advanced"
+                    className="flex items-center gap-2"
+                  >
+                    <Layout className="h-4 w-4" />
                     Avansert
                   </TabsTrigger>
                 </TabsList>
               </div>
 
               <div className="flex-1 overflow-auto">
-                <TabsContent value="configuration" className="p-6 space-y-6">
+                <TabsContent value="configuration" className="space-y-6 p-6">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Widget-innstillinger</CardTitle>
+                      <CardTitle className="text-lg">
+                        Widget-innstillinger
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ScrollArea className="h-[400px]">
@@ -756,15 +938,25 @@ export const WidgetConfigurationModal: React.FC<WidgetConfigurationModalProps> =
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="appearance" className="p-6 space-y-6">
+                <TabsContent value="appearance" className="space-y-6 p-6">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Utseende og tema</CardTitle>
+                      <CardTitle className="text-lg">
+                        Utseende og tema
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="theme">Tema</Label>
-                        <Select value={config.theme} onValueChange={(value) => handleConfigChange({ ...config, theme: value as any })}>
+                        <Select
+                          value={config.theme}
+                          onValueChange={value =>
+                            handleConfigChange({
+                              ...config,
+                              theme: value as any,
+                            })
+                          }
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Velg tema" />
                           </SelectTrigger>
@@ -784,15 +976,27 @@ export const WidgetConfigurationModal: React.FC<WidgetConfigurationModalProps> =
                           <Switch
                             id="showLoadingStates"
                             checked={config.showLoadingStates !== false}
-                            onCheckedChange={(checked) => handleConfigChange({ ...config, showLoadingStates: checked })}
+                            onCheckedChange={checked =>
+                              handleConfigChange({
+                                ...config,
+                                showLoadingStates: checked,
+                              })
+                            }
                           />
                         </div>
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="showErrorStates">Vis feilmeldinger</Label>
+                          <Label htmlFor="showErrorStates">
+                            Vis feilmeldinger
+                          </Label>
                           <Switch
                             id="showErrorStates"
                             checked={config.showErrorStates !== false}
-                            onCheckedChange={(checked) => handleConfigChange({ ...config, showErrorStates: checked })}
+                            onCheckedChange={checked =>
+                              handleConfigChange({
+                                ...config,
+                                showErrorStates: checked,
+                              })
+                            }
                           />
                         </div>
                       </div>
@@ -800,21 +1004,31 @@ export const WidgetConfigurationModal: React.FC<WidgetConfigurationModalProps> =
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="advanced" className="p-6 space-y-6">
+                <TabsContent value="advanced" className="space-y-6 p-6">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Avanserte innstillinger</CardTitle>
+                      <CardTitle className="text-lg">
+                        Avanserte innstillinger
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="refreshInterval">Oppdateringsintervall (sekunder): {config.refreshInterval}</Label>
+                        <Label htmlFor="refreshInterval">
+                          Oppdateringsintervall (sekunder):{' '}
+                          {config.refreshInterval}
+                        </Label>
                         <Slider
                           id="refreshInterval"
                           min={30}
                           max={3600}
                           step={30}
                           value={[config.refreshInterval || 300]}
-                          onValueChange={([value]) => handleConfigChange({ ...config, refreshInterval: value })}
+                          onValueChange={([value]) =>
+                            handleConfigChange({
+                              ...config,
+                              refreshInterval: value,
+                            })
+                          }
                           className="w-full"
                         />
                       </div>
@@ -822,7 +1036,8 @@ export const WidgetConfigurationModal: React.FC<WidgetConfigurationModalProps> =
                       <Alert>
                         <Bell className="h-4 w-4" />
                         <AlertDescription>
-                          Lavere oppdateringsintervall kan påvirke ytelsen og bruke mer data.
+                          Lavere oppdateringsintervall kan påvirke ytelsen og
+                          bruke mer data.
                         </AlertDescription>
                       </Alert>
                     </CardContent>
@@ -833,15 +1048,15 @@ export const WidgetConfigurationModal: React.FC<WidgetConfigurationModalProps> =
           </div>
 
           {/* Footer */}
-          <DialogFooter className="p-6 pt-4 border-t">
-            <div className="flex items-center justify-between w-full">
+          <DialogFooter className="border-t p-6 pt-4">
+            <div className="flex w-full items-center justify-between">
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   onClick={handlePreview}
                   disabled={!hasChanges}
                 >
-                  <Eye className="w-4 h-4 mr-2" />
+                  <Eye className="mr-2 h-4 w-4" />
                   Forhåndsvis
                 </Button>
                 {previewMode && (
@@ -858,20 +1073,24 @@ export const WidgetConfigurationModal: React.FC<WidgetConfigurationModalProps> =
                   onClick={handleSave}
                   disabled={!hasChanges || saving}
                   className={cn(
-                    registration.category === 'STOCKS' && 'bg-purple-600 hover:bg-purple-700',
-                    registration.category === 'CRYPTO' && 'bg-amber-600 hover:bg-amber-700',
-                    registration.category === 'ART' && 'bg-pink-600 hover:bg-pink-700',
-                    registration.category === 'OTHER' && 'bg-emerald-600 hover:bg-emerald-700',
+                    registration.category === 'STOCKS' &&
+                      'bg-purple-600 hover:bg-purple-700',
+                    registration.category === 'CRYPTO' &&
+                      'bg-amber-600 hover:bg-amber-700',
+                    registration.category === 'ART' &&
+                      'bg-pink-600 hover:bg-pink-700',
+                    registration.category === 'OTHER' &&
+                      'bg-emerald-600 hover:bg-emerald-700'
                   )}
                 >
                   {saving ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
                       Lagrer...
                     </>
                   ) : (
                     <>
-                      <Save className="w-4 h-4 mr-2" />
+                      <Save className="mr-2 h-4 w-4" />
                       Lagre
                     </>
                   )}

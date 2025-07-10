@@ -4,29 +4,35 @@ import React, { useState, useCallback, useMemo } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { 
-  AlertCircle, 
-  CheckCircle, 
-  Info, 
-  Palette, 
-  BarChart3, 
-  Table, 
-  TrendingUp, 
+import {
+  AlertCircle,
+  CheckCircle,
+  Info,
+  Palette,
+  BarChart3,
+  Table,
+  TrendingUp,
   Bell,
   Smartphone,
   Tablet,
   Monitor,
   Plus,
   X,
-  HelpCircle
+  HelpCircle,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
-import { 
+import {
   type WidgetRegistration,
   type WidgetValidationResult,
   type ResponsiveWidgetConfig,
@@ -39,7 +45,7 @@ import {
   type NewsWidgetConfig,
   type AlertsWidgetConfig,
   type WidgetSize,
-  type WidgetCategory
+  type WidgetCategory,
 } from '@/lib/types/widget.types'
 import { getInvestmentTheme } from '@/lib/themes/modern-themes'
 
@@ -67,7 +73,15 @@ interface ConfigFieldProps {
   label: string
   value: any
   onChange: (value: any) => void
-  type: 'text' | 'number' | 'boolean' | 'select' | 'multiselect' | 'color' | 'range' | 'tags'
+  type:
+    | 'text'
+    | 'number'
+    | 'boolean'
+    | 'select'
+    | 'multiselect'
+    | 'color'
+    | 'range'
+    | 'tags'
   options?: { value: any; label: string; description?: string }[]
   min?: number
   max?: number
@@ -94,7 +108,7 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
   placeholder,
   validation,
   disabled = false,
-  icon
+  icon,
 }) => {
   const [tags, setTags] = useState<string[]>(Array.isArray(value) ? value : [])
   const [newTag, setNewTag] = useState('')
@@ -111,11 +125,14 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
     }
   }, [newTag, tags, onChange])
 
-  const handleTagRemove = useCallback((tagToRemove: string) => {
-    const updatedTags = tags.filter(tag => tag !== tagToRemove)
-    setTags(updatedTags)
-    onChange(updatedTags)
-  }, [tags, onChange])
+  const handleTagRemove = useCallback(
+    (tagToRemove: string) => {
+      const updatedTags = tags.filter(tag => tag !== tagToRemove)
+      setTags(updatedTags)
+      onChange(updatedTags)
+    },
+    [tags, onChange]
+  )
 
   const renderField = () => {
     switch (type) {
@@ -123,28 +140,28 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
         return (
           <Input
             value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={e => onChange(e.target.value)}
             placeholder={placeholder}
             disabled={disabled}
-            className={cn(hasError && "border-red-500")}
+            className={cn(hasError && 'border-red-500')}
           />
         )
-      
+
       case 'number':
         return (
           <Input
             type="number"
             value={value || 0}
-            onChange={(e) => onChange(Number(e.target.value))}
+            onChange={e => onChange(Number(e.target.value))}
             min={min}
             max={max}
             step={step}
             placeholder={placeholder}
             disabled={disabled}
-            className={cn(hasError && "border-red-500")}
+            className={cn(hasError && 'border-red-500')}
           />
         )
-      
+
       case 'boolean':
         return (
           <div className="flex items-center space-x-3">
@@ -158,15 +175,15 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
             </Label>
           </div>
         )
-      
+
       case 'select':
         return (
           <Select value={value} onValueChange={onChange} disabled={disabled}>
-            <SelectTrigger className={cn(hasError && "border-red-500")}>
+            <SelectTrigger className={cn(hasError && 'border-red-500')}>
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent>
-              {options.map((option) => (
+              {options.map(option => (
                 <SelectItem key={option.value} value={option.value}>
                   <div className="flex flex-col">
                     <span>{option.label}</span>
@@ -181,15 +198,15 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
             </SelectContent>
           </Select>
         )
-      
+
       case 'multiselect':
         return (
           <div className="space-y-3">
-            {options.map((option) => (
+            {options.map(option => (
               <div key={option.value} className="flex items-start space-x-3">
                 <Switch
                   checked={Array.isArray(value) && value.includes(option.value)}
-                  onCheckedChange={(checked) => {
+                  onCheckedChange={checked => {
                     const currentArray = Array.isArray(value) ? value : []
                     if (checked) {
                       onChange([...currentArray, option.value])
@@ -202,7 +219,7 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
                 <div className="flex-1">
                   <Label className="text-sm font-medium">{option.label}</Label>
                   {option.description && (
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {option.description}
                     </p>
                   )}
@@ -211,28 +228,28 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
             ))}
           </div>
         )
-      
+
       case 'color':
         return (
           <div className="flex items-center space-x-3">
             <Input
               type="color"
               value={value || '#000000'}
-              onChange={(e) => onChange(e.target.value)}
+              onChange={e => onChange(e.target.value)}
               disabled={disabled}
-              className="w-16 h-10 p-1"
+              className="h-10 w-16 p-1"
             />
             <Input
               type="text"
               value={value || '#000000'}
-              onChange={(e) => onChange(e.target.value)}
+              onChange={e => onChange(e.target.value)}
               placeholder="Hex-farge"
               disabled={disabled}
               className="flex-1"
             />
           </div>
         )
-      
+
       case 'range':
         return (
           <div className="space-y-3">
@@ -242,7 +259,7 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
               max={max}
               step={step}
               value={value || 0}
-              onChange={(e) => onChange(Number(e.target.value))}
+              onChange={e => onChange(Number(e.target.value))}
               disabled={disabled}
               className="w-full"
             />
@@ -253,16 +270,16 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
             </div>
           </div>
         )
-      
+
       case 'tags':
         return (
           <div className="space-y-3">
             <div className="flex items-center space-x-2">
               <Input
                 value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
+                onChange={e => setNewTag(e.target.value)}
                 placeholder="Legg til tag..."
-                onKeyPress={(e) => e.key === 'Enter' && handleTagAdd()}
+                onKeyPress={e => e.key === 'Enter' && handleTagAdd()}
                 disabled={disabled}
                 className="flex-1"
               />
@@ -272,12 +289,12 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
                 onClick={handleTagAdd}
                 disabled={!newTag.trim() || disabled}
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="h-4 w-4" />
               </Button>
             </div>
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
+                {tags.map(tag => (
                   <Badge
                     key={tag}
                     variant="secondary"
@@ -285,7 +302,7 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
                   >
                     {tag}
                     <X
-                      className="w-3 h-3 cursor-pointer hover:text-red-500"
+                      className="h-3 w-3 cursor-pointer hover:text-red-500"
                       onClick={() => handleTagRemove(tag)}
                     />
                   </Badge>
@@ -294,7 +311,7 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
             )}
           </div>
         )
-      
+
       default:
         return null
     }
@@ -302,44 +319,52 @@ const ConfigField: React.FC<ConfigFieldProps> = ({
 
   return (
     <div className="space-y-3">
-      <Label className={cn(
-        "flex items-center gap-2 text-sm font-medium",
-        hasError && "text-red-500",
-        hasWarning && "text-yellow-500"
-      )}>
+      <Label
+        className={cn(
+          'flex items-center gap-2 text-sm font-medium',
+          hasError && 'text-red-500',
+          hasWarning && 'text-yellow-500'
+        )}
+      >
         {icon && <span className="text-muted-foreground">{icon}</span>}
         {label}
         {required && <span className="text-red-500">*</span>}
-        {hasError && <AlertCircle className="w-4 h-4" />}
-        {hasWarning && <AlertCircle className="w-4 h-4" />}
+        {hasError && <AlertCircle className="h-4 w-4" />}
+        {hasWarning && <AlertCircle className="h-4 w-4" />}
       </Label>
-      
+
       {renderField()}
-      
+
       {description && (
-        <p className="text-xs text-muted-foreground flex items-start gap-1">
-          <Info className="w-3 h-3 mt-0.5 flex-shrink-0" />
+        <p className="flex items-start gap-1 text-xs text-muted-foreground">
+          <Info className="mt-0.5 h-3 w-3 flex-shrink-0" />
           {description}
         </p>
       )}
-      
+
       {validation && (
         <div className="space-y-1">
           {validation.errors.map((error, i) => (
-            <p key={i} className="text-xs text-red-500 flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" />
+            <p key={i} className="flex items-center gap-1 text-xs text-red-500">
+              <AlertCircle className="h-3 w-3" />
               {error}
             </p>
           ))}
           {validation.warnings.map((warning, i) => (
-            <p key={i} className="text-xs text-yellow-500 flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" />
+            <p
+              key={i}
+              className="flex items-center gap-1 text-xs text-yellow-500"
+            >
+              <AlertCircle className="h-3 w-3" />
               {warning}
             </p>
           ))}
           {validation.suggestions.map((suggestion, i) => (
-            <p key={i} className="text-xs text-blue-500 flex items-center gap-1">
-              <CheckCircle className="w-3 h-3" />
+            <p
+              key={i}
+              className="flex items-center gap-1 text-xs text-blue-500"
+            >
+              <CheckCircle className="h-3 w-3" />
               {suggestion}
             </p>
           ))}
@@ -360,7 +385,7 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
   theme = 'light',
   portfolioId,
   stockSymbol,
-  context = 'dashboard'
+  context = 'dashboard',
 }) => {
   const categoryTheme = useMemo(() => {
     return getInvestmentTheme(theme, registration.category.toLowerCase() as any)
@@ -371,7 +396,7 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Palette className="w-4 h-4" />
+            <Palette className="h-4 w-4" />
             Grunnleggende innstillinger
           </CardTitle>
         </CardHeader>
@@ -379,51 +404,51 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
           <ConfigField
             label="Egendefinert tittel"
             value={config.customTitle}
-            onChange={(value) => onConfigChange({ customTitle: value })}
+            onChange={value => onConfigChange({ customTitle: value })}
             type="text"
             placeholder={registration.displayName}
             description="Overstyr standard widget-tittel"
           />
-          
+
           <ConfigField
             label="Egendefinert beskrivelse"
             value={config.customDescription}
-            onChange={(value) => onConfigChange({ customDescription: value })}
+            onChange={value => onConfigChange({ customDescription: value })}
             type="text"
             placeholder={registration.description}
             description="Valgfri beskrivelse som vises i widget"
           />
-          
+
           <Separator />
-          
+
           <ConfigField
             label="Vis header"
             value={config.showHeader}
-            onChange={(value) => onConfigChange({ showHeader: value })}
+            onChange={value => onConfigChange({ showHeader: value })}
             type="boolean"
             description="Vis widget-header med tittel og kontroller"
           />
-          
+
           <ConfigField
             label="Vis footer"
             value={config.showFooter}
-            onChange={(value) => onConfigChange({ showFooter: value })}
+            onChange={value => onConfigChange({ showFooter: value })}
             type="boolean"
             description="Vis widget-footer med tilleggsinfo"
           />
-          
+
           <ConfigField
             label="Vis lastingstilstander"
             value={config.showLoadingStates}
-            onChange={(value) => onConfigChange({ showLoadingStates: value })}
+            onChange={value => onConfigChange({ showLoadingStates: value })}
             type="boolean"
             description="Vis animasjoner under lasting av data"
           />
-          
+
           <ConfigField
             label="Vis feiltilstander"
             value={config.showErrorStates}
-            onChange={(value) => onConfigChange({ showErrorStates: value })}
+            onChange={value => onConfigChange({ showErrorStates: value })}
             type="boolean"
             description="Vis feilmeldinger når data ikke kan lastes"
           />
@@ -433,7 +458,7 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4" />
+            <TrendingUp className="h-4 w-4" />
             Oppdateringsinnstillinger
           </CardTitle>
         </CardHeader>
@@ -441,14 +466,22 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
           <ConfigField
             label="Oppdateringsfrekvens"
             value={config.refreshInterval}
-            onChange={(value) => onConfigChange({ refreshInterval: value })}
+            onChange={value => onConfigChange({ refreshInterval: value })}
             type="select"
             options={[
-              { value: 0, label: 'Manuell', description: 'Kun oppdater manuelt' },
+              {
+                value: 0,
+                label: 'Manuell',
+                description: 'Kun oppdater manuelt',
+              },
               { value: 30, label: '30 sekunder', description: 'Høy frekvens' },
               { value: 60, label: '1 minutt', description: 'Moderat frekvens' },
               { value: 300, label: '5 minutter', description: 'Lav frekvens' },
-              { value: 900, label: '15 minutter', description: 'Svært lav frekvens' }
+              {
+                value: 900,
+                label: '15 minutter',
+                description: 'Svært lav frekvens',
+              },
             ]}
             description="Hvor ofte widget skal oppdatere data automatisk"
           />
@@ -462,7 +495,7 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <BarChart3 className="w-4 h-4" />
+            <BarChart3 className="h-4 w-4" />
             Grafkonfigurasjon
           </CardTitle>
         </CardHeader>
@@ -470,53 +503,69 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
           <ConfigField
             label="Graftype"
             value={chartConfig.chartType}
-            onChange={(value) => onConfigChange({ chartType: value })}
+            onChange={value => onConfigChange({ chartType: value })}
             type="select"
             options={[
-              { value: 'line', label: 'Linje', description: 'Kontinuerlig linje' },
-              { value: 'area', label: 'Område', description: 'Fylt område under linje' },
-              { value: 'bar', label: 'Stolpe', description: 'Vertikale stolper' },
-              { value: 'candlestick', label: 'Lysestake', description: 'OHLC-data' }
+              {
+                value: 'line',
+                label: 'Linje',
+                description: 'Kontinuerlig linje',
+              },
+              {
+                value: 'area',
+                label: 'Område',
+                description: 'Fylt område under linje',
+              },
+              {
+                value: 'bar',
+                label: 'Stolpe',
+                description: 'Vertikale stolper',
+              },
+              {
+                value: 'candlestick',
+                label: 'Lysestake',
+                description: 'OHLC-data',
+              },
             ]}
             required
             validation={validation}
-            icon={<BarChart3 className="w-4 h-4" />}
+            icon={<BarChart3 className="h-4 w-4" />}
           />
-          
+
           <ConfigField
             label="Fargetema"
             value={chartConfig.chartTheme}
-            onChange={(value) => onConfigChange({ chartTheme: value })}
+            onChange={value => onConfigChange({ chartTheme: value })}
             type="select"
             options={[
               { value: 'default', label: 'Standard' },
               { value: 'dark', label: 'Mørk' },
               { value: 'minimal', label: 'Minimal' },
-              { value: 'colorful', label: 'Fargerik' }
+              { value: 'colorful', label: 'Fargerik' },
             ]}
-            icon={<Palette className="w-4 h-4" />}
+            icon={<Palette className="h-4 w-4" />}
           />
-          
+
           <ConfigField
             label="Vis volum"
             value={chartConfig.showVolume}
-            onChange={(value) => onConfigChange({ showVolume: value })}
+            onChange={value => onConfigChange({ showVolume: value })}
             type="boolean"
             description="Vis handelsvolum under hovedgrafen"
           />
-          
+
           <ConfigField
             label="Vis rutenett"
             value={chartConfig.showGrid}
-            onChange={(value) => onConfigChange({ showGrid: value })}
+            onChange={value => onConfigChange({ showGrid: value })}
             type="boolean"
             description="Vis hjelpeguider i bakgrunnen"
           />
-          
+
           <ConfigField
             label="Vis tegnforklaring"
             value={chartConfig.showLegend}
-            onChange={(value) => onConfigChange({ showLegend: value })}
+            onChange={value => onConfigChange({ showLegend: value })}
             type="boolean"
             description="Vis tegnforklaring for grafens elementer"
           />
@@ -526,7 +575,7 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4" />
+            <TrendingUp className="h-4 w-4" />
             Dimensjoner og tidsramme
           </CardTitle>
         </CardHeader>
@@ -534,7 +583,7 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
           <ConfigField
             label="Tidsramme"
             value={chartConfig.timeframe}
-            onChange={(value) => onConfigChange({ timeframe: value })}
+            onChange={value => onConfigChange({ timeframe: value })}
             type="select"
             options={[
               { value: '1D', label: '1 dag' },
@@ -544,15 +593,15 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
               { value: '6M', label: '6 måneder' },
               { value: '1Y', label: '1 år' },
               { value: '2Y', label: '2 år' },
-              { value: '5Y', label: '5 år' }
+              { value: '5Y', label: '5 år' },
             ]}
             description="Standard tidsperiode for grafen"
           />
-          
+
           <ConfigField
             label="Høyde"
             value={chartConfig.height}
-            onChange={(value) => onConfigChange({ height: value })}
+            onChange={value => onConfigChange({ height: value })}
             type="range"
             min={200}
             max={800}
@@ -566,7 +615,7 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4" />
+              <TrendingUp className="h-4 w-4" />
               Tekniske indikatorer
             </CardTitle>
           </CardHeader>
@@ -574,24 +623,50 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
             <ConfigField
               label="Aktiver tekniske indikatorer"
               value={chartConfig.showTechnicalIndicators}
-              onChange={(value) => onConfigChange({ showTechnicalIndicators: value })}
+              onChange={value =>
+                onConfigChange({ showTechnicalIndicators: value })
+              }
               type="boolean"
               description="Vis teknisk analyse på grafen"
             />
-            
+
             {chartConfig.showTechnicalIndicators && (
               <ConfigField
                 label="Velg indikatorer"
                 value={chartConfig.indicators}
-                onChange={(value) => onConfigChange({ indicators: value })}
+                onChange={value => onConfigChange({ indicators: value })}
                 type="multiselect"
                 options={[
-                  { value: 'SMA', label: 'Simple Moving Average', description: 'Enkel glidende gjennomsnitt' },
-                  { value: 'EMA', label: 'Exponential Moving Average', description: 'Eksponentiell glidende gjennomsnitt' },
-                  { value: 'RSI', label: 'Relative Strength Index', description: 'Relativ styrkeindeks' },
-                  { value: 'MACD', label: 'MACD', description: 'Moving Average Convergence Divergence' },
-                  { value: 'BB', label: 'Bollinger Bands', description: 'Bollinger-bånd' },
-                  { value: 'STOCH', label: 'Stochastic Oscillator', description: 'Stokastisk oscillator' }
+                  {
+                    value: 'SMA',
+                    label: 'Simple Moving Average',
+                    description: 'Enkel glidende gjennomsnitt',
+                  },
+                  {
+                    value: 'EMA',
+                    label: 'Exponential Moving Average',
+                    description: 'Eksponentiell glidende gjennomsnitt',
+                  },
+                  {
+                    value: 'RSI',
+                    label: 'Relative Strength Index',
+                    description: 'Relativ styrkeindeks',
+                  },
+                  {
+                    value: 'MACD',
+                    label: 'MACD',
+                    description: 'Moving Average Convergence Divergence',
+                  },
+                  {
+                    value: 'BB',
+                    label: 'Bollinger Bands',
+                    description: 'Bollinger-bånd',
+                  },
+                  {
+                    value: 'STOCH',
+                    label: 'Stochastic Oscillator',
+                    description: 'Stokastisk oscillator',
+                  },
                 ]}
                 description="Velg hvilke tekniske indikatorer som skal vises"
               />
@@ -607,7 +682,7 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Table className="w-4 h-4" />
+            <Table className="h-4 w-4" />
             Tabellkonfigurasjon
           </CardTitle>
         </CardHeader>
@@ -615,31 +690,59 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
           <ConfigField
             label="Kolonner"
             value={tableConfig.columns}
-            onChange={(value) => onConfigChange({ columns: value })}
+            onChange={value => onConfigChange({ columns: value })}
             type="multiselect"
             options={[
               { value: 'symbol', label: 'Symbol', description: 'Aksjekode' },
               { value: 'name', label: 'Navn', description: 'Selskapsnavn' },
-              { value: 'quantity', label: 'Antall', description: 'Antall aksjer' },
-              { value: 'current_price', label: 'Aktuell pris', description: 'Siste markedspris' },
-              { value: 'market_value', label: 'Markedsverdi', description: 'Total posisjon' },
-              { value: 'cost_basis', label: 'Kostbasis', description: 'Innkjøpspris' },
-              { value: 'pnl', label: 'Gevinst/Tap', description: 'Absolutt gevinst eller tap' },
-              { value: 'pnl_percent', label: 'Gevinst/Tap %', description: 'Prosent gevinst eller tap' },
-              { value: 'day_change', label: 'Daglig endring', description: 'Endring i dag' },
-              { value: 'broker', label: 'Megler', description: 'Meglerkonto' }
+              {
+                value: 'quantity',
+                label: 'Antall',
+                description: 'Antall aksjer',
+              },
+              {
+                value: 'current_price',
+                label: 'Aktuell pris',
+                description: 'Siste markedspris',
+              },
+              {
+                value: 'market_value',
+                label: 'Markedsverdi',
+                description: 'Total posisjon',
+              },
+              {
+                value: 'cost_basis',
+                label: 'Kostbasis',
+                description: 'Innkjøpspris',
+              },
+              {
+                value: 'pnl',
+                label: 'Gevinst/Tap',
+                description: 'Absolutt gevinst eller tap',
+              },
+              {
+                value: 'pnl_percent',
+                label: 'Gevinst/Tap %',
+                description: 'Prosent gevinst eller tap',
+              },
+              {
+                value: 'day_change',
+                label: 'Daglig endring',
+                description: 'Endring i dag',
+              },
+              { value: 'broker', label: 'Megler', description: 'Meglerkonto' },
             ]}
             required
             validation={validation}
             description="Velg hvilke kolonner som skal vises i tabellen"
           />
-          
+
           <Separator />
-          
+
           <ConfigField
             label="Sorter etter"
             value={tableConfig.sortBy}
-            onChange={(value) => onConfigChange({ sortBy: value })}
+            onChange={value => onConfigChange({ sortBy: value })}
             type="select"
             options={[
               { value: 'symbol', label: 'Symbol' },
@@ -647,19 +750,19 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
               { value: 'market_value', label: 'Markedsverdi' },
               { value: 'pnl', label: 'Gevinst/Tap' },
               { value: 'pnl_percent', label: 'Gevinst/Tap %' },
-              { value: 'day_change', label: 'Daglig endring' }
+              { value: 'day_change', label: 'Daglig endring' },
             ]}
             description="Standard sorteringskolonne"
           />
-          
+
           <ConfigField
             label="Sorteringsretning"
             value={tableConfig.sortDirection}
-            onChange={(value) => onConfigChange({ sortDirection: value })}
+            onChange={value => onConfigChange({ sortDirection: value })}
             type="select"
             options={[
               { value: 'asc', label: 'Stigende' },
-              { value: 'desc', label: 'Synkende' }
+              { value: 'desc', label: 'Synkende' },
             ]}
             description="Standard sorteringsretning"
           />
@@ -669,7 +772,7 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <HelpCircle className="w-4 h-4" />
+            <HelpCircle className="h-4 w-4" />
             Navigasjon og visning
           </CardTitle>
         </CardHeader>
@@ -677,42 +780,42 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
           <ConfigField
             label="Elementer per side"
             value={tableConfig.pageSize}
-            onChange={(value) => onConfigChange({ pageSize: value })}
+            onChange={value => onConfigChange({ pageSize: value })}
             type="number"
             min={5}
             max={100}
             step={5}
             description="Antall rader som vises per side"
           />
-          
+
           <ConfigField
             label="Vis paginering"
             value={tableConfig.showPagination}
-            onChange={(value) => onConfigChange({ showPagination: value })}
+            onChange={value => onConfigChange({ showPagination: value })}
             type="boolean"
             description="Vis sidenummer og navigasjon"
           />
-          
+
           <ConfigField
             label="Vis søkefunksjon"
             value={tableConfig.showSearch}
-            onChange={(value) => onConfigChange({ showSearch: value })}
+            onChange={value => onConfigChange({ showSearch: value })}
             type="boolean"
             description="Vis søkefelt for tabellen"
           />
-          
+
           <ConfigField
             label="Vis filtre"
             value={tableConfig.showFilters}
-            onChange={(value) => onConfigChange({ showFilters: value })}
+            onChange={value => onConfigChange({ showFilters: value })}
             type="boolean"
             description="Vis avanserte filtreringsalternativer"
           />
-          
+
           <ConfigField
             label="Kompakt modus"
             value={tableConfig.compactMode}
-            onChange={(value) => onConfigChange({ compactMode: value })}
+            onChange={value => onConfigChange({ compactMode: value })}
             type="boolean"
             description="Mindre radavstand for mer kompakt visning"
           />
@@ -726,7 +829,7 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4" />
+            <TrendingUp className="h-4 w-4" />
             Nøkkeltalskonfigurasjon
           </CardTitle>
         </CardHeader>
@@ -734,44 +837,72 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
           <ConfigField
             label="Valgte målinger"
             value={metricsConfig.metrics}
-            onChange={(value) => onConfigChange({ metrics: value })}
+            onChange={value => onConfigChange({ metrics: value })}
             type="multiselect"
             options={[
-              { value: 'total_value', label: 'Total verdi', description: 'Samlet porteføljeverdi' },
-              { value: 'total_return', label: 'Total avkastning', description: 'Samlet gevinst/tap' },
-              { value: 'day_change', label: 'Daglig endring', description: 'Endring i dag' },
-              { value: 'unrealized_pnl', label: 'Urealisert gevinst/tap', description: 'Papirgevinst/-tap' },
-              { value: 'realized_pnl', label: 'Realisert gevinst/tap', description: 'Solgt gevinst/tap' },
-              { value: 'cash_balance', label: 'Kontantsaldo', description: 'Tilgjengelig kontanter' },
-              { value: 'allocation', label: 'Allokering', description: 'Aktivafordeling' }
+              {
+                value: 'total_value',
+                label: 'Total verdi',
+                description: 'Samlet porteføljeverdi',
+              },
+              {
+                value: 'total_return',
+                label: 'Total avkastning',
+                description: 'Samlet gevinst/tap',
+              },
+              {
+                value: 'day_change',
+                label: 'Daglig endring',
+                description: 'Endring i dag',
+              },
+              {
+                value: 'unrealized_pnl',
+                label: 'Urealisert gevinst/tap',
+                description: 'Papirgevinst/-tap',
+              },
+              {
+                value: 'realized_pnl',
+                label: 'Realisert gevinst/tap',
+                description: 'Solgt gevinst/tap',
+              },
+              {
+                value: 'cash_balance',
+                label: 'Kontantsaldo',
+                description: 'Tilgjengelig kontanter',
+              },
+              {
+                value: 'allocation',
+                label: 'Allokering',
+                description: 'Aktivafordeling',
+              },
             ]}
             required
             validation={validation}
             description="Velg hvilke nøkkeltall som skal vises"
           />
-          
+
           <Separator />
-          
+
           <ConfigField
             label="Vis prosentendring"
             value={metricsConfig.showPercentageChange}
-            onChange={(value) => onConfigChange({ showPercentageChange: value })}
+            onChange={value => onConfigChange({ showPercentageChange: value })}
             type="boolean"
             description="Vis prosentvis endring i tillegg til absoluttverdi"
           />
-          
+
           <ConfigField
             label="Vis sparklines"
             value={metricsConfig.showSparklines}
-            onChange={(value) => onConfigChange({ showSparklines: value })}
+            onChange={value => onConfigChange({ showSparklines: value })}
             type="boolean"
             description="Vis små trendgrafer for hver måling"
           />
-          
+
           <ConfigField
             label="Kompakt visning"
             value={metricsConfig.compactView}
-            onChange={(value) => onConfigChange({ compactView: value })}
+            onChange={value => onConfigChange({ compactView: value })}
             type="boolean"
             description="Mer kompakt layout med mindre avstand"
           />
@@ -781,7 +912,7 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Palette className="w-4 h-4" />
+            <Palette className="h-4 w-4" />
             Farger og tema
           </CardTitle>
         </CardHeader>
@@ -789,12 +920,24 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
           <ConfigField
             label="Fargeskjema"
             value={metricsConfig.colorScheme}
-            onChange={(value) => onConfigChange({ colorScheme: value })}
+            onChange={value => onConfigChange({ colorScheme: value })}
             type="select"
             options={[
-              { value: 'default', label: 'Standard', description: 'Standard fargepalett' },
-              { value: 'colorful', label: 'Fargerik', description: 'Mer fargerik palett' },
-              { value: 'minimal', label: 'Minimal', description: 'Dempet fargepalett' }
+              {
+                value: 'default',
+                label: 'Standard',
+                description: 'Standard fargepalett',
+              },
+              {
+                value: 'colorful',
+                label: 'Fargerik',
+                description: 'Mer fargerik palett',
+              },
+              {
+                value: 'minimal',
+                label: 'Minimal',
+                description: 'Dempet fargepalett',
+              },
             ]}
             description="Velg fargepalett for målinger"
           />
@@ -808,7 +951,7 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Bell className="w-4 h-4" />
+            <Bell className="h-4 w-4" />
             Nyhetsinnstillinger
           </CardTitle>
         </CardHeader>
@@ -816,33 +959,33 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
           <ConfigField
             label="Antall artikler"
             value={newsConfig.maxItems}
-            onChange={(value) => onConfigChange({ maxItems: value })}
+            onChange={value => onConfigChange({ maxItems: value })}
             type="number"
             min={1}
             max={50}
             description="Maksimalt antall nyhetsartikler som vises"
           />
-          
+
           <ConfigField
             label="Vis bilder"
             value={newsConfig.showImages}
-            onChange={(value) => onConfigChange({ showImages: value })}
+            onChange={value => onConfigChange({ showImages: value })}
             type="boolean"
             description="Vis miniatyrbilder for nyhetsartikler"
           />
-          
+
           <ConfigField
             label="Vis sammendrag"
             value={newsConfig.showSummary}
-            onChange={(value) => onConfigChange({ showSummary: value })}
+            onChange={value => onConfigChange({ showSummary: value })}
             type="boolean"
             description="Vis kort sammendrag av hver artikkel"
           />
-          
+
           <ConfigField
             label="Filtrer etter symbol"
             value={newsConfig.filterBySymbol}
-            onChange={(value) => onConfigChange({ filterBySymbol: value })}
+            onChange={value => onConfigChange({ filterBySymbol: value })}
             type="boolean"
             description="Vis kun nyheter relatert til valgte aksjer"
           />
@@ -852,7 +995,7 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <HelpCircle className="w-4 h-4" />
+            <HelpCircle className="h-4 w-4" />
             Nyhetskilder
           </CardTitle>
         </CardHeader>
@@ -860,15 +1003,39 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
           <ConfigField
             label="Aktive kilder"
             value={newsConfig.sources}
-            onChange={(value) => onConfigChange({ sources: value })}
+            onChange={value => onConfigChange({ sources: value })}
             type="multiselect"
             options={[
-              { value: 'finnhub', label: 'Finnhub', description: 'Finansnyheter og markedsdata' },
-              { value: 'yahoo', label: 'Yahoo Finance', description: 'Globale finansnyheter' },
-              { value: 'bloomberg', label: 'Bloomberg', description: 'Profesjonelle markedsnyheter' },
-              { value: 'reuters', label: 'Reuters', description: 'Internasjonale finansnyheter' },
-              { value: 'dn', label: 'Dagens Næringsliv', description: 'Norske finansnyheter' },
-              { value: 'e24', label: 'E24', description: 'Norsk økonomi og finans' }
+              {
+                value: 'finnhub',
+                label: 'Finnhub',
+                description: 'Finansnyheter og markedsdata',
+              },
+              {
+                value: 'yahoo',
+                label: 'Yahoo Finance',
+                description: 'Globale finansnyheter',
+              },
+              {
+                value: 'bloomberg',
+                label: 'Bloomberg',
+                description: 'Profesjonelle markedsnyheter',
+              },
+              {
+                value: 'reuters',
+                label: 'Reuters',
+                description: 'Internasjonale finansnyheter',
+              },
+              {
+                value: 'dn',
+                label: 'Dagens Næringsliv',
+                description: 'Norske finansnyheter',
+              },
+              {
+                value: 'e24',
+                label: 'E24',
+                description: 'Norsk økonomi og finans',
+              },
             ]}
             description="Velg hvilke nyhetskilder som skal brukes"
           />
@@ -882,7 +1049,7 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Bell className="w-4 h-4" />
+            <Bell className="h-4 w-4" />
             Varselinnstillinger
           </CardTitle>
         </CardHeader>
@@ -890,40 +1057,60 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
           <ConfigField
             label="Varseltyper"
             value={alertsConfig.alertTypes}
-            onChange={(value) => onConfigChange({ alertTypes: value })}
+            onChange={value => onConfigChange({ alertTypes: value })}
             type="multiselect"
             options={[
-              { value: 'price_alerts', label: 'Prisvarsler', description: 'Varsler når priser når målnivåer' },
-              { value: 'volume_alerts', label: 'Volumvarsler', description: 'Varsler ved uvanlig handelsvolum' },
-              { value: 'news_alerts', label: 'Nyhetsvarsler', description: 'Varsler ved viktige nyheter' },
-              { value: 'portfolio_alerts', label: 'Porteføljevarsler', description: 'Varsler om porteføljeendringer' },
-              { value: 'market_alerts', label: 'Markedsvarsler', description: 'Varsler om markedshendelser' }
+              {
+                value: 'price_alerts',
+                label: 'Prisvarsler',
+                description: 'Varsler når priser når målnivåer',
+              },
+              {
+                value: 'volume_alerts',
+                label: 'Volumvarsler',
+                description: 'Varsler ved uvanlig handelsvolum',
+              },
+              {
+                value: 'news_alerts',
+                label: 'Nyhetsvarsler',
+                description: 'Varsler ved viktige nyheter',
+              },
+              {
+                value: 'portfolio_alerts',
+                label: 'Porteføljevarsler',
+                description: 'Varsler om porteføljeendringer',
+              },
+              {
+                value: 'market_alerts',
+                label: 'Markedsvarsler',
+                description: 'Varsler om markedshendelser',
+              },
             ]}
             description="Velg hvilke typer varsler som skal vises"
           />
-          
+
           <ConfigField
             label="Maksimalt antall varsler"
             value={alertsConfig.maxItems}
-            onChange={(value) => onConfigChange({ maxItems: value })}
+            onChange={value => onConfigChange({ maxItems: value })}
             type="number"
             min={1}
             max={100}
             description="Maksimalt antall varsler som vises samtidig"
           />
-          
+
           <ConfigField
             label="Vis notifikasjoner"
             value={alertsConfig.showNotifications}
-            onChange={(value) => onConfigChange({ showNotifications: value })}
+            onChange={value => onConfigChange({ showNotifications: value })}
             type="boolean"
             description="Vis desktop-notifikasjoner for nye varsler"
           />
-          
+
           <ConfigField
             label="Automatisk markering som lest"
             value={alertsConfig.autoMarkAsRead}
-            onChange={(value) => onConfigChange({ autoMarkAsRead: value })}
+            onChange={value => onConfigChange({ autoMarkAsRead: value })}
             type="boolean"
             description="Marker varsler som lest automatisk etter visning"
           />
@@ -937,7 +1124,7 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Palette className="w-4 h-4" />
+            <Palette className="h-4 w-4" />
             Utseende og farger
           </CardTitle>
         </CardHeader>
@@ -945,21 +1132,25 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
           <ConfigField
             label="Tema"
             value={config.theme}
-            onChange={(value) => onConfigChange({ theme: value })}
+            onChange={value => onConfigChange({ theme: value })}
             type="select"
             options={[
               { value: 'light', label: 'Lys', description: 'Lyst tema' },
               { value: 'dark', label: 'Mørk', description: 'Mørkt tema' },
-              { value: 'system', label: 'System', description: 'Følg systeminnstillinger' }
+              {
+                value: 'system',
+                label: 'System',
+                description: 'Følg systeminnstillinger',
+              },
             ]}
             description="Velg fargetema for widget"
           />
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="text-sm font-medium">Primærfarge</Label>
-              <div 
-                className="w-full h-12 rounded border flex items-center justify-center text-white font-medium"
+              <div
+                className="flex h-12 w-full items-center justify-center rounded border font-medium text-white"
                 style={{ backgroundColor: categoryTheme?.primary }}
               >
                 {categoryTheme?.primary}
@@ -967,8 +1158,8 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-medium">Sekundærfarge</Label>
-              <div 
-                className="w-full h-12 rounded border flex items-center justify-center text-white font-medium"
+              <div
+                className="flex h-12 w-full items-center justify-center rounded border font-medium text-white"
                 style={{ backgroundColor: categoryTheme?.secondary }}
               >
                 {categoryTheme?.secondary}
@@ -981,16 +1172,20 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Info className="w-4 h-4" />
+            <Info className="h-4 w-4" />
             Kommende funksjoner
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8 text-muted-foreground">
-            <Palette className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p className="text-lg font-medium mb-2">Mer tilpasning kommer snart</p>
+          <div className="py-8 text-center text-muted-foreground">
+            <Palette className="mx-auto mb-4 h-12 w-12 opacity-50" />
+            <p className="mb-2 text-lg font-medium">
+              Mer tilpasning kommer snart
+            </p>
             <p className="text-sm">
-              Avanserte utseende-innstillinger som skrifttyper, animasjoner og egendefinerte farger vil være tilgjengelige i fremtidige versjoner.
+              Avanserte utseende-innstillinger som skrifttyper, animasjoner og
+              egendefinerte farger vil være tilgjengelige i fremtidige
+              versjoner.
             </p>
           </div>
         </CardContent>
@@ -1003,7 +1198,7 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Monitor className="w-4 h-4" />
+            <Monitor className="h-4 w-4" />
             Responsiv konfigurasjon
           </CardTitle>
         </CardHeader>
@@ -1011,60 +1206,68 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
           <div className="text-sm text-muted-foreground">
             Konfigurer hvordan widgeten oppfører seg på forskjellige enheter.
           </div>
-          
+
           <Separator />
-          
+
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Tablet className="w-4 h-4" />
+                <Tablet className="h-4 w-4" />
                 <h4 className="font-medium">Tablet (768px - 1024px)</h4>
               </div>
-              
+
               <ConfigField
                 label="Skjul på tablet"
                 value={responsiveConfig?.tablet?.hidden}
-                onChange={(value) => onResponsiveConfigChange?.('tablet', { hidden: value })}
+                onChange={value =>
+                  onResponsiveConfigChange?.('tablet', { hidden: value })
+                }
                 type="boolean"
                 description="Skjul widget på tablet-enheter"
               />
-              
+
               <ConfigField
                 label="Tablet-størrelse"
                 value={responsiveConfig?.tablet?.size}
-                onChange={(value) => onResponsiveConfigChange?.('tablet', { size: value })}
+                onChange={value =>
+                  onResponsiveConfigChange?.('tablet', { size: value })
+                }
                 type="select"
                 options={[
                   { value: 'SMALL', label: 'Liten' },
                   { value: 'MEDIUM', label: 'Medium' },
-                  { value: 'LARGE', label: 'Stor' }
+                  { value: 'LARGE', label: 'Stor' },
                 ]}
                 description="Widgetstørrelse på tablet"
               />
             </div>
-            
+
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Smartphone className="w-4 h-4" />
+                <Smartphone className="h-4 w-4" />
                 <h4 className="font-medium">Mobil (&lt; 768px)</h4>
               </div>
-              
+
               <ConfigField
                 label="Skjul på mobil"
                 value={responsiveConfig?.mobile?.hidden}
-                onChange={(value) => onResponsiveConfigChange?.('mobile', { hidden: value })}
+                onChange={value =>
+                  onResponsiveConfigChange?.('mobile', { hidden: value })
+                }
                 type="boolean"
                 description="Skjul widget på mobile enheter"
               />
-              
+
               <ConfigField
                 label="Mobil-størrelse"
                 value={responsiveConfig?.mobile?.size}
-                onChange={(value) => onResponsiveConfigChange?.('mobile', { size: value })}
+                onChange={value =>
+                  onResponsiveConfigChange?.('mobile', { size: value })
+                }
                 type="select"
                 options={[
                   { value: 'SMALL', label: 'Liten' },
-                  { value: 'MEDIUM', label: 'Medium' }
+                  { value: 'MEDIUM', label: 'Medium' },
                 ]}
                 description="Widgetstørrelse på mobil"
               />
@@ -1076,20 +1279,23 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <HelpCircle className="w-4 h-4" />
+            <HelpCircle className="h-4 w-4" />
             Responsiv forhåndsvisning
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8 text-muted-foreground">
-            <div className="flex items-center justify-center gap-4 mb-4">
-              <Monitor className="w-8 h-8 opacity-50" />
-              <Tablet className="w-8 h-8 opacity-50" />
-              <Smartphone className="w-8 h-8 opacity-50" />
+          <div className="py-8 text-center text-muted-foreground">
+            <div className="mb-4 flex items-center justify-center gap-4">
+              <Monitor className="h-8 w-8 opacity-50" />
+              <Tablet className="h-8 w-8 opacity-50" />
+              <Smartphone className="h-8 w-8 opacity-50" />
             </div>
-            <p className="text-lg font-medium mb-2">Responsiv forhåndsvisning</p>
+            <p className="mb-2 text-lg font-medium">
+              Responsiv forhåndsvisning
+            </p>
             <p className="text-sm">
-              Bruk "Forhåndsvis"-fanen for å se hvordan widgeten ser ut på forskjellige enheter.
+              Bruk "Forhåndsvis"-fanen for å se hvordan widgeten ser ut på
+              forskjellige enheter.
             </p>
           </div>
         </CardContent>
@@ -1107,27 +1313,36 @@ export const WidgetConfigForms: React.FC<WidgetConfigFormsProps> = ({
     if (registration.type.includes('METRICS')) {
       return renderMetricsForm(config as MetricsWidgetConfig)
     }
-    if (registration.type.includes('NEWS') || registration.type.includes('ACTIVITY')) {
+    if (
+      registration.type.includes('NEWS') ||
+      registration.type.includes('ACTIVITY')
+    ) {
       return renderNewsForm(config as NewsWidgetConfig)
     }
-    if (registration.type.includes('ALERTS') || registration.type.includes('PRICE_ALERTS')) {
+    if (
+      registration.type.includes('ALERTS') ||
+      registration.type.includes('PRICE_ALERTS')
+    ) {
       return renderAlertsForm(config as AlertsWidgetConfig)
     }
-    
+
     return (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Settings className="w-4 h-4" />
+            <Settings className="h-4 w-4" />
             Ingen spesifikke innstillinger
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8 text-muted-foreground">
-            <Settings className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p className="text-lg font-medium mb-2">Ingen tilgjengelige innstillinger</p>
+          <div className="py-8 text-center text-muted-foreground">
+            <Settings className="mx-auto mb-4 h-12 w-12 opacity-50" />
+            <p className="mb-2 text-lg font-medium">
+              Ingen tilgjengelige innstillinger
+            </p>
             <p className="text-sm">
-              Denne widget-typen har ingen spesifikke konfigurasjonsalternativer utover de grunnleggende innstillingene.
+              Denne widget-typen har ingen spesifikke konfigurasjonsalternativer
+              utover de grunnleggende innstillingene.
             </p>
           </div>
         </CardContent>

@@ -14,11 +14,21 @@ import {
   LineChart,
   Line,
 } from 'recharts'
-import { TrendingUp, TrendingDown, Minus, BarChart3, Signal } from 'lucide-react'
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  BarChart3,
+  Signal,
+} from 'lucide-react'
 import { StockWidget } from '@/components/ui/widget'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { formatCurrency, formatPercentage, formatDate } from '@/lib/utils/format'
+import {
+  formatCurrency,
+  formatPercentage,
+  formatDate,
+} from '@/lib/utils/format'
 import { cn } from '@/lib/utils'
 
 export interface StockChartData {
@@ -85,7 +95,7 @@ export function StockChartWidget({
 
   const isPositive = priceChangePercent > 0
   const isNegative = priceChangePercent < 0
-  
+
   const displayPrice = hoveredData?.price ?? currentPrice
   const displayChange = hoveredData?.change ?? priceChange
   const displayChangePercent = hoveredData?.changePercent ?? priceChangePercent
@@ -148,9 +158,11 @@ export function StockChartWidget({
     setHoveredData(null)
   }
 
-  const priceColor = isPositive ? 'text-green-600 dark:text-green-400' : 
-                   isNegative ? 'text-red-600 dark:text-red-400' : 
-                   'text-gray-500 dark:text-gray-400'
+  const priceColor = isPositive
+    ? 'text-green-600 dark:text-green-400'
+    : isNegative
+      ? 'text-red-600 dark:text-red-400'
+      : 'text-gray-500 dark:text-gray-400'
 
   const chartColor = isPositive ? '#10b981' : isNegative ? '#ef4444' : '#6366f1'
 
@@ -234,8 +246,9 @@ export function StockChartWidget({
               )}
 
               <span className={cn('text-sm font-medium', priceColor)}>
-                {displayChange > 0 ? '+' : ''}{formatCurrency(displayChange, currency)} 
-                ({formatPercentage(displayChangePercent)})
+                {displayChange > 0 ? '+' : ''}
+                {formatCurrency(displayChange, currency)}(
+                {formatPercentage(displayChangePercent)})
               </span>
 
               {hoveredData && (
@@ -284,7 +297,13 @@ export function StockChartWidget({
                 onMouseLeave={handleMouseLeave}
               >
                 <defs>
-                  <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient
+                    id="priceGradient"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
                     <stop
                       offset="0%"
                       stopColor={chartColor}
@@ -319,7 +338,10 @@ export function StockChartWidget({
                   axisLine={false}
                   tickLine={false}
                   tickFormatter={value =>
-                    formatCurrency(value, currency, { minimumFractionDigits: 0, maximumFractionDigits: 1 })
+                    formatCurrency(value, currency, {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 1,
+                    })
                   }
                 />
 
@@ -375,7 +397,10 @@ export function StockChartWidget({
                   axisLine={false}
                   tickLine={false}
                   tickFormatter={value =>
-                    formatCurrency(value, currency, { minimumFractionDigits: 0, maximumFractionDigits: 1 })
+                    formatCurrency(value, currency, {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 1,
+                    })
                   }
                 />
 
@@ -409,9 +434,10 @@ export function StockChartWidget({
         {/* Chart Info */}
         <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
           <span>
-            Siste oppdatering: {formatDate(new Date(), { 
-              hour: '2-digit', 
-              minute: '2-digit' 
+            Siste oppdatering:{' '}
+            {formatDate(new Date(), {
+              hour: '2-digit',
+              minute: '2-digit',
             })}
           </span>
           <div className="flex items-center gap-4">

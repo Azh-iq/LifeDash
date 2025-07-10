@@ -2,9 +2,9 @@
 
 import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence, PanInfo } from 'framer-motion'
-import { 
-  DndContext, 
-  DragEndEvent, 
+import {
+  DndContext,
+  DragEndEvent,
   DragOverEvent,
   DragStartEvent,
   TouchSensor,
@@ -16,23 +16,32 @@ import {
   UniqueIdentifier,
   CollisionDetection,
   pointerWithin,
-  rectIntersection
+  rectIntersection,
 } from '@dnd-kit/core'
-import { 
-  SortableContext, 
+import {
+  SortableContext,
   arrayMove,
   verticalListSortingStrategy,
-  horizontalListSortingStrategy
+  horizontalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import { restrictToWindowEdges, restrictToParentElement } from '@dnd-kit/modifiers'
+import {
+  restrictToWindowEdges,
+  restrictToParentElement,
+} from '@dnd-kit/modifiers'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { 
-  Plus, 
-  Grid3X3, 
-  Settings, 
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet'
+import {
+  Plus,
+  Grid3X3,
+  Settings,
   Save,
   RotateCcw,
   Eye,
@@ -45,7 +54,7 @@ import {
   Monitor,
   ChevronUp,
   ChevronDown,
-  MoreHorizontal
+  MoreHorizontal,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useResponsiveLayout } from '@/lib/hooks/use-responsive-layout'
@@ -74,23 +83,23 @@ const mobileLayoutConfigs = {
   stacking: {
     single: 'space-y-4',
     double: 'space-y-6',
-    triple: 'space-y-8'
+    triple: 'space-y-8',
   },
   grid: {
     mobile: 'grid-cols-1',
     tablet: 'grid-cols-2',
-    desktop: 'grid-cols-3'
+    desktop: 'grid-cols-3',
   },
   spacing: {
     tight: 'gap-2',
     normal: 'gap-4',
-    loose: 'gap-6'
+    loose: 'gap-6',
   },
   padding: {
     mobile: 'p-4',
     tablet: 'p-6',
-    desktop: 'p-8'
-  }
+    desktop: 'p-8',
+  },
 }
 
 // Norwegian translations for mobile
@@ -118,26 +127,26 @@ const translations = {
   compactView: 'Kompakt visning',
   mobileOptimized: 'Mobile optimert',
   gesturesEnabled: 'Bevegelser aktivert',
-  touchFriendly: 'Berøringsvennlig'
+  touchFriendly: 'Berøringsvennlig',
 }
 
 // Mobile collision detection for better touch handling
-const mobileCollisionDetection: CollisionDetection = (args) => {
+const mobileCollisionDetection: CollisionDetection = args => {
   const { active, droppableContainers } = args
-  
+
   // First try pointer intersection (better for touch)
   const pointerIntersections = pointerWithin(args)
   if (pointerIntersections.length > 0) {
     return pointerIntersections
   }
-  
+
   // Fallback to rect intersection
   return rectIntersection(args)
 }
 
 /**
  * Mobile Widget Board Component
- * 
+ *
  * Features:
  * - Touch-friendly drag and drop
  * - Mobile-first responsive design
@@ -157,19 +166,12 @@ export function MobileWidgetBoard({
   className,
   isEditable = true,
   maxWidgets = 20,
-  enableGestures = true
+  enableGestures = true,
 }: MobileWidgetBoardProps) {
   const { toast } = useToast()
-  const { 
-    isMobile, 
-    isTablet, 
-    isDesktop, 
-    isTouch,
-    orientation,
-    width,
-    height 
-  } = useResponsiveLayout()
-  
+  const { isMobile, isTablet, isDesktop, isTouch, orientation, width, height } =
+    useResponsiveLayout()
+
   const {
     editMode,
     selectedWidget,
@@ -177,14 +179,16 @@ export function MobileWidgetBoard({
     setSelectedWidget,
     layouts,
     updateLayout,
-    performance
+    performance,
   } = useWidgetStore()
 
   // Mobile-specific state
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
   const [draggedWidget, setDraggedWidget] = useState<Widget | null>(null)
   const [showWidgetPicker, setShowWidgetPicker] = useState(false)
-  const [layoutMode, setLayoutMode] = useState<'stack' | 'grid' | 'compact'>('stack')
+  const [layoutMode, setLayoutMode] = useState<'stack' | 'grid' | 'compact'>(
+    'stack'
+  )
   const [isLongPressing, setIsLongPressing] = useState(false)
   const [expandedWidgets, setExpandedWidgets] = useState<Set<string>>(new Set())
   const [reorderMode, setReorderMode] = useState(false)
@@ -224,16 +228,19 @@ export function MobileWidgetBoard({
   }, [widgets, currentLayoutMode])
 
   // Handle drag start
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    const { active } = event
-    setActiveId(active.id)
-    
-    const widget = widgets.find(w => w.id === active.id)
-    if (widget) {
-      setDraggedWidget(widget)
-      setReorderMode(true)
-    }
-  }, [widgets])
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      const { active } = event
+      setActiveId(active.id)
+
+      const widget = widgets.find(w => w.id === active.id)
+      if (widget) {
+        setDraggedWidget(widget)
+        setReorderMode(true)
+      }
+    },
+    [widgets]
+  )
 
   // Handle drag over
   const handleDragOver = useCallback((event: DragOverEvent) => {
@@ -241,53 +248,59 @@ export function MobileWidgetBoard({
   }, [])
 
   // Handle drag end
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
-    const { active, over } = event
-    
-    setActiveId(null)
-    setDraggedWidget(null)
-    setReorderMode(false)
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event
 
-    if (!over) return
+      setActiveId(null)
+      setDraggedWidget(null)
+      setReorderMode(false)
 
-    if (active.id !== over.id) {
-      const oldIndex = widgets.findIndex(w => w.id === active.id)
-      const newIndex = widgets.findIndex(w => w.id === over.id)
-      
-      if (oldIndex !== -1 && newIndex !== -1) {
-        const newWidgets = arrayMove(widgets, oldIndex, newIndex)
-        
-        // Update positions for stacked layout
-        const updatedWidgets = newWidgets.map((widget, index) => ({
-          ...widget,
-          position: {
-            ...widget.position,
-            row: index + 1
-          }
-        }))
-        
-        onWidgetUpdate?.(updatedWidgets)
-        
-        toast({
-          title: translations.widgetMoved,
-          description: 'Widget rekkefølge oppdatert',
-          duration: 2000
-        })
+      if (!over) return
+
+      if (active.id !== over.id) {
+        const oldIndex = widgets.findIndex(w => w.id === active.id)
+        const newIndex = widgets.findIndex(w => w.id === over.id)
+
+        if (oldIndex !== -1 && newIndex !== -1) {
+          const newWidgets = arrayMove(widgets, oldIndex, newIndex)
+
+          // Update positions for stacked layout
+          const updatedWidgets = newWidgets.map((widget, index) => ({
+            ...widget,
+            position: {
+              ...widget.position,
+              row: index + 1,
+            },
+          }))
+
+          onWidgetUpdate?.(updatedWidgets)
+
+          toast({
+            title: translations.widgetMoved,
+            description: 'Widget rekkefølge oppdatert',
+            duration: 2000,
+          })
+        }
       }
-    }
-  }, [widgets, onWidgetUpdate, toast])
+    },
+    [widgets, onWidgetUpdate, toast]
+  )
 
   // Handle widget removal
-  const handleWidgetRemove = useCallback((widgetId: string) => {
-    onWidgetRemove?.(widgetId)
-    setSelectedWidget(null)
-    
-    toast({
-      title: translations.widgetRemoved,
-      description: 'Widget fjernet fra mobile dashboard',
-      duration: 2000
-    })
-  }, [onWidgetRemove, setSelectedWidget, toast])
+  const handleWidgetRemove = useCallback(
+    (widgetId: string) => {
+      onWidgetRemove?.(widgetId)
+      setSelectedWidget(null)
+
+      toast({
+        title: translations.widgetRemoved,
+        description: 'Widget fjernet fra mobile dashboard',
+        duration: 2000,
+      })
+    },
+    [onWidgetRemove, setSelectedWidget, toast]
+  )
 
   // Handle widget expansion (for mobile)
   const handleWidgetExpand = useCallback((widgetId: string) => {
@@ -309,11 +322,11 @@ export function MobileWidgetBoard({
         title: translations.maxWidgetsReached,
         description: `Du kan maksimalt ha ${maxWidgets} widgets`,
         variant: 'destructive',
-        duration: 3000
+        duration: 3000,
       })
       return
     }
-    
+
     setShowWidgetPicker(true)
   }, [widgets.length, maxWidgets, toast])
 
@@ -332,38 +345,38 @@ export function MobileWidgetBoard({
           size: widget.size,
           position: {
             row: index + 1,
-            column: 1
+            column: 1,
           },
-          configuration: widget.configuration || {}
+          configuration: widget.configuration || {},
         })),
         configuration: {
           columns: 1,
           gap: 'md',
           theme: 'mobile',
-          layoutMode: currentLayoutMode
-        }
+          layoutMode: currentLayoutMode,
+        },
       }
-      
+
       await updateLayout(layoutId, layout)
-      
+
       toast({
         title: translations.layoutSaved,
         description: 'Mobile layout lagret',
-        duration: 2000
+        duration: 2000,
       })
     } catch (error) {
       toast({
         title: 'Feil',
         description: 'Kunne ikke lagre mobile layout',
         variant: 'destructive',
-        duration: 3000
+        duration: 3000,
       })
     }
   }, [layoutId, widgets, currentLayoutMode, updateLayout, toast])
 
   // Mobile header with responsive controls
   const MobileHeader = () => (
-    <div className="flex flex-col gap-3 mb-4">
+    <div className="mb-4 flex flex-col gap-3">
       {/* Top row with title and device indicator */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -377,7 +390,7 @@ export function MobileWidgetBoard({
             {widgets.length}/{maxWidgets}
           </Badge>
         </div>
-        
+
         {/* Device-specific badge */}
         <Badge variant="outline" className="text-xs">
           {isMobile && translations.mobileOptimized}
@@ -396,10 +409,14 @@ export function MobileWidgetBoard({
             onClick={() => setEditMode(!editMode)}
             className="gap-2"
           >
-            {editMode ? <Edit3 className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {editMode ? (
+              <Edit3 className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
             {editMode ? translations.editMode : translations.viewMode}
           </Button>
-          
+
           {/* Layout mode selector (tablet/desktop) */}
           {!isMobile && (
             <div className="flex items-center gap-1">
@@ -434,7 +451,7 @@ export function MobileWidgetBoard({
             <Save className="h-4 w-4" />
             {translations.save}
           </Button>
-          
+
           <Button
             variant="outline"
             size="sm"
@@ -452,11 +469,8 @@ export function MobileWidgetBoard({
 
   // Mobile widget list (stacked layout)
   const MobileWidgetList = () => (
-    <div className={cn(
-      'space-y-4',
-      reorderMode && 'space-y-6'
-    )}>
-      {arrangedWidgets.map((widget) => (
+    <div className={cn('space-y-4', reorderMode && 'space-y-6')}>
+      {arrangedWidgets.map(widget => (
         <MobileWidgetContainer
           key={widget.id}
           widget={widget}
@@ -473,12 +487,14 @@ export function MobileWidgetBoard({
 
   // Tablet/Desktop grid layout
   const TabletGridLayout = () => (
-    <div className={cn(
-      'grid w-full gap-4',
-      isTablet ? 'grid-cols-2' : 'grid-cols-3',
-      'auto-rows-fr'
-    )}>
-      {arrangedWidgets.map((widget) => (
+    <div
+      className={cn(
+        'grid w-full gap-4',
+        isTablet ? 'grid-cols-2' : 'grid-cols-3',
+        'auto-rows-fr'
+      )}
+    >
+      {arrangedWidgets.map(widget => (
         <MobileWidgetContainer
           key={widget.id}
           widget={widget}
@@ -497,11 +513,11 @@ export function MobileWidgetBoard({
   const EmptyState = () => (
     <Card className="p-8 text-center">
       <CardContent className="pt-6">
-        <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
           <Grid3X3 className="h-6 w-6 text-gray-400" />
         </div>
-        <h3 className="text-lg font-medium mb-2">{translations.noWidgets}</h3>
-        <p className="text-gray-500 mb-4">{translations.noWidgetsDesc}</p>
+        <h3 className="mb-2 text-lg font-medium">{translations.noWidgets}</h3>
+        <p className="mb-4 text-gray-500">{translations.noWidgetsDesc}</p>
         <Button onClick={handleAddWidget} className="gap-2">
           <Plus className="h-4 w-4" />
           {translations.addWidget}
@@ -511,18 +527,20 @@ export function MobileWidgetBoard({
   )
 
   return (
-    <div className={cn(
-      'w-full min-h-screen',
-      isMobile ? 'px-4 py-2' : 'px-6 py-4',
-      className
-    )}>
+    <div
+      className={cn(
+        'min-h-screen w-full',
+        isMobile ? 'px-4 py-2' : 'px-6 py-4',
+        className
+      )}
+    >
       {/* Mobile Header */}
       <MobileHeader />
 
       {/* Touch instructions for mobile */}
       {isMobile && editMode && (
-        <div className="mb-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
-          <p className="font-medium mb-1">{translations.touchToEdit}</p>
+        <div className="mb-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-800">
+          <p className="mb-1 font-medium">{translations.touchToEdit}</p>
           <p className="text-xs text-blue-600">
             {translations.dragToReorder} • {translations.longPressToMove}
           </p>
@@ -530,7 +548,7 @@ export function MobileWidgetBoard({
       )}
 
       {/* Widget Board */}
-      <DndContext 
+      <DndContext
         sensors={sensors}
         collisionDetection={mobileCollisionDetection}
         onDragStart={handleDragStart}
@@ -538,17 +556,21 @@ export function MobileWidgetBoard({
         onDragEnd={handleDragEnd}
         modifiers={[restrictToWindowEdges]}
       >
-        <SortableContext 
+        <SortableContext
           items={arrangedWidgets.map(w => w.id)}
-          strategy={isMobile ? verticalListSortingStrategy : horizontalListSortingStrategy}
+          strategy={
+            isMobile
+              ? verticalListSortingStrategy
+              : horizontalListSortingStrategy
+          }
         >
           {arrangedWidgets.length === 0 ? (
             <EmptyState />
           ) : (
             <MobileGestureHandler
               enabled={enableGestures && isMobile}
-              onSwipeLeft={(widgetId) => handleWidgetRemove(widgetId)}
-              onLongPress={(widgetId) => setSelectedWidget(widgetId)}
+              onSwipeLeft={widgetId => handleWidgetRemove(widgetId)}
+              onLongPress={widgetId => setSelectedWidget(widgetId)}
             >
               {isMobile || currentLayoutMode === 'stack' ? (
                 <MobileWidgetList />
@@ -562,7 +584,7 @@ export function MobileWidgetBoard({
         {/* Drag Overlay */}
         <DragOverlay>
           {draggedWidget && (
-            <div className="opacity-50 transform rotate-2 scale-105">
+            <div className="rotate-2 scale-105 transform opacity-50">
               <MobileWidgetContainer
                 widget={draggedWidget}
                 isEditable={false}
@@ -581,13 +603,13 @@ export function MobileWidgetBoard({
       <MobileWidgetPicker
         open={showWidgetPicker}
         onOpenChange={setShowWidgetPicker}
-        onWidgetSelect={(widgetType) => {
+        onWidgetSelect={widgetType => {
           // Handle widget selection
           setShowWidgetPicker(false)
           toast({
             title: translations.widgetAdded,
             description: `${widgetType} widget lagt til`,
-            duration: 2000
+            duration: 2000,
           })
         }}
         maxWidgets={maxWidgets}
@@ -596,17 +618,23 @@ export function MobileWidgetBoard({
 
       {/* Debug info (development) */}
       {process.env.NODE_ENV === 'development' && (
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg text-xs">
-          <h4 className="font-medium mb-2">Mobile Debug Info</h4>
+        <div className="mt-6 rounded-lg bg-gray-50 p-4 text-xs">
+          <h4 className="mb-2 font-medium">Mobile Debug Info</h4>
           <div className="space-y-1">
-            <div>Device: {isMobile ? 'Mobile' : isTablet ? 'Tablet' : 'Desktop'}</div>
+            <div>
+              Device: {isMobile ? 'Mobile' : isTablet ? 'Tablet' : 'Desktop'}
+            </div>
             <div>Touch: {isTouch ? 'Yes' : 'No'}</div>
             <div>Orientation: {orientation}</div>
-            <div>Screen: {width}x{height}</div>
+            <div>
+              Screen: {width}x{height}
+            </div>
             <div>Layout Mode: {currentLayoutMode}</div>
             <div>Edit Mode: {editMode ? 'Yes' : 'No'}</div>
             <div>Gestures: {enableGestures ? 'Enabled' : 'Disabled'}</div>
-            <div>Widgets: {widgets.length}/{maxWidgets}</div>
+            <div>
+              Widgets: {widgets.length}/{maxWidgets}
+            </div>
           </div>
         </div>
       )}

@@ -2,28 +2,47 @@
 
 import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  Building2, 
-  TrendingUp, 
-  TrendingDown, 
-  DollarSign, 
-  BarChart3, 
-  PieChart, 
-  Users, 
+import {
+  Building2,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  BarChart3,
+  PieChart,
+  Users,
   Globe,
   Calculator,
   Info,
-  ExternalLink
+  ExternalLink,
 } from 'lucide-react'
 import { StockWidget } from '@/components/ui/widget'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { formatCurrency, formatNumber, formatPercentage, formatMarketCap } from '@/lib/utils/format'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import {
+  formatCurrency,
+  formatNumber,
+  formatPercentage,
+  formatMarketCap,
+} from '@/lib/utils/format'
 import { cn } from '@/lib/utils'
-import { type CompanyProfile, type BasicFinancials } from '@/lib/utils/finnhub-api'
+import {
+  type CompanyProfile,
+  type BasicFinancials,
+} from '@/lib/utils/finnhub-api'
 
 interface FundamentalsWidgetProps {
   symbol: string
@@ -48,29 +67,32 @@ interface MetricCardProps {
   currency?: string
 }
 
-function MetricCard({ 
-  title, 
-  value, 
-  change, 
-  changeLabel, 
-  icon, 
-  color, 
-  tooltip, 
+function MetricCard({
+  title,
+  value,
+  change,
+  changeLabel,
+  icon,
+  color,
+  tooltip,
   format = 'number',
-  currency = 'NOK'
+  currency = 'NOK',
 }: MetricCardProps) {
   const colors = {
-    green: 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400',
+    green:
+      'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400',
     red: 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400',
     blue: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400',
-    purple: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400',
-    orange: 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400',
+    purple:
+      'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400',
+    orange:
+      'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400',
     gray: 'bg-gray-50 dark:bg-gray-900/20 text-gray-600 dark:text-gray-400',
   }
 
   const formatValue = (val: string | number) => {
     if (typeof val === 'string') return val
-    
+
     switch (format) {
       case 'currency':
         return formatCurrency(val, currency)
@@ -90,9 +112,7 @@ function MetricCard({
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className={cn('rounded-lg p-2', colors[color])}>
-              {icon}
-            </div>
+            <div className={cn('rounded-lg p-2', colors[color])}>{icon}</div>
             <div>
               <CardTitle className="text-sm font-medium text-gray-900 dark:text-gray-100">
                 {title}
@@ -101,7 +121,7 @@ function MetricCard({
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Info className="h-3 w-3 text-gray-400 cursor-help" />
+                      <Info className="h-3 w-3 cursor-help text-gray-400" />
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="max-w-xs text-sm">{tooltip}</p>
@@ -125,13 +145,18 @@ function MetricCard({
               ) : change < 0 ? (
                 <TrendingDown className="h-3 w-3 text-red-500" />
               ) : null}
-              <span className={cn(
-                'font-medium',
-                change > 0 ? 'text-green-600 dark:text-green-400' : 
-                change < 0 ? 'text-red-600 dark:text-red-400' : 
-                'text-gray-500 dark:text-gray-400'
-              )}>
-                {change > 0 ? '+' : ''}{formatPercentage(change)}
+              <span
+                className={cn(
+                  'font-medium',
+                  change > 0
+                    ? 'text-green-600 dark:text-green-400'
+                    : change < 0
+                      ? 'text-red-600 dark:text-red-400'
+                      : 'text-gray-500 dark:text-gray-400'
+                )}
+              >
+                {change > 0 ? '+' : ''}
+                {formatPercentage(change)}
               </span>
               {changeLabel && (
                 <span className="text-gray-500 dark:text-gray-400">
@@ -190,18 +215,18 @@ function CompanyOverview({ profile }: { profile: CompanyProfile }) {
             </div>
           </div>
         </div>
-        
+
         {profile.weburl && (
-          <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+          <div className="border-t border-gray-200 pt-2 dark:border-gray-700">
             <Button
               variant="outline"
               size="sm"
               onClick={() => window.open(profile.weburl, '_blank')}
               className="w-full"
             >
-              <Globe className="h-4 w-4 mr-2" />
+              <Globe className="mr-2 h-4 w-4" />
               Besøk selskapets nettside
-              <ExternalLink className="h-4 w-4 ml-2" />
+              <ExternalLink className="ml-2 h-4 w-4" />
             </Button>
           </div>
         )}
@@ -215,21 +240,24 @@ function FinancialRatios({ financials }: { financials: BasicFinancials }) {
     {
       title: 'P/E Ratio',
       value: financials.metric.peBasicExclExtraTTM,
-      tooltip: 'Pris-til-inntjening ratio. Måler hvor mye investorer betaler per krone i inntjening.',
+      tooltip:
+        'Pris-til-inntjening ratio. Måler hvor mye investorer betaler per krone i inntjening.',
       color: 'purple' as const,
       icon: <Calculator className="h-4 w-4" />,
     },
     {
       title: 'P/B Ratio',
       value: financials.metric.ptbvAnnual,
-      tooltip: 'Pris-til-bok ratio. Sammenligner markedsverdi med bokført verdi.',
+      tooltip:
+        'Pris-til-bok ratio. Sammenligner markedsverdi med bokført verdi.',
       color: 'blue' as const,
       icon: <BarChart3 className="h-4 w-4" />,
     },
     {
       title: 'ROE',
       value: financials.metric.roeAnnual,
-      tooltip: 'Return on Equity. Måler hvor effektivt selskapet bruker egenkapitalen.',
+      tooltip:
+        'Return on Equity. Måler hvor effektivt selskapet bruker egenkapitalen.',
       color: 'green' as const,
       icon: <TrendingUp className="h-4 w-4" />,
       format: 'percentage' as const,
@@ -237,7 +265,8 @@ function FinancialRatios({ financials }: { financials: BasicFinancials }) {
     {
       title: 'ROA',
       value: financials.metric.roaAnnual,
-      tooltip: 'Return on Assets. Måler hvor effektivt selskapet bruker sine eiendeler.',
+      tooltip:
+        'Return on Assets. Måler hvor effektivt selskapet bruker sine eiendeler.',
       color: 'orange' as const,
       icon: <PieChart className="h-4 w-4" />,
       format: 'percentage' as const,
@@ -264,25 +293,32 @@ function FinancialRatios({ financials }: { financials: BasicFinancials }) {
         Finansielle nøkkeltall
       </h3>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {ratios.map((ratio) => (
-          ratio.value && (
-            <MetricCard
-              key={ratio.title}
-              title={ratio.title}
-              value={ratio.value}
-              icon={ratio.icon}
-              color={ratio.color}
-              tooltip={ratio.tooltip}
-              format={ratio.format}
-            />
-          )
-        ))}
+        {ratios.map(
+          ratio =>
+            ratio.value && (
+              <MetricCard
+                key={ratio.title}
+                title={ratio.title}
+                value={ratio.value}
+                icon={ratio.icon}
+                color={ratio.color}
+                tooltip={ratio.tooltip}
+                format={ratio.format}
+              />
+            )
+        )}
       </div>
     </div>
   )
 }
 
-function MarketMetrics({ profile, financials }: { profile: CompanyProfile, financials: BasicFinancials }) {
+function MarketMetrics({
+  profile,
+  financials,
+}: {
+  profile: CompanyProfile
+  financials: BasicFinancials
+}) {
   const metrics = [
     {
       title: 'Markedsverdi',
@@ -343,20 +379,22 @@ function MarketMetrics({ profile, financials }: { profile: CompanyProfile, finan
         Markedsdata
       </h3>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {metrics.map((metric) => (
-          metric.value !== undefined && metric.value !== null && (
-            <MetricCard
-              key={metric.title}
-              title={metric.title}
-              value={metric.value}
-              icon={metric.icon}
-              color={metric.color}
-              tooltip={metric.tooltip}
-              format={metric.format}
-              currency={metric.currency}
-            />
-          )
-        ))}
+        {metrics.map(
+          metric =>
+            metric.value !== undefined &&
+            metric.value !== null && (
+              <MetricCard
+                key={metric.title}
+                title={metric.title}
+                value={metric.value}
+                icon={metric.icon}
+                color={metric.color}
+                tooltip={metric.tooltip}
+                format={metric.format}
+                currency={metric.currency}
+              />
+            )
+        )}
       </div>
     </div>
   )
@@ -392,19 +430,29 @@ function PerformanceMetrics({ financials }: { financials: BasicFinancials }) {
         Prisutvikling
       </h3>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {performance.map((perf) => (
-          perf.value !== undefined && perf.value !== null && (
-            <MetricCard
-              key={perf.title}
-              title={perf.title}
-              value={perf.value}
-              change={perf.change}
-              icon={perf.change > 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-              color={perf.change > 0 ? 'green' : perf.change < 0 ? 'red' : 'gray'}
-              format="percentage"
-            />
-          )
-        ))}
+        {performance.map(
+          perf =>
+            perf.value !== undefined &&
+            perf.value !== null && (
+              <MetricCard
+                key={perf.title}
+                title={perf.title}
+                value={perf.value}
+                change={perf.change}
+                icon={
+                  perf.change > 0 ? (
+                    <TrendingUp className="h-4 w-4" />
+                  ) : (
+                    <TrendingDown className="h-4 w-4" />
+                  )
+                }
+                color={
+                  perf.change > 0 ? 'green' : perf.change < 0 ? 'red' : 'gray'
+                }
+                format="percentage"
+              />
+            )
+        )}
       </div>
     </div>
   )
@@ -420,7 +468,9 @@ export function FundamentalsWidget({
   onRefresh,
   className,
 }: FundamentalsWidgetProps) {
-  const [selectedView, setSelectedView] = useState<'overview' | 'ratios' | 'market' | 'performance'>('overview')
+  const [selectedView, setSelectedView] = useState<
+    'overview' | 'ratios' | 'market' | 'performance'
+  >('overview')
 
   const hasData = profile || financials
 
@@ -485,15 +535,15 @@ export function FundamentalsWidget({
             {selectedView === 'overview' && profile && (
               <CompanyOverview profile={profile} />
             )}
-            
+
             {selectedView === 'ratios' && financials && (
               <FinancialRatios financials={financials} />
             )}
-            
+
             {selectedView === 'market' && profile && financials && (
               <MarketMetrics profile={profile} financials={financials} />
             )}
-            
+
             {selectedView === 'performance' && financials && (
               <PerformanceMetrics financials={financials} />
             )}
@@ -503,7 +553,8 @@ export function FundamentalsWidget({
         {/* Data Source Footer */}
         {hasData && (
           <div className="border-t border-gray-200 pt-4 text-center text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
-            Data levert av Finnhub • Oppdatert: {new Date().toLocaleDateString('nb-NO')}
+            Data levert av Finnhub • Oppdatert:{' '}
+            {new Date().toLocaleDateString('nb-NO')}
           </div>
         )}
       </div>

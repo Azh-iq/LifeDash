@@ -13,27 +13,39 @@ import type {
 
 // Validation schemas
 const categoryPreferencesSchema = z.object({
-  stocks: z.object({
-    defaultChartType: z.enum(['line', 'candlestick', 'area', 'bar']).optional(),
-    showVolume: z.boolean().optional(),
-    showTechnicalIndicators: z.boolean().optional(),
-    defaultTimeframe: z.string().optional(),
-  }).optional(),
-  crypto: z.object({
-    defaultChartType: z.enum(['line', 'candlestick', 'area', 'bar']).optional(),
-    showVolume: z.boolean().optional(),
-    showMarketCap: z.boolean().optional(),
-    defaultTimeframe: z.string().optional(),
-  }).optional(),
-  art: z.object({
-    showPriceHistory: z.boolean().optional(),
-    showProvenance: z.boolean().optional(),
-    defaultView: z.string().optional(),
-  }).optional(),
-  other: z.object({
-    defaultView: z.string().optional(),
-    showCustomFields: z.boolean().optional(),
-  }).optional(),
+  stocks: z
+    .object({
+      defaultChartType: z
+        .enum(['line', 'candlestick', 'area', 'bar'])
+        .optional(),
+      showVolume: z.boolean().optional(),
+      showTechnicalIndicators: z.boolean().optional(),
+      defaultTimeframe: z.string().optional(),
+    })
+    .optional(),
+  crypto: z
+    .object({
+      defaultChartType: z
+        .enum(['line', 'candlestick', 'area', 'bar'])
+        .optional(),
+      showVolume: z.boolean().optional(),
+      showMarketCap: z.boolean().optional(),
+      defaultTimeframe: z.string().optional(),
+    })
+    .optional(),
+  art: z
+    .object({
+      showPriceHistory: z.boolean().optional(),
+      showProvenance: z.boolean().optional(),
+      defaultView: z.string().optional(),
+    })
+    .optional(),
+  other: z
+    .object({
+      defaultView: z.string().optional(),
+      showCustomFields: z.boolean().optional(),
+    })
+    .optional(),
 })
 
 const createWidgetPreferencesSchema = z.object({
@@ -46,12 +58,16 @@ const createWidgetPreferencesSchema = z.object({
   grid_gap: z.enum(['sm', 'md', 'lg']).default('md'),
   compact_mode: z.boolean().default(false),
   chart_type: z.enum(['line', 'candlestick', 'area', 'bar']).default('line'),
-  chart_theme: z.enum(['default', 'dark', 'minimal', 'colorful']).default('default'),
+  chart_theme: z
+    .enum(['default', 'dark', 'minimal', 'colorful'])
+    .default('default'),
   show_volume: z.boolean().default(true),
   show_grid: z.boolean().default(true),
   currency_display: z.enum(['NOK', 'USD', 'EUR']).default('NOK'),
   number_format: z.enum(['norwegian', 'international']).default('norwegian'),
-  date_format: z.enum(['dd.mm.yyyy', 'yyyy-mm-dd', 'mm/dd/yyyy']).default('dd.mm.yyyy'),
+  date_format: z
+    .enum(['dd.mm.yyyy', 'yyyy-mm-dd', 'mm/dd/yyyy'])
+    .default('dd.mm.yyyy'),
   price_alerts_enabled: z.boolean().default(true),
   news_alerts_enabled: z.boolean().default(false),
   email_notifications: z.boolean().default(false),
@@ -125,7 +141,7 @@ export async function getUserWidgetPreferences(): Promise<WidgetPreferencesRespo
       if (fetchError.code === 'PGRST116') {
         return await createDefaultWidgetPreferences()
       }
-      
+
       console.error('Error fetching widget preferences:', fetchError)
       return {
         success: false,
@@ -181,7 +197,8 @@ async function createDefaultWidgetPreferences(): Promise<WidgetPreferencesRespon
       console.error('Error creating default widget preferences:', createError)
       return {
         success: false,
-        error: createError.message || 'Failed to create default widget preferences',
+        error:
+          createError.message || 'Failed to create default widget preferences',
       }
     }
 
@@ -421,11 +438,22 @@ export async function resetWidgetPreferences(): Promise<WidgetPreferencesRespons
  * Toggle a boolean preference
  */
 export async function togglePreference(
-  preference: keyof Pick<WidgetPreferencesUpdate, 
-    'animation_enabled' | 'auto_refresh_enabled' | 'compact_mode' | 'show_volume' | 'show_grid' |
-    'price_alerts_enabled' | 'news_alerts_enabled' | 'email_notifications' | 'push_notifications' |
-    'share_portfolio_enabled' | 'public_profile_enabled' | 'analytics_enabled' | 
-    'advanced_features_enabled' | 'beta_features_enabled'
+  preference: keyof Pick<
+    WidgetPreferencesUpdate,
+    | 'animation_enabled'
+    | 'auto_refresh_enabled'
+    | 'compact_mode'
+    | 'show_volume'
+    | 'show_grid'
+    | 'price_alerts_enabled'
+    | 'news_alerts_enabled'
+    | 'email_notifications'
+    | 'push_notifications'
+    | 'share_portfolio_enabled'
+    | 'public_profile_enabled'
+    | 'analytics_enabled'
+    | 'advanced_features_enabled'
+    | 'beta_features_enabled'
   >
 ): Promise<WidgetPreferencesResponse> {
   try {
@@ -473,7 +501,7 @@ export async function updateChartPreferences(
   showGrid?: boolean
 ): Promise<WidgetPreferencesResponse> {
   const updates: WidgetPreferencesUpdate = {}
-  
+
   if (chartType !== undefined) updates.chart_type = chartType
   if (chartTheme !== undefined) updates.chart_theme = chartTheme
   if (showVolume !== undefined) updates.show_volume = showVolume
@@ -491,7 +519,7 @@ export async function updateGridPreferences(
   compactMode?: boolean
 ): Promise<WidgetPreferencesResponse> {
   const updates: WidgetPreferencesUpdate = {}
-  
+
   if (columns !== undefined) updates.grid_columns = columns
   if (gap !== undefined) updates.grid_gap = gap
   if (compactMode !== undefined) updates.compact_mode = compactMode
@@ -508,7 +536,7 @@ export async function updateLocalizationPreferences(
   dateFormat?: 'dd.mm.yyyy' | 'yyyy-mm-dd' | 'mm/dd/yyyy'
 ): Promise<WidgetPreferencesResponse> {
   const updates: WidgetPreferencesUpdate = {}
-  
+
   if (currency !== undefined) updates.currency_display = currency
   if (numberFormat !== undefined) updates.number_format = numberFormat
   if (dateFormat !== undefined) updates.date_format = dateFormat

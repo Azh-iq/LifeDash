@@ -4,7 +4,10 @@ import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import { HoldingWithMetrics } from '@/lib/hooks/use-portfolio-state'
 import { cn } from '@/lib/utils/cn'
-import { getStockDetail, type StockTransaction } from '@/lib/actions/stocks/stock-detail'
+import {
+  getStockDetail,
+  type StockTransaction,
+} from '@/lib/actions/stocks/stock-detail'
 import { StockChartWidget } from '@/components/widgets/stock/stock-chart-widget'
 import { NewsFeedWidget } from '@/components/widgets/stock/news-feed-widget'
 import { HoldingsWidget } from '@/components/widgets/stock/holdings-widget'
@@ -49,7 +52,8 @@ const generateMockNews = (symbol: string) => [
     image: '',
     related: symbol,
     source: 'Reuters',
-    summary: 'Company reports strong quarterly performance with revenue growth.',
+    summary:
+      'Company reports strong quarterly performance with revenue growth.',
     url: '#',
   },
   {
@@ -76,7 +80,10 @@ const generateMockNews = (symbol: string) => [
   },
 ]
 
-const generateMockHoldings = (symbol: string, stockData: HoldingWithMetrics) => [
+const generateMockHoldings = (
+  symbol: string,
+  stockData: HoldingWithMetrics
+) => [
   {
     id: '1',
     symbol: symbol,
@@ -98,7 +105,10 @@ const generateMockHoldings = (symbol: string, stockData: HoldingWithMetrics) => 
   },
 ]
 
-const generateMockTransactions = (symbol: string, stockData: HoldingWithMetrics) => [
+const generateMockTransactions = (
+  symbol: string,
+  stockData: HoldingWithMetrics
+) => [
   {
     id: '1',
     date: '2024-01-15',
@@ -284,7 +294,6 @@ export default function StockDetailModalV2({
     }
   }
 
-
   const tabs = [
     { id: 'overview', label: 'Overview' },
     { id: 'feed', label: 'Feed' },
@@ -354,13 +363,13 @@ export default function StockDetailModalV2({
           )}
 
           {activeTab === 'feed' && (
-            <div className="max-w-4xl mx-auto">
+            <div className="mx-auto max-w-4xl">
               {renderWidget(feedWidgets[0])}
             </div>
           )}
 
           {activeTab === 'transactions' && (
-            <div className="max-w-6xl mx-auto">
+            <div className="mx-auto max-w-6xl">
               {renderWidget(transactionsWidgets[0])}
             </div>
           )}

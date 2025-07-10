@@ -2,7 +2,14 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ExternalLink, Clock, Filter, Newspaper, TrendingUp, Globe } from 'lucide-react'
+import {
+  ExternalLink,
+  Clock,
+  Filter,
+  Newspaper,
+  TrendingUp,
+  Globe,
+} from 'lucide-react'
 import { StockWidget } from '@/components/ui/widget'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -32,47 +39,77 @@ const NEWS_CATEGORIES = [
 ] as const
 
 const SENTIMENT_COLORS = {
-  positive: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  positive:
+    'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   negative: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
   neutral: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
 } as const
 
 const SOURCE_COLORS = {
-  'Reuters': 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-  'Bloomberg': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  'MarketWatch': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-  'Yahoo Finance': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400',
-  'CNBC': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400',
-  'default': 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
+  Reuters:
+    'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
+  Bloomberg: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+  MarketWatch:
+    'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
+  'Yahoo Finance':
+    'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400',
+  CNBC: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400',
+  default: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
 } as const
 
-function NewsItem({ 
-  news, 
-  onReadMore 
-}: { 
+function NewsItem({
+  news,
+  onReadMore,
+}: {
   news: CompanyNews
-  onReadMore: (url: string) => void 
+  onReadMore: (url: string) => void
 }) {
   const [imageError, setImageError] = useState(false)
-  
+
   // Simple sentiment analysis based on keywords
   const sentiment = useMemo(() => {
     const headline = news.headline.toLowerCase()
     const summary = news.summary.toLowerCase()
     const text = `${headline} ${summary}`
-    
-    const positiveWords = ['up', 'gain', 'rise', 'growth', 'profit', 'strong', 'beat', 'surge', 'boost']
-    const negativeWords = ['down', 'fall', 'drop', 'loss', 'weak', 'miss', 'decline', 'crash', 'plunge']
-    
-    const positiveCount = positiveWords.filter(word => text.includes(word)).length
-    const negativeCount = negativeWords.filter(word => text.includes(word)).length
-    
+
+    const positiveWords = [
+      'up',
+      'gain',
+      'rise',
+      'growth',
+      'profit',
+      'strong',
+      'beat',
+      'surge',
+      'boost',
+    ]
+    const negativeWords = [
+      'down',
+      'fall',
+      'drop',
+      'loss',
+      'weak',
+      'miss',
+      'decline',
+      'crash',
+      'plunge',
+    ]
+
+    const positiveCount = positiveWords.filter(word =>
+      text.includes(word)
+    ).length
+    const negativeCount = negativeWords.filter(word =>
+      text.includes(word)
+    ).length
+
     if (positiveCount > negativeCount) return 'positive'
     if (negativeCount > positiveCount) return 'negative'
     return 'neutral'
   }, [news.headline, news.summary])
 
-  const sourceColor = SOURCE_COLORS[news.source as keyof typeof SOURCE_COLORS] || SOURCE_COLORS.default
+  const sourceColor =
+    SOURCE_COLORS[news.source as keyof typeof SOURCE_COLORS] ||
+    SOURCE_COLORS.default
 
   return (
     <motion.div
@@ -80,7 +117,7 @@ function NewsItem({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
-      className="group rounded-lg border border-gray-200 bg-white p-4 transition-all duration-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 hover:border-purple-200 dark:hover:border-purple-700"
+      className="group rounded-lg border border-gray-200 bg-white p-4 transition-all duration-200 hover:border-purple-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-purple-700"
     >
       <div className="flex gap-3">
         {/* News Image */}
@@ -107,8 +144,11 @@ function NewsItem({
                 variant="outline"
                 className={cn('text-xs', SENTIMENT_COLORS[sentiment])}
               >
-                {sentiment === 'positive' ? 'Positiv' : 
-                 sentiment === 'negative' ? 'Negativ' : 'Nøytral'}
+                {sentiment === 'positive'
+                  ? 'Positiv'
+                  : sentiment === 'negative'
+                    ? 'Negativ'
+                    : 'Nøytral'}
               </Badge>
             </div>
             <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
@@ -118,12 +158,12 @@ function NewsItem({
           </div>
 
           {/* Headline */}
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 line-clamp-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+          <h3 className="line-clamp-2 font-semibold text-gray-900 transition-colors group-hover:text-purple-600 dark:text-gray-100 dark:group-hover:text-purple-400">
             {news.headline}
           </h3>
 
           {/* Summary */}
-          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
+          <p className="line-clamp-3 text-sm text-gray-600 dark:text-gray-400">
             {news.summary}
           </p>
 
@@ -241,7 +281,7 @@ export function NewsFeedWidget({
                 <Input
                   placeholder="Søk i nyheter..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                   className="h-8 text-sm"
                 />
               </div>
@@ -251,7 +291,11 @@ export function NewsFeedWidget({
                 {NEWS_CATEGORIES.map(category => (
                   <Button
                     key={category.value}
-                    variant={selectedCategory === category.value ? 'default' : 'outline'}
+                    variant={
+                      selectedCategory === category.value
+                        ? 'default'
+                        : 'outline'
+                    }
                     size="sm"
                     onClick={() => handleCategoryChange(category.value)}
                     className="h-7 px-3 text-xs"
@@ -268,12 +312,11 @@ export function NewsFeedWidget({
         {/* News Stats */}
         <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
           <span>
-            {filteredNews.length} {filteredNews.length === 1 ? 'nyhet' : 'nyheter'}
+            {filteredNews.length}{' '}
+            {filteredNews.length === 1 ? 'nyhet' : 'nyheter'}
             {searchTerm && ` (filtrert på "${searchTerm}")`}
           </span>
-          <span>
-            Oppdatert: {formatRelativeTime(new Date())}
-          </span>
+          <span>Oppdatert: {formatRelativeTime(new Date())}</span>
         </div>
 
         {/* News Feed */}
@@ -281,7 +324,7 @@ export function NewsFeedWidget({
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <Newspaper className="h-12 w-12 text-gray-400 dark:text-gray-600" />
             <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-              {searchTerm || selectedCategory !== 'all' 
+              {searchTerm || selectedCategory !== 'all'
                 ? 'Ingen nyheter funnet med gjeldende filter'
                 : 'Ingen nyheter tilgjengelig'}
             </p>

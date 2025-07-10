@@ -1,7 +1,7 @@
 import { Database } from './database.types'
 
 // Database widget types
-export type WidgetType = 
+export type WidgetType =
   | 'HERO_PORTFOLIO_CHART'
   | 'CATEGORY_MINI_CHART'
   | 'STOCK_PERFORMANCE_CHART'
@@ -25,7 +25,12 @@ export type WidgetSize = 'SMALL' | 'MEDIUM' | 'LARGE' | 'HERO'
 
 export type LayoutType = 'dashboard' | 'portfolio' | 'stock' | 'custom'
 
-export type ActionType = 'view' | 'interact' | 'refresh' | 'export' | 'configure'
+export type ActionType =
+  | 'view'
+  | 'interact'
+  | 'refresh'
+  | 'export'
+  | 'configure'
 
 export type DeviceType = 'desktop' | 'tablet' | 'mobile'
 
@@ -101,7 +106,7 @@ export interface AlertsWidgetConfig extends BaseWidgetConfig {
   maxItems?: number
 }
 
-export type WidgetConfig = 
+export type WidgetConfig =
   | ChartWidgetConfig
   | TableWidgetConfig
   | MetricsWidgetConfig
@@ -472,101 +477,110 @@ export interface WidgetValidationResult {
 }
 
 // Constants
-export const WIDGET_TYPES: Record<WidgetType, { displayName: string; description: string; category: WidgetCategory }> = {
+export const WIDGET_TYPES: Record<
+  WidgetType,
+  { displayName: string; description: string; category: WidgetCategory }
+> = {
   HERO_PORTFOLIO_CHART: {
     displayName: 'Hovedportfølje Graf',
     description: 'Stor porteføljeytelse graf for dashboard',
-    category: 'STOCKS'
+    category: 'STOCKS',
   },
   CATEGORY_MINI_CHART: {
     displayName: 'Kategori Mini-graf',
     description: 'Kompakt graf for investeringskategorier',
-    category: 'STOCKS'
+    category: 'STOCKS',
   },
   STOCK_PERFORMANCE_CHART: {
     displayName: 'Aksjeytelse Graf',
     description: 'Detaljert aksjeytelse med tekniske indikatorer',
-    category: 'STOCKS'
+    category: 'STOCKS',
   },
   HOLDINGS_TABLE_RICH: {
     displayName: 'Detaljert Beholdningstabell',
     description: 'Omfattende beholdningstabell med mikro-grafer',
-    category: 'STOCKS'
+    category: 'STOCKS',
   },
   METRICS_GRID: {
     displayName: 'Ytelsesmålinger',
     description: 'Nøkkelytelsesmålinger og statistikk',
-    category: 'STOCKS'
+    category: 'STOCKS',
   },
   ACTIVITY_FEED: {
     displayName: 'Aktivitetsfeed',
     description: 'Nylige transaksjoner og endringer',
-    category: 'STOCKS'
+    category: 'STOCKS',
   },
   TOP_NAVIGATION_ENHANCED: {
     displayName: 'Utvidet Navigasjon',
     description: 'Hovednavigasjon med funksjoner',
-    category: 'STOCKS'
+    category: 'STOCKS',
   },
   CATEGORY_SELECTOR: {
     displayName: 'Kategorivelger',
     description: 'Bytte mellom investeringstyper',
-    category: 'STOCKS'
+    category: 'STOCKS',
   },
   STOCK_DETAIL_CARD: {
     displayName: 'Aksjedetaljer',
     description: 'Detaljert aksjeinfo med faner',
-    category: 'STOCKS'
+    category: 'STOCKS',
   },
   TRANSACTION_HISTORY: {
     displayName: 'Transaksjonshistorikk',
     description: 'Fullstendig transaksjonslogg',
-    category: 'STOCKS'
+    category: 'STOCKS',
   },
   PRICE_ALERTS: {
     displayName: 'Prisvarsler',
     description: 'Prisvarsler og notifikasjoner',
-    category: 'STOCKS'
+    category: 'STOCKS',
   },
   NEWS_FEED: {
     displayName: 'Nyhetsfeed',
     description: 'Finansnyheter og markedsinformasjon',
-    category: 'STOCKS'
+    category: 'STOCKS',
   },
   PORTFOLIO_ALLOCATION: {
     displayName: 'Porteføljeallokering',
     description: 'Fordeling av investeringer',
-    category: 'STOCKS'
+    category: 'STOCKS',
   },
   PERFORMANCE_METRICS: {
     displayName: 'Ytelsesmålinger',
     description: 'Avanserte ytelsesmålinger',
-    category: 'STOCKS'
+    category: 'STOCKS',
   },
   WATCHLIST: {
     displayName: 'Overvåkningsliste',
     description: 'Aksjer og investeringer å følge',
-    category: 'STOCKS'
+    category: 'STOCKS',
   },
   CUSTOM_WIDGET: {
     displayName: 'Tilpasset Widget',
     description: 'Brukerdefinert widget',
-    category: 'STOCKS'
-  }
+    category: 'STOCKS',
+  },
 }
 
-export const WIDGET_SIZES: Record<WidgetSize, { displayName: string; gridSize: string }> = {
+export const WIDGET_SIZES: Record<
+  WidgetSize,
+  { displayName: string; gridSize: string }
+> = {
   SMALL: { displayName: 'Liten', gridSize: '1x1' },
   MEDIUM: { displayName: 'Medium', gridSize: '2x2' },
   LARGE: { displayName: 'Stor', gridSize: '3x3' },
-  HERO: { displayName: 'Hero', gridSize: '4x4' }
+  HERO: { displayName: 'Hero', gridSize: '4x4' },
 }
 
-export const WIDGET_CATEGORIES: Record<WidgetCategory, { displayName: string; color: string }> = {
+export const WIDGET_CATEGORIES: Record<
+  WidgetCategory,
+  { displayName: string; color: string }
+> = {
   STOCKS: { displayName: 'Aksjer', color: '#6366f1' },
   CRYPTO: { displayName: 'Krypto', color: '#f59e0b' },
   ART: { displayName: 'Kunst', color: '#ec4899' },
-  OTHER: { displayName: 'Annet', color: '#10b981' }
+  OTHER: { displayName: 'Annet', color: '#10b981' },
 }
 
 export const DEFAULT_GRID_COLUMNS = 2

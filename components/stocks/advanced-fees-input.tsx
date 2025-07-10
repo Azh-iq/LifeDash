@@ -180,9 +180,9 @@ export default function AdvancedFeesInput({
                     {isExpanded ? 'Skjul detaljer' : 'Endre'}
                   </span>
                   {isExpanded ? (
-                    <ChevronUp className="h-4 w-4 ml-1" />
+                    <ChevronUp className="ml-1 h-4 w-4" />
                   ) : (
-                    <ChevronDown className="h-4 w-4 ml-1" />
+                    <ChevronDown className="ml-1 h-4 w-4" />
                   )}
                 </Button>
               </CollapsibleTrigger>

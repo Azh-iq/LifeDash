@@ -79,7 +79,10 @@ const alertsConfigSchema = baseConfigSchema.extend({
 /**
  * Validate widget configuration based on widget type
  */
-export function validateWidgetConfig(widgetType: WidgetType, config: WidgetConfig): WidgetConfig {
+export function validateWidgetConfig(
+  widgetType: WidgetType,
+  config: WidgetConfig
+): WidgetConfig {
   try {
     switch (widgetType) {
       case 'HERO_PORTFOLIO_CHART':
@@ -143,12 +146,15 @@ export async function saveWidgetConfiguration(
     }
 
     // Validate configuration
-    const validatedConfig = validateWidgetConfig(currentLayout.widget_type, config)
+    const validatedConfig = validateWidgetConfig(
+      currentLayout.widget_type,
+      config
+    )
 
     // Update widget configuration
     const { data: updatedLayout, error: updateError } = await supabase
       .from('widget_layouts')
-      .update({ 
+      .update({
         widget_config: validatedConfig,
         updated_at: new Date().toISOString(),
       })
@@ -178,7 +184,8 @@ export async function saveWidgetConfiguration(
     console.error('Save widget configuration error:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'An unexpected error occurred',
+      error:
+        error instanceof Error ? error.message : 'An unexpected error occurred',
     }
   }
 }
@@ -244,7 +251,8 @@ export async function createWidgetWithConfig(
     console.error('Create widget with config error:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'An unexpected error occurred',
+      error:
+        error instanceof Error ? error.message : 'An unexpected error occurred',
     }
   }
 }
@@ -296,7 +304,10 @@ export async function updateWidgetConfigAndLayout(
 
     // Validate and add configuration if provided
     if (config) {
-      const validatedConfig = validateWidgetConfig(currentLayout.widget_type, config)
+      const validatedConfig = validateWidgetConfig(
+        currentLayout.widget_type,
+        config
+      )
       updateData.widget_config = validatedConfig
     }
 
@@ -332,7 +343,8 @@ export async function updateWidgetConfigAndLayout(
     console.error('Update widget config and layout error:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'An unexpected error occurred',
+      error:
+        error instanceof Error ? error.message : 'An unexpected error occurred',
     }
   }
 }
@@ -426,12 +438,15 @@ export async function resetWidgetConfiguration(
     }
 
     // Validate default configuration
-    const validatedConfig = validateWidgetConfig(currentLayout.widget_type, defaultConfig)
+    const validatedConfig = validateWidgetConfig(
+      currentLayout.widget_type,
+      defaultConfig
+    )
 
     // Reset configuration
     const { data: updatedLayout, error: updateError } = await supabase
       .from('widget_layouts')
-      .update({ 
+      .update({
         widget_config: validatedConfig,
         updated_at: new Date().toISOString(),
       })
@@ -463,7 +478,8 @@ export async function resetWidgetConfiguration(
     console.error('Reset widget configuration error:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'An unexpected error occurred',
+      error:
+        error instanceof Error ? error.message : 'An unexpected error occurred',
     }
   }
 }
@@ -512,12 +528,15 @@ export async function bulkUpdateWidgetConfigurations(
       }
 
       // Validate configuration
-      const validatedConfig = validateWidgetConfig(currentLayout.widget_type, config)
+      const validatedConfig = validateWidgetConfig(
+        currentLayout.widget_type,
+        config
+      )
 
       // Update widget configuration
       const { data: updatedLayout, error: updateError } = await supabase
         .from('widget_layouts')
-        .update({ 
+        .update({
           widget_config: validatedConfig,
           updated_at: new Date().toISOString(),
         })
@@ -546,7 +565,8 @@ export async function bulkUpdateWidgetConfigurations(
     console.error('Bulk update widget configurations error:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'An unexpected error occurred',
+      error:
+        error instanceof Error ? error.message : 'An unexpected error occurred',
     }
   }
 }
@@ -649,7 +669,10 @@ export async function importWidgetConfiguration(
     }
 
     // Validate configuration
-    const validatedConfig = validateWidgetConfig(importData.widget_type, importData.widget_config)
+    const validatedConfig = validateWidgetConfig(
+      importData.widget_type,
+      importData.widget_config
+    )
 
     // Create widget from import data
     const newWidget: WidgetLayoutInsert = {
@@ -697,7 +720,8 @@ export async function importWidgetConfiguration(
     console.error('Import widget configuration error:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'An unexpected error occurred',
+      error:
+        error instanceof Error ? error.message : 'An unexpected error occurred',
     }
   }
 }
