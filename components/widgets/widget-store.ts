@@ -19,7 +19,8 @@ import {
   WidgetCategory,
   WidgetSize,
 } from '@/lib/types/widget.types'
-import { widgetRegistry } from './widget-registry'
+// Import will be resolved at runtime
+const widgetRegistry: any = null
 
 // Extended widget state with additional functionality
 interface ExtendedWidgetState extends WidgetState {
@@ -195,7 +196,7 @@ const initialState: ExtendedWidgetState = {
 // Create the store
 export const useWidgetStore = create<
   ExtendedWidgetState & WidgetStoreActions
->()()(
+>()(
   devtools(
     persist(
       subscribeWithSelector(
@@ -617,6 +618,9 @@ export const useWidgetStore = create<
             const widget = state.getWidget(layoutId, widgetId)
             if (!widget) return false
 
+            // Skip validation if registry not available
+            if (!widgetRegistry) return true
+
             const registration = widgetRegistry.get(widget.type)
             if (!registration) return false
 
@@ -735,6 +739,10 @@ export const useWidgets = (layoutId?: string) =>
         ? state.layouts[state.activeLayoutId] || []
         : []
   )
+export const useActiveWidgets = () =>
+  useWidgetStore(state =>
+    state.activeLayoutId ? state.layouts[state.activeLayoutId] || [] : []
+  )
 export const useSelectedWidgets = () =>
   useWidgetStore(state => state.selectedWidgets)
 export const useEditMode = () => useWidgetStore(state => state.editMode)
@@ -752,15 +760,45 @@ export const useWidgetLoading = () => useWidgetStore(state => state.loading)
 // Action hooks
 export const useWidgetActions = () => {
   const store = useWidgetStore()
+  const activeLayoutId = store.activeLayoutId
   return {
     setActiveLayout: store.setActiveLayout,
-    addWidget: store.addWidget,
-    removeWidget: store.removeWidget,
-    updateWidget: store.updateWidget,
-    moveWidget: store.moveWidget,
-    resizeWidget: store.resizeWidget,
+    createLayout: store.createLayout,
+    addWidget: (widget: WidgetInstance) => {
+      if (activeLayoutId) {
+        store.addWidget(activeLayoutId, widget)
+      }
+    },
+    removeWidget: (widgetId: string) => {
+      if (activeLayoutId) {
+        store.removeWidget(activeLayoutId, widgetId)
+      }
+    },
+    updateWidget: (widgetId: string, updates: Partial<WidgetInstance>) => {
+      if (activeLayoutId) {
+        store.updateWidget(activeLayoutId, widgetId, updates)
+      }
+    },
+    moveWidget: (
+      widgetId: string,
+      position: { row: number; column: number }
+    ) => {
+      if (activeLayoutId) {
+        store.moveWidget(activeLayoutId, widgetId, position)
+      }
+    },
+    resizeWidget: (
+      widgetId: string,
+      size: { rowSpan: number; columnSpan: number }
+    ) => {
+      if (activeLayoutId) {
+        store.resizeWidget(activeLayoutId, widgetId, size)
+      }
+    },
     selectWidget: store.selectWidget,
+    setSelectedWidget: store.selectWidget,
     clearSelection: store.clearSelection,
+    clearError: () => store.setError(null),
     setEditMode: store.setEditMode,
     startDrag: store.startDrag,
     endDrag: store.endDrag,

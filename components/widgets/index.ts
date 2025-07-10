@@ -23,6 +23,7 @@ export {
   useWidgetStore,
   useActiveLayout,
   useWidgets,
+  useActiveWidgets,
   useSelectedWidgets,
   useEditMode,
   useDragState,
@@ -63,11 +64,20 @@ export const WIDGET_REGISTRY_VERSION = '1.0.0'
 
 // Widget system information
 export const getWidgetSystemInfo = () => {
-  return {
-    version: WIDGET_REGISTRY_VERSION,
-    totalWidgets: widgetRegistry.getAll().length,
-    categories: widgetRegistry.getCategories().length,
-    initialized: widgetRegistry.getState().initialized,
+  try {
+    return {
+      version: WIDGET_REGISTRY_VERSION,
+      totalWidgets: widgetRegistry.getAll().length,
+      categories: widgetRegistry.getCategories().length,
+      initialized: widgetRegistry.getState().initialized,
+    }
+  } catch (error) {
+    return {
+      version: WIDGET_REGISTRY_VERSION,
+      totalWidgets: 0,
+      categories: 0,
+      initialized: false,
+    }
   }
 }
 

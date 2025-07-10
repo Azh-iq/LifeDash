@@ -19,11 +19,15 @@ import {
   PageErrorBoundary,
   RenderErrorBoundary,
 } from '@/components/ui/error-boundaries'
+import { usePortfoliosState } from '@/lib/hooks/use-portfolio-state'
 
 export default function InvestmentsPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
-  const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
+  const [user, setUser] = useState<{ id: string; email?: string; user_metadata?: any } | null>(null)
+
+  // Use real portfolio data instead of mock data
+  const { portfolios, loading: portfoliosLoading, error: portfoliosError } = usePortfoliosState()
 
   // Check authentication
   useEffect(() => {
@@ -45,23 +49,21 @@ export default function InvestmentsPage() {
     checkAuth()
   }, [router])
 
-  // Mock investment data
+  // Calculate real investment data from portfolios
   const investments = {
-    stocks: { value: 245000, change: 5.2, count: 12 },
-    crypto: { value: 89000, change: -2.1, count: 8 },
-    art: { value: 156000, change: 8.7, count: 4 },
-    other: { value: 34000, change: 1.4, count: 6 },
+    stocks: { 
+      value: portfolios.reduce((sum, p) => sum + (p.total_value || 0), 0),
+      change: portfolios.reduce((sum, p) => sum + (p.daily_change_percent || 0), 0) / Math.max(portfolios.length, 1),
+      count: portfolios.reduce((sum, p) => sum + (p.holdings_count || 0), 0)
+    },
+    crypto: { value: 0, change: 0, count: 0 }, // Will be calculated when crypto support is added
+    art: { value: 0, change: 0, count: 0 }, // Will be calculated when art support is added
+    other: { value: 0, change: 0, count: 0 }, // Will be calculated when other investments are added
   }
 
-  const totalValue = Object.values(investments).reduce(
-    (sum, cat) => sum + cat.value,
-    0
-  )
-  const totalChange = Object.values(investments).reduce(
-    (sum, cat) => sum + (cat.value * cat.change) / 100,
-    0
-  )
-  const totalChangePercent = (totalChange / totalValue) * 100
+  const totalValue = investments.stocks.value
+  const totalChange = (totalValue * investments.stocks.change) / 100
+  const totalChangePercent = investments.stocks.change
 
   const categories = [
     {
@@ -106,7 +108,7 @@ export default function InvestmentsPage() {
     },
   ]
 
-  if (isLoading) {
+  if (isLoading || portfoliosLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
         <div className="flex min-h-screen items-center justify-center">

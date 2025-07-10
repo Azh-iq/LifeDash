@@ -139,7 +139,7 @@ export default function DebugCSVPage() {
           <div className="max-h-96 space-y-1 overflow-y-auto font-mono text-sm">
             {log.length === 0 ? (
               <p className="text-gray-400">
-                Click "Test CSV Import" to start debugging...
+                Click &quot;Test CSV Import&quot; to start debugging...
               </p>
             ) : (
               log.map((entry, index) => (
@@ -156,12 +156,12 @@ export default function DebugCSVPage() {
             <strong>Instructions:</strong>
           </p>
           <ol className="ml-6 list-decimal space-y-1">
-            <li>Make sure you're logged in to the application</li>
+            <li>Make sure you&apos;re logged in to the application</li>
             <li>
               Copy your CSV file to{' '}
               <code>public/transactions-and-notes-export.csv</code>
             </li>
-            <li>Click "Test CSV Import" button</li>
+            <li>Click &quot;Test CSV Import&quot; button</li>
             <li>Watch the debug log for detailed information</li>
           </ol>
         </div>

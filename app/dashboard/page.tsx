@@ -8,11 +8,15 @@ import { Widget, WidgetContainer } from '@/components/ui/widget'
 import { LoadingState } from '@/components/ui/loading-states'
 import { TrendingUp, Heart, DollarSign, Wrench, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { usePortfoliosState } from '@/lib/hooks/use-portfolio-state'
 
 export default function DashboardPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
-  const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
+  const [user, setUser] = useState<{ id: string; email?: string; user_metadata?: any } | null>(null)
+
+  // Use real portfolio data
+  const { portfolios, loading: portfoliosLoading, error: portfoliosError } = usePortfoliosState()
 
   // Check authentication
   useEffect(() => {
@@ -34,8 +38,8 @@ export default function DashboardPage() {
     checkAuth()
   }, [router])
 
-  // Show loading while checking auth
-  if (isLoading) {
+  // Show loading while checking auth or loading portfolios
+  if (isLoading || portfoliosLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
         <div className="flex min-h-screen items-center justify-center">
@@ -50,13 +54,18 @@ export default function DashboardPage() {
     )
   }
 
+  // Calculate real portfolio values
+  const totalPortfolioValue = portfolios.reduce((sum, p) => sum + (p.total_value || 0), 0)
+  const totalPortfolioChange = portfolios.reduce((sum, p) => sum + (p.daily_change_percent || 0), 0) / Math.max(portfolios.length, 1)
+  const totalHoldings = portfolios.reduce((sum, p) => sum + (p.holdings_count || 0), 0)
+
   const dashboardCards = [
     {
       id: 'investments',
       title: 'Investeringer',
       description: 'Portfolio oversikt og aksjeanalyser',
-      value: 'NOK 524,000',
-      change: '+3.2%',
+      value: `NOK ${totalPortfolioValue.toLocaleString('no-NO')}`,
+      change: `${totalPortfolioChange >= 0 ? '+' : ''}${totalPortfolioChange.toFixed(1)}%`,
       icon: <TrendingUp className="h-6 w-6" />,
       category: 'stocks' as const,
       href: '/investments',
@@ -195,22 +204,24 @@ export default function DashboardPage() {
         <WidgetContainer columns={3} gap="md">
           <Widget title="Total Verdi" size="small" category="stocks">
             <div className="text-center">
-              <p className="text-3xl font-bold text-gray-900">NOK 569,230</p>
-              <p className="text-sm text-green-600">+4.2% denne måneden</p>
+              <p className="text-3xl font-bold text-gray-900">NOK {totalPortfolioValue.toLocaleString('no-NO')}</p>
+              <p className={`text-sm ${totalPortfolioChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {totalPortfolioChange >= 0 ? '+' : ''}{totalPortfolioChange.toFixed(1)}% denne måneden
+              </p>
             </div>
           </Widget>
 
-          <Widget title="Aktive Prosjekter" size="small" category="art">
+          <Widget title="Aktive Posisjoner" size="small" category="art">
             <div className="text-center">
-              <p className="text-3xl font-bold text-gray-900">12</p>
-              <p className="text-sm text-blue-600">2 nye denne uken</p>
+              <p className="text-3xl font-bold text-gray-900">{totalHoldings}</p>
+              <p className="text-sm text-blue-600">{portfolios.length} porteføljer</p>
             </div>
           </Widget>
 
-          <Widget title="Verktøy Brukt" size="small" category="other">
+          <Widget title="Porteføljer" size="small" category="other">
             <div className="text-center">
-              <p className="text-3xl font-bold text-gray-900">8</p>
-              <p className="text-sm text-purple-600">Sist brukt i dag</p>
+              <p className="text-3xl font-bold text-gray-900">{portfolios.length}</p>
+              <p className="text-sm text-purple-600">Sist oppdatert i dag</p>
             </div>
           </Widget>
         </WidgetContainer>

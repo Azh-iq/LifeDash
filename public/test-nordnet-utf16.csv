@@ -1,0 +1,4 @@
+Id	Bokføringsdag	Handelsdag	Oppgjørsdag	Portefølje	Transaksjonstype	Verdipapir	ISIN	Antall	Kurs	Rente	Totale Avgifter	Valuta	Beløp	Kjøpsverdi	Resultat	Totalt antall	Saldo	Vekslingskurs	Transaksjonstekst	Makuleringsddato	Sluttseddelnummer	Verifikasjonsnummer	Kurtasje	Valutakurs	Innledende rente
+213948411	2025-01-08	2025-01-08	2025-01-09	551307769	KJØPT	Apple Inc	US0378331005	100	180.50	0	99	NOK	-18050.00	18050.00	0	100	18050.00	1.0000		2025-01-08	ABC123	999888777	99	1.0000	0
+213948412	2025-01-09	2025-01-09	2025-01-10	551307769	SALG	Microsoft Corporation	US5949181045	50	350.75	0	99	NOK	17537.50	17537.50	850.25	50	17537.50	1.0000		2025-01-09	DEF456	999888778	99	1.0000	0
+213948413	2025-01-10	2025-01-10	2025-01-11	551307769	UTBETALING	Overføring til bankkonto		0	0	0	0	NOK	5000.00	0	0	0	22537.50	1.0000	Månedlig utbetaling	2025-01-10	GHI789	999888779	0	1.0000	0

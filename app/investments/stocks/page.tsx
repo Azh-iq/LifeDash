@@ -245,13 +245,14 @@ export default function StocksPage() {
 
   // Handle optimistic updates - bridge to allow holdings table to communicate changes
   const handleOptimisticUpdate = useCallback(
-    (updatedHoldings: HoldingWithMetrics[]) => {
+    (holding: HoldingWithMetrics, updates: Partial<HoldingWithMetrics>) => {
       // This function serves as a communication bridge between parent and holdings table
       // The actual optimistic state is managed internally by the NorwegianHoldingsTable component
       console.log(
-        'Optimistic update received:',
-        updatedHoldings.length,
-        'holdings'
+        'Optimistic update received for holding:',
+        holding.symbol,
+        'updates:',
+        updates
       )
     },
     []
@@ -429,11 +430,10 @@ export default function StocksPage() {
     return (
       <ErrorPortfolioState
         error={error || portfolioState.error || 'Ukjent feil'}
-        title="Noe gikk galt"
-        subtitle="Vi kunne ikke laste porteføljedataene dine"
+        type="data"
         onRetry={handleRefresh}
         showRetry={!!user}
-        retryLabel="Prøv igjen"
+        showContactSupport={true}
         className="min-h-screen"
       />
     )
@@ -592,12 +592,12 @@ export default function StocksPage() {
           <div className="mx-auto flex max-w-7xl items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900">Aksjer</h1>
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm">
+              <Button variant="secondary" size="sm">
                 <FinancialIcon name="building" size={16} className="mr-2" />
                 Platform Wizard
               </Button>
               <Button
-                variant="default"
+                variant="primary"
                 size="sm"
                 onClick={handleOpenTransactionModal}
                 disabled={loadingAccounts}
@@ -606,7 +606,7 @@ export default function StocksPage() {
                 {loadingAccounts ? 'Laster...' : 'Legg til transaksjon'}
               </Button>
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 onClick={() => setIsCSVModalOpen(true)}
               >
@@ -823,12 +823,12 @@ export default function StocksPage() {
       <AddTransactionModal
         isOpen={isAddTransactionModalOpen}
         onClose={handleCloseTransactionModal}
-        onSubmit={handleSubmitTransaction}
+        onSubmit={async (transactionData: TransactionData) => {
+          const result = await handleSubmitTransaction(transactionData)
+          return
+        }}
         accounts={accounts}
         portfolioId={safePortfolioId}
-        isProcessing={isProcessingTransaction}
-        processingSuccess={transactionSuccess}
-        processingError={transactionError}
       />
     </ErrorBoundary>
   )

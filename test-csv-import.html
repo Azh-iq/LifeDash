@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Import Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">CSV Import Test</h1>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Upload CSV File</h2>
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                <input type="file" id="csvFile" accept=".csv,.txt" class="hidden">
+                <button onclick="document.getElementById('csvFile').click()" class="bg-blue-600 text-white px-6 py-2 rounded-lg">
+                    Choose CSV File
+                </button>
+                <p class="mt-2 text-gray-600">Select a Nordnet CSV export file</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">Test Results</h2>
+            <div id="results" class="space-y-4">
+                <p class="text-gray-600">Upload a CSV file to see test results...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('csvFile').addEventListener('change', async function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p class="text-blue-600">Processing CSV file...</p>';
+
+            try {
+                // Test file validation
+                const validation = validateFile(file);
+                let html = `<div class="mb-4">
+                    <h3 class="font-semibold text-lg">File Validation</h3>
+                    <p class="text-sm ${validation.valid ? 'text-green-600' : 'text-red-600'}">
+                        ${validation.valid ? '✅ Valid' : '❌ Invalid'}: ${validation.error || 'File looks good'}
+                    </p>
+                </div>`;
+
+                // Test encoding detection
+                const encoding = await detectEncoding(file);
+                html += `<div class="mb-4">
+                    <h3 class="font-semibold text-lg">Encoding Detection</h3>
+                    <p class="text-sm">Detected encoding: <span class="font-mono">${encoding}</span></p>
+                </div>`;
+
+                // Test CSV parsing
+                const content = await readFileWithEncoding(file, encoding);
+                const delimiter = detectDelimiter(content);
+                const lines = content.split('\n').filter(line => line.trim() !== '');
+                
+                html += `<div class="mb-4">
+                    <h3 class="font-semibold text-lg">CSV Structure</h3>
+                    <p class="text-sm">Delimiter: <span class="font-mono">"${delimiter}"</span></p>
+                    <p class="text-sm">Lines: ${lines.length}</p>
+                    <p class="text-sm">First line: <span class="font-mono text-xs">${lines[0]?.substring(0, 100)}...</span></p>
+                </div>`;
+
+                // Test Norwegian characters
+                const hasNorwegian = hasNorwegianCharacters(content);
+                html += `<div class="mb-4">
+                    <h3 class="font-semibold text-lg">Norwegian Characters</h3>
+                    <p class="text-sm ${hasNorwegian ? 'text-green-600' : 'text-gray-600'}">
+                        ${hasNorwegian ? '✅ Found' : '❌ Not found'}: Norwegian characters (æøå)
+                    </p>
+                </div>`;
+
+                // Test headers
+                if (lines.length > 0) {
+                    const headers = lines[0].split(delimiter);
+                    html += `<div class="mb-4">
+                        <h3 class="font-semibold text-lg">Headers (${headers.length})</h3>
+                        <div class="grid grid-cols-3 gap-2 text-xs">
+                            ${headers.map(h => `<span class="bg-gray-100 px-2 py-1 rounded">${h}</span>`).join('')}
+                        </div>
+                    </div>`;
+                }
+
+                resultsDiv.innerHTML = html;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="text-red-600">Error: ${error.message}</div>`;
+            }
+        });
+
+        function validateFile(file) {
+            const maxSize = 50 * 1024 * 1024; // 50MB
+            const supportedExtensions = ['.csv', '.txt'];
+            
+            if (file.size > maxSize) {
+                return {
+                    valid: false,
+                    error: `File too large: ${(file.size / (1024 * 1024)).toFixed(2)}MB (max 50MB)`
+                };
+            }
+
+            const extension = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
+            if (!supportedExtensions.includes(extension)) {
+                return {
+                    valid: false,
+                    error: `Unsupported file type: ${extension}`
+                };
+            }
+
+            return { valid: true };
+        }
+
+        async function detectEncoding(file) {
+            const buffer = await file.slice(0, 2048).arrayBuffer();
+            const bytes = new Uint8Array(buffer);
+
+            // Check for BOM
+            if (bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) {
+                return 'utf-8';
+            }
+            if (bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe) {
+                return 'utf-16le';
+            }
+            if (bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff) {
+                return 'utf-16be';
+            }
+
+            // Try different encodings
+            const encodings = ['windows-1252', 'iso-8859-1', 'utf-8'];
+            
+            for (const encoding of encodings) {
+                try {
+                    const decoder = new TextDecoder(encoding, { fatal: true });
+                    const text = decoder.decode(bytes);
+                    
+                    if (!text.includes('\uFFFD')) {
+                        return encoding;
+                    }
+                } catch {
+                    continue;
+                }
+            }
+
+            return 'utf-8';
+        }
+
+        async function readFileWithEncoding(file, encoding) {
+            const buffer = await file.arrayBuffer();
+            let bufferToUse = buffer;
+
+            // Handle BOM removal for UTF-16
+            if (encoding === 'utf-16le' || encoding === 'utf-16be') {
+                const bytes = new Uint8Array(buffer);
+                if (bytes.length >= 2 && 
+                    ((bytes[0] === 0xff && bytes[1] === 0xfe) || 
+                     (bytes[0] === 0xfe && bytes[1] === 0xff))) {
+                    bufferToUse = buffer.slice(2);
+                }
+            }
+
+            const decoder = new TextDecoder(encoding);
+            return decoder.decode(bufferToUse);
+        }
+
+        function detectDelimiter(text) {
+            const delimiters = ['\t', ';', ',', '|'];
+            let bestDelimiter = ',';
+            let maxColumns = 0;
+
+            for (const delimiter of delimiters) {
+                const firstLine = text.split('\n')[0];
+                const columns = firstLine.split(delimiter).length;
+                
+                if (columns > maxColumns) {
+                    maxColumns = columns;
+                    bestDelimiter = delimiter;
+                }
+            }
+
+            return bestDelimiter;
+        }
+
+        function hasNorwegianCharacters(text) {
+            const norwegianPattern = /[æøåÆØÅ]/;
+            const norwegianWords = [
+                'Bokføringsdag',
+                'Handelsdag',
+                'Oppgjørsdag',
+                'Portefølje',
+                'Transaksjonstype',
+                'Verdipapir',
+                'Kjøpsverdi',
+                'Beløp',
+                'Totale',
+                'Avgifter',
+                'Valuta'
+            ];
+
+            return norwegianPattern.test(text) || 
+                   norwegianWords.some(word => text.includes(word));
+        }
+    </script>
+</body>
+</html>
