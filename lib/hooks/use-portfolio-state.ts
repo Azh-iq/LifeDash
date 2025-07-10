@@ -317,7 +317,10 @@ export function usePortfolioState(
         const enhancedHoldings: HoldingWithMetrics[] = filteredHoldings.map(
           (holding: any) => {
             const costBasis = holding.average_cost || 0
-            const currentPrice = holding.stocks?.current_price || costBasis
+            // CRITICAL FIX: Don't use database current_price as fallback - it's often stale
+            // Let the real-time price update system handle current prices
+            const databasePrice = holding.stocks?.current_price
+            const currentPrice = databasePrice && databasePrice > 0 ? databasePrice : costBasis
             const currentValue = holding.quantity * currentPrice
             const gainLoss = currentValue - holding.quantity * costBasis
             const gainLossPercent =
@@ -336,6 +339,7 @@ export function usePortfolioState(
               weight: 0, // Weight will be calculated separately
               daily_change: 0, // Will be updated with real prices from Finnhub
               daily_change_percent: 0, // Will be updated with real prices from Finnhub
+              stocks: holding.stocks, // Include stocks data for real-time updates
             }
           }
         )
@@ -420,6 +424,54 @@ export function usePortfolioState(
     }
   }, []) // Empty dependency array since we use refs
 
+  // Update stock prices in database with real-time data
+  const updateStockPricesInDatabase = useCallback(async () => {
+    const currentRealtimePrices = realtimePricesRef.current
+    const currentHoldings = holdingsRef.current
+
+    if (!currentHoldings.length || !Object.keys(currentRealtimePrices).length) {
+      return
+    }
+
+    try {
+      const supabase = createClient()
+      
+      // Update stocks table with current prices
+      const priceUpdates = currentHoldings
+        .map(holding => {
+          const symbol = holding.symbol
+          const realtimePrice = currentRealtimePrices[symbol]
+          
+          if (realtimePrice && realtimePrice.price > 0) {
+            return {
+              symbol,
+              current_price: realtimePrice.price,
+              last_updated: new Date().toISOString()
+            }
+          }
+          return null
+        })
+        .filter(Boolean)
+
+      if (priceUpdates.length > 0) {
+        // Update stocks table in batches
+        for (const update of priceUpdates) {
+          await supabase
+            .from('stocks')
+            .update({
+              current_price: update.current_price,
+              last_updated: update.last_updated
+            })
+            .eq('symbol', update.symbol)
+        }
+
+        console.log(`Updated ${priceUpdates.length} stock prices in database`)
+      }
+    } catch (error) {
+      console.error('Error updating stock prices in database:', error)
+    }
+  }, [])
+
   // Update holdings with real-time prices (debounced)
   useEffect(() => {
     // Only trigger if we have holdings to update
@@ -436,8 +488,10 @@ export function usePortfolioState(
     const timeSinceLastUpdate = now - lastUpdateRef.current
     const delay = timeSinceLastUpdate < 1000 ? 1000 - timeSinceLastUpdate : 0
 
-    updateTimeoutRef.current = setTimeout(() => {
+    updateTimeoutRef.current = setTimeout(async () => {
       updateHoldingsWithPrices()
+      // CRITICAL FIX: Update database with real-time prices
+      await updateStockPricesInDatabase()
       lastUpdateRef.current = Date.now()
     }, delay)
 

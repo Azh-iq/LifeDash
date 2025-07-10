@@ -9,6 +9,17 @@ import {
   PieChart,
   Loader2,
 } from 'lucide-react'
+import { 
+  BlurredGradientSpinner,
+  NeonLoadingDots,
+  MorphingCubeLoader,
+  DNAHelixLoader,
+  GlitchLoader,
+  LiquidBlob,
+  FinancialGrowthLoader,
+  ParticleOrbitLoader,
+  LifeDashLogo
+} from './uiverse-copied-loaders'
 
 interface LoadingStateProps {
   variant?: 'chart' | 'table' | 'widget' | 'minimal' | 'pulse'

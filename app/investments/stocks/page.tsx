@@ -278,10 +278,16 @@ export default function StocksPage() {
         // Show success state
         setTransactionSuccess(true)
 
-        // Refresh portfolio data to show updated holdings
+        // CRITICAL FIX: Refresh both portfolio and holdings data to show updated holdings
         if (portfolioState.refresh) {
           await portfolioState.refresh()
         }
+        if (portfolioState.refreshHoldings) {
+          await portfolioState.refreshHoldings()
+        }
+
+        // Also trigger smart refresh for consistency
+        await smartRefresh()
 
         // Auto-close modal after success
         setTimeout(() => {

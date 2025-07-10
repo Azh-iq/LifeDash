@@ -56,46 +56,9 @@ export default function CSVImportModal({
     setImportSuccess(false)
 
     try {
-      // Get authentication context from client
-      const supabase = createClient()
-      const {
-        data: { session },
-        error: authError,
-      } = await supabase.auth.getSession()
-
-      if (authError || !session) {
-        const authErrorMsg = authError
-          ? `Authentication error: ${authError.message}`
-          : 'No active session found. Please log in and try again.'
-        console.error('CSV Import Modal - Auth Error:', authError)
-        setImportError(authErrorMsg)
-        return
-      }
-
-      // Debug authentication info
-      console.log('CSV Import - Session info:', {
-        hasAccessToken: !!session.access_token,
-        tokenLength: session.access_token?.length,
-        userId: session.user.id,
-        userEmail: session.user.email,
-        expiresAt: session.expires_at,
-      })
-
-      // Check if session is expired
-      if (session.expires_at && Date.now() / 1000 > session.expires_at) {
-        setImportError(
-          'Session expired. Please refresh the page and try again.'
-        )
-        return
-      }
-
-      // Import transactions to the database with authentication context
-      console.log('Starting CSV import with authentication...')
-      const result = await importNordnetTransactions(
-        parseResult,
-        session.access_token,
-        session.user.id
-      )
+      // CRITICAL FIX: Simplified CSV import - authentication handled server-side
+      console.log('Starting CSV import...')
+      const result = await importNordnetTransactions(parseResult)
 
       console.log('CSV Import result:', {
         success: result.success,

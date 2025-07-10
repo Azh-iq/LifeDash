@@ -155,10 +155,10 @@ export async function addTransaction(
     // Update or create holding
     let holdingUpdated = false
 
-    // Check if holding already exists
+    // Check if holding already exists - CRITICAL FIX: Use average_cost, not cost_basis
     const { data: existingHolding } = await supabase
       .from('holdings')
-      .select('id, quantity, cost_basis')
+      .select('id, quantity, average_cost')
       .eq('account_id', accountId)
       .eq('stock_id', stockId)
       .single()
@@ -170,16 +170,16 @@ export async function addTransaction(
           ? existingHolding.quantity + transactionData.quantity
           : existingHolding.quantity - transactionData.quantity
 
-      // Calculate new cost basis (for buys) using weighted average
-      let newCostBasis = existingHolding.cost_basis
+      // Calculate new average cost (for buys) using weighted average
+      let newAverageCost = existingHolding.average_cost
       if (transactionData.type === 'BUY') {
         const totalOldValue =
-          existingHolding.quantity * existingHolding.cost_basis
+          existingHolding.quantity * existingHolding.average_cost
         const totalNewValue =
           transactionData.quantity * transactionData.pricePerShare
         const totalQuantity =
           existingHolding.quantity + transactionData.quantity
-        newCostBasis =
+        newAverageCost =
           totalQuantity > 0
             ? (totalOldValue + totalNewValue) / totalQuantity
             : 0
@@ -189,7 +189,8 @@ export async function addTransaction(
         .from('holdings')
         .update({
           quantity: newQuantity,
-          cost_basis: newCostBasis,
+          average_cost: newAverageCost,
+          total_cost: newQuantity * newAverageCost, // Update total cost
           updated_at: new Date().toISOString(),
         })
         .eq('id', existingHolding.id)
@@ -207,13 +208,14 @@ export async function addTransaction(
       }
     } else if (transactionData.type === 'BUY') {
       // Create new holding for buy transactions
+      const totalCost = transactionData.quantity * transactionData.pricePerShare
       const { error: createError } = await supabase.from('holdings').insert({
         user_id: userId,
         account_id: accountId,
         stock_id: stockId,
         quantity: transactionData.quantity,
-        cost_basis: transactionData.pricePerShare,
         average_cost: transactionData.pricePerShare,
+        total_cost: totalCost,
         current_price: transactionData.pricePerShare,
         is_active: true,
       })
