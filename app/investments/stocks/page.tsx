@@ -431,6 +431,7 @@ export default function StocksPage() {
   }, [portfolioState, smartRefresh])
 
   // State initialization guards moved up to loading section
+  const isValidPortfolioId = portfolioId && portfolioId.trim().length > 0
 
   // Error handling with proper state checks
   if (error || (isValidPortfolioId && portfolioState.error)) {
@@ -447,7 +448,6 @@ export default function StocksPage() {
   }
 
   // Loading states with amazing new loaders
-  const isValidPortfolioId = portfolioId && portfolioId.trim().length > 0
   const hasPortfolioData = portfolioState.portfolio && !portfolioState.loading
   const hasHoldingsData = portfolioState.holdings && portfolioState.holdings.length > 0
 
