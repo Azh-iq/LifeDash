@@ -37,6 +37,8 @@ import { createDefaultPortfolio } from '@/lib/actions/portfolio/create-default'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
 import { EmptyStocksPage } from '@/components/stocks/empty-stocks-page'
 import TopNavigationMenu from '@/components/layout/top-navigation-menu'
+import { StockChartLoader } from '@/components/ui/investment-page-loader'
+import { LoadingState } from '@/components/ui/loading-states'
 import { toast } from 'sonner'
 
 // Simple responsive hook
@@ -428,8 +430,7 @@ export default function StocksPage() {
     }
   }, [portfolioState, smartRefresh])
 
-  // State initialization guards
-  const isValidPortfolioId = portfolioId && portfolioId.trim().length > 0
+  // State initialization guards moved up to loading section
 
   // Error handling with proper state checks
   if (error || (isValidPortfolioId && portfolioState.error)) {
@@ -445,40 +446,17 @@ export default function StocksPage() {
     )
   }
 
-  // DEMO MODE: Skip loading/empty states for FASE 3-6 demonstration
-  // Uncomment the below code blocks to restore original portfolio-dependent behavior
+  // Loading states with amazing new loaders
+  const isValidPortfolioId = portfolioId && portfolioId.trim().length > 0
+  const hasPortfolioData = portfolioState.portfolio && !portfolioState.loading
+  const hasHoldingsData = portfolioState.holdings && portfolioState.holdings.length > 0
 
-  /*
-  // Loading states - show loading if we don't have a portfolio ID yet or if portfolio is loading
   if (
-    isInitialLoading ||
     !isValidPortfolioId ||
-    (isValidPortfolioId && portfolioState.loading)
+    (isValidPortfolioId && portfolioState.loading && !hasHoldingsData)
   ) {
-    return (
-      <LoadingPortfolioState
-        type="initial"
-        message="Laster aksjeportefølje..."
-        className="min-h-screen"
-      />
-    )
+    return <StockChartLoader text="Laster aksjeportefølje..." />
   }
-
-  // Empty state - only show if we have valid portfolio but no holdings
-  if (isValidPortfolioId && hasPortfolioData && !hasHoldingsData) {
-    return (
-      <EmptyPortfolioState
-        title="Ingen aksjer funnet"
-        subtitle="Kom i gang med investeringene dine"
-        description="Start med å sette opp investeringskontoene dine og legge til aksjeposisjoner for å få en komplett oversikt over porteføljen din."
-        onSetupPlatform={() => router.push('/investments/stocks/setup')}
-        onManualSetup={() => router.push('/investments/stocks/setup')}
-        onGoToPortfolios={() => router.push('/investments')}
-        className="min-h-screen"
-      />
-    )
-  }
-  */
 
   // Handle empty state for users who skipped setup
   if (portfolioId === 'empty') {

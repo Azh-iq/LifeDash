@@ -22,7 +22,7 @@ import {
 } from './uiverse-copied-loaders'
 
 interface LoadingStateProps {
-  variant?: 'chart' | 'table' | 'widget' | 'minimal' | 'pulse'
+  variant?: 'chart' | 'table' | 'widget' | 'minimal' | 'pulse' | 'financial' | 'neon' | 'liquid' | 'glitch' | 'orbital'
   size?: 'sm' | 'md' | 'lg' | 'xl'
   className?: string
   text?: string
@@ -93,6 +93,137 @@ export function LoadingState({
     )
   }
 
+  // New Amazing Loaders
+  if (variant === 'financial') {
+    return (
+      <motion.div
+        className={cn(
+          'flex flex-col items-center justify-center space-y-4',
+          sizeClasses[size],
+          className
+        )}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <FinancialGrowthLoader />
+        {text && (
+          <motion.p
+            className="text-sm font-medium text-gray-600 dark:text-gray-400"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            {text}
+          </motion.p>
+        )}
+      </motion.div>
+    )
+  }
+
+  if (variant === 'neon') {
+    return (
+      <motion.div
+        className={cn(
+          'flex flex-col items-center justify-center space-y-4',
+          sizeClasses[size],
+          className
+        )}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <NeonLoadingDots />
+        {text && (
+          <motion.p
+            className="text-sm font-medium text-gray-600 dark:text-gray-400"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            {text}
+          </motion.p>
+        )}
+      </motion.div>
+    )
+  }
+
+  if (variant === 'liquid') {
+    return (
+      <motion.div
+        className={cn(
+          'flex flex-col items-center justify-center space-y-4',
+          sizeClasses[size],
+          className
+        )}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <LiquidBlob size={size === 'sm' ? 40 : size === 'lg' ? 80 : 60} />
+        {text && (
+          <motion.p
+            className="text-sm font-medium text-gray-600 dark:text-gray-400"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            {text}
+          </motion.p>
+        )}
+      </motion.div>
+    )
+  }
+
+  if (variant === 'glitch') {
+    return (
+      <motion.div
+        className={cn(
+          'flex flex-col items-center justify-center space-y-4',
+          sizeClasses[size],
+          className
+        )}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <GlitchLoader text="LIFEDASH" />
+        {text && (
+          <motion.p
+            className="text-sm font-medium text-gray-600 dark:text-gray-400"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            {text}
+          </motion.p>
+        )}
+      </motion.div>
+    )
+  }
+
+  if (variant === 'orbital') {
+    return (
+      <motion.div
+        className={cn(
+          'flex flex-col items-center justify-center space-y-4',
+          sizeClasses[size],
+          className
+        )}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <ParticleOrbitLoader size={size === 'sm' ? 60 : size === 'lg' ? 100 : 80} />
+        {text && (
+          <motion.p
+            className="text-sm font-medium text-gray-600 dark:text-gray-400"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            {text}
+          </motion.p>
+        )}
+      </motion.div>
+    )
+  }
+
   return (
     <motion.div
       className={cn(
@@ -105,7 +236,7 @@ export function LoadingState({
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.3 }}
     >
-      <LoadingIcon variant={variant} />
+      <BlurredGradientSpinner size={size === 'sm' ? 60 : size === 'lg' ? 120 : 96} />
       <motion.p
         className="text-sm font-medium text-gray-600 dark:text-gray-400"
         initial={{ opacity: 0 }}

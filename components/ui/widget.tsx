@@ -6,6 +6,7 @@ import { type VariantProps, cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils/cn'
 import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { FinancialGrowthLoader, BlurredGradientSpinner } from './uiverse-copied-loaders'
 
 // Widget size variants
 const widgetVariants = cva(
@@ -377,38 +378,21 @@ const Widget = forwardRef<HTMLDivElement, WidgetProps>(
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="space-y-4"
+                  className="flex flex-col items-center justify-center min-h-[200px] space-y-6"
                 >
-                  {/* Loading skeleton */}
-                  <div className="space-y-3">
-                    <motion.div
-                      className="h-4 rounded bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-200 dark:from-neutral-800 dark:via-neutral-700 dark:to-neutral-800"
-                      variants={shimmerVariants}
-                      animate="animate"
-                      style={{
-                        backgroundSize: '200% 100%',
-                      }}
-                    />
-                    <motion.div
-                      className="h-4 w-3/4 rounded bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-200 dark:from-neutral-800 dark:via-neutral-700 dark:to-neutral-800"
-                      variants={shimmerVariants}
-                      animate="animate"
-                      style={{
-                        backgroundSize: '200% 100%',
-                      }}
-                    />
-                    <motion.div
-                      className="h-4 w-1/2 rounded bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-200 dark:from-neutral-800 dark:via-neutral-700 dark:to-neutral-800"
-                      variants={shimmerVariants}
-                      animate="animate"
-                      style={{
-                        backgroundSize: '200% 100%',
-                      }}
-                    />
-                  </div>
-                  <div className="text-center text-sm text-neutral-500 dark:text-neutral-400">
+                  {/* Amazing Financial Loader for stocks category, BlurredGradientSpinner for others */}
+                  {category === 'stocks' ? (
+                    <FinancialGrowthLoader />
+                  ) : (
+                    <BlurredGradientSpinner size={80} />
+                  )}
+                  <motion.div 
+                    className="text-center text-sm text-neutral-600 dark:text-neutral-400 font-medium"
+                    animate={{ opacity: [0.5, 1, 0.5] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
                     {loadingLabel}
-                  </div>
+                  </motion.div>
                 </motion.div>
               ) : (
                 <motion.div
