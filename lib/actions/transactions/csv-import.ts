@@ -76,21 +76,21 @@ export async function importNordnetTransactions(
     )
 
     // Import transactions to database
-    const result = await transformer.importToSupabase(transformedTransactions, {
+    const result = await transformer.transformAndImport(transformedTransactions, {
       batchSize: 50,
       ...config,
     })
 
     console.log('CSV Import completed:', {
       success: result.success,
-      imported: result.data?.summary?.imported || 0,
-      errors: result.data?.summary?.errors || 0,
+      imported: result.createdTransactions || 0,
+      errors: result.errors?.length || 0,
     })
 
     return {
       success: result.success,
-      data: result.data,
-      error: result.error,
+      data: result,
+      error: result.errors?.length > 0 ? result.errors.join('; ') : undefined,
     }
   } catch (error) {
     console.error('Unexpected error in CSV import:', error)
