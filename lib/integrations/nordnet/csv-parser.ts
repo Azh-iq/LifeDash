@@ -45,6 +45,36 @@ export class NordnetCSVParser {
     'Innledende rente',
   ]
 
+  // CRITICAL FIX: Alternative header names to match your actual CSV
+  private static readonly ALTERNATIVE_HEADERS = [
+    'I d',
+    'B o k f ø r i n g s d a g',
+    'H a n d e l s d a g', 
+    'O p p g j ø r s d a g',
+    'P o r t e f ø l j e',
+    'T r a n s a k s j o n s t y p e',
+    'V e r d i p a p i r',
+    'I S I N',
+    'A n t a l l',
+    'K u r s', 
+    'R e n t e',
+    'T o t a l e   A v g i f t e r',
+    'V a l u t a',
+    'B e l ø p',
+    'K j ø p s v e r d i',
+    'R e s u l t a t',
+    'T o t a l t   a n t a l l',
+    'S a l d o',
+    'V e k s l i n g s k u r s',
+    'T r a n s a k s j o n s t e k s t',
+    'M a k u l e r i n g s d a t o',
+    'S l u t t s e d d e l n u m m e r',
+    'V e r i f i k a t i o n s n u m m e r',
+    'K u r t a s j e',
+    'V a l u t a k u r s',
+    'I n n l e d e n d e   r e n t e',
+  ]
+
   private static readonly REQUIRED_HEADERS = [
     'Id',
     'Bokføringsdag',
@@ -194,16 +224,19 @@ export class NordnetCSVParser {
    * Detects garbled text patterns that indicate wrong encoding
    */
   private static detectGarbledText(text: string): boolean {
-    // Check for common garbled patterns
+    // Check for common garbled patterns - UPDATED for UTF-16LE BOM issues
     const garbledPatterns = [
-      /[��]/g, // Replacement characters
+      /��/g, // Replacement characters  
       /\s[A-Z]\s[a-z]\s[a-z]/g, // Spaced out letters like "B o k f"
       /[�]/g, // Question mark diamonds
       /\uFFFD/g, // Unicode replacement character
       /[A-Z]\s[a-z]\s[a-z]\s[a-z]/g, // More spaced patterns
+      /^\uFEFF/, // BOM at start (will be handled separately)
     ]
 
-    return garbledPatterns.some(pattern => pattern.test(text))
+    // CRITICAL FIX: Don't consider BOM as garbled text for detection phase
+    const textWithoutBom = text.replace(/^\uFEFF/, '')
+    return garbledPatterns.slice(0, -1).some(pattern => pattern.test(textWithoutBom))
   }
 
   /**
@@ -449,6 +482,11 @@ export class NordnetCSVParser {
       const decoder = new TextDecoder(encoding)
       let text = decoder.decode(bufferToUse)
 
+      // CRITICAL FIX: Remove BOM if present after decoding
+      if (text.startsWith('\uFEFF')) {
+        text = text.slice(1)
+      }
+
       // Detect delimiter
       const delimiter = this.detectDelimiter(text)
 
@@ -541,6 +579,48 @@ export class NordnetCSVParser {
   }
 
   /**
+   * Normalizes spaced headers from UTF-16 encoding issues
+   */
+  private static normalizeHeaders(headers: string[]): string[] {
+    return headers.map(header => {
+      // Remove extra spaces between characters that come from UTF-16 encoding issues
+      let normalized = header.replace(/\s+/g, ' ').trim()
+      
+      // Map spaced headers to normal headers
+      const headerMapping: { [key: string]: string } = {
+        'I d': 'Id',
+        'B o k f ø r i n g s d a g': 'Bokføringsdag',
+        'H a n d e l s d a g': 'Handelsdag',
+        'O p p g j ø r s d a g': 'Oppgjørsdag',
+        'P o r t e f ø l j e': 'Portefølje',
+        'T r a n s a k s j o n s t y p e': 'Transaksjonstype',
+        'V e r d i p a p i r': 'Verdipapir',
+        'I S I N': 'ISIN',
+        'A n t a l l': 'Antall',
+        'K u r s': 'Kurs',
+        'R e n t e': 'Rente',
+        'T o t a l e   A v g i f t e r': 'Totale Avgifter',
+        'V a l u t a': 'Valuta',
+        'B e l ø p': 'Beløp',
+        'K j ø p s v e r d i': 'Kjøpsverdi',
+        'R e s u l t a t': 'Resultat',
+        'T o t a l t   a n t a l l': 'Totalt antall',
+        'S a l d o': 'Saldo',
+        'V e k s l i n g s k u r s': 'Vekslingskurs',
+        'T r a n s a k s j o n s t e k s t': 'Transaksjonstekst',
+        'M a k u l e r i n g s d a t o': 'Makuleringsddato',
+        'S l u t t s e d d e l n u m m e r': 'Sluttseddelnummer',
+        'V e r i f i k a t i o n s n u m m e r': 'Verifikasjonsnummer',
+        'K u r t a s j e': 'Kurtasje',
+        'V a l u t a k u r s': 'Valutakurs',
+        'I n n l e d e n d e   r e n t e': 'Innledende rente',
+      }
+
+      return headerMapping[normalized] || normalized
+    })
+  }
+
+  /**
    * Parses CSV text with a specific delimiter
    */
   private static parseCSVWithDelimiter(text: string, delimiter: string) {
@@ -559,8 +639,8 @@ export class NordnetCSVParser {
     }
 
     // Parse headers
-    const headers = this.parseCSVLine(lines[0], delimiter)
-    if (headers.length === 0) {
+    const rawHeaders = this.parseCSVLine(lines[0], delimiter)
+    if (rawHeaders.length === 0) {
       return {
         headers: [],
         rows: [],
@@ -569,6 +649,9 @@ export class NordnetCSVParser {
         warnings: [],
       }
     }
+
+    // CRITICAL FIX: Normalize headers to handle UTF-16 encoding issues
+    const headers = this.normalizeHeaders(rawHeaders)
 
     // Parse data rows
     const rows: any[] = []
