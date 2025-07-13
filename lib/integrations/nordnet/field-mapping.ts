@@ -203,7 +203,13 @@ export class NordnetFieldMapper {
    * Parses Nordnet date format to ISO string
    */
   private static parseNordnetDate(dateString: string): string | null {
-    if (!dateString || dateString.trim() === '') {
+    if (!dateString) {
+      return null
+    }
+    
+    // Ensure it's a string
+    const str = typeof dateString === 'string' ? dateString : String(dateString)
+    if (str.trim() === '') {
       return null
     }
 
@@ -220,7 +226,7 @@ export class NordnetFieldMapper {
     ]
 
     for (const format of formats) {
-      const match = dateString.match(format)
+      const match = str.match(format)
       if (match) {
         let year: number, month: number, day: number
 
@@ -259,7 +265,7 @@ export class NordnetFieldMapper {
       }
     }
 
-    console.warn(`Unable to parse date: ${dateString}`)
+    console.warn(`Unable to parse date: ${str}`)
     return null
   }
 
@@ -267,12 +273,18 @@ export class NordnetFieldMapper {
    * Parses Nordnet number format to JavaScript number
    */
   private static parseNordnetNumber(numberString: string): number | null {
-    if (!numberString || numberString.trim() === '') {
+    if (!numberString) {
+      return null
+    }
+    
+    // Ensure it's a string
+    const str = typeof numberString === 'string' ? numberString : String(numberString)
+    if (str.trim() === '') {
       return null
     }
 
     // Remove common thousand separators and replace decimal comma with dot
-    let cleanNumber = numberString
+    let cleanNumber = str
       .replace(/\s+/g, '') // Remove spaces
       .replace(/[^\d,.-]/g, '') // Keep only digits, comma, dot, and minus
       .replace(/,(\d{3})/g, '$1') // Remove thousand separators (comma followed by 3 digits)
@@ -290,7 +302,7 @@ export class NordnetFieldMapper {
       }
       return isNegative ? -number : number
     } catch {
-      console.warn(`Unable to parse number: ${numberString}`)
+      console.warn(`Unable to parse number: ${str}`)
       return null
     }
   }
@@ -342,6 +354,17 @@ export class NordnetFieldMapper {
     // Apply field mappings
     for (const mapping of mappings) {
       let value = row[mapping.csvField]
+      
+      // CRITICAL FIX: Handle arrays from duplicate column names
+      if (Array.isArray(value)) {
+        // Find first non-empty value in array
+        value = value.find(v => v && typeof v === 'string' && v.trim() !== '') || ''
+      }
+      
+      // Ensure value is string for .trim() operations
+      if (typeof value !== 'string') {
+        value = value ? String(value) : ''
+      }
       
       // Special handling for Valuta field
       if (mapping.csvField === 'Valuta' && (!value || value.trim() === '')) {
