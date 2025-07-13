@@ -108,6 +108,8 @@ export class NordnetTransactionTransformer {
     transactions: NordnetTransactionData[],
     config: NordnetImportConfig
   ): Promise<NordnetImportResult> {
+    console.log('🔧 TransformAndImport starting with', transactions.length, 'transactions')
+    
     const result: NordnetImportResult = {
       success: false,
       parsedRows: transactions.length,
@@ -120,6 +122,18 @@ export class NordnetTransactionTransformer {
       importBatchId: this.importBatchId,
       processedData: transactions,
     }
+
+    // Log sample of transactions for debugging
+    console.log('🔍 Sample transactions:', transactions.slice(0, 3).map(t => ({
+      id: t.id,
+      type: t.transaction_type,
+      internal_type: t.internal_transaction_type,
+      amount: t.amount,
+      currency: t.currency,
+      portfolio: t.portfolio_name,
+      validation_errors: t.validation_errors?.length || 0,
+      validation_warnings: t.validation_warnings?.length || 0
+    })))
 
     try {
       // Step 0: Ensure Nordnet platform exists

@@ -53,14 +53,37 @@ export async function importNordnetTransactions(
     const transformedTransactions: NordnetTransactionData[] = []
     const transformErrors: string[] = []
 
-    for (const row of parseResult.rows) {
+    console.log('🔍 Starting transformation of', parseResult.rows.length, 'rows')
+
+    for (let i = 0; i < parseResult.rows.length; i++) {
+      const row = parseResult.rows[i]
       try {
+        console.log(`🔍 Transforming row ${i + 1}:`, {
+          Id: row.Id,
+          Transaksjonstype: row.Transaksjonstype,
+          Valuta: row.Valuta,
+          Beløp: row.Beløp,
+          Portfolio: row.Portefølje
+        })
+        
         const transactionData = NordnetFieldMapper.transformRow(row)
+        
+        console.log(`✅ Transformed row ${i + 1}:`, {
+          id: transactionData.id,
+          transaction_type: transactionData.transaction_type,
+          internal_transaction_type: transactionData.internal_transaction_type,
+          currency: transactionData.currency,
+          amount: transactionData.amount,
+          portfolio_name: transactionData.portfolio_name,
+          validation_errors: transactionData.validation_errors,
+          validation_warnings: transactionData.validation_warnings
+        })
+        
         transformedTransactions.push(transactionData)
       } catch (error) {
-        transformErrors.push(
-          `Failed to transform row ${row.Id}: ${error instanceof Error ? error.message : 'Unknown error'}`
-        )
+        const errorMsg = `Failed to transform row ${row.Id}: ${error instanceof Error ? error.message : 'Unknown error'}`
+        console.error('❌ Transform error:', errorMsg)
+        transformErrors.push(errorMsg)
       }
     }
 
@@ -75,16 +98,23 @@ export async function importNordnetTransactions(
       supabase
     )
 
+    console.log('🚀 About to import', transformedTransactions.length, 'transformed transactions')
+    
     // Import transactions to database
     const result = await transformer.transformAndImport(transformedTransactions, {
       batchSize: 50,
       ...config,
     })
 
-    console.log('CSV Import completed:', {
+    console.log('📊 CSV Import completed:', {
       success: result.success,
-      imported: result.createdTransactions || 0,
+      parsedRows: result.parsedRows,
+      transformedRows: result.transformedRows,
+      createdAccounts: result.createdAccounts,
+      createdTransactions: result.createdTransactions,
+      skippedRows: result.skippedRows,
       errors: result.errors?.length || 0,
+      errorDetails: result.errors
     })
 
     return {
