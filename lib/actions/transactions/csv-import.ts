@@ -15,6 +15,13 @@ export interface CSVImportActionResult {
   success: boolean
   data?: NordnetImportResult
   error?: string
+  debug?: {
+    parsedRows: number
+    transformedRows: number
+    transformErrors: string[]
+    sampleTransactions: any[]
+    platformId: string
+  }
 }
 
 /**
@@ -106,6 +113,23 @@ export async function importNordnetTransactions(
       ...config,
     })
 
+    const debugInfo = {
+      parsedRows: parseResult.rows.length,
+      transformedRows: transformedTransactions.length,
+      transformErrors,
+      sampleTransactions: transformedTransactions.slice(0, 3).map(t => ({
+        id: t.id,
+        type: t.transaction_type,
+        internal_type: t.internal_transaction_type,
+        amount: t.amount,
+        currency: t.currency,
+        portfolio: t.portfolio_name,
+        validation_errors: t.validation_errors,
+        validation_warnings: t.validation_warnings
+      })),
+      platformId: 'nordnet' // We know it's nordnet since we're using NordnetTransactionTransformer
+    }
+
     console.log('📊 CSV Import completed:', {
       success: result.success,
       parsedRows: result.parsedRows,
@@ -114,13 +138,15 @@ export async function importNordnetTransactions(
       createdTransactions: result.createdTransactions,
       skippedRows: result.skippedRows,
       errors: result.errors?.length || 0,
-      errorDetails: result.errors
+      errorDetails: result.errors,
+      debugInfo
     })
 
     return {
       success: result.success,
       data: result,
       error: result.errors?.length > 0 ? result.errors.join('; ') : undefined,
+      debug: debugInfo
     }
   } catch (error) {
     console.error('Unexpected error in CSV import:', error)

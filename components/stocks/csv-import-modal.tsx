@@ -64,7 +64,27 @@ export default function CSVImportModal({
         success: result.success,
         hasData: !!result.data,
         error: result.error,
+        debug: result.debug
       })
+
+      // CRITICAL DEBUG: Log detailed debug info to console for troubleshooting
+      if (result.debug) {
+        console.log('🔍 CSV Import Debug Info:', {
+          parsedRows: result.debug.parsedRows,
+          transformedRows: result.debug.transformedRows,
+          transformErrors: result.debug.transformErrors,
+          sampleTransactions: result.debug.sampleTransactions,
+          platformId: result.debug.platformId
+        })
+        
+        // Show alert with debug info for immediate visibility
+        alert(`CSV Debug Info:
+Parsed Rows: ${result.debug.parsedRows}
+Transformed Rows: ${result.debug.transformedRows}
+Transform Errors: ${result.debug.transformErrors.length}
+Sample Transaction: ${JSON.stringify(result.debug.sampleTransactions[0] || 'None', null, 2)}
+Platform ID: ${result.debug.platformId}`)
+      }
 
       if (result.success && result.data) {
         // Import was successful
