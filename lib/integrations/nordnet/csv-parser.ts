@@ -660,10 +660,21 @@ export class NordnetCSVParser {
         const values = this.parseCSVLine(lines[i], delimiter)
         if (values.length === 0) continue // Skip empty rows
 
-        // Create row object
+        // Create row object - handle duplicate column names by keeping all values
         const row: any = {}
         headers.forEach((header, index) => {
-          row[header] = values[index] || ''
+          const value = values[index] || ''
+          
+          // If this header already exists, convert to array or append to array
+          if (row[header] !== undefined) {
+            if (Array.isArray(row[header])) {
+              row[header].push(value)
+            } else {
+              row[header] = [row[header], value]
+            }
+          } else {
+            row[header] = value
+          }
         })
 
         // Basic validation for Nordnet-specific fields

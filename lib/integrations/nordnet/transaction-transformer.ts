@@ -61,6 +61,47 @@ export class NordnetTransactionTransformer {
   }
 
   /**
+   * Ensures Nordnet platform exists in database
+   */
+  private async ensureNordnetPlatform(): Promise<string> {
+    // Check if Nordnet platform exists
+    const { data: existingPlatform } = await this.supabase
+      .from('platforms')
+      .select('id')
+      .eq('name', 'nordnet')
+      .single()
+
+    if (existingPlatform) {
+      return existingPlatform.id
+    }
+
+    // Create Nordnet platform if it doesn't exist
+    const { data: newPlatform, error } = await this.supabase
+      .from('platforms')
+      .insert({
+        name: 'nordnet',
+        display_name: 'Nordnet',
+        type: 'BROKER',
+        website_url: 'https://www.nordnet.no',
+        csv_import_supported: true,
+        default_currency: 'NOK',
+        supported_currencies: ['NOK', 'SEK', 'DKK', 'EUR', 'USD'],
+        supported_asset_classes: ['STOCK', 'ETF', 'FUND', 'BOND'],
+        stock_commission: 99.0,
+        country_code: 'NO',
+        is_active: true
+      })
+      .select('id')
+      .single()
+
+    if (error) {
+      throw new Error(`Failed to create Nordnet platform: ${error.message}`)
+    }
+
+    return newPlatform.id
+  }
+
+  /**
    * Transforms and imports Nordnet transaction data
    */
   async transformAndImport(
@@ -81,6 +122,10 @@ export class NordnetTransactionTransformer {
     }
 
     try {
+      // Step 0: Ensure Nordnet platform exists
+      const platformId = await this.ensureNordnetPlatform()
+      this.platformId = platformId  // Update platform ID
+
       // Step 1: Create/get accounts for portfolios
       const accountMap = await this.createOrGetAccounts(
         transactions,

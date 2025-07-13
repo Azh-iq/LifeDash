@@ -306,9 +306,47 @@ export class NordnetFieldMapper {
     const validationErrors: string[] = []
     const validationWarnings: string[] = []
 
+    // CRITICAL FIX: Handle multiple Valuta columns by finding the first non-empty one
+    const findCurrency = (row: any): string => {
+      // CSV has multiple Valuta columns - they may be stored as an array
+      if (row['Valuta']) {
+        if (Array.isArray(row['Valuta'])) {
+          // Find first non-empty value in the array
+          for (const val of row['Valuta']) {
+            if (val && val.trim() !== '') {
+              return val.trim()
+            }
+          }
+        } else if (row['Valuta'].trim() !== '') {
+          return row['Valuta'].trim()
+        }
+      }
+      
+      // Fallback: check other possible currency fields
+      const possibleKeys = Object.keys(row).filter(key => key.startsWith('Valuta') && key !== 'Valuta')
+      for (const key of possibleKeys) {
+        const value = row[key]
+        if (Array.isArray(value)) {
+          for (const val of value) {
+            if (val && val.trim() !== '') {
+              return val.trim()
+            }
+          }
+        } else if (value && value.trim() !== '') {
+          return value.trim()
+        }
+      }
+      return ''
+    }
+
     // Apply field mappings
     for (const mapping of mappings) {
-      const value = row[mapping.csvField]
+      let value = row[mapping.csvField]
+      
+      // Special handling for Valuta field
+      if (mapping.csvField === 'Valuta' && (!value || value.trim() === '')) {
+        value = findCurrency(row)
+      }
 
       if (mapping.required && (!value || value.trim() === '')) {
         validationErrors.push(
