@@ -70,7 +70,9 @@ export async function importNordnetTransactions(
           Transaksjonstype: row.Transaksjonstype,
           Valuta: row.Valuta,
           Beløp: row.Beløp,
-          Portfolio: row.Portefølje
+          Portfolio: row.Portefølje,
+          allKeys: Object.keys(row),
+          rowSample: JSON.stringify(row).substring(0, 200) + '...'
         })
         
         const transactionData = NordnetFieldMapper.transformRow(row)
@@ -89,7 +91,11 @@ export async function importNordnetTransactions(
         transformedTransactions.push(transactionData)
       } catch (error) {
         const errorMsg = `Failed to transform row ${row.Id}: ${error instanceof Error ? error.message : 'Unknown error'}`
-        console.error('❌ Transform error:', errorMsg)
+        console.error('❌ Transform error:', errorMsg, {
+          error: error,
+          stack: error instanceof Error ? error.stack : undefined,
+          rowData: row
+        })
         transformErrors.push(errorMsg)
       }
     }

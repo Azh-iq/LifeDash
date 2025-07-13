@@ -82,6 +82,7 @@ export default function CSVImportModal({
 Parsed Rows: ${result.debug.parsedRows}
 Transformed Rows: ${result.debug.transformedRows}
 Transform Errors: ${result.debug.transformErrors.length}
+First Error: ${result.debug.transformErrors[0] || 'None'}
 Sample Transaction: ${JSON.stringify(result.debug.sampleTransactions[0] || 'None', null, 2)}
 Platform ID: ${result.debug.platformId}`)
       }
