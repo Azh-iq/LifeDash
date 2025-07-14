@@ -1,10 +1,21 @@
-# LifeDash - Claude Development Documentation
+# Universal Portfolio App - Claude Development Documentation
 
 ## Project Overview
 
-LifeDash is a **production-ready** Norwegian investment portfolio management application built with Next.js, TypeScript, and Supabase. The application provides comprehensive portfolio tracking with real-time updates, charts, and transaction management using a modern **widget-based architecture** with category-specific theming.
+This is a comprehensive **multi-asset portfolio management application** designed to aggregate investments across all major asset classes and platforms. Built with Next.js, TypeScript, and Supabase, the application provides unified portfolio tracking for:
 
-## 🎯 Current Implementation Status (January 2025) - ✅ 100% PRODUCTION READY
+- **Traditional Securities**: Stocks, ETFs, bonds, mutual funds
+- **Cryptocurrency**: Coins, tokens, NFTs, DeFi positions  
+- **Real World Assets**: Art, collectibles, precious metals, real estate
+- **Platform Integrations**: Top 10 brokers, crypto exchanges, and manual asset cataloging
+
+The application features a modern **widget-based architecture** with asset-specific theming and comprehensive API integrations.
+
+## 🎯 Current Implementation Status (January 2025) - 🔄 TRANSFORMING TO UNIVERSAL PORTFOLIO APP
+
+**Legacy Status**: Norwegian stock portfolio management (production-ready)
+**New Vision**: Universal multi-asset portfolio aggregation platform
+**Current Phase**: Architecture transformation and documentation
 
 ### Design Wireframes - FINAL AUTHORITY
 

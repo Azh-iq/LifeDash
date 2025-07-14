@@ -1,12 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { X, FileUp, Check, AlertCircle } from 'lucide-react'
+import { X, FileUp, Check, AlertCircle, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CSVUploadZone } from '@/components/features/import/csv-upload'
 import { NordnetParseResult } from '@/lib/integrations/nordnet/types'
 import { importNordnetTransactions } from '@/lib/actions/transactions/csv-import'
 import { createClient } from '@/lib/supabase/client'
+import SimpleManualMapper from './simple-manual-mapper'
 
 interface CSVImportModalProps {
   isOpen: boolean
@@ -26,6 +27,7 @@ export default function CSVImportModal({
   const [isImporting, setIsImporting] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
   const [importSuccess, setImportSuccess] = useState<boolean>(false)
+  const [showManualMapper, setShowManualMapper] = useState(false)
   const [importSummary, setImportSummary] = useState<{
     createdTransactions: number
     createdAccounts: number
@@ -67,7 +69,7 @@ export default function CSVImportModal({
         debug: result.debug
       })
 
-      // CRITICAL DEBUG: Log detailed debug info to console for troubleshooting
+      // Log debug info to console only
       if (result.debug) {
         console.log('🔍 CSV Import Debug Info:', {
           parsedRows: result.debug.parsedRows,
@@ -76,15 +78,6 @@ export default function CSVImportModal({
           sampleTransactions: result.debug.sampleTransactions,
           platformId: result.debug.platformId
         })
-        
-        // Show alert with debug info for immediate visibility
-        alert(`CSV Debug Info:
-Parsed Rows: ${result.debug.parsedRows}
-Transformed Rows: ${result.debug.transformedRows}
-Transform Errors: ${result.debug.transformErrors.length}
-First Error: ${result.debug.transformErrors[0] || 'None'}
-Sample Transaction: ${JSON.stringify(result.debug.sampleTransactions[0] || 'None', null, 2)}
-Platform ID: ${result.debug.platformId}`)
       }
 
       if (result.success && result.data) {
@@ -135,14 +128,41 @@ Platform ID: ${result.debug.platformId}`)
       setParseResult(null)
       setImportError(null)
       setImportSuccess(false)
+      setShowManualMapper(false)
       setImportSummary(null)
       onClose()
     }
   }
 
+  const handleManualMapping = () => {
+    setShowManualMapper(true)
+    setImportError(null)
+  }
+
+  const handleMappingComplete = async (mappings: any) => {
+    if (!parseResult) return
+
+    console.log('🔧 Manual mappings received:', mappings)
+    console.log('🔧 Parse result:', parseResult)
+    
+    // For now, just close the manual mapper and show a message
+    setShowManualMapper(false)
+    setImportError('Manual mapping er klar! (TODO: Implementer faktisk import med mappings)')
+    
+    // DO NOT call onImportComplete() yet - that triggers portfolio refresh!
+    // onImportComplete?.()
+  }
+
+  const handleBackToUpload = () => {
+    setShowManualMapper(false)
+    setImportError(null)
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+      <div className={`max-h-[90vh] w-full overflow-hidden rounded-2xl bg-white shadow-2xl ${
+        showManualMapper ? 'max-w-6xl' : 'max-w-2xl'
+      }`}>
         {/* Header */}
         <div className="flex items-center justify-between bg-gradient-to-r from-purple-600 to-purple-700 p-6 text-white">
           <div className="flex items-center gap-3">
@@ -160,7 +180,15 @@ Platform ID: ${result.debug.platformId}`)
 
         {/* Content */}
         <div className="max-h-[calc(90vh-80px)] overflow-y-auto p-6">
-          <div className="space-y-6">
+          {showManualMapper && parseResult ? (
+            <SimpleManualMapper
+              csvHeaders={parseResult.headers}
+              sampleRow={parseResult.rows[0] || {}}
+              onComplete={handleMappingComplete}
+              onCancel={handleBackToUpload}
+            />
+          ) : (
+            <div className="space-y-6">
             {/* Instructions */}
             <div className="rounded-lg border border-purple-200 bg-purple-50 p-4">
               <h3 className="mb-2 font-medium text-purple-900">
@@ -231,7 +259,30 @@ Platform ID: ${result.debug.platformId}`)
                   <AlertCircle className="h-5 w-5 text-red-600" />
                   <h3 className="font-medium text-red-900">Import feilet</h3>
                 </div>
-                <p className="text-sm text-red-800">{importError}</p>
+                <p className="text-sm text-red-800 mb-3">{importError}</p>
+                
+                {/* Manual Mapping Option */}
+                {parseResult && !showManualMapper && (
+                  <div className="border-t border-red-200 pt-3">
+                    <p className="text-sm text-red-700 mb-2">
+                      Prøv manuell feltmapping for å løse problemet:
+                    </p>
+                    <Button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleManualMapping()
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="border-red-300 text-red-700 hover:bg-red-50"
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      Åpne Manuell Mapping
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
 
@@ -251,15 +302,15 @@ Platform ID: ${result.debug.platformId}`)
                   className="bg-purple-600 hover:bg-purple-700"
                 >
                   {isImporting ? (
-                    <>
+                    <div className="flex items-center">
                       <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                       Importerer...
-                    </>
+                    </div>
                   ) : (
-                    <>
+                    <div className="flex items-center">
                       <Check className="mr-2 h-4 w-4" />
                       Importer {parseResult.totalRows} transaksjoner
-                    </>
+                    </div>
                   )}
                 </Button>
               </div>
@@ -277,7 +328,8 @@ Platform ID: ${result.debug.platformId}`)
                 </Button>
               </div>
             )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

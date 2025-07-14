@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Portfolio - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 240px;
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            padding: 24px;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 32px;
+            color: #1a1a1a;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #64748b;
+            text-decoration: none;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+        }
+        
+        .nav-item:hover {
+            background: #f1f5f9;
+            color: #334155;
+        }
+        
+        .nav-item.active {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .main-content {
+            margin-left: 240px;
+            padding: 24px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 32px;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .header-left h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .header-left p {
+            color: #64748b;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        
+        .portfolio-value {
+            text-align: right;
+        }
+        
+        .portfolio-value .amount {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        
+        .portfolio-value .change {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .change.positive {
+            color: #10b981;
+        }
+        
+        .change.negative {
+            color: #ef4444;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+        }
+        
+        .chart-placeholder {
+            height: 320px;
+            background: #f8fafc;
+            border: 2px dashed #e2e8f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .allocation-grid {
+            display: grid;
+            gap: 16px;
+        }
+        
+        .allocation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+        
+        .allocation-item .left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .asset-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        .stocks { background: #dbeafe; }
+        .crypto { background: #fef3c7; }
+        .alternatives { background: #fce7f3; }
+        .cash { background: #d1fae5; }
+        
+        .allocation-item .right {
+            text-align: right;
+        }
+        
+        .allocation-percentage {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .allocation-value {
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .holdings-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+        
+        .holdings-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .holdings-table th,
+        .holdings-table td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .holdings-table th {
+            font-weight: 600;
+            color: #64748b;
+            font-size: 14px;
+        }
+        
+        .holding-name {
+            font-weight: 600;
+        }
+        
+        .holding-symbol {
+            color: #64748b;
+            font-size: 14px;
+        }
+        
+        .holding-value {
+            font-weight: 600;
+        }
+        
+        .quick-actions {
+            display: grid;
+            gap: 12px;
+        }
+        
+        .action-btn {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            color: #333;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+        
+        .action-btn:hover {
+            border-color: #3b82f6;
+            background: #f0f9ff;
+        }
+        
+        .action-btn .icon {
+            margin-right: 8px;
+        }
+        
+        .recent-activity {
+            margin-top: 24px;
+        }
+        
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .activity-type {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .buy { background: #10b981; color: white; }
+        .sell { background: #ef4444; color: white; }
+        .dividend { background: #3b82f6; color: white; }
+        
+        .activity-details .main {
+            font-weight: 600;
+        }
+        
+        .activity-details .sub {
+            color: #64748b;
+            font-size: 14px;
+        }
+        
+        .activity-amount {
+            font-weight: 600;
+            text-align: right;
+        }
+        
+        .activity-time {
+            color: #64748b;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .grid,
+            .holdings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo">Portfolio Manager</div>
+        
+        <a href="#" class="nav-item active">
+            <span>🏠</span> Dashboard
+        </a>
+        <a href="#" class="nav-item">
+            <span>📊</span> Beholdninger
+        </a>
+        <a href="#" class="nav-item">
+            <span>💸</span> Transaksjoner
+        </a>
+        <a href="#" class="nav-item">
+            <span>📈</span> Analyse
+        </a>
+        <a href="#" class="nav-item">
+            <span>🔗</span> Tilkoblinger
+        </a>
+        <a href="#" class="nav-item">
+            <span>⚙️</span> Innstillinger
+        </a>
+    </nav>
+
+    <main class="main-content">
+        <header class="header">
+            <div class="header-left">
+                <h1>Din portefølje</h1>
+                <p>Oppdatert for 2 minutter siden</p>
+            </div>
+            <div class="header-right">
+                <div class="portfolio-value">
+                    <div class="amount">2 847 500 kr</div>
+                    <div class="change positive">+47 230 kr (+1.68%)</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid">
+            <div class="card">
+                <h3>Porteføljeutvikling</h3>
+                <div class="chart-placeholder">
+                    Interaktivt chart: Porteføljeverdi over tid
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Aktivafordeling</h3>
+                <div class="allocation-grid">
+                    <div class="allocation-item">
+                        <div class="left">
+                            <div class="asset-icon stocks">📈</div>
+                            <div>
+                                <div>Aksjer</div>
+                                <div class="allocation-value">67.2%</div>
+                            </div>
+                        </div>
+                        <div class="right">
+                            <div class="allocation-percentage">1 913 000 kr</div>
+                        </div>
+                    </div>
+
+                    <div class="allocation-item">
+                        <div class="left">
+                            <div class="asset-icon crypto">₿</div>
+                            <div>
+                                <div>Krypto</div>
+                                <div class="allocation-value">18.7%</div>
+                            </div>
+                        </div>
+                        <div class="right">
+                            <div class="allocation-percentage">532 400 kr</div>
+                        </div>
+                    </div>
+
+                    <div class="allocation-item">
+                        <div class="left">
+                            <div class="asset-icon alternatives">🎨</div>
+                            <div>
+                                <div>Alternativ</div>
+                                <div class="allocation-value">11.5%</div>
+                            </div>
+                        </div>
+                        <div class="right">
+                            <div class="allocation-percentage">327 500 kr</div>
+                        </div>
+                    </div>
+
+                    <div class="allocation-item">
+                        <div class="left">
+                            <div class="asset-icon cash">💰</div>
+                            <div>
+                                <div>Kontanter</div>
+                                <div class="allocation-value">2.6%</div>
+                            </div>
+                        </div>
+                        <div class="right">
+                            <div class="allocation-percentage">74 600 kr</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="holdings-grid">
+            <div class="card">
+                <h3>Største beholdninger</h3>
+                <table class="holdings-table">
+                    <thead>
+                        <tr>
+                            <th>Aktiva</th>
+                            <th>Verdi</th>
+                            <th>Endring</th>
+                            <th>Andel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="holding-name">Apple Inc.</div>
+                                <div class="holding-symbol">AAPL • Aksje</div>
+                            </td>
+                            <td class="holding-value">456 780 kr</td>
+                            <td class="change positive">+2.3%</td>
+                            <td>16.0%</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="holding-name">Bitcoin</div>
+                                <div class="holding-symbol">BTC • Krypto</div>
+                            </td>
+                            <td class="holding-value">287 400 kr</td>
+                            <td class="change positive">+5.7%</td>
+                            <td>10.1%</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="holding-name">Norsk Hydro</div>
+                                <div class="holding-symbol">NHY.OL • Aksje</div>
+                            </td>
+                            <td class="holding-value">234 560 kr</td>
+                            <td class="change negative">-1.2%</td>
+                            <td>8.2%</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="holding-name">Edvard Munch Print</div>
+                                <div class="holding-symbol">EM-001 • Kunst</div>
+                            </td>
+                            <td class="holding-value">185 000 kr</td>
+                            <td class="change positive">+12.1%</td>
+                            <td>6.5%</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="holding-name">Ethereum</div>
+                                <div class="holding-symbol">ETH • Krypto</div>
+                            </td>
+                            <td class="holding-value">145 670 kr</td>
+                            <td class="change positive">+3.4%</td>
+                            <td>5.1%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h3>Hurtighandlinger</h3>
+                <div class="quick-actions">
+                    <button class="action-btn">
+                        <span class="icon">➕</span>
+                        Legg til transaksjon
+                    </button>
+                    <button class="action-btn">
+                        <span class="icon">🔄</span>
+                        Synkroniser kontoer
+                    </button>
+                    <button class="action-btn">
+                        <span class="icon">📊</span>
+                        Generer rapport
+                    </button>
+                    <button class="action-btn">
+                        <span class="icon">🔍</span>
+                        Søk aktiva
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card recent-activity">
+            <h3>Siste aktivitet</h3>
+            
+            <div class="activity-item">
+                <div class="activity-left">
+                    <div class="activity-type buy">K</div>
+                    <div class="activity-details">
+                        <div class="main">Kjøpt Apple Inc.</div>
+                        <div class="sub">15 aksjer @ $187.45</div>
+                    </div>
+                </div>
+                <div class="activity-right">
+                    <div class="activity-amount">-28 750 kr</div>
+                    <div class="activity-time">I dag, 14:32</div>
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-left">
+                    <div class="activity-type dividend">D</div>
+                    <div class="activity-details">
+                        <div class="main">Utbytte mottatt</div>
+                        <div class="sub">Norsk Hydro ASA</div>
+                    </div>
+                </div>
+                <div class="activity-right">
+                    <div class="activity-amount">+2 340 kr</div>
+                    <div class="activity-time">I går, 09:15</div>
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-left">
+                    <div class="activity-type sell">S</div>
+                    <div class="activity-details">
+                        <div class="main">Solgt Bitcoin</div>
+                        <div class="sub">0.05 BTC @ $43,200</div>
+                    </div>
+                </div>
+                <div class="activity-right">
+                    <div class="activity-amount">+21 850 kr</div>
+                    <div class="activity-time">3 dager siden</div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

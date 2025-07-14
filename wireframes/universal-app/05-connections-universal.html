@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Portfolio - Tilkoblinger</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 240px;
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            padding: 24px;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 32px;
+            color: #1a1a1a;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #64748b;
+            text-decoration: none;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+        }
+        
+        .nav-item:hover {
+            background: #f1f5f9;
+            color: #334155;
+        }
+        
+        .nav-item.active {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .main-content {
+            margin-left: 240px;
+            padding: 24px;
+        }
+        
+        .breadcrumb {
+            margin-bottom: 24px;
+            color: #64748b;
+        }
+        
+        .breadcrumb a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .btn-outline {
+            background: white;
+            color: #333;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .btn-outline:hover {
+            border-color: #3b82f6;
+            background: #f0f9ff;
+        }
+        
+        .connection-summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .summary-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .summary-card .icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .summary-card .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        
+        .summary-card .label {
+            color: #64748b;
+            font-weight: 600;
+        }
+        
+        .platform-sections {
+            display: grid;
+            gap: 32px;
+        }
+        
+        .platform-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background: #f8fafc;
+            padding: 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .section-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        
+        .section-header p {
+            color: #64748b;
+        }
+        
+        .platform-grid {
+            padding: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .platform-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .platform-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .platform-card.connected {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .platform-card.error {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+        
+        .platform-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .platform-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .platform-info h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+        
+        .platform-info .type {
+            color: #64748b;
+            font-size: 14px;
+        }
+        
+        .platform-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .status-connected { background: #10b981; }
+        .status-error { background: #ef4444; }
+        .status-disconnected { background: #64748b; }
+        
+        .status-text {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .status-connected-text { color: #10b981; }
+        .status-error-text { color: #ef4444; }
+        .status-disconnected-text { color: #64748b; }
+        
+        .platform-description {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        
+        .platform-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .connect-btn {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .connect-btn:hover {
+            background: #2563eb;
+        }
+        
+        .disconnect-btn {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .disconnect-btn:hover {
+            background: #dc2626;
+        }
+        
+        .sync-btn {
+            background: #10b981;
+            color: white;
+        }
+        
+        .sync-btn:hover {
+            background: #059669;
+        }
+        
+        .configure-btn {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+        
+        .configure-btn:hover {
+            background: #e2e8f0;
+        }
+        
+        .last-sync {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 8px;
+        }
+        
+        .accounts-list {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .account-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+        
+        .account-name {
+            font-weight: 600;
+        }
+        
+        .account-value {
+            color: #64748b;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .connection-summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .platform-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo">Portfolio Manager</div>
+        
+        <a href="#" class="nav-item">
+            <span>🏠</span> Dashboard
+        </a>
+        <a href="#" class="nav-item">
+            <span>📊</span> Beholdninger
+        </a>
+        <a href="#" class="nav-item">
+            <span>💸</span> Transaksjoner
+        </a>
+        <a href="#" class="nav-item">
+            <span>📈</span> Analyse
+        </a>
+        <a href="#" class="nav-item active">
+            <span>🔗</span> Tilkoblinger
+        </a>
+        <a href="#" class="nav-item">
+            <span>⚙️</span> Innstillinger
+        </a>
+    </nav>
+
+    <main class="main-content">
+        <div class="breadcrumb">
+            <a href="#">Dashboard</a> / Tilkoblinger
+        </div>
+
+        <div class="page-header">
+            <h1>Tilkoblinger</h1>
+            <div class="header-actions">
+                <button class="btn btn-outline" onclick="showModal('manual')">
+                    <span>➕</span> Manuell konto
+                </button>
+                <button class="btn btn-primary" onclick="syncAll()">
+                    <span>🔄</span> Synkroniser alle
+                </button>
+            </div>
+        </div>
+
+        <div class="connection-summary">
+            <div class="summary-card">
+                <div class="icon">🔗</div>
+                <div class="number">6</div>
+                <div class="label">Tilkoblede kontoer</div>
+            </div>
+            <div class="summary-card">
+                <div class="icon">✅</div>
+                <div class="number">4</div>
+                <div class="label">Aktive</div>
+            </div>
+            <div class="summary-card">
+                <div class="icon">⚠️</div>
+                <div class="number">2</div>
+                <div class="label">Trenger oppmerksomhet</div>
+            </div>
+            <div class="summary-card">
+                <div class="icon">⏰</div>
+                <div class="number">5 min</div>
+                <div class="label">Siden siste sync</div>
+            </div>
+        </div>
+
+        <div class="platform-sections">
+            <!-- Stock Brokers Section -->
+            <div class="platform-section">
+                <div class="section-header">
+                    <h2>📈 Aksjemeglere</h2>
+                    <p>Tilkoblingе til dine aksjemeglerkontoer for automatisk synkronisering av beholdninger og transaksjoner.</p>
+                </div>
+                <div class="platform-grid">
+                    <div class="platform-card connected">
+                        <div class="platform-header">
+                            <div class="platform-logo">🏦</div>
+                            <div class="platform-info">
+                                <h3>Nordnet</h3>
+                                <div class="type">Nordisk megler</div>
+                            </div>
+                        </div>
+                        <div class="platform-status">
+                            <div class="status-indicator status-connected"></div>
+                            <span class="status-text status-connected-text">Tilkoblet</span>
+                        </div>
+                        <div class="platform-description">
+                            Automatisk sync av nordiske og internasjonale aksjer, fond og ETF-er.
+                        </div>
+                        <div class="accounts-list">
+                            <div class="account-item">
+                                <span class="account-name">Aksjesparekonto</span>
+                                <span class="account-value">1 234 567 kr</span>
+                            </div>
+                            <div class="account-item">
+                                <span class="account-name">Investeringskonto</span>
+                                <span class="account-value">543 210 kr</span>
+                            </div>
+                        </div>
+                        <div class="platform-actions">
+                            <button class="action-btn sync-btn">Synkroniser</button>
+                            <button class="action-btn configure-btn">Innstillinger</button>
+                            <button class="action-btn disconnect-btn">Koble fra</button>
+                        </div>
+                        <div class="last-sync">Sist synkronisert: 5 minutter siden</div>
+                    </div>
+
+                    <div class="platform-card error">
+                        <div class="platform-header">
+                            <div class="platform-logo">🏛️</div>
+                            <div class="platform-info">
+                                <h3>DNB</h3>
+                                <div class="type">Norsk bank</div>
+                            </div>
+                        </div>
+                        <div class="platform-status">
+                            <div class="status-indicator status-error"></div>
+                            <span class="status-text status-error-text">Autentiseringsfeil</span>
+                        </div>
+                        <div class="platform-description">
+                            Tilgang til DNB Direkte for aksjеhandel og investeringsfond.
+                        </div>
+                        <div class="platform-actions">
+                            <button class="action-btn connect-btn">Tilkobel på nytt</button>
+                            <button class="action-btn configure-btn">Innstillinger</button>
+                        </div>
+                        <div class="last-sync">Sist synkronisert: 2 timer siden (feilet)</div>
+                    </div>
+
+                    <div class="platform-card">
+                        <div class="platform-header">
+                            <div class="platform-logo">🇺🇸</div>
+                            <div class="platform-info">
+                                <h3>Interactive Brokers</h3>
+                                <div class="type">Global megler</div>
+                            </div>
+                        </div>
+                        <div class="platform-status">
+                            <div class="status-indicator status-disconnected"></div>
+                            <span class="status-text status-disconnected-text">Ikke tilkoblet</span>
+                        </div>
+                        <div class="platform-description">
+                            Tilgang til globale markeder med lav kostnad og avanserte handelsverktøy.
+                        </div>
+                        <div class="platform-actions">
+                            <button class="action-btn connect-btn">Tilkobel</button>
+                        </div>
+                    </div>
+
+                    <div class="platform-card">
+                        <div class="platform-header">
+                            <div class="platform-logo">📊</div>
+                            <div class="platform-info">
+                                <h3>Charles Schwab</h3>
+                                <div class="type">US megler</div>
+                            </div>
+                        </div>
+                        <div class="platform-status">
+                            <div class="status-indicator status-disconnected"></div>
+                            <span class="status-text status-disconnected-text">Ikke tilkoblet</span>
+                        </div>
+                        <div class="platform-description">
+                            Omfattende tilgang til amerikanske markeder og investeringsalternativer.
+                        </div>
+                        <div class="platform-actions">
+                            <button class="action-btn connect-btn">Tilkobel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crypto Exchanges Section -->
+            <div class="platform-section">
+                <div class="section-header">
+                    <h2>₿ Kryptovaluta-børser</h2>
+                    <p>Tilkoblingе til kryptovaluta-børser for sporing av digital aktivaer og handelshistorikk.</p>
+                </div>
+                <div class="platform-grid">
+                    <div class="platform-card connected">
+                        <div class="platform-header">
+                            <div class="platform-logo">🟡</div>
+                            <div class="platform-info">
+                                <h3>Binance</h3>
+                                <div class="type">Global krypto-børs</div>
+                            </div>
+                        </div>
+                        <div class="platform-status">
+                            <div class="status-indicator status-connected"></div>
+                            <span class="status-text status-connected-text">Tilkoblet</span>
+                        </div>
+                        <div class="platform-description">
+                            Verdens største kryptovaluta-børs med support for 500+ coins og tokens.
+                        </div>
+                        <div class="accounts-list">
+                            <div class="account-item">
+                                <span class="account-name">Spot Trading</span>
+                                <span class="account-value">432 100 kr</span>
+                            </div>
+                            <div class="account-item">
+                                <span class="account-name">Savings</span>
+                                <span class="account-value">87 650 kr</span>
+                            </div>
+                        </div>
+                        <div class="platform-actions">
+                            <button class="action-btn sync-btn">Synkroniser</button>
+                            <button class="action-btn configure-btn">Innstillinger</button>
+                            <button class="action-btn disconnect-btn">Koble fra</button>
+                        </div>
+                        <div class="last-sync">Sist synkronisert: 8 minutter siden</div>
+                    </div>
+
+                    <div class="platform-card">
+                        <div class="platform-header">
+                            <div class="platform-logo">🔵</div>
+                            <div class="platform-info">
+                                <h3>Coinbase</h3>
+                                <div class="type">Regulert krypto-børs</div>
+                            </div>
+                        </div>
+                        <div class="platform-status">
+                            <div class="status-indicator status-disconnected"></div>
+                            <span class="status-text status-disconnected-text">Ikke tilkoblet</span>
+                        </div>
+                        <div class="platform-description">
+                            Brukervenlig og regulert plattform for kjøp og salg av kryptovaluta.
+                        </div>
+                        <div class="platform-actions">
+                            <button class="action-btn connect-btn">Tilkobel</button>
+                        </div>
+                    </div>
+
+                    <div class="platform-card">
+                        <div class="platform-header">
+                            <div class="platform-logo">🐙</div>
+                            <div class="platform-info">
+                                <h3>Kraken</h3>
+                                <div class="type">Sikker krypto-børs</div>
+                            </div>
+                        </div>
+                        <div class="platform-status">
+                            <div class="status-indicator status-disconnected"></div>
+                            <span class="status-text status-disconnected-text">Ikke tilkoblet</span>
+                        </div>
+                        <div class="platform-description">
+                            Høy sikkerhet og avanserte handelsverktøy for erfarne krypto-investorer.
+                        </div>
+                        <div class="platform-actions">
+                            <button class="action-btn connect-btn">Tilkobel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alternative Assets Section -->
+            <div class="platform-section">
+                <div class="section-header">
+                    <h2>🎨 Alternative investeringer</h2>
+                    <p>Plattformer for sporing av kunst, samleobjekter og andre alternative investeringer.</p>
+                </div>
+                <div class="platform-grid">
+                    <div class="platform-card connected">
+                        <div class="platform-header">
+                            <div class="platform-logo">📝</div>
+                            <div class="platform-info">
+                                <h3>Manuell registrering</h3>
+                                <div class="type">Egendefinerte aktiva</div>
+                            </div>
+                        </div>
+                        <div class="platform-status">
+                            <div class="status-indicator status-connected"></div>
+                            <span class="status-text status-connected-text">Aktivt</span>
+                        </div>
+                        <div class="platform-description">
+                            Manuell registrering av kunst, samleobjekter, eiendom og andre investeringer.
+                        </div>
+                        <div class="accounts-list">
+                            <div class="account-item">
+                                <span class="account-name">Kunst & Antikviteter</span>
+                                <span class="account-value">285 000 kr</span>
+                            </div>
+                            <div class="account-item">
+                                <span class="account-name">Klokker & Smykker</span>
+                                <span class="account-value">142 500 kr</span>
+                            </div>
+                        </div>
+                        <div class="platform-actions">
+                            <button class="action-btn connect-btn" onclick="showModal('manual')">Legg til aktiva</button>
+                            <button class="action-btn configure-btn">Innstillinger</button>
+                        </div>
+                        <div class="last-sync">Sist oppdatert: I dag</div>
+                    </div>
+
+                    <div class="platform-card">
+                        <div class="platform-header">
+                            <div class="platform-logo">🏛️</div>
+                            <div class="platform-info">
+                                <h3>Artnet</h3>
+                                <div class="type">Kunstmarkedsdata</div>
+                            </div>
+                        </div>
+                        <div class="platform-status">
+                            <div class="status-indicator status-disconnected"></div>
+                            <span class="status-text status-disconnected-text">Kommer snart</span>
+                        </div>
+                        <div class="platform-description">
+                            Automatisk verdivurdering av kunstsamlinger basert på auksjonsresultater.
+                        </div>
+                        <div class="platform-actions">
+                            <button class="action-btn configure-btn" disabled>Kommer snart</button>
+                        </div>
+                    </div>
+
+                    <div class="platform-card">
+                        <div class="platform-header">
+                            <div class="platform-logo">🏠</div>
+                            <div class="platform-info">
+                                <h3>Eiendomsmegler1</h3>
+                                <div class="type">Eiendomsverdier</div>
+                            </div>
+                        </div>
+                        <div class="platform-status">
+                            <div class="status-indicator status-disconnected"></div>
+                            <span class="status-text status-disconnected-text">Kommer snart</span>
+                        </div>
+                        <div class="platform-description">
+                            Automatisk sporing av eiendomsverdier og markedstrender.
+                        </div>
+                        <div class="platform-actions">
+                            <button class="action-btn configure-btn" disabled>Kommer snart</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Manual Account Modal -->
+    <div id="manualModal" class="modal-overlay">
+        <div class="modal">
+            <h3>Legg til manuell konto</h3>
+            <form>
+                <div class="form-group">
+                    <label for="accountName">Kontonavn</label>
+                    <input type="text" id="accountName" placeholder="F.eks. 'Kunst & Antikviteter'">
+                </div>
+                <div class="form-group">
+                    <label for="accountType">Kontotype</label>
+                    <select id="accountType">
+                        <option value="alternative">Alternative investeringer</option>
+                        <option value="cash">Kontanter</option>
+                        <option value="other">Annet</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="currency">Valuta</label>
+                    <select id="currency">
+                        <option value="NOK">NOK - Norske kroner</option>
+                        <option value="USD">USD - US Dollar</option>
+                        <option value="EUR">EUR - Euro</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline" onclick="hideModal('manual')">Avbryt</button>
+                    <button type="submit" class="btn btn-primary">Opprett konto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showModal(type) {
+            document.getElementById('manualModal').style.display = 'flex';
+        }
+        
+        function hideModal(type) {
+            document.getElementById('manualModal').style.display = 'none';
+        }
+        
+        function syncAll() {
+            alert('Synkroniserer alle tilkoblede kontoer...');
+        }
+        
+        // Close modal when clicking outside
+        document.getElementById('manualModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideModal('manual');
+            }
+        });
+    </script>
+</body>
+</html>

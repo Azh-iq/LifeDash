@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Portfolio - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 48px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 480px;
+            margin: 24px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .logo h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        
+        .logo p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 16px;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+        
+        .btn-outline {
+            background: white;
+            color: #333;
+            border: 2px solid #e1e5e9;
+        }
+        
+        .btn-outline:hover {
+            background: #f8f9fa;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 24px 0;
+            position: relative;
+            color: #666;
+        }
+        
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e5e9;
+        }
+        
+        .divider span {
+            background: white;
+            padding: 0 16px;
+        }
+        
+        .links {
+            text-align: center;
+            margin-top: 24px;
+        }
+        
+        .links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .links a:hover {
+            text-decoration: underline;
+        }
+        
+        .feature-badges {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            background: #f0f2ff;
+            color: #667eea;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .social-login {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .social-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            background: white;
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .social-btn:hover {
+            background: #f8f9fa;
+            border-color: #d1d5d9;
+        }
+        
+        @media (max-width: 640px) {
+            .container {
+                padding: 32px 24px;
+                margin: 16px;
+            }
+            
+            .logo h1 {
+                font-size: 28px;
+            }
+            
+            .social-login {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>Portfolio Manager</h1>
+            <p>Universal investment tracking</p>
+        </div>
+        
+        <form>
+            <div class="form-group">
+                <label for="email">E-post</label>
+                <input type="email" id="email" placeholder="din@epost.no" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Passord</label>
+                <input type="password" id="password" placeholder="Ditt passord" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Logg inn</button>
+        </form>
+        
+        <div class="divider">
+            <span>eller</span>
+        </div>
+        
+        <div class="social-login">
+            <a href="#" class="social-btn">
+                <span>🔵</span> Google
+            </a>
+            <a href="#" class="social-btn">
+                <span>🍎</span> Apple
+            </a>
+        </div>
+        
+        <div class="links">
+            <p>Har du ikke konto? <a href="#">Registrer deg</a></p>
+            <p><a href="#">Glemt passord?</a></p>
+        </div>
+        
+        <div class="feature-badges">
+            <span class="badge">📈 Aksjer</span>
+            <span class="badge">₿ Crypto</span>
+            <span class="badge">🎨 Kunst</span>
+            <span class="badge">🏠 Eiendom</span>
+        </div>
+    </div>
+</body>
+</html>

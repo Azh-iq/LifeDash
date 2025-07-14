@@ -9,6 +9,7 @@ import {
   NordnetTransactionData,
 } from '@/lib/integrations/nordnet'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/types/database.types'
 
 export interface CSVImportActionResult {
@@ -104,17 +105,31 @@ export async function importNordnetTransactions(
       console.warn('Transformation errors:', transformErrors)
     }
 
-    // Create transformer instance with Supabase client
+    // Create service role client for database operations (bypasses RLS for system operations)
+    const serviceClient = createServiceClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
+
+    // Create transformer instance with service role client
     const transformer = new NordnetTransactionTransformer(
       userId,
       'nordnet', // platform ID - you might want to make this configurable
-      supabase
+      serviceClient
     )
 
     console.log('🚀 About to import', transformedTransactions.length, 'transformed transactions')
     
-    // Import transactions to database
+    // Import transactions to database with default config
+    const defaultConfig = NordnetTransactionTransformer.generateDefaultConfig()
     const result = await transformer.transformAndImport(transformedTransactions, {
+      ...defaultConfig,
       batchSize: 50,
       ...config,
     })

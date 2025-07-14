@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Portfolio - Asset Detail</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 240px;
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            padding: 24px;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 32px;
+            color: #1a1a1a;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #64748b;
+            text-decoration: none;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+        }
+        
+        .nav-item:hover {
+            background: #f1f5f9;
+            color: #334155;
+        }
+        
+        .nav-item.active {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .main-content {
+            margin-left: 240px;
+            padding: 24px;
+        }
+        
+        .breadcrumb {
+            margin-bottom: 24px;
+            color: #64748b;
+        }
+        
+        .breadcrumb a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+        
+        .asset-header {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .asset-header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .asset-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .asset-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        .stocks-icon { background: #dbeafe; color: #3b82f6; }
+        .crypto-icon { background: #fef3c7; color: #f59e0b; }
+        .alternatives-icon { background: #fce7f3; color: #ec4899; }
+        
+        .asset-details h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+        
+        .asset-meta {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .asset-symbol {
+            color: #64748b;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .asset-type {
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .asset-description {
+            color: #64748b;
+            max-width: 500px;
+        }
+        
+        .price-section {
+            text-align: right;
+        }
+        
+        .current-price {
+            font-size: 40px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        
+        .price-change {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .positive { color: #10b981; }
+        .negative { color: #ef4444; }
+        
+        .price-time {
+            color: #64748b;
+            font-size: 14px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #059669;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .btn-outline {
+            background: white;
+            color: #333;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .btn-outline:hover {
+            border-color: #3b82f6;
+            background: #f0f9ff;
+        }
+        
+        .tabs-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .tabs-nav {
+            display: flex;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .tab {
+            padding: 16px 24px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+        
+        .tab-content {
+            padding: 32px;
+        }
+        
+        .tab-panel {
+            display: none;
+        }
+        
+        .tab-panel.active {
+            display: block;
+        }
+        
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 32px;
+        }
+        
+        .chart-container {
+            height: 400px;
+            background: #f8fafc;
+            border: 2px dashed #e2e8f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-weight: 500;
+            margin-bottom: 24px;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
+        .metric-card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .metric-label {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .metric-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        
+        .holdings-summary {
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .holdings-summary h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .holdings-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stat-label {
+            color: #64748b;
+        }
+        
+        .stat-value {
+            font-weight: 600;
+        }
+        
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 24px;
+        }
+        
+        .transactions-table th,
+        .transactions-table td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .transactions-table th {
+            font-weight: 600;
+            color: #64748b;
+            font-size: 14px;
+            background: #f8fafc;
+        }
+        
+        .transaction-type {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .buy { background: #dcfce7; color: #166534; }
+        .sell { background: #fee2e2; color: #991b1b; }
+        .dividend { background: #dbeafe; color: #1e40af; }
+        
+        .news-grid {
+            display: grid;
+            gap: 16px;
+        }
+        
+        .news-item {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+        
+        .news-image {
+            width: 80px;
+            height: 80px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+        
+        .news-content h4 {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+        
+        .news-summary {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .news-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .asset-header-content {
+                flex-direction: column;
+                gap: 24px;
+            }
+            
+            .price-section {
+                text-align: left;
+            }
+            
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo">Portfolio Manager</div>
+        
+        <a href="#" class="nav-item">
+            <span>🏠</span> Dashboard
+        </a>
+        <a href="#" class="nav-item active">
+            <span>📊</span> Beholdninger
+        </a>
+        <a href="#" class="nav-item">
+            <span>💸</span> Transaksjoner
+        </a>
+        <a href="#" class="nav-item">
+            <span>📈</span> Analyse
+        </a>
+        <a href="#" class="nav-item">
+            <span>🔗</span> Tilkoblinger
+        </a>
+        <a href="#" class="nav-item">
+            <span>⚙️</span> Innstillinger
+        </a>
+    </nav>
+
+    <main class="main-content">
+        <div class="breadcrumb">
+            <a href="#">Dashboard</a> / <a href="#">Beholdninger</a> / Apple Inc.
+        </div>
+
+        <div class="asset-header">
+            <div class="asset-header-content">
+                <div class="asset-info">
+                    <div class="asset-icon stocks-icon">A</div>
+                    <div class="asset-details">
+                        <h1>Apple Inc.</h1>
+                        <div class="asset-meta">
+                            <span class="asset-symbol">AAPL • NASDAQ</span>
+                            <span class="asset-type">Aksje</span>
+                        </div>
+                        <p class="asset-description">
+                            Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, 
+                            wearables, and accessories worldwide.
+                        </p>
+                    </div>
+                </div>
+                <div class="price-section">
+                    <div class="current-price">$187.45</div>
+                    <div class="price-change positive">+$4.23 (+2.31%)</div>
+                    <div class="price-time">Sist oppdatert: 16:00 EST</div>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary">
+                            <span>📈</span> Kjøp mer
+                        </button>
+                        <button class="btn btn-danger">
+                            <span>📉</span> Selg
+                        </button>
+                        <button class="btn btn-outline">
+                            <span>🔔</span> Sett varsel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs-container">
+            <div class="tabs-nav">
+                <button class="tab active" onclick="showTab('overview')">Oversikt</button>
+                <button class="tab" onclick="showTab('fundamentals')">Fundamentals</button>
+                <button class="tab" onclick="showTab('holdings')">Din beholdning</button>
+                <button class="tab" onclick="showTab('news')">Nyheter</button>
+            </div>
+
+            <div class="tab-content">
+                <!-- Overview Tab -->
+                <div id="overview" class="tab-panel active">
+                    <div class="overview-grid">
+                        <div>
+                            <div class="chart-container">
+                                Interaktivt aksjekurs-chart med tekniske indikatorer
+                            </div>
+                            
+                            <div class="metrics-grid">
+                                <div class="metric-card">
+                                    <div class="metric-label">Markedsverdi</div>
+                                    <div class="metric-value">$2.95T</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">P/E Ratio</div>
+                                    <div class="metric-value">29.8</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">52-ukers høy</div>
+                                    <div class="metric-value">$199.62</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">52-ukers lav</div>
+                                    <div class="metric-value">$164.08</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">Utbytte yield</div>
+                                    <div class="metric-value">0.44%</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">Beta</div>
+                                    <div class="metric-value">1.24</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="holdings-summary">
+                                <h3>Din beholdning</h3>
+                                <div class="holdings-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Antall aksjer:</span>
+                                        <span class="stat-value">2 560</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Markedsverdi:</span>
+                                        <span class="stat-value">456 780 kr</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Gjennomsnittskostnad:</span>
+                                        <span class="stat-value">$155.56</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Total kostbasis:</span>
+                                        <span class="stat-value">398 240 kr</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Urealisert P&L:</span>
+                                        <span class="stat-value positive">+58 540 kr</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Urealisert P&L%:</span>
+                                        <span class="stat-value positive">+14.7%</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Porteføljeandel:</span>
+                                        <span class="stat-value">16.0%</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Første kjøp:</span>
+                                        <span class="stat-value">15. mars 2023</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fundamentals Tab -->
+                <div id="fundamentals" class="tab-panel">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">Inntekter (TTM)</div>
+                            <div class="metric-value">$383.3B</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Nettoinntekt (TTM)</div>
+                            <div class="metric-value">$99.8B</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">ROE</div>
+                            <div class="metric-value">160.1%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">ROA</div>
+                            <div class="metric-value">27.1%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Gjeldsgrad</div>
+                            <div class="metric-value">1.73</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Aktuell ratio</div>
+                            <div class="metric-value">1.04</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Bruttomargin</div>
+                            <div class="metric-value">44.1%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Netto margin</div>
+                            <div class="metric-value">26.0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Holdings Tab -->
+                <div id="holdings" class="tab-panel">
+                    <table class="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Dato</th>
+                                <th>Type</th>
+                                <th>Mengde</th>
+                                <th>Pris</th>
+                                <th>Total</th>
+                                <th>Gebyr</th>
+                                <th>Konto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>15. jan 2024</td>
+                                <td><span class="transaction-type buy">Kjøp</span></td>
+                                <td>15</td>
+                                <td>$187.45</td>
+                                <td>28 750 kr</td>
+                                <td>99 kr</td>
+                                <td>Nordnet</td>
+                            </tr>
+                            <tr>
+                                <td>12. dec 2023</td>
+                                <td><span class="transaction-type dividend">Utbytte</span></td>
+                                <td>-</td>
+                                <td>$0.24</td>
+                                <td>612 kr</td>
+                                <td>0 kr</td>
+                                <td>Nordnet</td>
+                            </tr>
+                            <tr>
+                                <td>28. nov 2023</td>
+                                <td><span class="transaction-type buy">Kjøp</span></td>
+                                <td>50</td>
+                                <td>$189.97</td>
+                                <td>97 000 kr</td>
+                                <td>99 kr</td>
+                                <td>Nordnet</td>
+                            </tr>
+                            <tr>
+                                <td>15. okt 2023</td>
+                                <td><span class="transaction-type buy">Kjøp</span></td>
+                                <td>100</td>
+                                <td>$178.85</td>
+                                <td>182 500 kr</td>
+                                <td>99 kr</td>
+                                <td>Nordnet</td>
+                            </tr>
+                            <tr>
+                                <td>03. sep 2023</td>
+                                <td><span class="transaction-type dividend">Utbytte</span></td>
+                                <td>-</td>
+                                <td>$0.24</td>
+                                <td>2 395 kr</td>
+                                <td>0 kr</td>
+                                <td>Nordnet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- News Tab -->
+                <div id="news" class="tab-panel">
+                    <div class="news-grid">
+                        <div class="news-item">
+                            <div class="news-image"></div>
+                            <div class="news-content">
+                                <h4>Apple Reports Record Q1 2024 Revenue</h4>
+                                <p class="news-summary">
+                                    Apple announces stronger than expected quarterly results driven by iPhone 15 sales 
+                                    and services growth.
+                                </p>
+                                <div class="news-meta">
+                                    <span>Bloomberg</span>
+                                    <span>2 timer siden</span>
+                                    <span>📈 Positiv</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="news-item">
+                            <div class="news-image"></div>
+                            <div class="news-content">
+                                <h4>AI Integration Drives Services Revenue Growth</h4>
+                                <p class="news-summary">
+                                    Apple's new AI features in iOS contribute to significant growth in App Store 
+                                    and cloud services revenue.
+                                </p>
+                                <div class="news-meta">
+                                    <span>Reuters</span>
+                                    <span>5 timer siden</span>
+                                    <span>📈 Positiv</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="news-item">
+                            <div class="news-image"></div>
+                            <div class="news-content">
+                                <h4>Supply Chain Concerns in China Market</h4>
+                                <p class="news-summary">
+                                    Analysts express caution over potential supply chain disruptions affecting 
+                                    Apple's manufacturing operations.
+                                </p>
+                                <div class="news-meta">
+                                    <span>Financial Times</span>
+                                    <span>1 dag siden</span>
+                                    <span>📉 Negativ</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab panels
+            const panels = document.querySelectorAll('.tab-panel');
+            panels.forEach(panel => panel.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab panel
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

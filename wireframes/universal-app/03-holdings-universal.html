@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Portfolio - Beholdninger</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 240px;
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            padding: 24px;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 32px;
+            color: #1a1a1a;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #64748b;
+            text-decoration: none;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+        }
+        
+        .nav-item:hover {
+            background: #f1f5f9;
+            color: #334155;
+        }
+        
+        .nav-item.active {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .main-content {
+            margin-left: 240px;
+            padding: 24px;
+        }
+        
+        .breadcrumb {
+            margin-bottom: 24px;
+            color: #64748b;
+        }
+        
+        .breadcrumb a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .btn-outline {
+            background: white;
+            color: #333;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .btn-outline:hover {
+            border-color: #3b82f6;
+            background: #f0f9ff;
+        }
+        
+        .main-dashboard-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .chart-and-info {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+        }
+        
+        .chart-section {
+            flex: 0 0 70%;
+        }
+        
+        .portfolio-info-section {
+            flex: 0 0 30%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .allocation-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .allocation-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0;
+        }
+        
+        .allocation-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .pie-chart-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            flex-shrink: 0;
+        }
+        
+        #allocationChart {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .allocation-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 11px;
+            flex: 1;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        
+        .stocks-color { background: #3b82f6; }
+        .crypto-color { background: #f59e0b; }
+        .alternatives-color { background: #ec4899; }
+        .cash-color { background: #10b981; }
+        
+        .legend-text {
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .legend-percentage {
+            margin-left: auto;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .portfolio-value {
+            text-align: center;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .main-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+        }
+        
+        .main-change {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .change-badge {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        
+        .change-badge.negative {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+        
+        .last-updated {
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .portfolio-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+        
+        .stat-item:hover {
+            background: #f1f5f9;
+            transform: translateY(-1px);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        
+        .chart-section {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .timeframe-selector {
+            display: flex;
+            gap: 4px;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 8px;
+        }
+        
+        .timeframe-btn {
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .timeframe-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .chart-container {
+            height: 200px;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        #portfolioChart {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .positive { color: #10b981; }
+        .negative { color: #ef4444; }
+        
+        .filters-toolbar {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .filters-row {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .filter-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+        
+        .filter-select,
+        .filter-input {
+            padding: 8px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            min-width: 120px;
+        }
+        
+        .filter-select:focus,
+        .filter-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .asset-class-tabs {
+            display: flex;
+            gap: 4px;
+            margin-left: auto;
+        }
+        
+        .tab {
+            padding: 8px 16px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .tab.active {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .holdings-table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .holdings-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .holdings-table th {
+            background: #f8fafc;
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #64748b;
+            font-size: 12px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .holdings-table td {
+            padding: 10px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+        
+        .holdings-table tr:hover {
+            background: #f8fafc;
+        }
+        
+        .asset-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .asset-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .stocks-icon { background: #dbeafe; color: #3b82f6; }
+        .crypto-icon { background: #fef3c7; color: #f59e0b; }
+        .alternatives-icon { background: #fce7f3; color: #ec4899; }
+        
+        .asset-info .name {
+            font-weight: 600;
+            color: #1a1a1a;
+            font-size: 14px;
+        }
+        
+        .asset-info .symbol {
+            color: #64748b;
+            font-size: 12px;
+        }
+        
+        .asset-info .type {
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 2px;
+            display: inline-block;
+        }
+        
+        .quantity-cell {
+            font-weight: 600;
+        }
+        
+        .price-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .current-price {
+            font-weight: 600;
+        }
+        
+        .price-change {
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .value-cell {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .pnl-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .pnl-amount {
+            font-weight: 600;
+        }
+        
+        .pnl-percent {
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .allocation-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .allocation-bar {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            flex: 1;
+            position: relative;
+        }
+        
+        .allocation-fill {
+            height: 100%;
+            background: #3b82f6;
+            border-radius: 2px;
+        }
+        
+        .allocation-percent {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            min-width: 40px;
+        }
+        
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .buy-btn {
+            background: #10b981;
+            color: white;
+        }
+        
+        .sell-btn {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .details-btn {
+            background: #6366f1;
+            color: white;
+        }
+        
+        .group-header {
+            background: #f8fafc;
+            padding: 12px 16px;
+            font-weight: 600;
+            color: #64748b;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .chart-and-info {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .chart-section {
+                flex: none;
+            }
+            
+            .portfolio-info-section {
+                flex: none;
+            }
+            
+            .portfolio-stats {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .stat-item {
+                min-width: auto;
+            }
+            
+            .main-value {
+                font-size: 36px;
+            }
+            
+            .filters-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .asset-class-tabs {
+                margin-left: 0;
+                justify-content: flex-start;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .portfolio-header {
+                padding: 24px 16px;
+            }
+            
+            .main-value {
+                font-size: 32px;
+            }
+            
+            .main-change {
+                font-size: 16px;
+                flex-direction: column;
+                gap: 4px;
+            }
+            
+            .portfolio-stats {
+                gap: 12px;
+            }
+            
+            .stat-item {
+                padding: 12px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo">Portfolio Manager</div>
+        
+        <a href="#" class="nav-item">
+            <span>🏠</span> Dashboard
+        </a>
+        <a href="#" class="nav-item active">
+            <span>📊</span> Beholdninger
+        </a>
+        <a href="#" class="nav-item">
+            <span>💸</span> Transaksjoner
+        </a>
+        <a href="#" class="nav-item">
+            <span>📈</span> Analyse
+        </a>
+        <a href="#" class="nav-item">
+            <span>🔗</span> Tilkoblinger
+        </a>
+        <a href="#" class="nav-item">
+            <span>⚙️</span> Innstillinger
+        </a>
+    </nav>
+
+    <main class="main-content">
+        <div class="breadcrumb">
+            <a href="#">Dashboard</a> / Beholdninger
+        </div>
+
+        <div class="page-header">
+            <h1>Beholdninger</h1>
+            <div class="header-actions">
+                <button class="btn btn-outline">
+                    <span>📤</span> Eksporter
+                </button>
+                <button class="btn btn-outline">
+                    <span>🔄</span> Oppdater priser
+                </button>
+            </div>
+        </div>
+
+        <div class="main-dashboard-section">
+            <div class="chart-and-info">
+                <div class="chart-section">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Porteføljeutvikling</h3>
+                        <div class="timeframe-selector">
+                            <button class="timeframe-btn" onclick="updateChart('1D')">1D</button>
+                            <button class="timeframe-btn" onclick="updateChart('1U')">1U</button>
+                            <button class="timeframe-btn active" onclick="updateChart('1M')">1M</button>
+                            <button class="timeframe-btn" onclick="updateChart('YTD')">YTD</button>
+                            <button class="timeframe-btn" onclick="updateChart('1Å')">1Å</button>
+                            <button class="timeframe-btn" onclick="updateChart('All')">All</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="portfolioChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="portfolio-info-section">
+                    <div class="portfolio-value">
+                        <div class="main-value">2 847 500 kr</div>
+                        <div class="main-change">
+                            +47 230 kr 
+                            <span class="change-badge">+1.68%</span>
+                        </div>
+                        <div class="last-updated">Sist oppdatert for 2 minutter siden</div>
+                    </div>
+                    
+                    <div class="portfolio-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Kostbasis</div>
+                            <div class="stat-value">2 564 780 kr</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Urealisert P&L</div>
+                            <div class="stat-value positive">+282 720 kr</div>
+                        </div>
+                    </div>
+                    
+                    <div class="allocation-section">
+                        <h4 class="allocation-title">Allokering</h4>
+                        <div class="allocation-content">
+                            <div class="pie-chart-container">
+                                <canvas id="allocationChart"></canvas>
+                            </div>
+                            <div class="allocation-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color stocks-color"></div>
+                                    <span class="legend-text">Aksjer</span>
+                                    <span class="legend-percentage">67.2%</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color crypto-color"></div>
+                                    <span class="legend-text">Krypto</span>
+                                    <span class="legend-percentage">18.7%</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color alternatives-color"></div>
+                                    <span class="legend-text">Alternativ</span>
+                                    <span class="legend-percentage">11.5%</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color cash-color"></div>
+                                    <span class="legend-text">Kontanter</span>
+                                    <span class="legend-percentage">2.6%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filters-toolbar">
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label>Konto</label>
+                    <select class="filter-select">
+                        <option>Alle kontoer</option>
+                        <option>Nordnet</option>
+                        <option>DNB</option>
+                        <option>Binance</option>
+                        <option>Manual</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Min verdi</label>
+                    <input type="number" class="filter-input" placeholder="0">
+                </div>
+                <div class="filter-group">
+                    <label>Søk</label>
+                    <input type="text" class="filter-input" placeholder="Søk aktiva...">
+                </div>
+                <div class="asset-class-tabs">
+                    <div class="tab active">Alle</div>
+                    <div class="tab">Aksjer</div>
+                    <div class="tab">Krypto</div>
+                    <div class="tab">Alternativ</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="holdings-table-container">
+            <table class="holdings-table">
+                <thead>
+                    <tr>
+                        <th>Aktiva</th>
+                        <th>Mengde</th>
+                        <th>Aktuell pris</th>
+                        <th>Markedsverdi</th>
+                        <th>P&L</th>
+                        <th>Endring (24t)</th>
+                        <th>Allokering</th>
+                        <th>Handlinger</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Group: Aksjer -->
+                    <tr>
+                        <td colspan="8" class="group-header">📈 Aksjer (67.2% av portefølje)</td>
+                    </tr>
+                    <tr>
+                        <td class="asset-cell">
+                            <div class="asset-icon stocks-icon">A</div>
+                            <div class="asset-info">
+                                <div class="name">Apple Inc.</div>
+                                <div class="symbol">AAPL • NASDAQ</div>
+                                <span class="type">Aksje</span>
+                            </div>
+                        </td>
+                        <td class="quantity-cell">2 560</td>
+                        <td class="price-cell">
+                            <div class="current-price">$187.45</div>
+                            <div class="price-change positive">+$4.23 (+2.3%)</div>
+                        </td>
+                        <td class="value-cell">456 780 kr</td>
+                        <td class="pnl-cell">
+                            <div class="pnl-amount positive">+58 540 kr</div>
+                            <div class="pnl-percent positive">+14.7%</div>
+                        </td>
+                        <td class="change positive">+2.3%</td>
+                        <td class="allocation-cell">
+                            <div class="allocation-bar">
+                                <div class="allocation-fill" style="width: 16%"></div>
+                            </div>
+                            <span class="allocation-percent">16.0%</span>
+                        </td>
+                        <td class="actions-cell">
+                            <button class="action-btn-small details-btn">Detaljer</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="asset-cell">
+                            <div class="asset-icon stocks-icon">N</div>
+                            <div class="asset-info">
+                                <div class="name">Norsk Hydro ASA</div>
+                                <div class="symbol">NHY.OL • Oslo Børs</div>
+                                <span class="type">Aksje</span>
+                            </div>
+                        </td>
+                        <td class="quantity-cell">5 000</td>
+                        <td class="price-cell">
+                            <div class="current-price">46.91 kr</div>
+                            <div class="price-change negative">-0.56 kr (-1.2%)</div>
+                        </td>
+                        <td class="value-cell">234 560 kr</td>
+                        <td class="pnl-cell">
+                            <div class="pnl-amount positive">+9 560 kr</div>
+                            <div class="pnl-percent positive">+4.2%</div>
+                        </td>
+                        <td class="change negative">-1.2%</td>
+                        <td class="allocation-cell">
+                            <div class="allocation-bar">
+                                <div class="allocation-fill" style="width: 8.2%"></div>
+                            </div>
+                            <span class="allocation-percent">8.2%</span>
+                        </td>
+                        <td class="actions-cell">
+                            <button class="action-btn-small details-btn">Detaljer</button>
+                        </td>
+                    </tr>
+
+                    <!-- Group: Krypto -->
+                    <tr>
+                        <td colspan="8" class="group-header">₿ Kryptovaluta (18.7% av portefølje)</td>
+                    </tr>
+                    <tr>
+                        <td class="asset-cell">
+                            <div class="asset-icon crypto-icon">₿</div>
+                            <div class="asset-info">
+                                <div class="name">Bitcoin</div>
+                                <div class="symbol">BTC • Binance</div>
+                                <span class="type">Krypto</span>
+                            </div>
+                        </td>
+                        <td class="quantity-cell">6.64721</td>
+                        <td class="price-cell">
+                            <div class="current-price">$43 280</div>
+                            <div class="price-change positive">+$2 340 (+5.7%)</div>
+                        </td>
+                        <td class="value-cell">287 400 kr</td>
+                        <td class="pnl-cell">
+                            <div class="pnl-amount positive">+42 400 kr</div>
+                            <div class="pnl-percent positive">+17.3%</div>
+                        </td>
+                        <td class="change positive">+5.7%</td>
+                        <td class="allocation-cell">
+                            <div class="allocation-bar">
+                                <div class="allocation-fill" style="width: 10.1%"></div>
+                            </div>
+                            <span class="allocation-percent">10.1%</span>
+                        </td>
+                        <td class="actions-cell">
+                            <button class="action-btn-small details-btn">Detaljer</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="asset-cell">
+                            <div class="asset-icon crypto-icon">Ξ</div>
+                            <div class="asset-info">
+                                <div class="name">Ethereum</div>
+                                <div class="symbol">ETH • Binance</div>
+                                <span class="type">Krypto</span>
+                            </div>
+                        </td>
+                        <td class="quantity-cell">61.247</td>
+                        <td class="price-cell">
+                            <div class="current-price">$2 378</div>
+                            <div class="price-change positive">+$78 (+3.4%)</div>
+                        </td>
+                        <td class="value-cell">145 670 kr</td>
+                        <td class="pnl-cell">
+                            <div class="pnl-amount positive">+15 670 kr</div>
+                            <div class="pnl-percent positive">+12.1%</div>
+                        </td>
+                        <td class="change positive">+3.4%</td>
+                        <td class="allocation-cell">
+                            <div class="allocation-bar">
+                                <div class="allocation-fill" style="width: 5.1%"></div>
+                            </div>
+                            <span class="allocation-percent">5.1%</span>
+                        </td>
+                        <td class="actions-cell">
+                            <button class="action-btn-small details-btn">Detaljer</button>
+                        </td>
+                    </tr>
+
+                    <!-- Group: Alternative investeringer -->
+                    <tr>
+                        <td colspan="8" class="group-header">🎨 Alternative investeringer (11.5% av portefølje)</td>
+                    </tr>
+                    <tr>
+                        <td class="asset-cell">
+                            <div class="asset-icon alternatives-icon">🎨</div>
+                            <div class="asset-info">
+                                <div class="name">Edvard Munch Print</div>
+                                <div class="symbol">EM-001 • Manual</div>
+                                <span class="type">Kunst</span>
+                            </div>
+                        </td>
+                        <td class="quantity-cell">1</td>
+                        <td class="price-cell">
+                            <div class="current-price">185 000 kr</div>
+                            <div class="price-change positive">+20 000 kr (+12.1%)</div>
+                        </td>
+                        <td class="value-cell">185 000 kr</td>
+                        <td class="pnl-cell">
+                            <div class="pnl-amount positive">+20 000 kr</div>
+                            <div class="pnl-percent positive">+12.1%</div>
+                        </td>
+                        <td class="change positive">+12.1%</td>
+                        <td class="allocation-cell">
+                            <div class="allocation-bar">
+                                <div class="allocation-fill" style="width: 6.5%"></div>
+                            </div>
+                            <span class="allocation-percent">6.5%</span>
+                        </td>
+                        <td class="actions-cell">
+                            <button class="action-btn-small details-btn">Detaljer</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="asset-cell">
+                            <div class="asset-icon alternatives-icon">⌚</div>
+                            <div class="asset-info">
+                                <div class="name">Rolex Submariner</div>
+                                <div class="symbol">RLX-SUB • Manual</div>
+                                <span class="type">Klokke</span>
+                            </div>
+                        </td>
+                        <td class="quantity-cell">1</td>
+                        <td class="price-cell">
+                            <div class="current-price">142 500 kr</div>
+                            <div class="price-change positive">+7 500 kr (+5.6%)</div>
+                        </td>
+                        <td class="value-cell">142 500 kr</td>
+                        <td class="pnl-cell">
+                            <div class="pnl-amount positive">+7 500 kr</div>
+                            <div class="pnl-percent positive">+5.6%</div>
+                        </td>
+                        <td class="change positive">+5.6%</td>
+                        <td class="allocation-cell">
+                            <div class="allocation-bar">
+                                <div class="allocation-fill" style="width: 5%"></div>
+                            </div>
+                            <span class="allocation-percent">5.0%</span>
+                        </td>
+                        <td class="actions-cell">
+                            <button class="action-btn-small details-btn">Detaljer</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Chart configuration and data
+        let chart;
+        let currentTimeframe = '1M';
+
+        // Dummy data for different timeframes
+        const chartData = {
+            '1D': {
+                labels: ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'],
+                data: [2800000, 2805000, 2798000, 2810000, 2815000, 2830000, 2847500, 2847500]
+            },
+            '1U': {
+                labels: ['Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør', 'Søn'],
+                data: [2750000, 2768000, 2785000, 2801000, 2820000, 2835000, 2847500]
+            },
+            '1M': {
+                labels: ['Uke 1', 'Uke 2', 'Uke 3', 'Uke 4'],
+                data: [2600000, 2680000, 2750000, 2847500]
+            },
+            'YTD': {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul'],
+                data: [2200000, 2350000, 2180000, 2420000, 2580000, 2650000, 2847500]
+            },
+            '1Å': {
+                labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                data: [2100000, 2300000, 2500000, 2847500]
+            },
+            'All': {
+                labels: ['2021', '2022', '2023', '2024'],
+                data: [1200000, 1800000, 2400000, 2847500]
+            }
+        };
+
+        function createChart() {
+            const ctx = document.getElementById('portfolioChart').getContext('2d');
+            
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData[currentTimeframe].labels,
+                    datasets: [{
+                        label: 'Porteføljeverdi',
+                        data: chartData[currentTimeframe].data,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#3b82f6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#3b82f6',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return new Intl.NumberFormat('no-NO', {
+                                        style: 'currency',
+                                        currency: 'NOK',
+                                        minimumFractionDigits: 0
+                                    }).format(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#64748b',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        y: {
+                            display: true,
+                            grid: {
+                                color: 'rgba(148, 163, 184, 0.1)',
+                                borderDash: [5, 5]
+                            },
+                            ticks: {
+                                color: '#64748b',
+                                font: {
+                                    size: 12
+                                },
+                                callback: function(value) {
+                                    return new Intl.NumberFormat('no-NO', {
+                                        notation: 'compact',
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 1
+                                    }).format(value) + ' kr';
+                                }
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            hoverBackgroundColor: '#3b82f6'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart(timeframe) {
+            currentTimeframe = timeframe;
+            
+            // Update active button
+            document.querySelectorAll('.timeframe-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update chart data
+            chart.data.labels = chartData[timeframe].labels;
+            chart.data.datasets[0].data = chartData[timeframe].data;
+            
+            // Add animation for smoother transition
+            chart.update('active');
+        }
+
+        function createAllocationChart() {
+            const ctx = document.getElementById('allocationChart').getContext('2d');
+            
+            const allocationChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Aksjer', 'Krypto', 'Alternativ', 'Kontanter'],
+                    datasets: [{
+                        data: [67.2, 18.7, 11.5, 2.6],
+                        backgroundColor: [
+                            '#3b82f6', // Stocks - blue
+                            '#f59e0b', // Crypto - amber
+                            '#ec4899', // Alternatives - pink
+                            '#10b981'  // Cash - green
+                        ],
+                        borderWidth: 0,
+                        cutout: '75%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#3b82f6',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed + '%';
+                                }
+                            }
+                        }
+                    },
+                    elements: {
+                        arc: {
+                            borderWidth: 0
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize charts when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            createChart();
+            createAllocationChart();
+        });
+    </script>
+</body>
+</html>

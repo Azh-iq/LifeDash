@@ -110,6 +110,11 @@ export class NordnetTransactionTransformer {
   ): Promise<NordnetImportResult> {
     console.log('🔧 TransformAndImport starting with', transactions.length, 'transactions')
     
+    // Ensure config has default values
+    if (!config.portfolioMappings) {
+      config.portfolioMappings = []
+    }
+    
     const result: NordnetImportResult = {
       success: false,
       parsedRows: transactions.length,
@@ -362,16 +367,19 @@ export class NordnetTransactionTransformer {
 
         // Create new stock if allowed
         if (config.createMissingStocks) {
+          const extractedSymbol = this.extractSymbolFromName(stockInfo.name)
           const stockRecord = {
-            symbol: this.extractSymbolFromName(stockInfo.name),
-            exchange: 'UNKNOWN',
-            name: stockInfo.name,
-            company_name: stockInfo.name,
+            symbol: extractedSymbol || isin.slice(-6), // Fallback to last 6 chars of ISIN
+            exchange: this.determineExchange(isin, stockInfo.currency),
+            name: stockInfo.name.slice(0, 255), // Ensure name isn't too long
+            company_name: stockInfo.name.slice(0, 255),
             isin,
             currency: stockInfo.currency,
-            asset_class: 'STOCK',
-            data_source: 'CSV_IMPORT',
+            asset_class: 'STOCK' as const,
+            data_source: 'CSV_IMPORT' as const,
           }
+
+          console.log('🔍 Creating stock:', stockRecord)
 
           const { data: newStock, error: createError } = await this.supabase
             .from('stocks')
@@ -380,11 +388,18 @@ export class NordnetTransactionTransformer {
             .single()
 
           if (createError) {
-            console.error('Stock creation error:', createError)
-            console.error('Stock data:', stockRecord)
-            throw createError
+            console.error('❌ Stock creation error details:', {
+              error: createError,
+              code: createError.code,
+              message: createError.message,
+              details: createError.details,
+              hint: createError.hint,
+              stockRecord
+            })
+            throw new Error(`Database error: ${createError.message} (Code: ${createError.code})`)
           }
 
+          console.log('✅ Stock created successfully:', newStock.id)
           stockMap.set(isin, newStock.id)
         } else {
           result.warnings.push(
@@ -523,46 +538,81 @@ export class NordnetTransactionTransformer {
   ): Promise<void> {
     const batchSize = 100 // Process in batches to avoid timeout
 
+    console.log(`🔍 Starting import of ${transactions.length} transactions in batches of ${batchSize}`)
+
     for (let i = 0; i < transactions.length; i += batchSize) {
       const batch = transactions.slice(i, i + batchSize)
+      const batchNumber = Math.floor(i / batchSize) + 1
+
+      console.log(`📦 Processing batch ${batchNumber} with ${batch.length} transactions`)
 
       try {
         // Check for duplicates if configured
         if (config.duplicateTransactionHandling === 'skip') {
+          console.log('🔍 Filtering duplicates...')
           const filteredBatch = await this.filterDuplicates(batch)
-          if (filteredBatch.length === 0) continue
+          
+          if (filteredBatch.length === 0) {
+            console.log(`⏭️ Batch ${batchNumber} skipped - all transactions are duplicates`)
+            continue
+          }
 
-          const { error } = await this.supabase
+          console.log(`📝 Inserting ${filteredBatch.length} unique transactions (batch ${batchNumber})`)
+          console.log('🔍 Sample transaction:', JSON.stringify(filteredBatch[0], null, 2))
+
+          const { data, error } = await this.supabase
             .from('transactions')
             .insert(filteredBatch)
+            .select('id')
 
           if (error) {
-            console.error('Transaction batch insert error:', error)
-            console.error('Batch data (first 3):', filteredBatch.slice(0, 3))
-            throw error
+            console.error(`❌ Transaction batch ${batchNumber} insert error:`, {
+              error,
+              code: error.code,
+              message: error.message,
+              details: error.details,
+              hint: error.hint
+            })
+            console.error('❌ Failed batch data (first 3):', filteredBatch.slice(0, 3))
+            throw new Error(`Database error in batch ${batchNumber}: ${error.message} (Code: ${error.code})`)
           }
+
+          console.log(`✅ Batch ${batchNumber} inserted successfully: ${data?.length || filteredBatch.length} transactions`)
           result.createdTransactions += filteredBatch.length
         } else {
-          const { error } = await this.supabase
+          console.log(`📝 Inserting ${batch.length} transactions (batch ${batchNumber}, no duplicate filtering)`)
+          
+          const { data, error } = await this.supabase
             .from('transactions')
             .insert(batch)
+            .select('id')
 
           if (error) {
-            console.error(
-              'Transaction batch insert error (no duplicate filtering):',
-              error
-            )
-            console.error('Batch data (first 3):', batch.slice(0, 3))
-            throw error
+            console.error(`❌ Transaction batch ${batchNumber} insert error (no duplicate filtering):`, {
+              error,
+              code: error.code,
+              message: error.message,
+              details: error.details,
+              hint: error.hint
+            })
+            console.error('❌ Failed batch data (first 3):', batch.slice(0, 3))
+            throw new Error(`Database error in batch ${batchNumber}: ${error.message} (Code: ${error.code})`)
           }
+
+          console.log(`✅ Batch ${batchNumber} inserted successfully: ${data?.length || batch.length} transactions`)
           result.createdTransactions += batch.length
         }
       } catch (error) {
-        result.errors.push(
-          `Failed to import batch ${Math.floor(i / batchSize) + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`
-        )
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+        console.error(`❌ Batch ${batchNumber} failed:`, error)
+        result.errors.push(`Failed to import batch ${batchNumber}: ${errorMsg}`)
+        
+        // Continue with next batch instead of failing completely
+        continue
       }
     }
+
+    console.log(`🎉 Transaction import completed: ${result.createdTransactions} transactions created`)
   }
 
   /**
@@ -591,8 +641,9 @@ export class NordnetTransactionTransformer {
    */
   private findPortfolioMapping(
     portfolioName: string,
-    mappings: NordnetPortfolioMapping[]
+    mappings?: NordnetPortfolioMapping[]
   ): NordnetPortfolioMapping | undefined {
+    if (!mappings || mappings.length === 0) return undefined
     return mappings.find(m => m.csvPortfolioName === portfolioName)
   }
 
@@ -627,7 +678,7 @@ export class NordnetTransactionTransformer {
     return Array.from(currencyCount.entries()).sort((a, b) => b[1] - a[1])[0][0]
   }
 
-  private extractSymbolFromName(name: string): string {
+  private extractSymbolFromName(name: string): string | null {
     // Extract ticker symbol from security name
     // This is a best-effort approach
     const patterns = [
@@ -641,9 +692,50 @@ export class NordnetTransactionTransformer {
       if (match) return match[1]
     }
 
-    // Fallback: use first word in uppercase
+    // Fallback: use first word in uppercase if it looks like a symbol
     const firstWord = name.split(' ')[0].toUpperCase()
-    return firstWord.slice(0, 6) // Limit to 6 characters
+    if (firstWord.length >= 1 && firstWord.length <= 6 && /^[A-Z]+$/.test(firstWord)) {
+      return firstWord
+    }
+
+    return null // No valid symbol found
+  }
+
+  private determineExchange(isin: string, currency: string): string {
+    // Determine exchange based on ISIN country code and currency
+    const countryCode = isin.slice(0, 2)
+    
+    switch (countryCode) {
+      case 'US': return 'NASDAQ' // US stocks
+      case 'CA': return 'TSX'    // Canadian stocks
+      case 'GB': return 'LSE'    // UK stocks
+      case 'DE': return 'XETRA'  // German stocks
+      case 'FR': return 'EPA'    // French stocks
+      case 'NL': return 'AMS'    // Dutch stocks
+      case 'NO': return 'OSL'    // Norwegian stocks
+      case 'SE': return 'STO'    // Swedish stocks
+      case 'DK': return 'CPH'    // Danish stocks
+      case 'FI': return 'HEL'    // Finnish stocks
+      case 'CH': return 'SWX'    // Swiss stocks
+      case 'IT': return 'MIL'    // Italian stocks
+      case 'ES': return 'BME'    // Spanish stocks
+      case 'AU': return 'ASX'    // Australian stocks
+      case 'JP': return 'TYO'    // Japanese stocks
+      case 'HK': return 'HKG'    // Hong Kong stocks
+      case 'SG': return 'SGX'    // Singapore stocks
+      default:
+        // Fallback based on currency
+        switch (currency) {
+          case 'USD': return 'NASDAQ'
+          case 'EUR': return 'XETRA'
+          case 'GBP': return 'LSE'
+          case 'CAD': return 'TSX'
+          case 'NOK': return 'OSL'
+          case 'SEK': return 'STO'
+          case 'DKK': return 'CPH'
+          default: return 'OTHER'
+        }
+    }
   }
 
   private generateNotes(transaction: NordnetTransactionData): string {

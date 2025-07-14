@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Portfolio - Mobile Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #333;
+            line-height: 1.6;
+            max-width: 390px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .mobile-header {
+            background: white;
+            padding: 16px 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .greeting {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .profile-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .portfolio-summary {
+            text-align: center;
+        }
+        
+        .total-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+        
+        .day-change {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .positive { color: #10b981; }
+        .negative { color: #ef4444; }
+        
+        .last-updated {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        
+        .main-content {
+            padding: 0 20px 100px 20px;
+        }
+        
+        .section {
+            margin-bottom: 24px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .see-all {
+            color: #3b82f6;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .quick-action {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 8px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .quick-action:active {
+            transform: scale(0.98);
+        }
+        
+        .action-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .action-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+        }
+        
+        .allocation-chart {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+        
+        .chart-placeholder {
+            height: 200px;
+            background: #f8fafc;
+            border: 2px dashed #e2e8f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+        
+        .allocation-legend {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
+        .stocks-color { background: #3b82f6; }
+        .crypto-color { background: #f59e0b; }
+        .alternatives-color { background: #ec4899; }
+        .cash-color { background: #10b981; }
+        
+        .legend-text {
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .legend-percentage {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-left: auto;
+        }
+        
+        .holdings-list {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .holding-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .holding-item:last-child {
+            border-bottom: none;
+        }
+        
+        .holding-item:active {
+            background: #f8fafc;
+        }
+        
+        .holding-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+        
+        .stocks-icon { background: #dbeafe; color: #3b82f6; }
+        .crypto-icon { background: #fef3c7; color: #f59e0b; }
+        .alternatives-icon { background: #fce7f3; color: #ec4899; }
+        
+        .holding-info {
+            flex: 1;
+        }
+        
+        .holding-name {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 2px;
+        }
+        
+        .holding-symbol {
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .holding-values {
+            text-align: right;
+        }
+        
+        .holding-value {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 2px;
+        }
+        
+        .holding-change {
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .activity-feed {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+        
+        .buy-icon { background: #10b981; color: white; }
+        .sell-icon { background: #ef4444; color: white; }
+        .dividend-icon { background: #3b82f6; color: white; }
+        
+        .activity-details {
+            flex: 1;
+        }
+        
+        .activity-text {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 2px;
+        }
+        
+        .activity-time {
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .activity-amount {
+            font-weight: 600;
+            text-align: right;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 390px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #64748b;
+            text-decoration: none;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            min-width: 60px;
+        }
+        
+        .nav-item.active {
+            color: #3b82f6;
+            background: #f0f9ff;
+        }
+        
+        .nav-icon {
+            font-size: 20px;
+        }
+        
+        .nav-label {
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .floating-add {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .floating-add:active {
+            transform: scale(0.95);
+        }
+        
+        @media (max-width: 390px) {
+            body {
+                max-width: 100%;
+            }
+            
+            .bottom-nav {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="mobile-header">
+        <div class="header-top">
+            <div class="greeting">God morgen, Azhar</div>
+            <button class="profile-btn">A</button>
+        </div>
+        <div class="portfolio-summary">
+            <div class="total-value">2 847 500 kr</div>
+            <div class="day-change positive">+47 230 kr (+1.68%)</div>
+            <div class="last-updated">Oppdatert for 2 min siden</div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="quick-actions">
+            <button class="quick-action">
+                <div class="action-icon">➕</div>
+                <div class="action-label">Legg til</div>
+            </button>
+            <button class="quick-action">
+                <div class="action-icon">🔄</div>
+                <div class="action-label">Synk</div>
+            </button>
+            <button class="quick-action">
+                <div class="action-icon">📊</div>
+                <div class="action-label">Analyse</div>
+            </button>
+            <button class="quick-action">
+                <div class="action-icon">🔍</div>
+                <div class="action-label">Søk</div>
+            </button>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Allokering</h2>
+                <a href="#" class="see-all">Se alt</a>
+            </div>
+            <div class="allocation-chart">
+                <div class="chart-placeholder">
+                    Donut chart: Aktivafordeling
+                </div>
+                <div class="allocation-legend">
+                    <div class="legend-item">
+                        <div class="legend-color stocks-color"></div>
+                        <span class="legend-text">Aksjer</span>
+                        <span class="legend-percentage">67.2%</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color crypto-color"></div>
+                        <span class="legend-text">Krypto</span>
+                        <span class="legend-percentage">18.7%</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color alternatives-color"></div>
+                        <span class="legend-text">Alternativ</span>
+                        <span class="legend-percentage">11.5%</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color cash-color"></div>
+                        <span class="legend-text">Kontanter</span>
+                        <span class="legend-percentage">2.6%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Største beholdninger</h2>
+                <a href="#" class="see-all">Se alle</a>
+            </div>
+            <div class="holdings-list">
+                <div class="holding-item">
+                    <div class="holding-icon stocks-icon">A</div>
+                    <div class="holding-info">
+                        <div class="holding-name">Apple Inc.</div>
+                        <div class="holding-symbol">AAPL • Aksje</div>
+                    </div>
+                    <div class="holding-values">
+                        <div class="holding-value">456 780 kr</div>
+                        <div class="holding-change positive">+2.3%</div>
+                    </div>
+                </div>
+
+                <div class="holding-item">
+                    <div class="holding-icon crypto-icon">₿</div>
+                    <div class="holding-info">
+                        <div class="holding-name">Bitcoin</div>
+                        <div class="holding-symbol">BTC • Krypto</div>
+                    </div>
+                    <div class="holding-values">
+                        <div class="holding-value">287 400 kr</div>
+                        <div class="holding-change positive">+5.7%</div>
+                    </div>
+                </div>
+
+                <div class="holding-item">
+                    <div class="holding-icon stocks-icon">N</div>
+                    <div class="holding-info">
+                        <div class="holding-name">Norsk Hydro</div>
+                        <div class="holding-symbol">NHY.OL • Aksje</div>
+                    </div>
+                    <div class="holding-values">
+                        <div class="holding-value">234 560 kr</div>
+                        <div class="holding-change negative">-1.2%</div>
+                    </div>
+                </div>
+
+                <div class="holding-item">
+                    <div class="holding-icon alternatives-icon">🎨</div>
+                    <div class="holding-info">
+                        <div class="holding-name">Edvard Munch Print</div>
+                        <div class="holding-symbol">EM-001 • Kunst</div>
+                    </div>
+                    <div class="holding-values">
+                        <div class="holding-value">185 000 kr</div>
+                        <div class="holding-change positive">+12.1%</div>
+                    </div>
+                </div>
+
+                <div class="holding-item">
+                    <div class="holding-icon crypto-icon">Ξ</div>
+                    <div class="holding-info">
+                        <div class="holding-name">Ethereum</div>
+                        <div class="holding-symbol">ETH • Krypto</div>
+                    </div>
+                    <div class="holding-values">
+                        <div class="holding-value">145 670 kr</div>
+                        <div class="holding-change positive">+3.4%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Siste aktivitet</h2>
+                <a href="#" class="see-all">Se alle</a>
+            </div>
+            <div class="activity-feed">
+                <div class="activity-item">
+                    <div class="activity-icon buy-icon">K</div>
+                    <div class="activity-details">
+                        <div class="activity-text">Kjøpt Apple Inc.</div>
+                        <div class="activity-time">I dag, 14:32</div>
+                    </div>
+                    <div class="activity-amount">-28 750 kr</div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon dividend-icon">D</div>
+                    <div class="activity-details">
+                        <div class="activity-text">Utbytte mottatt</div>
+                        <div class="activity-time">I går, 09:15</div>
+                    </div>
+                    <div class="activity-amount positive">+2 340 kr</div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon sell-icon">S</div>
+                    <div class="activity-details">
+                        <div class="activity-text">Solgt Bitcoin</div>
+                        <div class="activity-time">3 dager siden</div>
+                    </div>
+                    <div class="activity-amount positive">+21 850 kr</div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon buy-icon">K</div>
+                    <div class="activity-details">
+                        <div class="activity-text">Kjøpt Ethereum</div>
+                        <div class="activity-time">1 uke siden</div>
+                    </div>
+                    <div class="activity-amount">-15 200 kr</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <button class="floating-add">+</button>
+
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">Hjem</div>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">📊</div>
+            <div class="nav-label">Beholdning</div>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">💸</div>
+            <div class="nav-label">Aktivitet</div>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">📈</div>
+            <div class="nav-label">Analyse</div>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">⚙️</div>
+            <div class="nav-label">Mer</div>
+        </a>
+    </nav>
+</body>
+</html>
