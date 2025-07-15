@@ -3,17 +3,24 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { DashboardLayout, DashboardHeader, DashboardContent } from '@/components/layout/dashboard-layout'
+import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { LoadingState } from '@/components/ui/loading-states'
-import { TrendingUp, BarChart3, Users, Target, Search, Bell, User, Lightbulb, Wrench } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { usePortfoliosState } from '@/lib/hooks/use-portfolio-state'
 import { useMultiBrokerPortfolioState } from '@/lib/hooks/use-multi-broker-portfolio-state'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button-system'
-import { Input } from '@/components/ui/input'
 import { NorwegianBreadcrumb } from '@/components/ui/norwegian-breadcrumb'
-import { Badge } from '@/components/ui/badge'
-import { RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react'
+import { 
+  TrendingUp, 
+  TrendingDown, 
+  Activity, 
+  RefreshCw, 
+  PlusCircle,
+  BarChart3,
+  Search,
+  Download
+} from 'lucide-react'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -78,8 +85,14 @@ export default function DashboardPage() {
   const totalPortfolioValue = hasMultiBrokerData 
     ? multiBrokerSummary?.totalValue || 0 
     : portfolios.reduce((sum, p) => sum + (p.total_value || 0), 0)
-  const totalPortfolioChange = portfolios.reduce((sum, p) => sum + (p.daily_change_percent || 0), 0) / Math.max(portfolios.length, 1)
-  const totalHoldings = portfolios.reduce((sum, p) => sum + (p.holdings_count || 0), 0)
+  
+  const totalPortfolioChange = hasMultiBrokerData
+    ? multiBrokerSummary?.totalGainLoss || 0
+    : 0
+  
+  const totalPortfolioChangePercent = hasMultiBrokerData
+    ? multiBrokerSummary?.totalGainLossPercent || 0
+    : portfolios.reduce((sum, p) => sum + (p.daily_change_percent || 0), 0) / Math.max(portfolios.length, 1)
   
   // Format currency with Norwegian locale
   const formatCurrency = (amount: number) => {
@@ -90,279 +103,292 @@ export default function DashboardPage() {
       maximumFractionDigits: 0
     }).format(amount)
   }
-  
-  // Get aggregation status badge
-  const getAggregationStatusBadge = () => {
-    if (!aggregationStatus) return null
-    
-    switch (aggregationStatus.status) {
-      case 'completed':
-        return <Badge variant="default" className="bg-green-100 text-green-800 text-xs"><CheckCircle className="w-3 h-3 mr-1" />Synkronisert</Badge>
-      case 'running':
-        return <Badge variant="secondary" className="text-xs"><RefreshCw className="w-3 h-3 mr-1 animate-spin" />Synkroniserer</Badge>
-      case 'failed':
-        return <Badge variant="destructive" className="text-xs"><AlertTriangle className="w-3 h-3 mr-1" />Feil</Badge>
-      case 'pending':
-        return <Badge variant="outline" className="text-xs">Venter</Badge>
-      default:
-        return <Badge variant="outline" className="text-xs">Aldri kjørt</Badge>
-    }
-  }
+
+  // Get asset allocation data
+  const assetBreakdown = getAssetClassBreakdown()
+
+  // Get some sample holdings data for the table
+  const sampleHoldings = [
+    { symbol: 'AAPL', name: 'Apple Inc.', type: 'Aksje', value: 456780, change: 2.3, allocation: 16.0 },
+    { symbol: 'BTC', name: 'Bitcoin', type: 'Krypto', value: 287400, change: 5.7, allocation: 10.1 },
+    { symbol: 'NHY.OL', name: 'Norsk Hydro', type: 'Aksje', value: 234560, change: -1.2, allocation: 8.2 },
+    { symbol: 'EM-001', name: 'Edvard Munch Print', type: 'Kunst', value: 185000, change: 12.1, allocation: 6.5 },
+    { symbol: 'ETH', name: 'Ethereum', type: 'Krypto', value: 145670, change: 3.4, allocation: 5.1 }
+  ]
+
+  // Recent activity data
+  const recentActivity = [
+    { type: 'buy', symbol: 'AAPL', action: 'Kjøpt Apple Inc.', details: '15 aksjer @ $187.45', amount: -28750, time: 'I dag, 14:32' },
+    { type: 'dividend', symbol: 'NHY.OL', action: 'Utbytte mottatt', details: 'Norsk Hydro ASA', amount: 2340, time: 'I går, 09:15' },
+    { type: 'sell', symbol: 'BTC', action: 'Solgt Bitcoin', details: '0.05 BTC @ $43,200', amount: 21850, time: '3 dager siden' }
+  ]
 
   return (
     <DashboardLayout>
       <NorwegianBreadcrumb />
       
-      {/* Main Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+      {/* Main Header with Portfolio Value - Wireframe Style */}
+      <div className="bg-white border-b border-gray-200 px-6 py-6 mb-6">
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-6">
-            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 min-w-[300px]">
-              <Search className="h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Søk i dashboard..."
-                className="border-none bg-transparent p-0 text-sm focus:ring-0"
-              />
-            </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-1">Din portefølje</h1>
+            <p className="text-gray-600">
+              Oppdatert for {aggregationStatus?.lastUpdated ? '2 minutter siden' : 'aldri'}
+            </p>
           </div>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" className="h-10 w-10 p-0">
-              <Bell className="h-5 w-5 text-gray-500" />
-            </Button>
-            <Button variant="ghost" size="sm" className="h-10 w-10 p-0">
-              <User className="h-5 w-5 text-gray-500" />
-            </Button>
+          <div className="text-right">
+            <div className="text-4xl font-bold text-gray-900 mb-1">
+              {formatCurrency(totalPortfolioValue)}
+            </div>
+            <div className={`text-lg font-semibold flex items-center justify-end gap-1 ${
+              totalPortfolioChange >= 0 ? 'text-green-600' : 'text-red-600'
+            }`}>
+              {totalPortfolioChange >= 0 ? (
+                <TrendingUp className="w-5 h-5" />
+              ) : (
+                <TrendingDown className="w-5 h-5" />
+              )}
+              {totalPortfolioChange >= 0 ? '+' : ''}{formatCurrency(totalPortfolioChange)} ({totalPortfolioChangePercent >= 0 ? '+' : ''}{totalPortfolioChangePercent.toFixed(2)}%)
+            </div>
           </div>
         </div>
       </div>
 
-      <DashboardContent>
-        {/* Welcome Banner */}
-        <div className="bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] rounded-2xl p-8 text-center mb-8">
-          <h2 className="text-3xl font-bold text-white tracking-wide">
-            WELCOME TO THE DASHBOARD
-          </h2>
-        </div>
-
-        {/* 2x2 Dashboard Grid */}
-        <div className="grid grid-cols-2 gap-6">
-          {/* Investeringer Card - Multi-Broker Integration */}
-          <Card className="bg-gradient-to-br from-[#f3f4ff] to-[#f0f0ff] border-[#6366f1]/20 hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-[#6366f1]/10 rounded-xl flex items-center justify-center">
-                    <TrendingUp className="h-6 w-6 text-[#6366f1]" />
-                  </div>
-                  <CardTitle className="text-xl font-semibold text-gray-900">
-                    <Button
-                      variant="ghost"
-                      className="h-auto p-0 font-semibold text-xl text-gray-900 hover:text-[#6366f1] hover:bg-transparent"
-                      onClick={() => router.push('/investments/aggregation')}
-                    >
-                      Investeringer
-                    </Button>
-                  </CardTitle>
-                </div>
-                <div className="flex items-center gap-2">
-                  {getAggregationStatusBadge()}
-                  {needsAggregation() && !isAggregating && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => triggerAggregation('NOK')}
-                      className="h-8 px-2"
-                      title="Synkroniser portfolio data"
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                    </Button>
-                  )}
+      <div className="px-6 space-y-6">
+        {/* 2x1 Grid: Portfolio Chart + Asset Allocation - Wireframe Style */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Portfolio Development Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold">Porteføljeutvikling</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
+                <div className="text-center text-gray-500">
+                  <BarChart3 className="w-12 h-12 mx-auto mb-2" />
+                  <div className="font-medium">Interaktivt chart: Porteføljeverdi over tid</div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Asset Allocation */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold">Aktivafordeling</CardTitle>
             </CardHeader>
-            <CardContent className="pt-0">
-              <div className="space-y-3 mb-5">
-                {/* Show multi-broker data if available, otherwise fallback to single broker */}
-                {hasMultiBrokerData && multiBrokerSummary ? (
-                  <>
-                    {/* Asset Class Breakdown */}
-                    {getAssetClassBreakdown().length > 0 ? (
-                      getAssetClassBreakdown().map((asset, index) => (
-                        <div key={index} className="flex justify-between items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-                          <span className="font-medium text-gray-700">{asset.displayName}</span>
-                          <div className="text-right">
-                            <span className="font-semibold text-[#6366f1] font-mono">
-                              {formatCurrency(asset.value)}
-                            </span>
-                            <div className="text-xs text-gray-500">
-                              {asset.percentage.toFixed(1)}%
-                            </div>
-                          </div>
+            <CardContent>
+              <div className="space-y-4">
+                {assetBreakdown.length > 0 ? (
+                  assetBreakdown.map((asset, index) => (
+                    <div key={index} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center text-blue-600 font-semibold">
+                          {asset.displayName === 'Aksjer' ? '📈' : 
+                           asset.displayName === 'Crypto' ? '₿' : 
+                           asset.displayName === 'Alternative' ? '🎨' : '💰'}
                         </div>
-                      ))
-                    ) : (
-                      <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-gray-200">
-                        <span className="font-medium text-gray-700">Total Portfolio</span>
-                        <span className="font-semibold text-[#6366f1] font-mono">
-                          {formatCurrency(multiBrokerSummary.totalValue)}
-                        </span>
+                        <div>
+                          <div className="font-medium">{asset.displayName}</div>
+                          <div className="text-sm text-gray-600">{asset.percentage.toFixed(1)}%</div>
+                        </div>
                       </div>
-                    )}
-                    
-                    {/* Broker Breakdown Section */}
-                    {getBrokerBreakdown().length > 1 && (
-                      <div className="border-t pt-3">
-                        <div className="text-xs font-medium text-gray-600 mb-2">BROKER FORDELING</div>
-                        {getBrokerBreakdown().map((broker, index) => (
-                          <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded-md border mb-1">
-                            <span className="text-sm text-gray-600">{broker.displayName}</span>
-                            <div className="text-right">
-                              <span className="text-sm font-medium text-gray-800">
-                                {formatCurrency(broker.value)}
-                              </span>
-                              <div className="text-xs text-gray-500">
-                                {broker.percentage.toFixed(1)}%
+                      <div className="font-semibold">
+                        {formatCurrency(asset.value)}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  // Fallback data when no multi-broker data available
+                  <>
+                    <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center text-blue-600">📈</div>
+                        <div>
+                          <div className="font-medium">Aksjer</div>
+                          <div className="text-sm text-gray-600">67.2%</div>
+                        </div>
+                      </div>
+                      <div className="font-semibold">{formatCurrency(totalPortfolioValue * 0.672)}</div>
+                    </div>
+                    <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-yellow-100 rounded flex items-center justify-center text-yellow-600">₿</div>
+                        <div>
+                          <div className="font-medium">Krypto</div>
+                          <div className="text-sm text-gray-600">18.7%</div>
+                        </div>
+                      </div>
+                      <div className="font-semibold">{formatCurrency(totalPortfolioValue * 0.187)}</div>
+                    </div>
+                    <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-pink-100 rounded flex items-center justify-center text-pink-600">🎨</div>
+                        <div>
+                          <div className="font-medium">Alternativ</div>
+                          <div className="text-sm text-gray-600">11.5%</div>
+                        </div>
+                      </div>
+                      <div className="font-semibold">{formatCurrency(totalPortfolioValue * 0.115)}</div>
+                    </div>
+                    <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-green-100 rounded flex items-center justify-center text-green-600">💰</div>
+                        <div>
+                          <div className="font-medium">Kontanter</div>
+                          <div className="text-sm text-gray-600">2.6%</div>
+                        </div>
+                      </div>
+                      <div className="font-semibold">{formatCurrency(totalPortfolioValue * 0.026)}</div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Holdings Table + Quick Actions - Wireframe Style */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Holdings Table */}
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold">Største beholdninger</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-200">
+                        <th className="text-left py-3 text-sm font-semibold text-gray-600 uppercase tracking-wide">Aktiva</th>
+                        <th className="text-left py-3 text-sm font-semibold text-gray-600 uppercase tracking-wide">Verdi</th>
+                        <th className="text-left py-3 text-sm font-semibold text-gray-600 uppercase tracking-wide">Endring</th>
+                        <th className="text-left py-3 text-sm font-semibold text-gray-600 uppercase tracking-wide">Andel</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sampleHoldings.map((holding, index) => (
+                        <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-3">
+                            <div>
+                              <div className="font-semibold">{holding.name}</div>
+                              <div className="text-sm text-gray-600">
+                                {holding.symbol} • {holding.type}
                               </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    {/* Fallback to single broker data */}
-                    <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-                      <span className="font-medium text-gray-700">Aksjer</span>
-                      <span className="font-semibold text-[#6366f1] font-mono">
-                        {formatCurrency(totalPortfolioValue)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-                      <span className="font-medium text-gray-700">Crypto</span>
-                      <span className="font-semibold text-[#6366f1] font-mono">-</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-                      <span className="font-medium text-gray-700">Kunst</span>
-                      <span className="font-semibold text-[#6366f1] font-mono">-</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-                      <span className="font-medium text-gray-700">Gull</span>
-                      <span className="font-semibold text-[#6366f1] font-mono">-</span>
-                    </div>
-                  </>
-                )}
-              </div>
-              
-              {/* Status and Actions */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                {hasMultiBrokerData && aggregationStatus ? (
-                  <div className="text-center">
-                    <div className="text-sm text-gray-600 mb-3">
-                      {aggregationStatus.consolidatedHoldings} unike beholdninger fra {aggregationStatus.totalHoldings} totalt
-                    </div>
-                    {aggregationStatus.duplicatesDetected > 0 && (
-                      <div className="text-xs text-yellow-600 mb-2">
-                        {aggregationStatus.duplicatesDetected} duplikater oppdaget
-                      </div>
-                    )}
-                    {multiBrokerError && (
-                      <div className="text-xs text-red-600 mb-2">
-                        Feil: {multiBrokerError}
-                      </div>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => router.push('/investments/aggregation')}
-                      className="h-7 text-xs px-3"
-                    >
-                      Se detaljer
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="text-center text-gray-500 text-sm min-h-[60px] flex flex-col items-center justify-center">
-                    <div className="mb-2">📊 Multi-broker portfolio</div>
-                    <div className="text-xs mb-3">Koble til flere meglere for automatisk aggregering</div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => router.push('/investments/connections')}
-                      className="h-7 text-xs px-3"
-                    >
-                      Koble til meglere
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                          </td>
+                          <td className="py-3 font-semibold">
+                            {formatCurrency(holding.value)}
+                          </td>
+                          <td className="py-3">
+                            <span className={`font-semibold ${holding.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {holding.change >= 0 ? '+' : ''}{holding.change}%
+                            </span>
+                          </td>
+                          <td className="py-3">
+                            {holding.allocation}%
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-          {/* Økonomi Card */}
-          <Card className="bg-gray-50 border-gray-200 hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center">
-                  <span className="text-2xl">💰</span>
+          {/* Quick Actions */}
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold">Hurtighandlinger</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start h-auto p-4 text-left"
+                    onClick={() => router.push('/stocks/add-transaction')}
+                  >
+                    <PlusCircle className="w-4 h-4 mr-3" />
+                    <div>
+                      <div className="font-medium">Legg til transaksjon</div>
+                    </div>
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start h-auto p-4 text-left"
+                    onClick={() => triggerAggregation('NOK')}
+                    disabled={isAggregating}
+                  >
+                    <RefreshCw className={`w-4 h-4 mr-3 ${isAggregating ? 'animate-spin' : ''}`} />
+                    <div>
+                      <div className="font-medium">Synkroniser kontoer</div>
+                    </div>
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start h-auto p-4 text-left"
+                    onClick={() => router.push('/reports')}
+                  >
+                    <Download className="w-4 h-4 mr-3" />
+                    <div>
+                      <div className="font-medium">Generer rapport</div>
+                    </div>
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start h-auto p-4 text-left"
+                    onClick={() => router.push('/stocks')}
+                  >
+                    <Search className="w-4 h-4 mr-3" />
+                    <div>
+                      <div className="font-medium">Søk aktiva</div>
+                    </div>
+                  </Button>
                 </div>
-                <CardTitle className="text-xl font-semibold text-gray-900">
-                  Økonomi
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="flex-1 flex items-center justify-center text-center min-h-[240px]">
-                <div className="text-lg font-semibold text-gray-500 uppercase tracking-wide">
-                  KOMMER SENERE!
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Konseptutvikling Card */}
-          <Card className="bg-gray-50 border-gray-200 hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center">
-                  <Lightbulb className="h-6 w-6 text-gray-500" />
-                </div>
-                <CardTitle className="text-xl font-semibold text-gray-900">
-                  Konseptutvikling
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="flex-1 flex items-center justify-center text-center min-h-[240px]">
-                <div className="text-lg font-semibold text-gray-500 uppercase tracking-wide">
-                  KOMMER SENERE!
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Verktøy Card */}
-          <Card className="bg-gray-50 border-gray-200 hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center">
-                  <Wrench className="h-6 w-6 text-gray-500" />
-                </div>
-                <CardTitle className="text-xl font-semibold text-gray-900">
-                  Verktøy
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="flex-1 flex items-center justify-center text-center min-h-[240px]">
-                <div className="text-lg font-semibold text-gray-500 uppercase tracking-wide">
-                  KOMMER SENERE!
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </DashboardContent>
+
+        {/* Recent Activity - Wireframe Style */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Siste aktivitet</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {recentActivity.map((activity, index) => (
+                <div key={index} className="flex justify-between items-center py-4 border-b border-gray-100 last:border-b-0">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold ${
+                      activity.type === 'buy' ? 'bg-green-600' : 
+                      activity.type === 'sell' ? 'bg-red-600' : 'bg-blue-600'
+                    }`}>
+                      {activity.type === 'buy' ? 'K' : activity.type === 'sell' ? 'S' : 'D'}
+                    </div>
+                    <div>
+                      <div className="font-semibold">{activity.action}</div>
+                      <div className="text-sm text-gray-600">{activity.details}</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className={`font-semibold ${activity.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {activity.amount >= 0 ? '+' : ''}{formatCurrency(activity.amount)}
+                    </div>
+                    <div className="text-sm text-gray-600">{activity.time}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </DashboardLayout>
   )
 }

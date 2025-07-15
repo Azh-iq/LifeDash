@@ -18,7 +18,8 @@ import {
   Play,
   Pause,
   Activity,
-  Zap
+  Zap,
+  Loader2
 } from 'lucide-react'
 
 interface BrokerSyncSettings {
@@ -32,17 +33,11 @@ interface BrokerSyncSettings {
   status: 'active' | 'paused' | 'error' | 'never_run'
   errorMessage?: string
   syncCount: number
+  connectionId?: string
 }
 
 interface AutoSyncSettingsProps {
   className?: string
-}
-
-const brokerDisplayNames: Record<string, string> = {
-  'plaid': 'Plaid (US Brokers)',
-  'schwab': 'Charles Schwab',
-  'interactive_brokers': 'Interactive Brokers',
-  'nordnet': 'Nordnet'
 }
 
 const brokerIcons: Record<string, string> = {
@@ -62,58 +57,48 @@ const intervalOptions = [
   { value: 1440, label: '24 timer', description: 'Manual kontroll' }
 ]
 
-// Mock data - in real implementation this would come from user settings and broker connections
-const mockBrokerSettings: BrokerSyncSettings[] = [
-  {
-    brokerId: 'interactive_brokers',
-    brokerName: 'Interactive Brokers',
-    enabled: true,
-    intervalMinutes: 15,
-    priority: 1,
-    lastSyncTime: '2025-01-15T14:30:00Z',
-    nextSyncTime: '2025-01-15T14:45:00Z',
-    status: 'active',
-    syncCount: 142
-  },
-  {
-    brokerId: 'schwab',
-    brokerName: 'Charles Schwab',
-    enabled: true,
-    intervalMinutes: 30,
-    priority: 2,
-    lastSyncTime: '2025-01-15T14:00:00Z',
-    nextSyncTime: '2025-01-15T14:30:00Z',
-    status: 'active',
-    syncCount: 89
-  },
-  {
-    brokerId: 'nordnet',
-    brokerName: 'Nordnet',
-    enabled: false,
-    intervalMinutes: 60,
-    priority: 3,
-    lastSyncTime: '2025-01-15T12:00:00Z',
-    status: 'paused',
-    syncCount: 45
-  },
-  {
-    brokerId: 'plaid',
-    brokerName: 'Plaid (Fidelity)',
-    enabled: true,
-    intervalMinutes: 240,
-    priority: 4,
-    lastSyncTime: '2025-01-15T10:00:00Z',
-    nextSyncTime: '2025-01-15T14:00:00Z',
-    status: 'error',
-    errorMessage: 'OAuth token expired',
-    syncCount: 23
-  }
-]
-
 export function AutoSyncSettings({ className }: AutoSyncSettingsProps) {
-  const [brokerSettings, setBrokerSettings] = useState<BrokerSyncSettings[]>(mockBrokerSettings)
+  const [brokerSettings, setBrokerSettings] = useState<BrokerSyncSettings[]>([])
   const [globalAutoSync, setGlobalAutoSync] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
   const [isUpdating, setIsUpdating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Fetch real broker settings from API
+  const fetchBrokerSettings = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      
+      const response = await fetch('/api/brokers/status')
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch broker settings')
+      }
+      
+      setBrokerSettings(result.data || [])
+      
+      // Set global sync based on whether any brokers are enabled
+      const hasEnabledBrokers = result.data?.some((broker: BrokerSyncSettings) => broker.enabled) || false
+      setGlobalAutoSync(hasEnabledBrokers)
+      
+    } catch (err) {
+      console.error('Error fetching broker settings:', err)
+      setError(err instanceof Error ? err.message : 'Unknown error')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchBrokerSettings()
+  }, [])
 
   const formatRelativeTime = (timestamp: string) => {
     const now = new Date()
@@ -166,17 +151,43 @@ export function AutoSyncSettings({ className }: AutoSyncSettingsProps) {
     setIsUpdating(true)
     
     try {
+      const response = await fetch('/api/brokers/status', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          brokerId,
+          enabled
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to update broker sync')
+      }
+
+      // Optimistically update the UI
       setBrokerSettings(prev => prev.map(broker => 
         broker.brokerId === brokerId 
           ? { ...broker, enabled, status: enabled ? 'active' : 'paused' }
           : broker
       ))
       
-      // In real implementation, this would call an API to update sync settings
-      await new Promise(resolve => setTimeout(resolve, 500))
+      // Update global sync state
+      const hasEnabledBrokers = brokerSettings.some(broker => 
+        broker.brokerId === brokerId ? enabled : broker.enabled
+      )
+      setGlobalAutoSync(hasEnabledBrokers)
       
     } catch (error) {
       console.error('Error updating broker sync:', error)
+      setError(error instanceof Error ? error.message : 'Failed to update broker sync')
     } finally {
       setIsUpdating(false)
     }
@@ -186,17 +197,43 @@ export function AutoSyncSettings({ className }: AutoSyncSettingsProps) {
     setIsUpdating(true)
     
     try {
+      const brokerSettings = brokerSettings.find(b => b.brokerId === brokerId)
+      if (!brokerSettings) {
+        throw new Error('Broker not found')
+      }
+
+      const response = await fetch('/api/brokers/status', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          brokerId,
+          enabled: brokerSettings.enabled,
+          intervalMinutes
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to update sync interval')
+      }
+
+      // Optimistically update the UI
       setBrokerSettings(prev => prev.map(broker => 
         broker.brokerId === brokerId 
           ? { ...broker, intervalMinutes }
           : broker
       ))
       
-      // In real implementation, this would call an API to update interval
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
     } catch (error) {
       console.error('Error updating sync interval:', error)
+      setError(error instanceof Error ? error.message : 'Failed to update sync interval')
     } finally {
       setIsUpdating(false)
     }
@@ -206,6 +243,27 @@ export function AutoSyncSettings({ className }: AutoSyncSettingsProps) {
     setIsUpdating(true)
     
     try {
+      const response = await fetch('/api/brokers/sync', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          brokerId,
+          force: true
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to start manual sync')
+      }
+
       // Update status to show sync in progress
       setBrokerSettings(prev => prev.map(broker => 
         broker.brokerId === brokerId 
@@ -213,11 +271,9 @@ export function AutoSyncSettings({ className }: AutoSyncSettingsProps) {
           : broker
       ))
       
-      // In real implementation, this would trigger actual sync
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
     } catch (error) {
       console.error('Error starting manual sync:', error)
+      setError(error instanceof Error ? error.message : 'Failed to start manual sync')
     } finally {
       setIsUpdating(false)
     }
@@ -228,108 +284,126 @@ export function AutoSyncSettings({ className }: AutoSyncSettingsProps) {
     setGlobalAutoSync(enabled)
     
     try {
-      if (!enabled) {
-        // Pause all brokers
-        setBrokerSettings(prev => prev.map(broker => ({
-          ...broker,
-          enabled: false,
-          status: 'paused' as const
-        })))
-      } else {
-        // Resume previously enabled brokers
-        setBrokerSettings(prev => prev.map(broker => ({
-          ...broker,
-          enabled: broker.status !== 'error',
-          status: broker.status === 'error' ? 'error' : 'active' as const
-        })))
+      // Update all brokers
+      for (const broker of brokerSettings) {
+        await toggleBrokerSync(broker.brokerId, enabled)
       }
       
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
     } catch (error) {
-      console.error('Error toggling global sync:', error)
+      console.error('Error updating global sync:', error)
+      setError(error instanceof Error ? error.message : 'Failed to update global sync')
     } finally {
       setIsUpdating(false)
     }
   }
 
-  const activeBrokers = brokerSettings.filter(b => b.enabled && b.status === 'active')
-  const totalSyncCount = brokerSettings.reduce((sum, b) => sum + b.syncCount, 0)
+  if (isLoading) {
+    return (
+      <Card className={className}>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="w-5 h-5" />
+            Automatisk Synkronisering
+          </CardTitle>
+          <CardDescription>
+            Administrer automatisk synkronisering av broker data
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
+            <span className="ml-2 text-gray-500">Laster broker innstillinger...</span>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (error) {
+    return (
+      <Card className={className}>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="w-5 h-5" />
+            Automatisk Synkronisering
+          </CardTitle>
+          <CardDescription>
+            Administrer automatisk synkronisering av broker data
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Feil ved lasting av broker innstillinger: {error}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={fetchBrokerSettings} 
+                className="ml-2"
+              >
+                Prøv igjen
+              </Button>
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (brokerSettings.length === 0) {
+    return (
+      <Card className={className}>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="w-5 h-5" />
+            Automatisk Synkronisering
+          </CardTitle>
+          <CardDescription>
+            Administrer automatisk synkronisering av broker data
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Alert>
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Ingen broker tilkoblinger funnet. Koble til meglere først for å konfigurere automatisk synkronisering.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Automatisk Synkronisering</h2>
-          <p className="text-gray-600">Konfigurer automatisk synkronisering av broker data</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Label htmlFor="global-sync" className="text-sm font-medium">
-            Master kontroll
-          </Label>
+    <Card className={className}>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Settings className="w-5 h-5" />
+          Automatisk Synkronisering
+        </CardTitle>
+        <CardDescription>
+          Administrer automatisk synkronisering av broker data
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Global Auto-Sync Toggle */}
+        <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+          <div className="space-y-1">
+            <Label className="text-base font-medium">Global Auto-Synkronisering</Label>
+            <div className="text-sm text-gray-600">
+              Aktiverer/deaktiverer automatisk synkronisering for alle meglere
+            </div>
+          </div>
           <Switch
-            id="global-sync"
             checked={globalAutoSync}
             onCheckedChange={toggleGlobalSync}
             disabled={isUpdating}
           />
         </div>
-      </div>
 
-      {/* Global Status */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="w-5 h-5" />
-            Synkronisering Status
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{activeBrokers.length}</div>
-              <div className="text-sm text-gray-600">Aktive meglere</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{totalSyncCount}</div>
-              <div className="text-sm text-gray-600">Totale synkroniseringer</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">
-                {Math.min(...activeBrokers.map(b => b.intervalMinutes), 999)}m
-              </div>
-              <div className="text-sm text-gray-600">Høyeste frekvens</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">
-                {globalAutoSync ? 'PÅ' : 'AV'}
-              </div>
-              <div className="text-sm text-gray-600">Auto-synk status</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Alert for Global Status */}
-      {!globalAutoSync && (
-        <Alert>
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            Automatisk synkronisering er slått av. Broker data vil ikke oppdateres automatisk.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Broker Settings Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Megler Innstillinger</CardTitle>
-          <CardDescription>
-            Konfigurer synkroniseringsfrekvens og status for hver megler
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+        {/* Broker Settings Table */}
+        <div className="border rounded-lg">
           <Table>
             <TableHeader>
               <TableRow>
@@ -338,7 +412,7 @@ export function AutoSyncSettings({ className }: AutoSyncSettingsProps) {
                 <TableHead>Frekvens</TableHead>
                 <TableHead>Sist synkronisert</TableHead>
                 <TableHead>Neste sync</TableHead>
-                <TableHead>Aktivert</TableHead>
+                <TableHead>Antall syncer</TableHead>
                 <TableHead>Handlinger</TableHead>
               </TableRow>
             </TableHeader>
@@ -347,11 +421,13 @@ export function AutoSyncSettings({ className }: AutoSyncSettingsProps) {
                 <TableRow key={broker.brokerId}>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <span className="text-lg">{brokerIcons[broker.brokerId]}</span>
+                      <span className="text-lg">
+                        {brokerIcons[broker.brokerId] || '🏛️'}
+                      </span>
                       <div>
                         <div className="font-medium">{broker.brokerName}</div>
-                        <div className="text-sm text-gray-600">
-                          Prioritet: {broker.priority} • {broker.syncCount} syncs
+                        <div className="text-sm text-gray-500">
+                          Prioritet: {broker.priority}
                         </div>
                       </div>
                     </div>
@@ -360,7 +436,9 @@ export function AutoSyncSettings({ className }: AutoSyncSettingsProps) {
                     <div className="space-y-1">
                       {getStatusBadge(broker.status)}
                       {broker.errorMessage && (
-                        <div className="text-xs text-red-600">{broker.errorMessage}</div>
+                        <div className="text-xs text-red-600 max-w-[200px] truncate" title={broker.errorMessage}>
+                          {broker.errorMessage}
+                        </div>
                       )}
                     </div>
                   </TableCell>
@@ -368,18 +446,15 @@ export function AutoSyncSettings({ className }: AutoSyncSettingsProps) {
                     <Select
                       value={broker.intervalMinutes.toString()}
                       onValueChange={(value) => updateSyncInterval(broker.brokerId, parseInt(value))}
-                      disabled={!broker.enabled || isUpdating}
+                      disabled={isUpdating || !broker.enabled}
                     >
-                      <SelectTrigger className="w-40">
+                      <SelectTrigger className="w-[140px]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {intervalOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value.toString()}>
-                            <div>
-                              <div>{option.label}</div>
-                              <div className="text-xs text-gray-500">{option.description}</div>
-                            </div>
+                            {option.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -387,83 +462,84 @@ export function AutoSyncSettings({ className }: AutoSyncSettingsProps) {
                   </TableCell>
                   <TableCell>
                     <div className="text-sm">
-                      {broker.lastSyncTime ? formatRelativeTime(broker.lastSyncTime) : 'Aldri'}
+                      {broker.lastSyncTime 
+                        ? formatRelativeTime(broker.lastSyncTime)
+                        : 'Aldri'
+                      }
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="text-sm">
-                      {broker.enabled ? formatNextSyncTime(broker.nextSyncTime) : 'Pauset'}
+                      {broker.enabled ? formatNextSyncTime(broker.nextSyncTime) : 'Deaktivert'}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Switch
-                      checked={broker.enabled}
-                      onCheckedChange={(enabled) => toggleBrokerSync(broker.brokerId, enabled)}
-                      disabled={!globalAutoSync || isUpdating}
-                    />
+                    <div className="text-sm font-mono">
+                      {broker.syncCount.toLocaleString()}
+                    </div>
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => startManualSync(broker.brokerId)}
-                      disabled={isUpdating}
-                    >
-                      {isUpdating ? (
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Play className="w-4 h-4" />
-                      )}
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={broker.enabled}
+                        onCheckedChange={(enabled) => toggleBrokerSync(broker.brokerId, enabled)}
+                        disabled={isUpdating}
+                        size="sm"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => startManualSync(broker.brokerId)}
+                        disabled={isUpdating || !broker.enabled}
+                        className="h-8 px-2"
+                      >
+                        {isUpdating ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <RefreshCw className="w-3 h-3" />
+                        )}
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Advanced Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Zap className="w-5 h-5" />
-            Avanserte Innstillinger
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Anbefaling:</strong> Interactive Brokers og Schwab gir de mest nøyaktige real-time dataene. 
-                Plaid og Nordnet kan ha forsinkelse på opptil flere timer.
-              </AlertDescription>
-            </Alert>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <h4 className="font-medium mb-2">Sync Frekvens Guide:</h4>
-                <ul className="space-y-1 text-gray-600">
-                  <li>• <strong>15-30m:</strong> For aktiv trading</li>
-                  <li>• <strong>1-2t:</strong> For daglige investeringer</li>
-                  <li>• <strong>4-8t:</strong> For langsiktige strategier</li>
-                  <li>• <strong>24t:</strong> For passive forvaltning</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium mb-2">Feilhåndtering:</h4>
-                <ul className="space-y-1 text-gray-600">
-                  <li>• Automatisk retry med backoff</li>
-                  <li>• OAuth token refresh</li>
-                  <li>• Fallback til cache data</li>
-                  <li>• Email notifikasjoner ved feil</li>
-                </ul>
-              </div>
+        {/* Sync Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 text-green-800">
+              <CheckCircle className="w-4 h-4" />
+              <span className="font-medium">Aktive Meglere</span>
+            </div>
+            <div className="text-2xl font-bold text-green-900 mt-1">
+              {brokerSettings.filter(b => b.status === 'active').length}
             </div>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+          
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 text-blue-800">
+              <Activity className="w-4 h-4" />
+              <span className="font-medium">Total Syncer</span>
+            </div>
+            <div className="text-2xl font-bold text-blue-900 mt-1">
+              {brokerSettings.reduce((sum, b) => sum + b.syncCount, 0).toLocaleString()}
+            </div>
+          </div>
+          
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 text-amber-800">
+              <Clock className="w-4 h-4" />
+              <span className="font-medium">Ventende Syncer</span>
+            </div>
+            <div className="text-2xl font-bold text-amber-900 mt-1">
+              {brokerSettings.filter(b => b.status === 'active' && b.nextSyncTime).length}
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
