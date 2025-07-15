@@ -561,6 +561,7 @@ export default function StocksPage() {
   return (
     <ErrorBoundary>
       <DashboardLayout>
+        <NorwegianBreadcrumb />
         <DashboardHeader
           title="Aksjer"
           subtitle="Oversikt over alle dine aksjeposisjoner og beholdninger"

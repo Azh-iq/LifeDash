@@ -20,6 +20,10 @@ import {
   StickyNote,
   TrendingUp,
   Trash2,
+  Building2,
+  Merge,
+  Settings,
+  RefreshCw,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { HoldingWithMetrics } from '@/lib/hooks/use-portfolio-state'
@@ -35,6 +39,14 @@ export interface HoldingsActionsMenuProps {
   onViewHistory: (holding: HoldingWithMetrics) => void
   onRemovePosition: (holding: HoldingWithMetrics) => void
   disabled?: boolean
+  // Multi-broker specific actions
+  onViewBrokerBreakdown?: (holding: HoldingWithMetrics) => void
+  onMergeHoldings?: (holding: HoldingWithMetrics) => void
+  onResolveConflict?: (holding: HoldingWithMetrics) => void
+  onSyncBrokers?: (holding: HoldingWithMetrics) => void
+  isConsolidated?: boolean
+  isDuplicate?: boolean
+  brokerCount?: number
 }
 
 export function HoldingsActionsMenu({
@@ -48,6 +60,14 @@ export function HoldingsActionsMenu({
   onViewHistory,
   onRemovePosition,
   disabled = false,
+  // Multi-broker specific props
+  onViewBrokerBreakdown,
+  onMergeHoldings,
+  onResolveConflict,
+  onSyncBrokers,
+  isConsolidated = false,
+  isDuplicate = false,
+  brokerCount = 1,
 }: HoldingsActionsMenuProps) {
   const handleAction = (action: () => void) => {
     return (e: React.MouseEvent) => {
@@ -109,6 +129,24 @@ export function HoldingsActionsMenu({
           </span>
         </DropdownMenuItem>
 
+        {/* Multi-broker specific actions */}
+        {(isConsolidated || brokerCount > 1) && (
+          <DropdownMenuItem
+            onClick={handleAction(() => onViewBrokerBreakdown?.(holding))}
+            className="cursor-pointer focus:bg-indigo-50 dark:focus:bg-indigo-900/20"
+          >
+            <Building2 className="mr-2 h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+            <span className="text-indigo-700 dark:text-indigo-300">
+              Megler-sammendrag
+            </span>
+            {brokerCount > 1 && (
+              <span className="ml-auto text-xs text-gray-500">
+                ({brokerCount} meglere)
+              </span>
+            )}
+          </DropdownMenuItem>
+        )}
+
         <DropdownMenuSeparator />
 
         {/* Secondary Actions */}
@@ -154,6 +192,49 @@ export function HoldingsActionsMenu({
             Transaksjonshistorikk
           </span>
         </DropdownMenuItem>
+
+        {/* Multi-broker management actions */}
+        {(isConsolidated || brokerCount > 1) && (
+          <>
+            <DropdownMenuSeparator />
+            
+            {isDuplicate && (
+              <DropdownMenuItem
+                onClick={handleAction(() => onMergeHoldings?.(holding))}
+                className="cursor-pointer focus:bg-orange-50 dark:focus:bg-orange-900/20"
+              >
+                <Merge className="mr-2 h-4 w-4 text-orange-600 dark:text-orange-400" />
+                <span className="text-orange-700 dark:text-orange-300">
+                  Slå sammen duplikater
+                </span>
+              </DropdownMenuItem>
+            )}
+
+            {isDuplicate && (
+              <DropdownMenuItem
+                onClick={handleAction(() => onResolveConflict?.(holding))}
+                className="cursor-pointer focus:bg-yellow-50 dark:focus:bg-yellow-900/20"
+              >
+                <Settings className="mr-2 h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                <span className="text-yellow-700 dark:text-yellow-300">
+                  Løs konflikt
+                </span>
+              </DropdownMenuItem>
+            )}
+
+            <DropdownMenuItem
+              onClick={handleAction(() => onSyncBrokers?.(holding))}
+              className="cursor-pointer focus:bg-blue-50 dark:focus:bg-blue-900/20"
+            >
+              <RefreshCw className="mr-2 h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-blue-700 dark:text-blue-300">
+                Synkroniser meglere
+              </span>
+            </DropdownMenuItem>
+          </>
+        )}
+
+        <DropdownMenuSeparator />
 
         <DropdownMenuItem
           onClick={handleAction(() => onRemovePosition(holding))}
