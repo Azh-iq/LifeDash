@@ -21,18 +21,19 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu'
-import { format } from 'date-fns'
-import { nb } from 'date-fns/locale'
+// Removed date-fns dependency
 
 interface BrokerConnection {
   id: string
   broker_id: string
   display_name: string
-  status: 'connected' | 'disconnected' | 'error' | 'pending'
+  status: 'connected' | 'disconnected' | 'error' | 'expired' | 'pending'
   error_message?: string
   last_synced_at?: string
   created_at: string
-  accounts_count: number
+  icon?: string
+  broker_name?: string
+  accounts_count?: number
   metadata?: {
     country?: string
     connected_at?: string
@@ -50,8 +51,8 @@ interface BrokerConnection {
 interface BrokerConnectionCardProps {
   connection: BrokerConnection
   onSync: (connectionId: string) => void
-  onDelete: (connectionId: string) => void
-  onEdit: (connectionId: string) => void
+  onDisconnect: (connectionId: string) => void
+  onEdit?: (connectionId: string) => void
   isLoading?: boolean
 }
 
@@ -98,6 +99,11 @@ const statusConfig = {
     text: 'Feil',
     icon: AlertCircle
   },
+  expired: {
+    color: 'orange',
+    text: 'Utløpt',
+    icon: Clock
+  },
   pending: {
     color: 'yellow',
     text: 'Venter...',
@@ -105,10 +111,10 @@ const statusConfig = {
   }
 }
 
-export default function BrokerConnectionCard({
+export function BrokerConnectionCard({
   connection,
   onSync,
-  onDelete,
+  onDisconnect,
   onEdit,
   isLoading = false
 }: BrokerConnectionCardProps) {
@@ -129,7 +135,14 @@ export default function BrokerConnectionCard({
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'Aldri'
-    return format(new Date(dateString), 'dd. MMM yyyy, HH:mm', { locale: nb })
+    const date = new Date(dateString)
+    return date.toLocaleDateString('no-NO', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
   }
 
   const formatSyncSummary = () => {
@@ -159,13 +172,13 @@ export default function BrokerConnectionCard({
         <CardHeader className="pb-4">
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-3">
-              <div className="text-2xl">{broker?.icon}</div>
+              <div className="text-2xl">{connection.icon || broker?.icon}</div>
               <div>
                 <CardTitle className="text-lg font-semibold">
                   {connection.display_name}
                 </CardTitle>
                 <CardDescription className="text-sm text-gray-600">
-                  {broker?.description}
+                  {connection.broker_name || broker?.description}
                 </CardDescription>
               </div>
             </div>
@@ -186,12 +199,14 @@ export default function BrokerConnectionCard({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => onEdit(connection.id)}>
-                    <Settings className="w-4 h-4 mr-2" />
-                    Rediger
-                  </DropdownMenuItem>
+                  {onEdit && (
+                    <DropdownMenuItem onClick={() => onEdit(connection.id)}>
+                      <Settings className="w-4 h-4 mr-2" />
+                      Rediger
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem 
-                    onClick={() => onDelete(connection.id)}
+                    onClick={() => onDisconnect(connection.id)}
                     className="text-red-600"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
@@ -208,7 +223,7 @@ export default function BrokerConnectionCard({
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <p className="text-gray-600">Kontoer</p>
-              <p className="font-medium">{connection.accounts_count}</p>
+              <p className="font-medium">{connection.accounts_count || 0}</p>
             </div>
             <div>
               <p className="text-gray-600">Tilkoblet</p>

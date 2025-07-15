@@ -1,12 +1,38 @@
 -- Enhanced database schema for broker API integrations
 -- Based on Ghostfolio architecture with LifeDash adaptations
 
--- Enum types for broker integration
-CREATE TYPE broker_id AS ENUM ('plaid', 'schwab', 'interactive_brokers', 'nordnet');
-CREATE TYPE connection_status AS ENUM ('pending', 'connected', 'disconnected', 'error', 'expired');
-CREATE TYPE account_type AS ENUM ('CASH', 'MARGIN', 'RETIREMENT', 'CUSTODIAL');
-CREATE TYPE asset_class AS ENUM ('EQUITY', 'FIXED_INCOME', 'CRYPTOCURRENCY', 'COMMODITY', 'REAL_ESTATE', 'CASH', 'OPTION', 'FUND', 'ETF');
-CREATE TYPE transaction_type AS ENUM ('BUY', 'SELL', 'DIVIDEND', 'INTEREST', 'DEPOSIT', 'WITHDRAWAL', 'FEE', 'TAX', 'SPLIT', 'TRANSFER');
+-- Enum types for broker integration (create only if not exists)
+DO $$ BEGIN
+    CREATE TYPE broker_id AS ENUM ('plaid', 'schwab', 'interactive_brokers', 'nordnet');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE connection_status AS ENUM ('pending', 'connected', 'disconnected', 'error', 'expired');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+-- Check if account_type exists and has the values we need
+DO $$ BEGIN
+    CREATE TYPE account_type AS ENUM ('CASH', 'MARGIN', 'RETIREMENT', 'CUSTODIAL');
+EXCEPTION
+    WHEN duplicate_object THEN 
+        -- If it exists, check if we need to add new values
+        IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'CUSTODIAL' AND enumtypid = 'account_type'::regtype) THEN
+            ALTER TYPE account_type ADD VALUE 'CUSTODIAL';
+        END IF;
+END $$;
+
+-- asset_class enum already exists in 001_extensions.sql with compatible values
+-- We'll use the existing enum: 'STOCK', 'ETF', 'MUTUAL_FUND', 'BOND', 'CRYPTOCURRENCY', 'COMMODITY', 'REAL_ESTATE', 'ALTERNATIVE', 'CASH', 'OPTION', 'FUTURE', 'FOREX'
+
+DO $$ BEGIN
+    CREATE TYPE transaction_type AS ENUM ('BUY', 'SELL', 'DIVIDEND', 'INTEREST', 'DEPOSIT', 'WITHDRAWAL', 'FEE', 'TAX', 'SPLIT', 'TRANSFER');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 -- Brokerage connections table
 CREATE TABLE brokerage_connections (
@@ -47,7 +73,7 @@ CREATE TABLE brokerage_accounts (
 );
 
 -- Enhanced stocks table for multi-asset support
-ALTER TABLE stocks ADD COLUMN IF NOT EXISTS asset_class asset_class DEFAULT 'EQUITY';
+ALTER TABLE stocks ADD COLUMN IF NOT EXISTS asset_class asset_class DEFAULT 'STOCK';
 ALTER TABLE stocks ADD COLUMN IF NOT EXISTS asset_sub_class VARCHAR(50);
 ALTER TABLE stocks ADD COLUMN IF NOT EXISTS sectors JSONB DEFAULT '[]';
 ALTER TABLE stocks ADD COLUMN IF NOT EXISTS countries JSONB DEFAULT '[]';
@@ -73,7 +99,7 @@ CREATE TABLE portfolio_holdings (
   cost_basis DECIMAL(15,2),
   market_price DECIMAL(15,4) NOT NULL,
   currency VARCHAR(3) NOT NULL DEFAULT 'USD',
-  asset_class asset_class NOT NULL DEFAULT 'EQUITY',
+  asset_class asset_class NOT NULL DEFAULT 'STOCK',
   unrealized_pnl DECIMAL(15,2),
   unrealized_pnl_percent DECIMAL(8,4),
   day_change DECIMAL(15,2),
@@ -116,10 +142,7 @@ CREATE TABLE sync_operations (
   started_at TIMESTAMPTZ DEFAULT NOW(),
   completed_at TIMESTAMPTZ,
   error_message TEXT,
-  result JSONB DEFAULT '{}', -- {accounts_processed, holdings_processed, transactions_processed, errors}
-  
-  INDEX(user_id, started_at),
-  INDEX(connection_id, started_at)
+  result JSONB DEFAULT '{}' -- {accounts_processed, holdings_processed, transactions_processed, errors}
 );
 
 -- Broker API audit log (for debugging and monitoring)
@@ -134,31 +157,43 @@ CREATE TABLE broker_api_logs (
   response_time_ms INTEGER,
   error_message TEXT,
   request_id VARCHAR(255),
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  
-  INDEX(broker_id, created_at),
-  INDEX(user_id, created_at),
-  INDEX(connection_id, created_at)
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Indexes for performance
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_brokerage_connections_user_status 
+CREATE INDEX IF NOT EXISTS idx_brokerage_connections_user_status 
   ON brokerage_connections(user_id, status);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_brokerage_accounts_connection_active 
+CREATE INDEX IF NOT EXISTS idx_brokerage_accounts_connection_active 
   ON brokerage_accounts(connection_id, is_active);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_portfolio_holdings_user_updated 
+CREATE INDEX IF NOT EXISTS idx_portfolio_holdings_user_updated 
   ON portfolio_holdings(user_id, last_updated);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_portfolio_holdings_symbol_asset 
+CREATE INDEX IF NOT EXISTS idx_portfolio_holdings_symbol_asset 
   ON portfolio_holdings(symbol, asset_class);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_transactions_broker_account 
+CREATE INDEX IF NOT EXISTS idx_transactions_broker_account 
   ON transactions(brokerage_account_id, created_at) WHERE brokerage_account_id IS NOT NULL;
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_stocks_asset_class 
+CREATE INDEX IF NOT EXISTS idx_stocks_asset_class 
   ON stocks(asset_class) WHERE asset_class IS NOT NULL;
+
+-- Additional indexes for new tables
+CREATE INDEX IF NOT EXISTS idx_sync_operations_user_started 
+  ON sync_operations(user_id, started_at);
+
+CREATE INDEX IF NOT EXISTS idx_sync_operations_connection_started 
+  ON sync_operations(connection_id, started_at);
+
+CREATE INDEX IF NOT EXISTS idx_broker_api_logs_broker_created 
+  ON broker_api_logs(broker_id, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_broker_api_logs_user_created 
+  ON broker_api_logs(user_id, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_broker_api_logs_connection_created 
+  ON broker_api_logs(connection_id, created_at);
 
 -- Row Level Security (RLS) policies
 ALTER TABLE brokerage_connections ENABLE ROW LEVEL SECURITY;

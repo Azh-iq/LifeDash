@@ -3,12 +3,11 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { NorwegianBreadcrumb } from '@/components/ui/norwegian-breadcrumb'
-import { Widget, WidgetContainer } from '@/components/ui/widget'
+import { DashboardLayout, DashboardHeader, DashboardContent } from '@/components/layout/dashboard-layout'
 import { LoadingState } from '@/components/ui/loading-states'
-import { TrendingUp, Heart, DollarSign, Wrench, LogOut } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { TrendingUp, BarChart3, Users, Target } from 'lucide-react'
 import { usePortfoliosState } from '@/lib/hooks/use-portfolio-state'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -41,12 +40,12 @@ export default function DashboardPage() {
   // Show loading while checking auth or loading portfolios
   if (isLoading || portfoliosLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
+      <div className="min-h-screen bg-gray-50">
         <div className="flex min-h-screen items-center justify-center">
           <LoadingState
             variant="widget"
             size="lg"
-            text="Laster LifeDash..."
+            text="Laster Portfolio Manager..."
             className="text-center"
           />
         </div>
@@ -59,173 +58,122 @@ export default function DashboardPage() {
   const totalPortfolioChange = portfolios.reduce((sum, p) => sum + (p.daily_change_percent || 0), 0) / Math.max(portfolios.length, 1)
   const totalHoldings = portfolios.reduce((sum, p) => sum + (p.holdings_count || 0), 0)
 
-  const dashboardCards = [
-    {
-      id: 'investments',
-      title: 'Investeringer',
-      description: 'Portfolio oversikt og aksjeanalyser',
-      value: `NOK ${totalPortfolioValue.toLocaleString('no-NO')}`,
-      change: `${totalPortfolioChange >= 0 ? '+' : ''}${totalPortfolioChange.toFixed(1)}%`,
-      icon: <TrendingUp className="h-6 w-6" />,
-      category: 'stocks' as const,
-      href: '/investments',
-    },
-    {
-      id: 'hobby',
-      title: 'Hobby prosjekter',
-      description: 'Kreative prosjekter og hobbyer',
-      value: '12 aktive',
-      change: '+2 nye',
-      icon: <Heart className="h-6 w-6" />,
-      category: 'art' as const,
-      href: '/hobby',
-    },
-    {
-      id: 'economy',
-      title: 'Økonomi',
-      description: 'Budsjett og økonomisk oversikt',
-      value: 'NOK 45,230',
-      change: '+8.1%',
-      icon: <DollarSign className="h-6 w-6" />,
-      category: 'crypto' as const,
-      href: '/economy',
-    },
-    {
-      id: 'tools',
-      title: 'Verktøy',
-      description: 'Kalkulatorer og nyttige verktøy',
-      value: '8 verktøy',
-      change: 'Tilgjengelig',
-      icon: <Wrench className="h-6 w-6" />,
-      category: 'other' as const,
-      href: '/tools',
-    },
-  ]
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
-      {/* Breadcrumb Navigation */}
-      <div className="border-b border-gray-200 bg-white px-4 py-3">
-        <NorwegianBreadcrumb />
-      </div>
-
-      {/* Header */}
-      <div className="border-b border-gray-200 bg-white px-4 py-4">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 shadow-lg">
-              <span className="text-xl font-bold text-white">L</span>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">LifeDash</h1>
-              <p className="text-sm text-gray-600">
-                Din personlige kontrollpanel
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-sm text-gray-500">Velkommen tilbake</p>
-              <p className="font-semibold text-gray-900">
-                {user?.user_metadata?.full_name ||
-                  user?.email?.split('@')[0] ||
-                  'Bruker'}
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={async () => {
-                const supabase = createClient()
-                await supabase.auth.signOut()
-                router.replace('/login')
-              }}
-              className="border-purple-200 text-purple-600 hover:bg-purple-50"
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Logg ut
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <main className="mx-auto max-w-7xl px-4 py-6">
-        {/* Welcome Section */}
-        <div className="mb-8 text-center">
-          <h2 className="mb-4 bg-gradient-to-r from-purple-900 via-purple-800 to-purple-900 bg-clip-text text-4xl font-bold text-transparent">
-            Velkommen til LifeDash
-          </h2>
-          <p className="mx-auto max-w-3xl text-lg text-gray-600">
-            Din personlige kontrollpanel for å holde oversikt over
-            investeringer, hobby prosjekter, økonomi og nyttige verktøy.
-          </p>
-        </div>
-
-        {/* Dashboard Cards */}
-        <WidgetContainer columns={2} gap="lg" className="mb-8">
-          {dashboardCards.map(card => (
-            <Widget
-              key={card.id}
-              title={card.title}
-              description={card.description}
-              icon={card.icon}
-              size="medium"
-              category={card.category}
-              className="cursor-pointer transition-transform hover:scale-[1.02]"
-              onClick={() => router.push(card.href)}
-            >
-              <div className="space-y-4">
-                <div className="flex items-end justify-between">
-                  <div>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {card.value}
-                    </p>
-                  </div>
-                  <div
-                    className={`text-sm font-semibold ${
-                      card.change.startsWith('+')
-                        ? 'text-green-600'
-                        : card.change.startsWith('-')
-                          ? 'text-red-600'
-                          : 'text-gray-600'
-                    }`}
-                  >
-                    {card.change}
-                  </div>
-                </div>
-              </div>
-            </Widget>
-          ))}
-        </WidgetContainer>
-
-        {/* Quick Stats */}
-        <WidgetContainer columns={3} gap="md">
-          <Widget title="Total Verdi" size="small" category="stocks">
-            <div className="text-center">
-              <p className="text-3xl font-bold text-gray-900">NOK {totalPortfolioValue.toLocaleString('no-NO')}</p>
-              <p className={`text-sm ${totalPortfolioChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+    <DashboardLayout>
+      <DashboardHeader
+        title="Dashboard"
+        subtitle={`Velkommen tilbake, ${user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Bruker'}`}
+      />
+      
+      <DashboardContent>
+        {/* Portfolio Overview Cards */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total Verdi
+              </CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">NOK {totalPortfolioValue.toLocaleString('no-NO')}</div>
+              <p className={`text-xs ${totalPortfolioChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {totalPortfolioChange >= 0 ? '+' : ''}{totalPortfolioChange.toFixed(1)}% denne måneden
               </p>
-            </div>
-          </Widget>
+            </CardContent>
+          </Card>
 
-          <Widget title="Aktive Posisjoner" size="small" category="art">
-            <div className="text-center">
-              <p className="text-3xl font-bold text-gray-900">{totalHoldings}</p>
-              <p className="text-sm text-blue-600">{portfolios.length} porteføljer</p>
-            </div>
-          </Widget>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Aktive Posisjoner
+              </CardTitle>
+              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalHoldings}</div>
+              <p className="text-xs text-muted-foreground">
+                {portfolios.length} porteføljer
+              </p>
+            </CardContent>
+          </Card>
 
-          <Widget title="Porteføljer" size="small" category="other">
-            <div className="text-center">
-              <p className="text-3xl font-bold text-gray-900">{portfolios.length}</p>
-              <p className="text-sm text-purple-600">Sist oppdatert i dag</p>
-            </div>
-          </Widget>
-        </WidgetContainer>
-      </main>
-    </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Porteføljer
+              </CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{portfolios.length}</div>
+              <p className="text-xs text-muted-foreground">
+                Sist oppdatert i dag
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Ytelse
+              </CardTitle>
+              <Target className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">+12.5%</div>
+              <p className="text-xs text-muted-foreground">
+                År til dato
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Portfolio Summary */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+          <Card className="col-span-4">
+            <CardHeader>
+              <CardTitle>Portfolio Oversikt</CardTitle>
+              <CardDescription>
+                Din investeringsportefølje de siste 6 månedene
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pl-2">
+              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                Portfolio chart kommer her
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="col-span-3">
+            <CardHeader>
+              <CardTitle>Siste Aktivitet</CardTitle>
+              <CardDescription>
+                Nylige transaksjoner og endringer
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {portfolios.slice(0, 5).map((portfolio, index) => (
+                  <div key={portfolio.id} className="flex items-center">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-500 text-white text-xs font-semibold">
+                      {portfolio.name?.charAt(0) || 'P'}
+                    </div>
+                    <div className="ml-4 space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {portfolio.name || `Portfolio ${index + 1}`}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        NOK {(portfolio.total_value || 0).toLocaleString('no-NO')}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </DashboardContent>
+    </DashboardLayout>
   )
 }

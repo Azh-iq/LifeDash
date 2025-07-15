@@ -8,12 +8,14 @@ import {
   ShareIcon,
   DocumentArrowDownIcon,
   DocumentArrowUpIcon,
+  LinkIcon,
 } from '@heroicons/react/24/outline'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/ui/modal'
 import { toast } from '@/components/ui/toast'
 import { cn } from '@/lib/utils/cn'
 import CSVImportModal from '@/components/stocks/csv-import-modal'
+import AddBrokerModal from '@/components/brokers/add-broker-modal'
 
 interface TopNavigationMenuProps {
   portfolioId?: string
@@ -37,6 +39,7 @@ export default function TopNavigationMenu({
   const [showToolsDropdown, setShowToolsDropdown] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
   const [showCSVImportModal, setShowCSVImportModal] = useState(false)
+  const [showBrokerModal, setShowBrokerModal] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
 
   // Tool actions
@@ -98,8 +101,30 @@ export default function TopNavigationMenu({
     })
   }, [onImportComplete])
 
+  const handleConnectBroker = useCallback(() => {
+    setShowToolsDropdown(false)
+    setShowBrokerModal(true)
+  }, [])
+
+  const handleBrokerConnected = useCallback((connection: any) => {
+    setShowBrokerModal(false)
+    onImportComplete?.() // Refresh holdings after broker connection
+    toast({
+      title: 'Megler Tilkoblet',
+      description: `${connection.display_name} er nå tilkoblet og synkroniserer dine beholdninger.`,
+      variant: 'success',
+    })
+  }, [onImportComplete])
+
   // Tool actions configuration
   const toolActions: ToolAction[] = [
+    {
+      id: 'connect-broker',
+      label: 'Koble til Megler',
+      icon: <LinkIcon className="h-4 w-4" />,
+      action: handleConnectBroker,
+      description: 'Koble til din megler for automatisk synkronisering',
+    },
     {
       id: 'csv-import',
       label: 'CSV Import',
@@ -283,6 +308,13 @@ export default function TopNavigationMenu({
         isOpen={showCSVImportModal}
         onClose={() => setShowCSVImportModal(false)}
         onImportComplete={handleCSVImportComplete}
+      />
+
+      {/* Add Broker Modal */}
+      <AddBrokerModal
+        isOpen={showBrokerModal}
+        onClose={() => setShowBrokerModal(false)}
+        onSuccess={handleBrokerConnected}
       />
     </>
   )

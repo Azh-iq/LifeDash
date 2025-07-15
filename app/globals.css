@@ -2,65 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    /* shadcn/ui CSS variables */
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Modern Universal Portfolio App - shadcn/ui CSS variables */
+    --background: 248 250 252; /* #f8fafc - Light grey background */
+    --foreground: 30 41 59; /* #1e293b - Charcoal text */
+    --card: 0 0% 100%; /* #ffffff - White cards */
+    --card-foreground: 30 41 59; /* #1e293b - Charcoal text on cards */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 245 58% 51%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --popover-foreground: 30 41 59;
+    --primary: 37 99% 235; /* #2563eb - Deep blue primary */
+    --primary-foreground: 248 250 252; /* #f8fafc - Light text on primary */
+    --secondary: 210 40% 96%; /* #f1f5f9 - Light grey secondary */
+    --secondary-foreground: 100 116 139; /* #64748b - Slate grey text */
+    --muted: 210 40% 96%; /* #f1f5f9 - Light grey muted */
+    --muted-foreground: 100 116 139; /* #64748b - Slate grey muted text */
+    --accent: 158 64% 52%; /* #10b981 - Emerald green accent */
+    --accent-foreground: 0 0% 100%; /* White text on accent */
+    --destructive: 0 84.2% 60.2%; /* #ef4444 - Red for destructive */
+    --destructive-foreground: 0 0% 100%;
+    --border: 226 232 240; /* #e2e8f0 - Light grey border */
+    --input: 226 232 240; /* #e2e8f0 - Light grey input border */
+    --ring: 37 99% 235; /* #2563eb - Deep blue focus ring */
+    --radius: 0.75rem; /* Increased border radius for modern look */
+    --chart-1: 37 99% 235; /* #2563eb - Deep blue for charts */
+    --chart-2: 158 64% 52%; /* #10b981 - Emerald green */
+    --chart-3: 45 96% 64%; /* #f59e0b - Amber orange */
+    --chart-4: 262 83% 58%; /* #8b5cf6 - Purple */
+    --chart-5: 346 77% 49%; /* #e11d48 - Rose red */
 
-    /* Untitled UI + Financial Dashboard Integration */
-    --color-primary: #1e40af;
+    /* Modern Universal Portfolio App - Updated Color System */
+    --color-primary: #2563eb;
     --color-primary-hover: #1d4ed8;
+    --color-secondary: #64748b;
+    --color-accent: #10b981;
+    --color-warning: #f59e0b;
+    --color-danger: #ef4444;
 
-    /* Category-specific gradients - New 4 Main Areas */
-    /* 🔵 Investeringer (Investments) - Deep Navy Theme */
-    --gradient-investments: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-    --gradient-investments-light: linear-gradient(
-      135deg,
-      #dbeafe 0%,
-      #bfdbfe 100%
-    );
+    /* Universal Portfolio App - Category Colors */
+    /* 📈 Stocks - Deep Blue Theme */
+    --gradient-stocks: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    --gradient-stocks-light: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
 
-    /* 🟣 Hobby Prosjekter (Hobby Projects) - Creative Purple Theme */
-    --gradient-projects: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
-    --gradient-projects-light: linear-gradient(
-      135deg,
-      #f3e8ff 0%,
-      #e9d5ff 100%
-    );
+    /* ₿ Crypto - Amber Theme */
+    --gradient-crypto: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    --gradient-crypto-light: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
 
-    /* 🟢 Økonomi (Economy) - Financial Green Theme */
-    --gradient-economy: linear-gradient(135deg, #059669 0%, #10b981 100%);
-    --gradient-economy-light: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    /* 🎨 Alternatives - Purple Theme */
+    --gradient-alternatives: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+    --gradient-alternatives-light: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
 
-    /* 🟠 Verktøy (Tools) - Utility Orange Theme */
-    --gradient-tools: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
-    --gradient-tools-light: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+    /* 💰 Cash - Green Theme */
+    --gradient-cash: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    --gradient-cash-light: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
 
     /* Neutral foundation (Untitled UI standard) */
     --color-gray-50: #f9fafb;
@@ -81,11 +78,11 @@
     --text-primary: var(--color-gray-900);
     --text-secondary: var(--color-gray-600);
 
-    /* Category color variables */
-    --color-investments: #1e40af;
-    --color-projects: #7c3aed;
-    --color-economy: #059669;
-    --color-tools: #ea580c;
+    /* Universal Portfolio App - Asset Class Colors */
+    --color-stocks: #2563eb;
+    --color-crypto: #f59e0b;
+    --color-alternatives: #8b5cf6;
+    --color-cash: #10b981;
   }
 
   .dark {
@@ -225,21 +222,21 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
-  /* Category-specific button styles */
-  .btn-investments {
-    @apply transform rounded-xl bg-investments-500 px-6 py-3 font-medium text-white transition-all duration-200 hover:scale-105 hover:bg-investments-600 focus:outline-none focus:ring-2 focus:ring-investments-500/20;
+  /* Universal Portfolio App - Asset Class Button Styles */
+  .btn-stocks {
+    @apply transform rounded-xl bg-stocks-500 px-6 py-3 font-medium text-white transition-all duration-200 hover:scale-105 hover:bg-stocks-600 focus:outline-none focus:ring-2 focus:ring-stocks-500/20;
   }
 
-  .btn-projects {
-    @apply transform rounded-xl bg-projects-500 px-6 py-3 font-medium text-white transition-all duration-200 hover:scale-105 hover:bg-projects-600 focus:outline-none focus:ring-2 focus:ring-projects-500/20;
+  .btn-crypto {
+    @apply transform rounded-xl bg-crypto-500 px-6 py-3 font-medium text-white transition-all duration-200 hover:scale-105 hover:bg-crypto-600 focus:outline-none focus:ring-2 focus:ring-crypto-500/20;
   }
 
-  .btn-economy {
-    @apply transform rounded-xl bg-economy-500 px-6 py-3 font-medium text-white transition-all duration-200 hover:scale-105 hover:bg-economy-600 focus:outline-none focus:ring-2 focus:ring-economy-500/20;
+  .btn-alternatives {
+    @apply transform rounded-xl bg-alternatives-500 px-6 py-3 font-medium text-white transition-all duration-200 hover:scale-105 hover:bg-alternatives-600 focus:outline-none focus:ring-2 focus:ring-alternatives-500/20;
   }
 
-  .btn-tools {
-    @apply transform rounded-xl bg-tools-500 px-6 py-3 font-medium text-white transition-all duration-200 hover:scale-105 hover:bg-tools-600 focus:outline-none focus:ring-2 focus:ring-tools-500/20;
+  .btn-cash {
+    @apply transform rounded-xl bg-cash-500 px-6 py-3 font-medium text-white transition-all duration-200 hover:scale-105 hover:bg-cash-600 focus:outline-none focus:ring-2 focus:ring-cash-500/20;
   }
 
   /* Enhanced input styles (Untitled UI standard) */
@@ -252,48 +249,63 @@
     @apply transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl;
   }
 
-  /* Category-specific card styles */
-  .card-investments {
-    @apply transform rounded-xl border border-gray-200 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-investments-500 hover:shadow-xl;
+  /* Universal Portfolio App - Asset Class Card Styles */
+  .card-stocks {
+    @apply transform rounded-xl border border-gray-200 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-stocks-500 hover:shadow-xl;
   }
 
-  .card-projects {
-    @apply transform rounded-xl border border-gray-200 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-projects-500 hover:shadow-xl;
+  .card-crypto {
+    @apply transform rounded-xl border border-gray-200 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-crypto-500 hover:shadow-xl;
   }
 
-  .card-economy {
-    @apply transform rounded-xl border border-gray-200 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-economy-500 hover:shadow-xl;
+  .card-alternatives {
+    @apply transform rounded-xl border border-gray-200 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-alternatives-500 hover:shadow-xl;
   }
 
-  .card-tools {
-    @apply transform rounded-xl border border-gray-200 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-tools-500 hover:shadow-xl;
+  .card-cash {
+    @apply transform rounded-xl border border-gray-200 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-cash-500 hover:shadow-xl;
   }
 
-  /* Category header styles with gradients */
-  .header-investments {
-    background: var(--gradient-investments);
+  /* Universal Portfolio App - Asset Class Header Styles */
+  .header-stocks {
+    background: var(--gradient-stocks);
     @apply rounded-xl text-white shadow-lg;
   }
 
-  .header-projects {
-    background: var(--gradient-projects);
+  .header-crypto {
+    background: var(--gradient-crypto);
     @apply rounded-xl text-white shadow-lg;
   }
 
-  .header-economy {
-    background: var(--gradient-economy);
+  .header-alternatives {
+    background: var(--gradient-alternatives);
     @apply rounded-xl text-white shadow-lg;
   }
 
-  .header-tools {
-    background: var(--gradient-tools);
+  .header-cash {
+    background: var(--gradient-cash);
     @apply rounded-xl text-white shadow-lg;
   }
 
   /* Light theme headers for sub-pages */
-  .header-investments-light {
-    background: var(--gradient-investments-light);
-    @apply rounded-xl border border-investments-200 text-investments-700 shadow-lg;
+  .header-stocks-light {
+    background: var(--gradient-stocks-light);
+    @apply rounded-xl border border-stocks-200 text-stocks-700 shadow-lg;
+  }
+
+  .header-crypto-light {
+    background: var(--gradient-crypto-light);
+    @apply rounded-xl border border-crypto-200 text-crypto-700 shadow-lg;
+  }
+
+  .header-alternatives-light {
+    background: var(--gradient-alternatives-light);
+    @apply rounded-xl border border-alternatives-200 text-alternatives-700 shadow-lg;
+  }
+
+  .header-cash-light {
+    background: var(--gradient-cash-light);
+    @apply rounded-xl border border-cash-200 text-cash-700 shadow-lg;
   }
 
   /* Financial number styling (JetBrains Mono) */

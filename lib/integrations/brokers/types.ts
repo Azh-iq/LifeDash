@@ -150,11 +150,18 @@ export interface AuthResult {
   redirectUrl?: string // For OAuth flows
 }
 
-export interface BrokerageError {
-  code: string
-  message: string
-  details?: any
-  retryable: boolean
+export class BrokerageError extends Error {
+  public code: string
+  public details?: any
+  public retryable: boolean
+
+  constructor(code: string, message: string, details?: any, retryable: boolean = false) {
+    super(message)
+    this.name = 'BrokerageError'
+    this.code = code
+    this.details = details
+    this.retryable = retryable
+  }
 }
 
 // Configuration for each broker

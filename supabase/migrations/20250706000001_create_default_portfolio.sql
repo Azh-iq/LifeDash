@@ -21,13 +21,12 @@ BEGIN
   -- Check if user already has a default portfolio
   SELECT id INTO portfolio_uuid 
   FROM public.portfolios 
-  WHERE user_id = user_uuid AND (name = 'Default Portfolio' OR id::text = 'default')
+  WHERE user_id = user_uuid AND name = 'Default Portfolio'
   LIMIT 1;
 
   -- Create default portfolio if it doesn't exist
   IF portfolio_uuid IS NULL THEN
     INSERT INTO public.portfolios (
-      id,
       user_id, 
       name, 
       description, 
@@ -35,7 +34,6 @@ BEGIN
       is_default,
       inception_date
     ) VALUES (
-      'default'::uuid,
       user_uuid,
       'Default Portfolio',
       'Your main investment portfolio',
@@ -43,10 +41,6 @@ BEGIN
       true,
       CURRENT_DATE
     ) 
-    ON CONFLICT (id) DO UPDATE SET 
-      user_id = user_uuid,
-      name = 'Default Portfolio',
-      is_default = true
     RETURNING id INTO portfolio_uuid;
   END IF;
 
@@ -70,7 +64,7 @@ BEGIN
       portfolio_uuid,
       platform_uuid,
       'Default Account',
-      'BROKERAGE',
+      'TAXABLE',
       'NOK',
       true
     ) RETURNING id INTO account_uuid;

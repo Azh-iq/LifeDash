@@ -53,20 +53,20 @@ const config: Config = {
           '5': 'hsl(var(--chart-5))',
         },
 
-        // Modern Financial Dashboard Colors
+        // Modern Universal Portfolio App Colors
 
-        // Brand Colors (Blue theme)
+        // Primary Brand (Deep Blue)
         brand: {
           50: '#eff6ff',
           100: '#dbeafe',
           200: '#bfdbfe',
           300: '#93c5fd',
           400: '#60a5fa',
-          500: '#3b82f6', // Main brand blue
-          600: '#2563eb', // Hover states
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a', // Dark text
+          500: '#2563eb', // Main brand blue (updated)
+          600: '#1d4ed8', // Hover states
+          700: '#1e40af',
+          800: '#1e3a8a',
+          900: '#1e3a8a',
         },
 
         // Dark theme backgrounds (like FINEbank)
@@ -96,69 +96,69 @@ const config: Config = {
           950: '#030712',
         },
 
-        // New Life Area Colors - Untitled UI + Financial Dashboard Theme
-        // 🔵 Investeringer (Investments) - Deep Navy Theme
-        investments: {
-          50: '#dbeafe', // Light blue background
-          100: '#bfdbfe',
-          200: '#93c5fd',
-          300: '#60a5fa',
-          400: '#3b82f6',
-          500: '#1e40af', // Deep Navy Blue - Primary color
+        // Universal Portfolio App - Asset Class Colors
+        // 📈 Stocks - Deep Blue Theme
+        stocks: {
+          50: '#eff6ff', // Light blue background
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#2563eb', // Deep Blue - Primary color
           600: '#1d4ed8', // Darker hover state
-          700: '#1e3a8a',
+          700: '#1e40af',
           800: '#1e3a8a',
           900: '#1e3a8a',
         },
 
-        // 🟣 Hobby Prosjekter (Hobby Projects) - Creative Purple Theme
-        projects: {
-          50: '#f3e8ff', // Light purple background
-          100: '#e9d5ff',
-          200: '#d8b4fe',
-          300: '#c084fc',
-          400: '#a855f7',
-          500: '#7c3aed', // Vibrant Purple - Primary color
-          600: '#6d28d9', // Darker hover state
-          700: '#5b21b6',
-          800: '#4c1d95',
+        // ₿ Crypto - Amber Theme
+        crypto: {
+          50: '#fffbeb', // Light amber background
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#fbbf24',
+          500: '#f59e0b', // Amber - Primary color
+          600: '#d97706', // Darker hover state
+          700: '#b45309',
+          800: '#92400e',
+          900: '#78350f',
+        },
+
+        // 🎨 Alternatives - Purple Theme
+        alternatives: {
+          50: '#f5f3ff', // Light purple background
+          100: '#ede9fe',
+          200: '#ddd6fe',
+          300: '#c4b5fd',
+          400: '#a78bfa',
+          500: '#8b5cf6', // Purple - Primary color
+          600: '#7c3aed', // Darker hover state
+          700: '#6d28d9',
+          800: '#5b21b6',
           900: '#4c1d95',
         },
 
-        // 🟢 Økonomi (Economy) - Financial Green Theme
-        economy: {
-          50: '#d1fae5', // Light green background
-          100: '#a7f3d0',
-          200: '#6ee7b7',
-          300: '#34d399',
-          400: '#10b981',
-          500: '#059669', // Emerald Green - Primary color
-          600: '#047857', // Darker hover state
-          700: '#065f46',
-          800: '#064e3b',
+        // 💰 Cash - Green Theme
+        cash: {
+          50: '#ecfdf5', // Light green background
+          100: '#d1fae5',
+          200: '#a7f3d0',
+          300: '#6ee7b7',
+          400: '#34d399',
+          500: '#10b981', // Green - Primary color
+          600: '#059669', // Darker hover state
+          700: '#047857',
+          800: '#065f46',
           900: '#064e3b',
         },
 
-        // 🟠 Verktøy (Tools) - Utility Orange Theme
-        tools: {
-          50: '#fed7aa', // Light orange background
-          100: '#fdba74',
-          200: '#fb923c',
-          300: '#f97316',
-          400: '#ea580c',
-          500: '#ea580c', // Warm Orange - Primary color
-          600: '#c2410c', // Darker hover state
-          700: '#9a3412',
-          800: '#7c2d12',
-          900: '#7c2d12',
-        },
-
-        // Semantic Colors (Aligned with new category colors)
+        // Semantic Colors (Aligned with new asset class colors)
         success: {
-          50: '#d1fae5',
-          100: '#a7f3d0',
-          500: '#059669', // Matches Økonomi green
-          600: '#047857',
+          50: '#ecfdf5',
+          100: '#d1fae5',
+          500: '#10b981', // Matches Cash green
+          600: '#059669',
           900: '#064e3b',
         },
 
@@ -171,26 +171,26 @@ const config: Config = {
         },
 
         warning: {
-          50: '#fed7aa',
-          100: '#fdba74',
-          500: '#ea580c', // Matches Verktøy orange
-          600: '#c2410c',
-          900: '#7c2d12',
+          50: '#fffbeb',
+          100: '#fef3c7',
+          500: '#f59e0b', // Matches Crypto amber
+          600: '#d97706',
+          900: '#78350f',
         },
 
         info: {
-          50: '#dbeafe',
-          100: '#bfdbfe',
-          500: '#1e40af', // Matches Investeringer navy
+          50: '#eff6ff',
+          100: '#dbeafe',
+          500: '#2563eb', // Matches Stocks blue
           600: '#1d4ed8',
           900: '#1e3a8a',
         },
 
-        // Make sure brand colors are accessible
+        // Universal Portfolio App - Quick Access Colors
         'brand-50': '#eff6ff',
         'brand-100': '#dbeafe',
-        'brand-500': '#3b82f6',
-        'brand-600': '#2563eb',
+        'brand-500': '#2563eb', // Updated primary blue
+        'brand-600': '#1d4ed8', // Updated hover blue
       },
       fontFamily: {
         sans: [

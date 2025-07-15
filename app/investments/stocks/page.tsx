@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { User } from '@supabase/supabase-js'
+import { DashboardLayout, DashboardHeader, DashboardContent } from '@/components/layout/dashboard-layout'
 import {
   usePortfolioState,
   HoldingWithMetrics,
@@ -556,32 +557,28 @@ export default function StocksPage() {
     })),
   })
 
-  // Desktop view - Light theme with better proportions
+  // Desktop view - New dashboard layout
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gray-50">
-        {/* Top Navigation Menu */}
-        <TopNavigationMenu
-          portfolioId={safePortfolioId}
-          onImportComplete={handleTopNavImportComplete}
-        />
-
-        {/* Breadcrumb Navigation */}
-        <div className="border-b border-gray-200 bg-white px-4 py-3">
-          <NorwegianBreadcrumb />
-        </div>
-
-        {/* Page Header with Actions - Original Layout */}
-        <div className="border-b border-gray-200 bg-white px-4 py-3">
-          <div className="mx-auto flex max-w-7xl items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">Aksjer</h1>
+      <DashboardLayout>
+        <DashboardHeader
+          title="Aksjer"
+          subtitle="Oversikt over alle dine aksjeposisjoner og beholdninger"
+          actions={
             <div className="flex items-center gap-3">
-              <Button variant="secondary" size="sm">
+              <Button variant="outline" size="sm">
                 <FinancialIcon name="building" size={16} className="mr-2" />
                 Platform Wizard
               </Button>
+              <Button variant="outline" size="sm" onClick={() => setIsCSVModalOpen(true)}>
+                <FinancialIcon name="receipt" size={16} className="mr-2" />
+                Import CSV
+              </Button>
+              <Button variant="outline" size="sm">
+                <FinancialIcon name="calculator" size={16} className="mr-2" />
+                Export CSV
+              </Button>
               <Button
-                variant="primary"
                 size="sm"
                 onClick={handleOpenTransactionModal}
                 disabled={loadingAccounts}
@@ -589,24 +586,11 @@ export default function StocksPage() {
                 <FinancialIcon name="plus" size={16} className="mr-2" />
                 {loadingAccounts ? 'Laster...' : 'Legg til transaksjon'}
               </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setIsCSVModalOpen(true)}
-              >
-                <FinancialIcon name="receipt" size={16} className="mr-2" />
-                Import CSV
-              </Button>
-              <Button variant="ghost" size="sm">
-                <FinancialIcon name="calculator" size={16} className="mr-2" />
-                Export CSV
-              </Button>
             </div>
-          </div>
-        </div>
+          }
+        />
 
-        {/* Main Content - Light theme with adjusted proportions */}
-        <main className="mx-auto max-w-7xl px-4 py-6">
+        <DashboardContent>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
             {/* Left Column - Chart and Holdings with new proportions */}
             <div className="space-y-6 lg:col-span-3">
@@ -755,8 +739,8 @@ export default function StocksPage() {
               />
             </div>
           </div>
-        </main>
-      </div>
+        </DashboardContent>
+      </DashboardLayout>
 
       {/* Stock Detail Modal */}
       {selectedStock && (
