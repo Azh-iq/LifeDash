@@ -40,6 +40,8 @@ export interface NorwegianHolding {
   id: string
   broker: string
   brokerLogo?: string
+  brokerIds?: string[] // For multi-broker consolidation
+  accountCount?: number // Number of accounts holding this stock
   stock: string
   stockSymbol: string
   quantity: number
@@ -51,10 +53,29 @@ export interface NorwegianHolding {
   pnlPercent: number
   marketValue: number
   country: 'NO' | 'US' | 'EU' | 'OTHER'
+  isDuplicate?: boolean // If this holding is consolidated from multiple brokers
+  isConsolidated?: boolean // If this is a consolidated view
+}
+
+interface ConsolidatedHolding {
+  symbol: string
+  total_quantity: number
+  total_market_value: number
+  total_cost_basis: number
+  account_count: number
+  broker_ids: string[]
+  is_duplicate: boolean
+  last_updated: string
+  avg_market_price: number
+  asset_class: string
+  currency: string
 }
 
 interface NorwegianHoldingsTableProps {
   holdings?: HoldingWithMetrics[]
+  consolidatedHoldings?: ConsolidatedHolding[] // Multi-broker consolidated data
+  showConsolidated?: boolean // Toggle between individual and consolidated view
+  onToggleConsolidated?: (consolidated: boolean) => void // Callback for toggle changes
   loading?: boolean
   error?: string | null
   onHoldingClick?: (holding: HoldingWithMetrics) => void
@@ -108,6 +129,20 @@ const NORWEGIAN_BROKERS = {
   'Interactive Brokers': { logo: '🌐', country: 'US' },
 }
 
+const BROKER_DISPLAY_NAMES = {
+  'plaid': 'Plaid',
+  'schwab': 'Schwab', 
+  'interactive_brokers': 'IBKR',
+  'nordnet': 'Nordnet'
+}
+
+const BROKER_LOGOS = {
+  'plaid': '🇺🇸',
+  'schwab': '🏦', 
+  'interactive_brokers': '🌐',
+  'nordnet': '🏛️'
+}
+
 // Sample holdings removed - all data now comes from actual user portfolio
 
 // Convert HoldingWithMetrics to NorwegianHolding format
@@ -145,8 +180,47 @@ const convertToNorwegianHolding = (
   }
 }
 
+// Convert ConsolidatedHolding to NorwegianHolding format
+const convertConsolidatedToNorwegian = (
+  consolidated: ConsolidatedHolding
+): NorwegianHolding => {
+  const symbol = consolidated.symbol || ''
+  const country = symbol.includes('.OL') ? 'NO' : 'US'
+  
+  // Calculate P&L
+  const pnl = consolidated.total_market_value - consolidated.total_cost_basis
+  const pnlPercent = consolidated.total_cost_basis > 0 
+    ? (pnl / consolidated.total_cost_basis) * 100 
+    : 0
+
+  return {
+    id: `consolidated-${symbol}`,
+    broker: consolidated.broker_ids.length > 1 
+      ? `${consolidated.broker_ids.length} meglere` 
+      : (BROKER_DISPLAY_NAMES as Record<string, string>)[consolidated.broker_ids[0]] || consolidated.broker_ids[0],
+    brokerIds: consolidated.broker_ids,
+    accountCount: consolidated.account_count,
+    stock: symbol, // We'd need to join with stocks table for full name
+    stockSymbol: symbol,
+    quantity: consolidated.total_quantity,
+    costBasis: consolidated.total_cost_basis,
+    currentPrice: consolidated.avg_market_price,
+    change: 0, // Would need daily price data
+    changePercent: 0, // Would need daily price data
+    pnl,
+    pnlPercent,
+    marketValue: consolidated.total_market_value,
+    country: country as 'NO' | 'US' | 'EU' | 'OTHER',
+    isDuplicate: consolidated.is_duplicate,
+    isConsolidated: true,
+  }
+}
+
 export function NorwegianHoldingsTable({
   holdings,
+  consolidatedHoldings = [],
+  showConsolidated = false,
+  onToggleConsolidated,
   loading = false,
   error = null,
   onHoldingClick,
@@ -253,17 +327,22 @@ export function NorwegianHoldingsTable({
     [onOptimisticUpdate]
   )
 
-  // Use optimistic holdings for immediate UI feedback
+  // Use optimistic holdings for immediate UI feedback, or consolidated holdings if enabled
   const displayHoldings = useMemo(() => {
+    if (showConsolidated && consolidatedHoldings.length > 0) {
+      console.log('Using consolidated holdings data:', consolidatedHoldings.length, 'consolidated holdings')
+      return consolidatedHoldings.map(convertConsolidatedToNorwegian)
+    }
+    
     const holdingsToUse =
       optimisticHoldings.length > 0 ? optimisticHoldings : holdings || []
     if (holdingsToUse.length > 0) {
-      console.log('Using holdings data:', holdingsToUse.length, 'holdings')
+      console.log('Using individual holdings data:', holdingsToUse.length, 'holdings')
       return holdingsToUse.map(convertToNorwegianHolding)
     }
     console.log('No holdings found - showing empty state')
     return []
-  }, [optimisticHoldings, holdings])
+  }, [optimisticHoldings, holdings, showConsolidated, consolidatedHoldings])
 
   const sortedHoldings = useMemo(() => {
     return [...displayHoldings].sort((a, b) => {
@@ -332,6 +411,28 @@ export function NorwegianHoldingsTable({
       className={cn('min-h-[500px]', className)}
       actions={
         <div className="flex items-center gap-3">
+          {/* Consolidated view toggle */}
+          {consolidatedHoldings.length > 0 && (
+            <div className="flex items-center gap-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-800">
+              <Button
+                variant={!showConsolidated ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => onToggleConsolidated?.(false)}
+                className="h-8 px-3 text-xs font-medium transition-all duration-200"
+              >
+                Individuell
+              </Button>
+              <Button
+                variant={showConsolidated ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => onToggleConsolidated?.(true)}
+                className="h-8 px-3 text-xs font-medium transition-all duration-200"
+              >
+                Konsolidert
+              </Button>
+            </div>
+          )}
+
           {/* Refresh button */}
           <Button
             variant="outline"
@@ -364,7 +465,7 @@ export function NorwegianHoldingsTable({
             {HOLDINGS_TIME_RANGES.map(range => (
               <Button
                 key={range.value}
-                variant={selectedRange === range.value ? 'default' : 'ghost'}
+                variant={selectedRange === range.value ? 'secondary' : 'ghost'}
                 size="sm"
                 onClick={() => handleRangeChange(range.value)}
                 className={cn(
@@ -648,9 +749,24 @@ export function NorwegianHoldingsTable({
                                 {holding.stock}
                               </span>
                               <span>{getCountryFlag(holding.country)}</span>
+                              {holding.isConsolidated && (
+                                <Badge variant="secondary" className="text-xs px-1 py-0">
+                                  Konsolidert
+                                </Badge>
+                              )}
+                              {holding.isDuplicate && (
+                                <Badge variant="outline" className="text-xs px-1 py-0 text-yellow-600 border-yellow-300">
+                                  Duplikat
+                                </Badge>
+                              )}
                             </div>
                             <div className="text-sm text-gray-600 dark:text-gray-400">
                               {holding.stockSymbol}
+                              {holding.accountCount && holding.accountCount > 1 && (
+                                <span className="ml-2 text-xs text-blue-600">
+                                  • {holding.accountCount} kontoer
+                                </span>
+                              )}
                             </div>
                           </div>
                         </TableCell>
@@ -694,9 +810,9 @@ export function NorwegianHoldingsTable({
                               {formatCurrency(holding.marketValue, 'NOK')}
                             </div>
                             <div className="text-sm text-gray-600 dark:text-gray-400">
-                              {formatCurrency(holding.marketValue, 'NOK', {
-                                compact: true,
-                              })}
+                              {formatNumber(holding.marketValue, {
+                                notation: 'compact',
+                              })} NOK
                             </div>
                           </div>
                         </TableCell>
@@ -800,17 +916,46 @@ export function NorwegianHoldingsTable({
                           </div>
                         </TableCell>
 
-                        {/* Broker column */}
+                        {/* Broker column with multi-broker support */}
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <span className="text-lg">
-                              {NORWEGIAN_BROKERS[
-                                holding.broker as keyof typeof NORWEGIAN_BROKERS
-                              ]?.logo || '🏛️'}
-                            </span>
-                            <span className="font-medium">
-                              {holding.broker}
-                            </span>
+                            {holding.isConsolidated && holding.brokerIds && holding.brokerIds.length > 1 ? (
+                              // Multi-broker consolidated view
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-1">
+                                  {holding.brokerIds.slice(0, 3).map((brokerId, index) => (
+                                    <Badge key={index} variant="outline" className="text-xs px-1 py-0">
+                                      <span className="mr-1">
+                                        {(BROKER_LOGOS as Record<string, string>)[brokerId] || '🏛️'}
+                                      </span>
+                                      {(BROKER_DISPLAY_NAMES as Record<string, string>)[brokerId] || brokerId}
+                                    </Badge>
+                                  ))}
+                                  {holding.brokerIds.length > 3 && (
+                                    <Badge variant="secondary" className="text-xs px-1 py-0">
+                                      +{holding.brokerIds.length - 3}
+                                    </Badge>
+                                  )}
+                                </div>
+                                {holding.accountCount && holding.accountCount > 1 && (
+                                  <div className="text-xs text-gray-500">
+                                    {holding.accountCount} kontoer
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              // Single broker view
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg">
+                                  {NORWEGIAN_BROKERS[
+                                    holding.broker as keyof typeof NORWEGIAN_BROKERS
+                                  ]?.logo || '🏛️'}
+                                </span>
+                                <span className="font-medium">
+                                  {holding.broker}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </TableCell>
 
